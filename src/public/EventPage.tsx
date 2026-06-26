@@ -4,6 +4,7 @@
 
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchEventBySlug, type PublicEvent } from "./api";
+import { icsHref } from "./ics";
 import { RsvpForm } from "./RsvpForm";
 
 function slugFromPath(): string {
@@ -48,6 +49,13 @@ export function EventPage(): ReactElement {
           {event.description}
         </p>
       ) : null}
+      <a
+        href={icsHref(event)}
+        download={`${event.slug}.ics`}
+        className="mt-4 inline-block text-sm text-[var(--color-primary)] hover:underline"
+      >
+        📅 Zum Kalender hinzufügen
+      </a>
       <RsvpForm eventId={event.id} />
     </main>
   );
