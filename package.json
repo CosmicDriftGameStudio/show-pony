@@ -1,0 +1,29 @@
+{
+  "name": "show-pony",
+  "description": "Lightweight guest list / event RSVP — Kumiko sample app. Make an event, share the link, see who's coming.",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "author": "Marc Frost <marc@cosmicdriftgamestudio.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cosmicdriftgamestudio/show-pony.git"
+  },
+  "scripts": {
+    "dev": "PORT=4180 bun --env-file=../.env run kumiko-dev bin/server.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@cosmicdrift/kumiko-bundled-features": "^0.87.2",
+    "@cosmicdrift/kumiko-dev-server": "^0.87.2",
+    "@cosmicdrift/kumiko-framework": "^0.87.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "bun-types": "^1.3.14",
+    "typescript": "^6.0.3"
+  }
+}
