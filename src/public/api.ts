@@ -28,7 +28,7 @@ export async function fetchEventBySlug(slug: string): Promise<PublicEvent | null
   const res = await fetch("/api/query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "showpony:query:event:bySlug", payload: { slug } }),
+    body: JSON.stringify({ type: "showpony:query:event:by-slug", payload: { slug } }),
   });
   if (!res.ok) return null;
   const body = (await res.json()) as { data: PublicEvent | null };

@@ -128,7 +128,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   // scoped via Resolver (Host-Header) — derselbe Slug auf einer anderen
   // Subdomain ist ein anderes Event.
   r.queryHandler(
-    "event:bySlug",
+    "event:by-slug",
     z.object({ slug: z.string().min(1).max(120) }),
     // ponytail: O(n)-Scan über die Events des Tenants — bei wenigen Events
     // pro Host ok; ein slug-Filter-Query wäre die Skalier-Variante.
