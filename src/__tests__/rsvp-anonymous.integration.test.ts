@@ -8,6 +8,18 @@
 // manipulierte X-Tenant-Header mitgetestet, nicht nur die Framework-Pipeline.
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import {
+  configValuesTable,
+  createConfigAccessorFactory,
+  createConfigFeature,
+  createConfigResolver,
+} from "@cosmicdrift/kumiko-bundled-features/config";
+import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
+import {
+  clearInbox,
+  getInbox,
+  mailTransportInMemoryFeature,
+} from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
@@ -18,9 +30,16 @@ import {
   TestUsers,
   testTenantId,
   unsafeCreateEntityTable,
+  unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
-import { rsvpEntity, rsvpTable, showPonyFeature } from "../feature";
+import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../feature";
 import { createShowPonyTenantResolver } from "../tenant-routing";
+
+// Provider app-weit auf inmemory defaulten (sonst wirft createTransportForTenant
+// „no provider selected") — derselbe appOverride wie in bin/server.ts.
+const configResolver = createConfigResolver({
+  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
+});
 
 const BASE_DOMAIN = "show-pony.test";
 const ACME = testTenantId(1);
@@ -46,13 +65,24 @@ function submit(
 
 beforeAll(async () => {
   stack = await setupTestStack({
-    features: [showPonyFeature],
+    features: [
+      createConfigFeature(),
+      mailFoundationFeature,
+      mailTransportInMemoryFeature,
+      showPonyFeature,
+    ],
     // Exakt die Boot-Verdrahtung aus bin/server.ts: die Factory bekommt die
     // Stack-db und baut den echten DB-Resolver.
     anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
+    extraContext: ({ registry }) => ({
+      configResolver,
+      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+    }),
   });
   await unsafeCreateEntityTable(stack.db, tenantEntity);
+  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
   await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+  await unsafePushTables(stack.db, { configValuesTable });
   await createEventsTable(stack.db);
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
   await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });
@@ -62,6 +92,8 @@ afterAll(async () => stack?.cleanup());
 
 beforeEach(async () => {
   await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
+  clearInbox(ACME);
+  clearInbox(GLOBEX);
 });
 
 describe("anonymous multi-tenant RSVP write (real resolver)", () => {
@@ -121,5 +153,34 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
       { Host: "acme.show-pony.test" },
     );
     expect(res.status).toBe(403);
+  });
+});
+
+describe("guest confirmation mail (mail-foundation direct)", () => {
+  test("sends a confirmation to the host tenant's inbox when email is given", async () => {
+    const res = await submit("acme.show-pony.test", {
+      eventId: EVENT_ID,
+      name: "Alice",
+      email: "alice@example.com",
+      status: "yes",
+    });
+    expect(res.status).toBe(200);
+
+    const inbox = getInbox(ACME);
+    expect(inbox).toHaveLength(1);
+    expect(inbox[0]?.to).toBe("alice@example.com");
+    expect(inbox[0]?.subject).toContain("Antwort");
+    // Landet im richtigen Tenant-Buffer — Globex bleibt leer.
+    expect(getInbox(GLOBEX)).toHaveLength(0);
+  });
+
+  test("no mail when the guest skips the email field", async () => {
+    const res = await submit("acme.show-pony.test", {
+      eventId: EVENT_ID,
+      name: "Bob",
+      status: "maybe",
+    });
+    expect(res.status).toBe(200);
+    expect(getInbox(ACME)).toHaveLength(0);
   });
 });

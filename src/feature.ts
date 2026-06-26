@@ -4,6 +4,10 @@
 // sagt über die public surface zu (rsvp:submit). Tenant-Scoping, Audit und
 // Multi-Tenant-Isolation kommen aus dem Framework-Default.
 
+import {
+  createTransportForTenant,
+  mailFoundationFeature,
+} from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { buildEntityTable, createEventStoreExecutor } from "@cosmicdrift/kumiko-framework/db";
 import {
   access,
@@ -19,6 +23,8 @@ import {
   defineEntityListHandler,
   defineEntityUpdateHandler,
   defineFeature,
+  type HandlerContext,
+  type TenantId,
 } from "@cosmicdrift/kumiko-framework/engine";
 import type {
   EntityEditScreenDefinition,
@@ -79,6 +85,35 @@ const rsvpSubmitSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
+const RSVP_STATUS_LABELS: Record<RsvpStatus, string> = {
+  yes: "Zusage",
+  no: "Absage",
+  maybe: "Vielleicht",
+};
+
+// Best-effort Bestätigungs-Mail an den Gast (nur wenn er eine Email angab).
+// mail-foundation DIREKT statt delivery: delivery ist user-zentriert
+// (recipient=userId→email-resolve), unser Gast ist anonym und einzig über
+// seine Email adressierbar — da passt der low-level-Transport.
+async function sendRsvpConfirmation(
+  ctx: HandlerContext,
+  tenantId: TenantId,
+  payload: z.infer<typeof rsvpSubmitSchema>,
+): Promise<void> {
+  if (!payload.email) return;
+  const events = await ctx.db.selectMany(eventTable);
+  const title = events.find((e) => e.id === payload.eventId)?.title ?? "deinem Event";
+  const transport = await createTransportForTenant(ctx, tenantId, "showpony:write:rsvp:submit");
+  await transport.send({
+    to: payload.email,
+    subject: `Deine Antwort für „${title}"`,
+    html:
+      `<p>Hallo ${payload.name},</p>` +
+      `<p>deine Antwort (<strong>${RSVP_STATUS_LABELS[payload.status]}</strong>) für ` +
+      `„${title}" ist eingegangen. Danke!</p>`,
+  });
+}
+
 // Host-Dashboard: schema-driven Screens. entityList/entityEdit rendert das
 // Framework generisch aus der Entity — kein custom React pro Screen. Labels
 // sind i18n-Keys (src/i18n.ts), aufgelöst vom client-feature (src/web.ts).
@@ -117,6 +152,8 @@ export const rsvpListScreen: EntityListScreenDefinition = {
 };
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
+  r.requires(mailFoundationFeature.name);
+
   r.entity("event", eventEntity);
   r.writeHandler(defineEntityCreateHandler("event", eventEntity, hostAccess));
   r.writeHandler(defineEntityUpdateHandler("event", eventEntity, hostAccess));
@@ -150,7 +187,12 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.writeHandler(
     "rsvp:submit",
     rsvpSubmitSchema,
-    async (event, ctx) => rsvpExecutor.create(event.payload, event.user, ctx.db),
+    async (event, ctx) => {
+      const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
+      // Mail ist best-effort — ein Transport-Fehler darf die RSVP nicht kippen.
+      await sendRsvpConfirmation(ctx, event.user.tenantId, event.payload).catch(() => undefined);
+      return result;
+    },
     {
       access: { roles: [...access.anonymous] },
       rateLimit: { per: "ip+handler", limit: 20, windowSeconds: 60 },

@@ -13,6 +13,10 @@
 //
 //   admin@show-pony.local / changeme  — Host auf dem Demo-Tenant
 
+import {
+  createConfigAccessorFactory,
+  createConfigResolver,
+} from "@cosmicdrift/kumiko-bundled-features/config";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { APP_FEATURES } from "../src/run-config";
@@ -21,6 +25,13 @@ import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing"
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
 const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 const port = Number.parseInt(process.env.PORT ?? "4180", 10);
+
+// Mail-Provider app-weit auf inmemory defaulten — die Gast-Confirmation läuft
+// sonst in „no provider selected". Inbox via getInbox; prod-Swap = ein echter
+// mail-transport-* + dieser Override auf dessen Namen.
+const configResolver = createConfigResolver({
+  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
+});
 
 await runDevApp({
   features: APP_FEATURES,
@@ -41,6 +52,10 @@ await runDevApp({
   },
   watchDirs: ["./src", "./bin"],
   anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
+  extraContext: ({ registry }) => ({
+    configResolver,
+    _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+  }),
   auth: {
     admin: {
       email: "admin@show-pony.local",
