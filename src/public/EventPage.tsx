@@ -30,13 +30,17 @@ export function EventPage(): ReactElement {
   }
 
   const { event } = load;
+  const when = new Date(event.startsAt).toLocaleString("de-DE", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
   return (
     <main className="mx-auto max-w-xl p-8">
       <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">
         {event.title}
       </h1>
       <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">
-        {event.startsAt}
+        {when}
         {event.location ? ` · ${event.location}` : ""}
       </p>
       {event.description ? (

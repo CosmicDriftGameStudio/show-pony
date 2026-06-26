@@ -11,3 +11,15 @@
   --color-primary-foreground: #ffffff;
   --color-ring: #7c3aed;
 }
+
+/* Renderer-Web definiert in @layer base einen `:root:not(.dark)`-Block mit
+   eigenen Light-Mode-Tokens; dessen Spezifität (eine Klasse mehr) schlägt
+   unseren @theme-Default. Daher das Brand-Primary hier auf gleicher
+   Selektor-Ebene überschreiben, sonst rendert der Default-Schwarz. */
+@layer base {
+  :root:not(.dark) {
+    --color-primary: #7c3aed;
+    --color-primary-foreground: #ffffff;
+    --color-ring: #7c3aed;
+  }
+}

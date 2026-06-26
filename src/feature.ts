@@ -111,7 +111,7 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   id: "rsvp-list",
   type: "entityList",
   entity: "rsvp",
-  columns: ["name", "status", "plusN", "email", "eventId"],
+  columns: ["name", "status", "plusN", "email"],
   pageSize: 50,
   defaultSort: { field: "name", dir: "asc" },
 };
