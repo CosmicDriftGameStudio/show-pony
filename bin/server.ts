@@ -25,6 +25,8 @@ const port = Number.parseInt(process.env.PORT ?? "4180", 10);
 await runDevApp({
   features: APP_FEATURES,
   port,
+  clientEntry: "./src/client.tsx",
+  htmlPath: "./public/index.html",
   watchDirs: ["./src", "./bin"],
   anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
   auth: {

@@ -1,0 +1,13 @@
+/* show-pony Theme. Pattern: erst das Renderer-Web-CSS importieren (bringt
+   das shadcn-Token-Schema + @source für renderer/renderer-web mit), dann
+   unsere Brand-Tokens als Override. Bernstein-Primary, helles Surface. */
+
+@import "@cosmicdrift/kumiko-renderer-web/styles.css";
+
+@source "./**/*.{ts,tsx}";
+
+@theme {
+  --color-primary: #7c3aed;
+  --color-primary-foreground: #ffffff;
+  --color-ring: #7c3aed;
+}

@@ -1,10 +1,8 @@
 // show-pony — Event + RSVP als Kumiko-Feature.
 //
-// Schritt 1: der Host-Teil — `event`-Entity + CRUD-Handler.
-// Schritt 2: das `rsvp`-Entity + host-seitige Read-Handler (Gästeliste).
-// Der anonyme RSVP-Write (public surface) + Admin-Screens kommen in
-// späteren Schritten. Tenant-Scoping, Audit und Multi-Tenant-Isolation
-// kommen aus dem Framework-Default.
+// Ein Host verwaltet Events (CRUD + Dashboard-Screens), ein anonymer Gast
+// sagt über die public surface zu (rsvp:submit). Tenant-Scoping, Audit und
+// Multi-Tenant-Isolation kommen aus dem Framework-Default.
 
 import { buildEntityTable, createEventStoreExecutor } from "@cosmicdrift/kumiko-framework/db";
 import {
@@ -22,6 +20,10 @@ import {
   defineEntityUpdateHandler,
   defineFeature,
 } from "@cosmicdrift/kumiko-framework/engine";
+import type {
+  EntityEditScreenDefinition,
+  EntityListScreenDefinition,
+} from "@cosmicdrift/kumiko-framework/ui-types";
 import { z } from "zod";
 
 // Event-Slug ist per-Tenant eindeutig (Tenant-Scoping reicht): die public
@@ -76,6 +78,43 @@ const rsvpSubmitSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
+// Host-Dashboard: schema-driven Screens. entityList/entityEdit rendert das
+// Framework generisch aus der Entity — kein custom React pro Screen. Labels
+// sind i18n-Keys (src/i18n.ts), aufgelöst vom client-feature (src/web.ts).
+export const eventListScreen: EntityListScreenDefinition = {
+  id: "event-list",
+  type: "entityList",
+  entity: "event",
+  columns: ["title", "slug", "startsAt", "location", "guestLimit"],
+  pageSize: 25,
+  defaultSort: { field: "title", dir: "asc" },
+};
+
+export const eventEditScreen: EntityEditScreenDefinition = {
+  id: "event-edit",
+  type: "entityEdit",
+  entity: "event",
+  layout: {
+    sections: [
+      {
+        title: "showpony:section.event-basics",
+        columns: 2,
+        fields: [{ field: "title", span: 2 }, "slug", "startsAt", "location", "guestLimit"],
+      },
+      { title: "showpony:section.event-details", columns: 1, fields: ["description"] },
+    ],
+  },
+};
+
+export const rsvpListScreen: EntityListScreenDefinition = {
+  id: "rsvp-list",
+  type: "entityList",
+  entity: "rsvp",
+  columns: ["name", "status", "plusN", "email", "eventId"],
+  pageSize: 50,
+  defaultSort: { field: "name", dir: "asc" },
+};
+
 export const showPonyFeature = defineFeature("showpony", (r) => {
   r.entity("event", eventEntity);
   r.writeHandler(defineEntityCreateHandler("event", eventEntity, hostAccess));
@@ -105,4 +144,27 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   // Gästeliste + Detail (host-read, tenant-scoped).
   r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, hostAccess));
+
+  r.screen(eventListScreen);
+  r.screen(eventEditScreen);
+  r.screen(rsvpListScreen);
+  r.nav({
+    id: "events",
+    label: "showpony:nav.events",
+    order: 10,
+    screen: "showpony:screen:event-list",
+  });
+  r.nav({
+    id: "event-new",
+    label: "showpony:nav.event-new",
+    parent: "showpony:nav:events",
+    screen: "showpony:screen:event-edit",
+    order: 10,
+  });
+  r.nav({
+    id: "guests",
+    label: "showpony:nav.guests",
+    order: 20,
+    screen: "showpony:screen:rsvp-list",
+  });
 });
