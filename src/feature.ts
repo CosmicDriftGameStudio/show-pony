@@ -91,6 +91,18 @@ const RSVP_STATUS_LABELS: Record<RsvpStatus, string> = {
   maybe: "Vielleicht",
 };
 
+// Gast-Name + Event-Titel landen im HTML-Body einer Mail — beide sind
+// untrusted (der Name ist anonymer Public-Input). Vor der Interpolation
+// escapen, sonst ist die Bestätigung ein HTML/Script-Injection-Vektor.
+function escHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // Best-effort Bestätigungs-Mail an den Gast (nur wenn er eine Email angab).
 // mail-foundation DIREKT statt delivery: delivery ist user-zentriert
 // (recipient=userId→email-resolve), unser Gast ist anonym und einzig über
@@ -102,15 +114,16 @@ async function sendRsvpConfirmation(
 ): Promise<void> {
   if (!payload.email) return;
   const events = await ctx.db.selectMany(eventTable);
-  const title = events.find((e) => e.id === payload.eventId)?.title ?? "deinem Event";
+  const found = events.find((e) => e.id === payload.eventId)?.title;
+  const title = typeof found === "string" ? found : "deinem Event";
   const transport = await createTransportForTenant(ctx, tenantId, "showpony:write:rsvp:submit");
   await transport.send({
     to: payload.email,
     subject: `Deine Antwort für „${title}"`,
     html:
-      `<p>Hallo ${payload.name},</p>` +
+      `<p>Hallo ${escHtml(payload.name)},</p>` +
       `<p>deine Antwort (<strong>${RSVP_STATUS_LABELS[payload.status]}</strong>) für ` +
-      `„${title}" ist eingegangen. Danke!</p>`,
+      `„${escHtml(title)}" ist eingegangen. Danke!</p>`,
   });
 }
 

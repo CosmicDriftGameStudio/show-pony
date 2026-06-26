@@ -174,6 +174,18 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
     expect(getInbox(GLOBEX)).toHaveLength(0);
   });
 
+  test("escapes HTML in the guest name — no injection into the mail body", async () => {
+    await submit("acme.show-pony.test", {
+      eventId: EVENT_ID,
+      name: "<script>alert(1)</script>",
+      email: "mallory@example.com",
+      status: "yes",
+    });
+    const mail = getInbox(ACME)[0] as { html: string } | undefined;
+    expect(mail?.html).toContain("&lt;script&gt;");
+    expect(mail?.html).not.toContain("<script>");
+  });
+
   test("no mail when the guest skips the email field", async () => {
     const res = await submit("acme.show-pony.test", {
       eventId: EVENT_ID,
