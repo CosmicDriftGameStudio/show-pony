@@ -16,7 +16,7 @@
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { APP_FEATURES } from "../src/run-config";
-import { createShowPonyTenantResolver } from "../src/tenant-routing";
+import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
 
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
 const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
@@ -25,8 +25,20 @@ const port = Number.parseInt(process.env.PORT ?? "4180", 10);
 await runDevApp({
   features: APP_FEATURES,
   port,
-  clientEntry: "./src/client.tsx",
+  // Zwei Bundles, server-seitig geroutet: Apex → Host-Dashboard (mit
+  // Schema-Inject für die Screens), jede Subdomain → public Event-Page.
+  clientEntries: [
+    { name: "admin", sourceFile: "./src/client.tsx", htmlPath: "./public/index.html" },
+    { name: "public", sourceFile: "./src/client-public.tsx", htmlPath: "./public/public.html" },
+  ],
   htmlPath: "./public/index.html",
+  hostDispatch: (req) => {
+    const host = hostnameOf(req.headers.get("host") ?? "");
+    if (host === BASE_DOMAIN || host === `www.${BASE_DOMAIN}`) {
+      return { kind: "html", entryName: "admin", injectSchema: true };
+    }
+    return { kind: "html", entryName: "public", injectSchema: false };
+  },
   watchDirs: ["./src", "./bin"],
   anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
   auth: {

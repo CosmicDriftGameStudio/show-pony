@@ -59,6 +59,7 @@ export const rsvpEntity = createEntity({
   },
 });
 
+export const eventTable = buildEntityTable("event", eventEntity);
 export const rsvpTable = buildEntityTable("rsvp", rsvpEntity);
 const rsvpExecutor = createEventStoreExecutor(rsvpTable, rsvpEntity, { entityName: "rsvp" });
 
@@ -122,6 +123,21 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.writeHandler(defineEntityDeleteHandler("event", eventEntity, hostAccess));
   r.queryHandler(defineEntityListHandler("event", eventEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("event", eventEntity, hostAccess));
+
+  // Public: ein anonymer Visitor lädt das Event über seinen Slug. Tenant-
+  // scoped via Resolver (Host-Header) — derselbe Slug auf einer anderen
+  // Subdomain ist ein anderes Event.
+  r.queryHandler(
+    "event:bySlug",
+    z.object({ slug: z.string().min(1).max(120) }),
+    // ponytail: O(n)-Scan über die Events des Tenants — bei wenigen Events
+    // pro Host ok; ein slug-Filter-Query wäre die Skalier-Variante.
+    async (e, ctx) => {
+      const events = await ctx.db.selectMany(eventTable);
+      return events.find((row) => row.slug === e.payload.slug) ?? null;
+    },
+    { access: { roles: [...access.anonymous] } },
+  );
 
   r.entity("rsvp", rsvpEntity);
 
