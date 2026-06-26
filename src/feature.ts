@@ -6,7 +6,9 @@
 // späteren Schritten. Tenant-Scoping, Audit und Multi-Tenant-Isolation
 // kommen aus dem Framework-Default.
 
+import { buildEntityTable, createEventStoreExecutor } from "@cosmicdrift/kumiko-framework/db";
 import {
+  access,
   createEntity,
   createLongTextField,
   createNumberField,
@@ -20,6 +22,7 @@ import {
   defineEntityUpdateHandler,
   defineFeature,
 } from "@cosmicdrift/kumiko-framework/engine";
+import { z } from "zod";
 
 // Event-Slug ist per-Tenant eindeutig (Tenant-Scoping reicht): die public
 // URL wird <host>.show-pony.<domain>/e/<slug>, der Host kommt aus der
@@ -54,10 +57,24 @@ export const rsvpEntity = createEntity({
   },
 });
 
+export const rsvpTable = buildEntityTable("rsvp", rsvpEntity);
+const rsvpExecutor = createEventStoreExecutor(rsvpTable, rsvpEntity, { entityName: "rsvp" });
+
 // Host-CRUD: openToAll = jeder eingeloggte User. Writes und Queries sind
 // tenant-scoped — ein Host sieht und ändert nur die Events des eigenen
 // Tenants, nie die eines fremden.
 const hostAccess = { access: { openToAll: true } } as const;
+
+// Public-Write-Schema: whitelistet exakt die Felder, die ein Gast setzen
+// darf. status default "yes", plusN default 0, email/note optional.
+const rsvpSubmitSchema = z.object({
+  eventId: z.uuid(),
+  name: z.string().min(1).max(120),
+  email: z.email().optional(),
+  status: z.enum(RSVP_STATUSES),
+  plusN: z.number().int().min(0).max(20).default(0),
+  note: z.string().max(500).optional(),
+});
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
   r.entity("event", eventEntity);
@@ -67,9 +84,25 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(defineEntityListHandler("event", eventEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("event", eventEntity, hostAccess));
 
-  // RSVP host-read: Gästeliste + Detail. Der anonyme Submit-Write kommt
-  // in Schritt 3 dazu.
   r.entity("rsvp", rsvpEntity);
+
+  // Der Kern: anonymer, public RSVP-Write. roles=[anonymous] lässt
+  // unauthentifizierte Gäste durch; der Tenant kommt NICHT aus dem Payload,
+  // sondern aus der Subdomain (tenantResolver beim Boot) — derselbe Request
+  // landet so deterministisch beim richtigen Host. Per-IP-Rate-Limit ist
+  // Pflicht: alle anonymen Caller teilen user.id="anonymous", ein per-User-
+  // Limit wäre ein einziger globaler Tap (der Boot-Validator lehnt das ab).
+  r.writeHandler(
+    "rsvp:submit",
+    rsvpSubmitSchema,
+    async (event, ctx) => rsvpExecutor.create(event.payload, event.user, ctx.db),
+    {
+      access: { roles: [...access.anonymous] },
+      rateLimit: { per: "ip+handler", limit: 20, windowSeconds: 60 },
+    },
+  );
+
+  // Gästeliste + Detail (host-read, tenant-scoped).
   r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, hostAccess));
 });
