@@ -79,6 +79,8 @@ ruft `submitRsvp` und zeigt inline den Success-State — kein Redirect, kein
 Reload. Ein Klick, fertig. Genau diese Reibungslosigkeit ist der Viral-Loop:
 der geteilte Link *ist* die Einladung.
 
+![Public Event-Page — anonymer Gast sieht das Event und das RSVP-Formular](../screenshots/public-event.png)
+
 Damit ist die minimale Einheit komplett: Host legt ein Event an (Dashboard),
 teilt den Subdomain-Link, der Gast sagt anonym zu, der Host sieht die
 Gästeliste. Eine Engine, zwei Gesichter.

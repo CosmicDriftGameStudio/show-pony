@@ -41,6 +41,15 @@ export const eventEditScreen: EntityEditScreenDefinition = {
 Die Gästeliste ist derselbe Mechanismus auf der `rsvp`-Entity — ein
 `entityList` mit den Spalten `name`, `status`, `plusN`, `email`.
 
+![Host-Dashboard: die Event-Liste, schema-driven gerendert](../screenshots/host-events.png)
+
+![Auto-generiertes Event-Formular mit Sections und Feldern](../screenshots/host-event-form.png)
+
+![Gästeliste — die anonym eingegangenen Zusagen, tenant-scoped](../screenshots/host-guests.png)
+
+> Diese Bilder werden vom Screenshot-Runner erzeugt (`bun run screenshots`) —
+> nie von Hand geknipst, damit Bild und Code synchron bleiben.
+
 ## Registrieren + navigierbar machen
 
 Im Feature werden die Screens registriert und in die Sidebar gehängt. Der
