@@ -1,7 +1,7 @@
-# Schritt 2 — Datenmodell: das RSVP
+# Das Datenmodell — Event und RSVP
 
-> Ziel: die zweite Hälfte des Datenmodells. Ein `rsvp`-Entity, das die
-> Zu-/Absagen aufnimmt, plus host-seitige Read-Handler für die Gästeliste.
+Das `event`-Entity steht. Die zweite Hälfte ist das `rsvp`: es nimmt die Zu-
+und Absagen der Gäste auf.
 
 ## Das `rsvp`-Entity
 
@@ -39,12 +39,11 @@ export const rsvpEntity = createEntity({
   Ein Text-Feld mit der Event-UUID reicht; eine echte Relation kann später
   dazukommen, wenn wir sie brauchen.
 
-## Host-Read-Handler
+## Wer schreibt, wer liest
 
-Das Entity registrieren wir mit Read-Handlern — der Host muss die
-Gästeliste sehen. Den **Write** lassen wir hier bewusst weg: RSVPs kommen
-nicht vom Host, sondern vom anonymen Gast über die public-Page. Das ist der
-nächste Schritt.
+Das Entity bekommt host-seitige Read-Handler — der Host muss die Gästeliste
+sehen. Den **Write** lassen wir hier bewusst weg: RSVPs kommen nicht vom
+Host, sondern vom anonymen Gast über die public-Page.
 
 ```ts
 r.entity("rsvp", rsvpEntity);
@@ -52,6 +51,6 @@ r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, hostAccess));
 r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, hostAccess));
 ```
 
-Stand: Datenmodell komplett (`event` + `rsvp`), Host kann beide lesen.
-Als Nächstes der Kern von show-pony — der **anonyme, multi-tenant
-RSVP-Write**.
+Damit ist das Datenmodell komplett (`event` + `rsvp`). Wie ein Gast ohne
+Account schreibt — und warum seine RSVP beim richtigen Host landet — ist der
+Kern des Samples.

@@ -1,9 +1,9 @@
-# Schritt 3 — Der Kern: anonymer, multi-tenant RSVP-Write
+# Der Kern — anonyme, multi-tenant Writes
 
-> Ziel: ein Gast ohne Account sagt zu — und die RSVP landet **deterministisch**
-> beim richtigen Host. Das ist die Lücke, die show-pony als Sample füllt:
-> Kumikos `anonymous-access`-Recipe zeigt anonymen Write *single-tenant*; hier
-> ist er *multi-tenant*, der Tenant kommt aus der URL.
+Ein Gast ohne Account sagt zu, und die RSVP landet **deterministisch** beim
+richtigen Host. Das ist die Lücke, die show-pony als Sample füllt: Kumikos
+`anonymous-access`-Recipe zeigt anonymen Write *single-tenant* — hier ist er
+*multi-tenant*, der Tenant kommt aus der URL.
 
 ## Die zwei Hälften
 
@@ -88,5 +88,6 @@ bun --env-file=../.env test src/__tests__/rsvp-anonymous.integration.test.ts
 > das dieses Sample lehrt — ihn ungetestet zu shippen würde ein Pattern
 > vorführen, das niemand verifiziert hat.
 
-Stand: der Kern läuft und ist bewiesen. Als Nächstes die sichtbare Seite —
-das Host-Dashboard (Gästeliste) + die public Event-Page mit dem RSVP-Formular.
+Mit dem bewiesenen Kern steht das Fundament. Was fehlt, sind die beiden
+sichtbaren Seiten derselben Engine — das Host-Dashboard und die public
+Event-Page.

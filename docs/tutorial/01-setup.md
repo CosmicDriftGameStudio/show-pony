@@ -1,27 +1,24 @@
-# Schritt 1 — Scaffold & erstes Boot
+# Das Skelett — ein Kumiko-Sample von Grund auf
 
-> Ziel: ein lauffähiges Kumiko-Repo, das host-seitig Events verwalten kann.
-> Noch keine public-Page, kein RSVP — nur das Skelett + das `event`-Entity.
-
-## Was wir gebaut haben
-
-Ein eigenständiges App-Repo, das gegen das publishte Kumiko (`^0.87.2`)
-läuft — genau wie `publicstatus` und `money-horse`. Acht Dateien:
+show-pony ist ein eigenständiges App-Repo gegen das publishte Kumiko
+(`^0.87.2`) — genau wie `publicstatus` und `money-horse`. Bevor es eine UI
+oder eine public-Page gibt, steht das Backend: ein Feature mit einem
+`event`-Entity. Acht Dateien, mehr braucht ein lauffähiges Kumiko-Repo nicht:
 
 | Datei | Zweck |
 |---|---|
 | `package.json` | npm-Refs auf `@cosmicdrift/kumiko-*`, `bun dev`-Script |
-| `tsconfig.json` / `biome.json` | strict TS + House-Style-Lint (kopiert von publicstatus) |
+| `tsconfig.json` / `biome.json` | strict TS + House-Style-Lint |
 | `.gitignore` / `.env.example` | Standard + die zwei Env-Vars ohne sicheren Default |
 | `bin/server.ts` | dev-server: `runDevApp` + ein Demo-Host-Tenant + Admin-Login |
 | `src/run-config.ts` | Single source of truth der Feature-Komposition |
-| `src/feature.ts` | das `showpony`-Feature: `event`-Entity + CRUD-Handler |
+| `src/feature.ts` | das `showpony`-Feature: `event`-Entity + Handler |
 
-## Die zwei Kern-Dateien
+## Das Feature
 
-**`src/feature.ts`** — das Entity + die Handler. Kein manuelles
-Executor-Wiring: `defineEntityCreateHandler` & Co. generieren CRUD direkt
-aus der Entity-Definition.
+Ein Feature definiert Entity + Handler. Kein manuelles Executor-Wiring —
+`defineEntityCreateHandler` & Co. generieren die CRUD-Handler direkt aus der
+Entity-Definition:
 
 ```ts
 export const eventEntity = createEntity({
@@ -47,10 +44,9 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
 });
 ```
 
-**`src/run-config.ts`** — die Feature-Liste. `HAS_AUTH = true` sorgt dafür,
-dass `composeFeatures` die bundled Auth-Kette (config/user/tenant/
-auth-email-password/secrets) automatisch dazuzieht. Wir mounten nur unser
-eigenes Feature:
+Die Komposition lebt in `src/run-config.ts`. `HAS_AUTH = true` zieht die
+bundled Auth-Kette (config/user/tenant/auth-email-password/secrets)
+automatisch dazu; wir mounten nur das eigene Feature:
 
 ```ts
 export const APP_FEATURES = [showPonyFeature] as const;
@@ -66,15 +62,15 @@ Die Isolation kommt aus dem Framework, nicht aus einer Rollen-Prüfung.
 
 **Der Event-Slug ist per-Tenant eindeutig, nicht global.** Die public URL
 wird `<host>.show-pony.kumiko.rocks/e/<slug>`. Der Host kommt aus der
-**Subdomain** (Host-Header), nicht aus dem URL-Pfad — das hat der Kumiko-
-`tenantResolver`-Vertrag so vorgegeben (er liest `req.header("Host")`).
-Damit muss der Slug nur innerhalb eines Tenants kollisionsfrei sein. Diese
-Entscheidung fällt jetzt, weil sie das Entity-Feld bestimmt — nicht erst,
-wenn der anonyme Write dazukommt.
+**Subdomain** (Host-Header), nicht aus dem URL-Pfad — das gibt der Kumiko-
+`tenantResolver`-Vertrag so vor (er liest `req.header("Host")`). Damit muss
+der Slug nur innerhalb eines Tenants kollisionsfrei sein. Diese Entscheidung
+fällt hier, weil sie das Entity-Feld bestimmt — nicht erst, wenn der anonyme
+Write dazukommt.
 
-## Lokaler Lauf
+## Lokal laufen lassen
 
-Repo liegt als Sibling neben `publicstatus`/`money-horse` und löst die
+show-pony liegt als Sibling neben `publicstatus`/`money-horse` und löst die
 kumiko-Pakete über die Parent-Workspace-Symlinks (lokaler Checkout) auf.
 
 ```bash
@@ -84,6 +80,5 @@ bun dev             # http://localhost:4180 — braucht Postgres + Redis (parent
                     # Login: admin@show-pony.local / changeme
 ```
 
-Stand: API bootet, `event`-CRUD ist über `/api/write` + `/api/query`
-erreichbar. Das sichtbare Host-Dashboard (Screens + Client-Bundle) ist der
-nächste Schritt.
+Die API bootet, `event`-CRUD läuft über `/api/write` und `/api/query`. Das
+sichtbare Host-Dashboard entsteht später aus denselben Entity-Definitionen.
