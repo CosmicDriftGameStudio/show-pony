@@ -69,6 +69,13 @@ jobs:
       - name: Start services
         run: |
           docker rm -f sp-ci-pg sp-ci-redis 2>/dev/null || true
+          # Docker Hub pulls from GitHub-hosted runners time out intermittently —
+          # pull with retries before running, so a transient hiccup doesn't fail CI.
+          for img in postgres:18.3-alpine redis:7-alpine; do
+            for attempt in 1 2 3 4 5; do
+              docker pull "$img" && break || { echo "pull $img failed (attempt $attempt), retrying"; sleep 10; }
+            done
+          done
           docker run -d --name sp-ci-pg -p 15432:5432 \
             -e POSTGRES_USER=kumiko -e POSTGRES_PASSWORD=kumiko -e POSTGRES_DB=kumiko_dev \
             --health-cmd="pg_isready -U kumiko -d kumiko_dev" \
