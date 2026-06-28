@@ -1,0 +1,38 @@
+# Per-Dockerfile .dockerignore (Buildkit loads this for deploy/Dockerfile).
+# Build context is the show-pony repo root — keep it lean: the build stage
+# COPY . . then rebuilds dist/ + dist-server/ fresh.
+
+# VCS + editor
+.git
+.github
+.gitignore
+.vscode
+.idea
+
+# Local env + secrets
+.env
+.env.local
+.env.*.local
+**/.env
+*.pem
+*.key
+
+# Build output — rebuilt in the build stage; never ship the local dev build
+node_modules
+**/node_modules
+dist
+dist-server
+**/dist
+**/*.tsbuildinfo
+
+# Tests + e2e (out of the production image)
+**/__tests__
+**/*.test.ts
+**/*.integration.ts
+e2e
+test-results
+playwright.screenshots.config.ts
+coverage
+
+# Docs + screenshots (not in the image)
+docs

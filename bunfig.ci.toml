@@ -1,0 +1,12 @@
+# Unit-test config for the `test` script / CI _app-test gate. Excludes the
+# integration tests (they need Postgres/Redis — run via test:integration:ci)
+# and Playwright e2e specs.
+
+[test]
+pathIgnorePatterns = [
+  "**/*.integration.test.ts",
+  "**/e2e/**",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "**/dist/**",
+]

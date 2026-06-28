@@ -1,0 +1,52 @@
+# CI for show-pony. Thin orchestrator over the infra app-ci reusables — single
+# source for test/integration/build/deploy lives in
+# cosmicdriftgamestudio/infra/.github/workflows/_app-*.yml.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  HUSKY: "0"
+
+jobs:
+  # Checks only on PR — the PR is the merge gate. On the merge push they don't
+  # re-run (no double run); build/deploy take over directly.
+  test:
+    if: github.event_name == 'pull_request'
+    uses: cosmicdriftgamestudio/infra/.github/workflows/_app-test.yml@main
+    secrets: inherit
+
+  integration:
+    if: github.event_name == 'pull_request'
+    uses: cosmicdriftgamestudio/infra/.github/workflows/_app-integration.yml@main
+    secrets: inherit
+
+  # No needs:test — test is skipped on push (the PR already gated).
+  build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    uses: cosmicdriftgamestudio/infra/.github/workflows/_docker-build-push.yml@main
+    with:
+      image-name: show-pony
+      dockerfile: deploy/Dockerfile
+    secrets: inherit
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    uses: cosmicdriftgamestudio/infra/.github/workflows/_app-deploy.yml@main
+    with:
+      namespace: show-pony-app
+      deployment: show-pony-app
+    secrets: inherit

@@ -1,11 +1,11 @@
-// Der Kern-Beweis: ein anonymer RSVP-Write landet deterministisch beim
-// Host-Tenant, der aus der Subdomain (Host-Header) aufgelöst wird — nie
-// beim falschen. Das ist die Lücke, die show-pony als Sample füllt.
+// The core proof: an anonymous RSVP write lands deterministically on the host
+// tenant resolved from the subdomain (Host header) — never on the wrong one.
+// That's the gap show-pony fills as a sample.
 //
-// Wir fahren den ECHTEN Resolver (createShowPonyTenantResolver) gegen echte
-// tenant-Rows, exakt mit der Boot-Verdrahtung aus bin/server.ts — kein
-// Mock. So sind der Subdomain→key-Lookup UND der tenantExists-Guard gegen
-// manipulierte X-Tenant-Header mitgetestet, nicht nur die Framework-Pipeline.
+// We run the REAL resolver (createShowPonyTenantResolver) against real tenant
+// rows, with the exact boot wiring from bin/server.ts — no mock. So the
+// subdomain→key lookup AND the tenantExists guard against a forged X-Tenant
+// header are both covered, not just the framework pipeline.
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import {
@@ -35,8 +35,8 @@ import {
 import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../feature";
 import { createShowPonyTenantResolver } from "../tenant-routing";
 
-// Provider app-weit auf inmemory defaulten (sonst wirft createTransportForTenant
-// „no provider selected") — derselbe appOverride wie in bin/server.ts.
+// Default the mail provider app-wide to inmemory (otherwise createTransportForTenant
+// throws "no provider selected") — the same appOverride as in bin/server.ts.
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
@@ -71,8 +71,8 @@ beforeAll(async () => {
       mailTransportInMemoryFeature,
       showPonyFeature,
     ],
-    // Exakt die Boot-Verdrahtung aus bin/server.ts: die Factory bekommt die
-    // Stack-db und baut den echten DB-Resolver.
+    // Exact boot wiring from bin/server.ts: the factory gets the stack db and
+    // builds the real DB resolver.
     anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
     extraContext: ({ registry }) => ({
       configResolver,
@@ -113,7 +113,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     });
     expect(globex.status).toBe(200);
 
-    // Jeder Host sieht über die tenant-scoped Gästeliste nur den eigenen Gast.
+    // Each host sees only its own guest through the tenant-scoped guest list.
     const acmeList = await stack.http.query("showpony:query:rsvp:list", {}, acmeHost);
     const acmeBody = (await acmeList.json()) as { data: { rows: Array<{ name: string }> } };
     expect(acmeBody.data.rows.map((r) => r.name)).toEqual(["Alice"]);
@@ -170,7 +170,7 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
     expect(inbox).toHaveLength(1);
     expect(inbox[0]?.to).toBe("alice@example.com");
     expect(inbox[0]?.subject).toContain("RSVP");
-    // Landet im richtigen Tenant-Buffer — Globex bleibt leer.
+    // Lands in the right tenant buffer — Globex stays empty.
     expect(getInbox(GLOBEX)).toHaveLength(0);
   });
 

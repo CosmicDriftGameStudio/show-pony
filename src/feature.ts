@@ -42,7 +42,8 @@ export const eventEntity = createEntity({
     slug: createTextField({ required: true, searchable: true }),
     startsAt: createTzField({ required: true }),
     location: createTextField({ searchable: true }),
-    description: createLongTextField(),
+    // Host-authored public event copy — business data, not third-party PII.
+    description: createLongTextField({ allowPlaintext: "is-business-data" }),
     guestLimit: createNumberField({ sortable: true }),
   },
 });
@@ -57,11 +58,16 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 export const rsvpEntity = createEntity({
   fields: {
     eventId: createTextField({ required: true, searchable: true }),
-    name: createTextField({ required: true, sortable: true, searchable: true }),
-    email: createTextField({ searchable: true }),
+    // Guest-submitted personal data (collected anonymously) — mark as PII so it
+    // reads as personal data in the schema and compliance audits. pii is a
+    // schema marker only; no encryption key needed (that's `encrypted: true`).
+    name: createTextField({ required: true, sortable: true, searchable: true, pii: true }),
+    email: createTextField({ searchable: true, pii: true }),
     status: createSelectField({ options: RSVP_STATUSES, default: "yes", filterable: true }),
     plusN: createNumberField({ sortable: true }),
-    note: createLongTextField(),
+    // Free text from an anonymous submitter — no user FK, so userOwned can't
+    // apply; declare it plaintext business input with an explicit reason.
+    note: createLongTextField({ allowPlaintext: "anonymous-guest-input" }),
   },
 });
 

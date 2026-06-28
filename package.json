@@ -12,8 +12,12 @@
   },
   "scripts": {
     "dev": "PORT=4180 bun run kumiko-dev bin/server.ts",
+    "build": "bun kumiko-build",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
+    "test": "bun --config=bunfig.ci.toml test --dots",
+    "test:integration": "bun --env-file=.env test src/__tests__/*.integration.test.ts",
+    "test:integration:ci": "bun test src/__tests__/*.integration.test.ts",
     "screenshots": "bunx --bun playwright test --config=playwright.screenshots.config.ts"
   },
   "dependencies": {

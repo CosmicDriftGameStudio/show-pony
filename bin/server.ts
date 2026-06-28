@@ -39,8 +39,8 @@ await runDevApp({
   // Two bundles, server-side routed: apex → host dashboard (with
   // schema injection for screens), each subdomain → public event page.
   clientEntries: [
-    { name: "admin", sourceFile: "./src/client.tsx", htmlPath: "./public/index.html" },
-    { name: "public", sourceFile: "./src/client-public.tsx", htmlPath: "./public/public.html" },
+    { name: "admin", sourceFile: "./src/client-admin.tsx", htmlPath: "./public/admin.html" },
+    { name: "public", sourceFile: "./src/client-public.tsx", htmlPath: "./public/index.html" },
   ],
   htmlPath: "./public/index.html",
   hostDispatch: (req) => {
