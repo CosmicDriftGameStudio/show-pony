@@ -3,7 +3,7 @@
   "description": "Lightweight guest list / event RSVP — Kumiko sample app. Make an event, share the link, see who's coming.",
   "version": "0.0.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "author": "Marc Frost <marc@cosmicdriftgamestudio.com>",
   "repository": {

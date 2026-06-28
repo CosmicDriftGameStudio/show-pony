@@ -1,54 +1,74 @@
-# show-pony
+# ShowPony
 
-Guest list / event RSVP — a **Kumiko sample app**. Public name: **ShowPony**.
+A guest list / event RSVP app, built on [Kumiko](https://kumiko.rocks). Make an
+event, share one link, and guests RSVP — no account, nothing to install.
 
-**Pitch:** *Make an event. Share the link. See who's coming.* — kein Account nötig zum Zusagen.
+It's a **reference sample**: a small, real, multi-tenant app that doubles as a
+step-by-step tutorial. One host creates an event; anonymous guests RSVP on a
+public page; the host watches the guest list fill up.
 
-> **Status:** M0 — docs & planning only. No app code yet.
-> **Primary goal:** public `doc → code → app` reference build für Kumiko. Echte User = Bonus, kein Kill-Gate.
+![The public event page a guest sees](docs/screenshots/public-event.png)
 
-## Hosting
+## Links
 
-Doc-forced — läuft erstmal auf einer **kumiko-Subdomain** (`show-pony.kumiko.rocks`),
-keine Standalone-Domain. `.com` + USPTO-Check erst, wenn aus dem Sample ein echtes Produkt wird.
+- 📖 **Tutorial** — [docs.kumiko.rocks/en/show-pony](https://docs.kumiko.rocks/en/show-pony/) — the whole build, chapter by chapter, with the real source embedded.
+- 🚀 **Live demo** — [show-pony.kumiko.rocks](https://show-pony.kumiko.rocks)
+- 🧩 **Kumiko** — [kumiko.rocks](https://kumiko.rocks) · [docs](https://docs.kumiko.rocks)
 
-## The spine (warum es ein gutes Sample ist)
+## Quickstart
 
+You need [Bun](https://bun.sh) and Docker.
+
+```bash
+git clone https://github.com/CosmicDriftGameStudio/show-pony
+cd show-pony
+cp .env.example .env
+docker compose up -d      # Postgres + Redis
+bun install
+bun dev
 ```
-Host erstellt Event → public Link → anonyme Gäste tragen sich ein → Host sammelt/notified/exportiert
-```
 
-~Alles davon ist Kumiko-Bordmittel (siehe `docs/plans/product-scope.md`). **Eine echt neue
-Capability: keine.** Dieselbe Spine ergibt mit anderer Haut eine **Waitlist** oder
-**Sign-up-Sheets** — das ist die Teaching-Story der Docs, nicht ein generischer Combiner.
+Then:
 
-## Scope (explizite Non-Goals)
+1. Open `http://show-pony.localhost:4180` and log in as `admin@show-pony.local` / `changeme`.
+2. Create an event with a slug like `rooftop-launch`.
+3. Open `http://demo.show-pony.localhost:4180/e/rooftop-launch` — the page your guests get. RSVP.
+4. Back in the dashboard, the guest list has a new row.
 
-- Kein Ticketing / bezahlte Events (Stripe Checkout) — evtl. später
-- Kein Full-Event-Management (Sitzplan, Vendors, Budget)
-- Kein Kalender-Sync — `.ics`-Link statt Sync
-- Keine Native-Apps — Gast braucht nur den Link, kein Account
+`*.localhost` resolves to `127.0.0.1` automatically — no hosts-file edits.
 
-## Docs
+## What it shows
 
-| Path | Content |
+The whole app turns on one idea: **the host is decided by the subdomain a
+request arrives on, never by anything the guest sends.** A guest on
+`acme.show-pony.…` writes into Acme's guest list and cannot reach anyone
+else's — which is what makes a shared, anonymous app safe.
+
+The [tutorial](https://docs.kumiko.rocks/en/show-pony/) walks the whole thing:
+the data model, the anonymous multi-tenant write, the schema-driven host
+dashboard, the public page, an `.ics` "add to calendar" link, and a
+confirmation mail.
+
+## Project layout
+
+| Path | What's there |
 |---|---|
-| `docs/plans/product-scope.md` | Features, Tiers, Kumiko-Fit (✅/🔶/❌) |
+| `src/feature.ts` | the `showpony` feature — entities, handlers, screens |
+| `src/tenant-routing.ts` | subdomain → host-tenant resolver |
+| `src/public/` | the guest-facing event page (React) |
+| `src/i18n.ts` | the dashboard's text (de + en) |
+| `bin/server.ts` | dev-server wiring (two bundles, host dispatch) |
+| `e2e/screenshots/` | the Playwright runner that generates the doc images |
 
-Die eigentliche Doku entsteht später als Embed-Kapitel **aus dem Code** (`kumiko docgen` +
-`file=`-Embeds, CI-guarded gegen Drift) — nicht als Plan-Prosa jetzt.
+## Scripts
 
-## Portfolio
-
-| App | Role |
+| Command | What it does |
 |---|---|
-| Kumiko | Platform |
-| Cashcolt (`money-horse`) | Consumer finance anchor |
-| publicstatus | Dev/status showcase |
-| solon | DACH landlord (planned) |
-| **show-pony** | Public Kumiko sample: guest list / RSVP |
+| `bun dev` | run the app locally (needs `docker compose up -d`) |
+| `bun run typecheck` | `tsc --noEmit` |
+| `bun run lint` | Biome |
+| `bun run screenshots` | regenerate the tutorial screenshots |
 
-## Next milestone
+## License
 
-M1: MVP live auf kumiko-Subdomain (Event → public RSVP-Page → Gästeliste + Confirmation),
-dann ein echtes Event durchspielen → erstes Doc-Kapitel aus dem Code.
+MIT — see [LICENSE](LICENSE).
