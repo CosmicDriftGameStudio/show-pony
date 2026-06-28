@@ -19,7 +19,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   use: {
     baseURL: APEX_URL,
-    locale: "de-DE",
+    locale: "en-US",
     trace: "retain-on-failure",
     viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 2,

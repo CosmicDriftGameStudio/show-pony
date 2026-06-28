@@ -1,0 +1,25 @@
+# Local Postgres + Redis for `bun dev`. Start with `docker compose up -d`.
+# The defaults match .env.example, so a fresh clone runs with no edits.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: showpony
+      POSTGRES_PASSWORD: showpony
+      POSTGRES_DB: show_pony_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - showpony-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U showpony -d show_pony_dev"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  showpony-pg:

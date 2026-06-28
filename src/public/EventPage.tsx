@@ -1,6 +1,6 @@
-// Die public Event-Page. Lädt das Event über den Slug aus der URL
-// (<key>.show-pony.<domain>/e/<slug>) und zeigt es + das RSVP-Formular.
-// Anonym — kein Login, kein Account.
+// The public event page. Loads the event by the slug in the URL
+// (<key>.show-pony.<domain>/e/<slug>) and shows it plus the RSVP form.
+// Anonymous — no login, no account.
 
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchEventBySlug, type PublicEvent } from "./api";
@@ -27,11 +27,11 @@ export function EventPage(): ReactElement {
     return <main className="mx-auto max-w-xl p-8 text-[var(--color-muted-foreground)]">…</main>;
   }
   if (load.kind === "missing") {
-    return <main className="mx-auto max-w-xl p-8">Dieses Event gibt es nicht.</main>;
+    return <main className="mx-auto max-w-xl p-8">This event doesn't exist.</main>;
   }
 
   const { event } = load;
-  const when = new Date(event.startsAt).toLocaleString("de-DE", {
+  const when = new Date(event.startsAt).toLocaleString("en-US", {
     dateStyle: "long",
     timeStyle: "short",
   });
@@ -54,7 +54,7 @@ export function EventPage(): ReactElement {
         download={`${event.slug}.ics`}
         className="mt-4 inline-block text-sm text-[var(--color-primary)] hover:underline"
       >
-        📅 Zum Kalender hinzufügen
+        📅 Add to calendar
       </a>
       <RsvpForm eventId={event.id} />
     </main>

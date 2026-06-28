@@ -14,10 +14,10 @@ import { APEX_URL, DEMO_SLUG, DEMO_TENANT_ID, publicEventUrl, STORAGE_STATE } fr
 const HOST = { email: "admin@show-pony.local", password: "changeme" };
 
 const GUESTS = [
-  { name: "Mara Lindqvist", status: "yes", plusN: 2 },
-  { name: "Jonas Weber", status: "yes", plusN: 0 },
-  { name: "Lena Hoffmann", status: "maybe", plusN: 1 },
-  { name: "Tarek Haddad", status: "no", plusN: 0 },
+  { name: "Ava Chen", status: "yes", plusN: 2 },
+  { name: "Marcus Bell", status: "yes", plusN: 0 },
+  { name: "Priya Raman", status: "maybe", plusN: 1 },
+  { name: "Diego Santos", status: "no", plusN: 0 },
 ] as const;
 
 async function authedWrite(
@@ -84,12 +84,12 @@ setup("login + seed demo event", async ({ page, browser }) => {
 
   // 2. Event anlegen.
   const created = await authedWrite(page, "showpony:write:event:create", {
-    title: "Sommerfest im Hof",
+    title: "Rooftop Launch Party",
     slug: DEMO_SLUG,
-    startsAt: "2026-07-18T18:00:00.000Z",
-    location: "Innenhof, Berlin-Kreuzberg",
-    description: "Grill, Musik, kalte Limo. Bring gern jemanden mit!",
-    guestLimit: 60,
+    startsAt: "2026-09-12T19:00:00.000Z",
+    location: "Sky Lounge, 24th floor",
+    description: "Drinks, a live set, and 2.0 going out at midnight. Bring someone good.",
+    guestLimit: 80,
   });
   const parsed = JSON.parse(created.body) as { isSuccess: boolean; data?: { id: string } };
   const eventId = parsed.isSuccess ? (parsed.data?.id ?? null) : null;

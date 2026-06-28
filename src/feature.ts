@@ -86,14 +86,14 @@ const rsvpSubmitSchema = z.object({
 });
 
 const RSVP_STATUS_LABELS: Record<RsvpStatus, string> = {
-  yes: "Zusage",
-  no: "Absage",
-  maybe: "Vielleicht",
+  yes: "Coming",
+  no: "Not coming",
+  maybe: "Maybe",
 };
 
-// Gast-Name + Event-Titel landen im HTML-Body einer Mail — beide sind
-// untrusted (der Name ist anonymer Public-Input). Vor der Interpolation
-// escapen, sonst ist die Bestätigung ein HTML/Script-Injection-Vektor.
+// The guest name and event title go into a mail's HTML body — both are
+// untrusted (the name is anonymous public input). Escape before interpolating,
+// or the confirmation becomes an HTML/script-injection vector.
 function escHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -103,10 +103,10 @@ function escHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-// Best-effort Bestätigungs-Mail an den Gast (nur wenn er eine Email angab).
-// mail-foundation DIREKT statt delivery: delivery ist user-zentriert
-// (recipient=userId→email-resolve), unser Gast ist anonym und einzig über
-// seine Email adressierbar — da passt der low-level-Transport.
+// Best-effort confirmation mail to the guest (only when they gave an email).
+// mail-foundation DIRECTLY, not delivery: delivery is user-centric
+// (recipient = userId → email lookup), and our guest is anonymous, addressable
+// only by the email they just typed — the low-level transport is the fit.
 async function sendRsvpConfirmation(
   ctx: HandlerContext,
   tenantId: TenantId,
@@ -115,15 +115,15 @@ async function sendRsvpConfirmation(
   if (!payload.email) return;
   const events = await ctx.db.selectMany(eventTable);
   const found = events.find((e) => e.id === payload.eventId)?.title;
-  const title = typeof found === "string" ? found : "deinem Event";
+  const title = typeof found === "string" ? found : "your event";
   const transport = await createTransportForTenant(ctx, tenantId, "showpony:write:rsvp:submit");
   await transport.send({
     to: payload.email,
-    subject: `Deine Antwort für „${title}"`,
+    subject: `Your RSVP for "${title}"`,
     html:
-      `<p>Hallo ${escHtml(payload.name)},</p>` +
-      `<p>deine Antwort (<strong>${RSVP_STATUS_LABELS[payload.status]}</strong>) für ` +
-      `„${escHtml(title)}" ist eingegangen. Danke!</p>`,
+      `<p>Hi ${escHtml(payload.name)},</p>` +
+      `<p>your reply (<strong>${RSVP_STATUS_LABELS[payload.status]}</strong>) for ` +
+      `"${escHtml(title)}" is in. Thanks!</p>`,
   });
 }
 

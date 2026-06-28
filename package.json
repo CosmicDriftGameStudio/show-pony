@@ -8,10 +8,10 @@
   "author": "Marc Frost <marc@cosmicdriftgamestudio.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cosmicdriftgamestudio/show-pony.git"
+    "url": "git+https://github.com/CosmicDriftGameStudio/show-pony.git"
   },
   "scripts": {
-    "dev": "PORT=4180 bun --env-file=../.env run kumiko-dev bin/server.ts",
+    "dev": "PORT=4180 bun run kumiko-dev bin/server.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "screenshots": "bunx --bun playwright test --config=playwright.screenshots.config.ts"

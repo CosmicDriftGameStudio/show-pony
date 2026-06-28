@@ -169,7 +169,7 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
     const inbox = getInbox(ACME);
     expect(inbox).toHaveLength(1);
     expect(inbox[0]?.to).toBe("alice@example.com");
-    expect(inbox[0]?.subject).toContain("Antwort");
+    expect(inbox[0]?.subject).toContain("RSVP");
     // Landet im richtigen Tenant-Buffer — Globex bleibt leer.
     expect(getInbox(GLOBEX)).toHaveLength(0);
   });

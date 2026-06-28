@@ -1,5 +1,5 @@
-// Das RSVP-Formular — der anonyme Write von der public-Page aus. name ist
-// Pflicht, email optional. Nach Submit: Inline-Success, kein Redirect.
+// The RSVP form — the anonymous write from the public page. Name is required,
+// email optional. Inline success on submit, no redirect.
 
 import { type FormEvent, type ReactElement, useState } from "react";
 import { type RsvpStatus, submitRsvp } from "./api";
@@ -11,9 +11,9 @@ type FormState =
   | { kind: "error"; reason: string };
 
 const STATUS_LABELS: Record<RsvpStatus, string> = {
-  yes: "Ich komme",
-  maybe: "Vielleicht",
-  no: "Ich kann nicht",
+  yes: "I'm in",
+  maybe: "Maybe",
+  no: "Can't make it",
 };
 
 export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElement {
@@ -40,8 +40,8 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
   if (state.kind === "success") {
     return (
       <div className="mt-6 rounded-md border border-[var(--color-primary)] bg-[var(--color-card)] p-4 text-sm">
-        <strong>Danke, {state.name}!</strong>
-        <p className="mt-1 text-[var(--color-muted-foreground)]">Deine Antwort ist da.</p>
+        <strong>Thanks, {state.name}!</strong>
+        <p className="mt-1 text-[var(--color-muted-foreground)]">You're on the list.</p>
       </div>
     );
   }
@@ -60,7 +60,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Dein Name"
+          placeholder="Your name"
           className={field}
         />
         <div className="flex gap-2">
@@ -80,7 +80,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
           ))}
         </div>
         <label className="text-sm text-[var(--color-muted-foreground)]">
-          Begleitung
+          Bringing anyone?
           <input
             type="number"
             min={0}
@@ -91,11 +91,11 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
           />
         </label>
         <input
-          aria-label="E-Mail (optional)"
+          aria-label="Email (optional)"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-Mail (optional, für die Bestätigung)"
+          placeholder="Email (optional, for your confirmation)"
           className={field}
         />
         <button
@@ -103,11 +103,11 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
           disabled={state.kind === "submitting" || name.length === 0}
           className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] disabled:opacity-50"
         >
-          {state.kind === "submitting" ? "…" : "Antwort senden"}
+          {state.kind === "submitting" ? "…" : "Send RSVP"}
         </button>
         {state.kind === "error" && (
           <p className="text-sm text-[var(--color-destructive)]">
-            Hat nicht geklappt ({state.reason}). Nochmal versuchen.
+            Something went wrong ({state.reason}). Try again.
           </p>
         )}
       </div>
