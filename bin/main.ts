@@ -3,8 +3,9 @@
 // Same shape as bin/server.ts (dev) but for production: runProdApp, https
 // origins, env-driven admin + base domain.
 //
-// Required env: DATABASE_URL, REDIS_URL, JWT_SECRET, BASE_DOMAIN, ADMIN_EMAIL,
-//   ADMIN_PASSWORD. Optional: PORT (default 3000), BUILD_VERSION.
+// Required env: DATABASE_URL, REDIS_URL, JWT_SECRET, BASE_DOMAIN,
+//   DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD (the names the Pulumi createKumikoApp
+//   deploy helper injects). Optional: PORT (default 3000), BUILD_VERSION.
 //   BASE_DOMAIN is the host's surface, e.g. show-pony.kumiko.rocks — guest
 //   pages live on <key>.<BASE_DOMAIN>.
 
@@ -57,8 +58,8 @@ await runProdApp({
     cookieDomain: BASE_DOMAIN,
     allowedOrigins: [`https://${BASE_DOMAIN}`],
     admin: {
-      email: required("ADMIN_EMAIL"),
-      password: required("ADMIN_PASSWORD"),
+      email: required("DEMO_ADMIN_EMAIL"),
+      password: required("DEMO_ADMIN_PASSWORD"),
       displayName: "Show-Pony Host",
       memberships: [
         {
