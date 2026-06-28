@@ -1,9 +1,9 @@
-// Screenshot-Runner für die Tutorial-Bilder. Bootet den dev-server gegen
-// eine ephemere DB (KUMIKO_DEV_DB_NAME=""), loggt als Host ein + seedet
-// ein Demo-Event mit Gästen (setup-Projekt), dann knipst das shots-Projekt
-// die Pages. PNGs → docs/screenshots/ (override via SCREENSHOT_DIR).
+// Screenshot runner for tutorial images. Boots the dev server against an
+// ephemeral DB (KUMIKO_DEV_DB_NAME=""), logs in as host and seeds a demo
+// event with guests (setup project), then the shots project captures the
+// pages. PNGs → docs/screenshots/ (override via SCREENSHOT_DIR).
 //
-// Regenerierbar: `bun run screenshots`. Bild bleibt synchron zum Code.
+// Regeneratable: `bun run screenshots`. Images stay in sync with the code.
 
 import { defineConfig, devices } from "@playwright/test";
 import { APEX_URL, PORT, STORAGE_STATE } from "./e2e/screenshots/constants";

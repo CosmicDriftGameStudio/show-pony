@@ -1,11 +1,11 @@
-// Setup-Step für den Screenshot-Runner: als Host einloggen, ein Demo-Event
-// anlegen (authed) + ein paar Gäste anonym über die Subdomain zusagen
-// lassen — damit Dashboard, Gästeliste und public Page nicht leer sind.
-// Speichert am Ende den Login-State für das shots-Projekt.
+// Setup step for the screenshot runner: log in as host, create a demo event
+// (authed) + have a few guests RSVP anonymously via the subdomain —
+// so the dashboard, guest list, and public page are not empty.
+// Saves the login state at the end for the shots project.
 //
-// Event-sourced: nach jedem Write auf die Projektion pollen (Lag). Die
-// authed Requests setzen X-Tenant explizit — ein raw fetch hat keinen
-// SPA-Tenant-Switcher, der das sonst mitschickt.
+// Event-sourced: poll the projection after each write (lag). Authed
+// requests set X-Tenant explicitly — a raw fetch has no SPA tenant
+// switcher to do it automatically.
 
 import { mkdir } from "node:fs/promises";
 import { expect, test as setup } from "@playwright/test";
@@ -75,14 +75,14 @@ async function authedCount(
 }
 
 setup("login + seed demo event", async ({ page, browser }) => {
-  // 1. UI-Login als Host (setzt die Auth-Cookie auf dem Apex).
+  // 1. UI login as host (sets the auth cookie on the apex).
   await page.goto(`${APEX_URL}/login`);
   await page.fill("#login-email", HOST.email);
   await page.fill("#login-password", HOST.password);
   await page.locator("#login-password").press("Enter");
   await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
 
-  // 2. Event anlegen.
+  // 2. Create the event.
   const created = await authedWrite(page, "showpony:write:event:create", {
     title: "Rooftop Launch Party",
     slug: DEMO_SLUG,
@@ -95,13 +95,13 @@ setup("login + seed demo event", async ({ page, browser }) => {
   const eventId = parsed.isSuccess ? (parsed.data?.id ?? null) : null;
   expect(eventId, created.body).toBeTruthy();
 
-  // 3. Auf die Event-Projektion warten.
+  // 3. Wait for the event projection.
   await expect
     .poll(() => authedCount(page, "showpony:query:event:list"), { timeout: 15_000 })
     .toBeGreaterThan(0);
 
-  // 4. RSVPs anonym über die Subdomain — frischer Context ohne Host-Cookie,
-  //    damit der Tenant aus dem Host-Header kommt (nicht aus einer Session).
+  // 4. RSVPs anonymously via the subdomain — fresh context without the host cookie,
+  //    so the tenant is resolved from the Host header (not from a session).
   const anon = await browser.newContext();
   const anonPage = await anon.newPage();
   await anonPage.goto(publicEventUrl(DEMO_SLUG));
@@ -119,10 +119,10 @@ setup("login + seed demo event", async ({ page, browser }) => {
   }
   await anon.close();
 
-  // 5. Auf die RSVP-Projektion warten (authed gelesen).
+  // 5. Wait for the RSVP projection (read authed).
   await expect.poll(() => authedCount(page, "showpony:query:rsvp:list"), { timeout: 15_000 }).toBeGreaterThanOrEqual(GUESTS.length);
 
-  // 6. Login-State sichern (der Apex-Cookie steckt im page-Context).
+  // 6. Save login state (the apex cookie lives in the page context).
   await mkdir("e2e/screenshots/.auth", { recursive: true });
   await page.context().storageState({ path: STORAGE_STATE });
 });

@@ -1,8 +1,8 @@
-// show-pony — Event + RSVP als Kumiko-Feature.
+// show-pony — event + RSVP as a single Kumiko feature.
 //
-// Ein Host verwaltet Events (CRUD + Dashboard-Screens), ein anonymer Gast
-// sagt über die public surface zu (rsvp:submit). Tenant-Scoping, Audit und
-// Multi-Tenant-Isolation kommen aus dem Framework-Default.
+// A host manages events (CRUD + dashboard screens); an anonymous guest RSVPs
+// through the public surface (rsvp:submit). Tenant-scoping, audit, and
+// multi-tenant isolation all come from the framework default.
 
 import {
   createTransportForTenant,
@@ -32,10 +32,10 @@ import type {
 } from "@cosmicdrift/kumiko-framework/ui-types";
 import { z } from "zod";
 
-// Event-Slug ist per-Tenant eindeutig (Tenant-Scoping reicht): die public
-// URL wird <host>.show-pony.<domain>/e/<slug>, der Host kommt aus der
-// Subdomain — der Slug muss also nur innerhalb des Tenants kollisionsfrei
-// sein, nicht global.
+// The event slug is unique per tenant (tenant-scoping is enough): the public
+// URL is <host>.show-pony.<domain>/e/<slug>, and the host comes from the
+// subdomain — so the slug only has to be collision-free within one tenant,
+// not globally.
 export const eventEntity = createEntity({
   fields: {
     title: createTextField({ required: true, sortable: true, searchable: true }),
@@ -50,10 +50,10 @@ export const eventEntity = createEntity({
 export const RSVP_STATUSES = ["yes", "no", "maybe"] as const;
 export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 
-// RSVP: kommt im MVP über den anonymen public-Write rein (Schritt 3).
-// name ist Pflicht, email optional (nur für die Bestätigungs-Mail).
-// plusN = Begleitpersonen, status = Zu-/Absage/Vielleicht. eventId
-// referenziert das Event innerhalb desselben Tenants.
+// RSVP: arrives through the anonymous public write. name is required, email
+// optional (only for the confirmation mail). plusN = extra guests, status =
+// coming / not coming / maybe. eventId references the event within the same
+// tenant.
 export const rsvpEntity = createEntity({
   fields: {
     eventId: createTextField({ required: true, searchable: true }),
@@ -69,13 +69,13 @@ export const eventTable = buildEntityTable("event", eventEntity);
 export const rsvpTable = buildEntityTable("rsvp", rsvpEntity);
 const rsvpExecutor = createEventStoreExecutor(rsvpTable, rsvpEntity, { entityName: "rsvp" });
 
-// Host-CRUD: openToAll = jeder eingeloggte User. Writes und Queries sind
-// tenant-scoped — ein Host sieht und ändert nur die Events des eigenen
-// Tenants, nie die eines fremden.
+// Host CRUD: openToAll = any signed-in user. Writes and queries are
+// tenant-scoped — a host only sees and edits their own tenant's events, never
+// another's.
 const hostAccess = { access: { openToAll: true } } as const;
 
-// Public-Write-Schema: whitelistet exakt die Felder, die ein Gast setzen
-// darf. status default "yes", plusN default 0, email/note optional.
+// Public write schema: whitelists exactly the fields a guest may set. status
+// defaults to "yes", plusN to 0, email/note optional.
 const rsvpSubmitSchema = z.object({
   eventId: z.uuid(),
   name: z.string().min(1).max(120),
@@ -127,9 +127,10 @@ async function sendRsvpConfirmation(
   });
 }
 
-// Host-Dashboard: schema-driven Screens. entityList/entityEdit rendert das
-// Framework generisch aus der Entity — kein custom React pro Screen. Labels
-// sind i18n-Keys (src/i18n.ts), aufgelöst vom client-feature (src/web.ts).
+// Host dashboard: schema-driven screens. entityList/entityEdit are rendered
+// generically by the framework from the entity — no custom React per screen.
+// Labels are i18n keys (src/i18n.ts), resolved by the client feature
+// (src/web.ts).
 export const eventListScreen: EntityListScreenDefinition = {
   id: "event-list",
   type: "entityList",
@@ -174,14 +175,14 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(defineEntityListHandler("event", eventEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("event", eventEntity, hostAccess));
 
-  // Public: ein anonymer Visitor lädt das Event über seinen Slug. Tenant-
-  // scoped via Resolver (Host-Header) — derselbe Slug auf einer anderen
-  // Subdomain ist ein anderes Event.
+  // Public: an anonymous visitor loads the event by its slug. Tenant-scoped via
+  // the resolver (Host header) — the same slug on another subdomain is a
+  // different event.
   r.queryHandler(
     "event:by-slug",
     z.object({ slug: z.string().min(1).max(120) }),
-    // ponytail: O(n)-Scan über die Events des Tenants — bei wenigen Events
-    // pro Host ok; ein slug-Filter-Query wäre die Skalier-Variante.
+    // ponytail: O(n) scan over the tenant's events — fine for a handful per
+    // host; a slug-filter query is the scale-up.
     async (e, ctx) => {
       const events = await ctx.db.selectMany(eventTable);
       return events.find((row) => row.slug === e.payload.slug) ?? null;
@@ -191,18 +192,18 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
 
   r.entity("rsvp", rsvpEntity);
 
-  // Der Kern: anonymer, public RSVP-Write. roles=[anonymous] lässt
-  // unauthentifizierte Gäste durch; der Tenant kommt NICHT aus dem Payload,
-  // sondern aus der Subdomain (tenantResolver beim Boot) — derselbe Request
-  // landet so deterministisch beim richtigen Host. Per-IP-Rate-Limit ist
-  // Pflicht: alle anonymen Caller teilen user.id="anonymous", ein per-User-
-  // Limit wäre ein einziger globaler Tap (der Boot-Validator lehnt das ab).
+  // The core: the anonymous, public RSVP write. roles=[anonymous] lets
+  // unauthenticated guests through; the tenant does NOT come from the payload
+  // but from the subdomain (the tenantResolver at boot) — so the same request
+  // lands deterministically on the right host. The per-IP rate limit is
+  // mandatory: every anonymous caller shares user.id="anonymous", so a per-user
+  // limit would be one global tap (the boot validator rejects that).
   r.writeHandler(
     "rsvp:submit",
     rsvpSubmitSchema,
     async (event, ctx) => {
       const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
-      // Mail ist best-effort — ein Transport-Fehler darf die RSVP nicht kippen.
+      // The mail is best-effort — a transport error must not fail the RSVP.
       await sendRsvpConfirmation(ctx, event.user.tenantId, event.payload).catch(() => undefined);
       return result;
     },
@@ -212,7 +213,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
     },
   );
 
-  // Gästeliste + Detail (host-read, tenant-scoped).
+  // Guest list + detail (host read, tenant-scoped).
   r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, hostAccess));
 

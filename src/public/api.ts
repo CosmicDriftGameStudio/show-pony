@@ -1,7 +1,7 @@
-// Browser-API für die public Event-Page. Anonymer Pfad: kein Token, keine
-// Auth-Cookie — der CSRF-Guard im Framework überspringt anonyme Requests.
-// Der Tenant kommt server-seitig aus der Subdomain (Host-Header), nicht aus
-// dem Payload.
+// Browser API for the public event page. Anonymous path: no token, no
+// auth cookie — the framework's CSRF guard skips anonymous requests.
+// The tenant is resolved server-side from the subdomain (Host header), not
+// from the payload.
 
 export type PublicEvent = {
   readonly id: string;

@@ -1,6 +1,6 @@
-// Public-Page-Mount — vom client-public.tsx Bundle importiert, das der
-// Server via hostDispatch auf jede Tenant-Subdomain ausliefert. Eine Route:
-// die Event-Page (Slug aus der URL). Kein react-router nötig.
+// Public page mount — imported by the client-public.tsx bundle, which the
+// server delivers via hostDispatch to every tenant subdomain. One route:
+// the event page (slug from the URL). No react-router needed.
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

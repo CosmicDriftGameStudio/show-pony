@@ -1,17 +1,17 @@
-// Local dev-server für show-pony.
+// Local dev server for show-pony.
 //
-// Multi-Tenant-Start: ein Demo-Host-Tenant (key "demo") + Admin-Login.
-// Der Host verwaltet Events auf dem Apex; die public RSVP-Page eines
-// Hosts liegt auf seiner Subdomain — der anonyme Write landet via
-// tenantResolver (Host-Header) deterministisch beim richtigen Tenant:
+// Multi-tenant startup: one demo host tenant (key "demo") + admin login.
+// The host manages events on the apex; a host's public RSVP page lives
+// on their subdomain — anonymous writes are routed deterministically to
+// the correct tenant via tenantResolver (Host header):
 //
-//   show-pony.localhost:4180        → Apex: Admin-UI + Auth
-//   demo.show-pony.localhost:4180   → public RSVP-Surface des Demo-Hosts
+//   show-pony.localhost:4180        → apex: admin UI + auth
+//   demo.show-pony.localhost:4180   → public RSVP surface for the demo host
 //
-// *.localhost resolved im Browser automatisch zu 127.0.0.1, kein
-// hosts-Edit nötig. Start via `bun dev`; braucht Postgres + Redis.
+// *.localhost resolves to 127.0.0.1 in the browser automatically — no
+// hosts file edit needed. Start with `bun dev`; requires Postgres + Redis.
 //
-//   admin@show-pony.local / changeme  — Host auf dem Demo-Tenant
+//   admin@show-pony.local / changeme  — host account on the demo tenant
 
 import {
   createConfigAccessorFactory,
@@ -26,9 +26,9 @@ const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
 const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 const port = Number.parseInt(process.env.PORT ?? "4180", 10);
 
-// Mail-Provider app-weit auf inmemory defaulten — die Gast-Confirmation läuft
-// sonst in „no provider selected". Inbox via getInbox; prod-Swap = ein echter
-// mail-transport-* + dieser Override auf dessen Namen.
+// Default the mail provider app-wide to inmemory — otherwise guest confirmation
+// emails fail with "no provider selected". Inbox via getInbox; prod swap = a real
+// mail-transport-* with this override pointing to its name.
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
@@ -36,8 +36,8 @@ const configResolver = createConfigResolver({
 await runDevApp({
   features: APP_FEATURES,
   port,
-  // Zwei Bundles, server-seitig geroutet: Apex → Host-Dashboard (mit
-  // Schema-Inject für die Screens), jede Subdomain → public Event-Page.
+  // Two bundles, server-side routed: apex → host dashboard (with
+  // schema injection for screens), each subdomain → public event page.
   clientEntries: [
     { name: "admin", sourceFile: "./src/client.tsx", htmlPath: "./public/index.html" },
     { name: "public", sourceFile: "./src/client-public.tsx", htmlPath: "./public/public.html" },

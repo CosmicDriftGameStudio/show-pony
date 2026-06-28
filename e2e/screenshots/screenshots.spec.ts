@@ -1,6 +1,6 @@
-// Knipst pro Szenario ein PNG nach docs/screenshots/ (override via
-// SCREENSHOT_DIR). Läuft im shots-Projekt mit dem Host-Login aus dem
-// setup-Step; clearAuth-Szenarien (public Page) starten cookie-frei.
+// Takes one PNG per scenario into docs/screenshots/ (override via
+// SCREENSHOT_DIR). Runs in the shots project with the host login from the
+// setup step; clearAuth scenarios (public page) start cookie-free.
 
 import { mkdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";

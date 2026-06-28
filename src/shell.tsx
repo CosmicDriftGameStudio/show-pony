@@ -1,6 +1,6 @@
-// AppShell für show-pony. DefaultAppShell mit Brand-Wortmarke — die Nav
-// + die entityList/entityEdit-Screens rendert das Framework selbst aus
-// dem Schema.
+// AppShell for show-pony. DefaultAppShell with a brand wordmark — the nav
+// and entityList/entityEdit screens are rendered by the framework from
+// the schema.
 
 import { type AppSchema, DefaultAppShell } from "@cosmicdrift/kumiko-renderer-web";
 import type { ReactNode } from "react";

@@ -1,10 +1,10 @@
-// "Zum Kalender hinzufügen" — ein Standard-VCALENDAR, clientseitig als
-// data-URI generiert. Kein Server-Endpoint, kein Signing: ein .ics ist
-// nur Text, und der Browser lädt ihn direkt herunter.
+// "Add to calendar" — a standard VCALENDAR, generated client-side as a
+// data URI. No server endpoint, no signing: an .ics is plain text and
+// the browser downloads it directly.
 
 import type { PublicEvent } from "./api";
 
-// ISO → ICS-Zeitstempel: 2026-07-18T18:00:00.000Z → 20260718T180000Z
+// ISO → ICS timestamp: 2026-07-18T18:00:00.000Z → 20260718T180000Z
 function icsDate(iso: string): string {
   return new Date(iso)
     .toISOString()
@@ -12,7 +12,7 @@ function icsDate(iso: string): string {
     .replace(/\.\d{3}/, "");
 }
 
-// ICS-Textwerte escapen: Backslash, Semikolon, Komma, Newline.
+// Escape ICS text values: backslash, semicolon, comma, newline.
 function esc(value: string): string {
   return value
     .replace(/\\/g, "\\\\")
@@ -21,8 +21,8 @@ function esc(value: string): string {
 }
 
 export function buildIcs(event: PublicEvent): string {
-  // Default-Dauer 2h — das Event-Modell hält nur startsAt; ein End-Feld
-  // wäre ein eigener Schritt, falls jemand es braucht.
+  // Default duration 2h — the event model only stores startsAt; an end field
+  // would be a separate step if anyone needs it.
   const end = new Date(new Date(event.startsAt).getTime() + 2 * 60 * 60 * 1000).toISOString();
   return [
     "BEGIN:VCALENDAR",

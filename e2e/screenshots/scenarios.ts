@@ -1,7 +1,6 @@
-// Screenshot-Szenarien für das Tutorial. Jeder Eintrag = ein PNG. Die
-// Dashboard-Pages laufen authed (storageState); die public Event-Page
-// anonym (clearAuth → frische Cookies, der Host-Login leakt nicht auf die
-// Gast-Seite).
+// Screenshot scenarios for the tutorial. Each entry = one PNG. Dashboard
+// pages run authed (storageState); the public event page runs anonymous
+// (clearAuth → fresh cookies, the host login does not leak to the guest page).
 
 import { DEMO_SLUG, publicEventUrl } from "./constants";
 

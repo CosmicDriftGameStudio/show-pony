@@ -1,5 +1,5 @@
-// Public-Bundle — der anonyme Gast lädt nur das. Kein Login, kein Admin-
-// Code, keine Screens. Server-seitig via hostDispatch ausgeliefert:
+// Public bundle — anonymous guests only load this. No login, no admin
+// code, no screens. Served server-side via hostDispatch:
 // <key>.show-pony.<domain> → public.html → /client-public.js.
 
 import { mountPublic } from "./public/mount";

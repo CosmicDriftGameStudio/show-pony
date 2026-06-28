@@ -1,7 +1,7 @@
-// show-pony i18n-Bundle. Convention: feature-prefix `showpony:`
-// + `entity:<e>:field:<name>` für Field-Labels (Spalten + Form),
-// `screen:<id>.title` für Page-Titles, `showpony:nav.<id>` für
-// Sidebar-Labels, `:option:<value>` für Select-Werte.
+// show-pony i18n bundle. Convention: feature prefix `showpony:`
+// + `entity:<e>:field:<name>` for field labels (columns + form),
+// `screen:<id>.title` for page titles, `showpony:nav.<id>` for
+// sidebar labels, `:option:<value>` for select values.
 
 import type { TranslationsByLocale } from "@cosmicdrift/kumiko-renderer";
 
