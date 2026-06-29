@@ -51,7 +51,9 @@ export default {
         DEMO_TENANT_ID,
       );
       if (!rsvp.isSuccess) {
-        throw new Error(`show-pony seed: rsvp:submit failed for ${guest.name} — ${rsvp.error.code}`);
+        // Best-effort: a demo RSVP failing must not crash the prod boot. The
+        // event above is the critical content; the guests are a bonus.
+        console.warn(`show-pony seed: rsvp:submit skipped for ${guest.name} — ${rsvp.error.code}`);
       }
     }
   },
