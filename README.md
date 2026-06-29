@@ -7,7 +7,7 @@ It's a **reference sample**: a small, real, multi-tenant app that doubles as a
 step-by-step tutorial. One host creates an event; anonymous guests RSVP on a
 public page; the host watches the guest list fill up.
 
-![The public event page a guest sees](docs/screenshots/public-event.png)
+![The public event page a guest sees](docs/screenshots/public-event/en/default-light/desktop.png)
 
 ## Links
 

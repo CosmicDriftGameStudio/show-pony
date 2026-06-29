@@ -34,7 +34,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "bun --env-file=../.env run bin/server.ts",
+    command: "bun --env-file=.env run bin/server.ts",
     url: `http://localhost:${PORT}/`,
     env: { PORT: String(PORT), KUMIKO_DEV_DB_NAME: "" },
     reuseExistingServer: !process.env.CI,
