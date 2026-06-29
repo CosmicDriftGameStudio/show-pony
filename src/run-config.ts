@@ -11,11 +11,17 @@
 
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
+import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { showPonyFeature } from "./feature";
 
+// rsvp:submit is an anonymous write, so it MUST declare a rateLimit (all anon
+// callers share user.id="anonymous"). That needs a RateLimitResolver wired —
+// dev/test provide a default, but runProdApp doesn't, so the seed's
+// rsvp:submit crashed at boot. Loading this feature wires the resolver.
 export const APP_FEATURES = [
   mailFoundationFeature,
   mailTransportInMemoryFeature,
+  createRateLimitingFeature(),
   showPonyFeature,
 ] as const;
 
