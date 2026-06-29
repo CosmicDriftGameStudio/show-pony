@@ -45,15 +45,22 @@ export default {
     }
 
     for (const guest of GUESTS) {
-      const rsvp = await ctx.systemWriteAs(
-        "showpony:write:rsvp:submit",
-        { eventId: DEMO_EVENT_ID, ...guest },
-        DEMO_TENANT_ID,
-      );
-      if (!rsvp.isSuccess) {
-        // Best-effort: a demo RSVP failing must not crash the prod boot. The
-        // event above is the critical content; the guests are a bonus.
-        console.warn(`show-pony seed: rsvp:submit skipped for ${guest.name} — ${rsvp.error.code}`);
+      // systemWriteAs THROWS on a failed write. rsvp:submit declares a rateLimit
+      // (mandatory for anon writes), but the es-ops seed dispatcher has no
+      // RateLimitResolver in prod (it's separate from the HTTP dispatcher) — so
+      // catch + skip. A demo RSVP must never crash the prod boot; the event
+      // above is the critical content, and the public RSVP form (HTTP path,
+      // which DOES have the resolver) works for real guests regardless.
+      try {
+        await ctx.systemWriteAs(
+          "showpony:write:rsvp:submit",
+          { eventId: DEMO_EVENT_ID, ...guest },
+          DEMO_TENANT_ID,
+        );
+      } catch (err) {
+        console.warn(
+          `show-pony seed: rsvp:submit skipped for ${guest.name} — ${err instanceof Error ? err.message : String(err)}`,
+        );
       }
     }
   },
