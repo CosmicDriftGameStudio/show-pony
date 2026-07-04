@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-28T14:12:13.591Z",
+  "generatedAt": "2026-07-04T09:08:36.821Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -133,7 +133,7 @@
         },
         {
           "name": "starts_at",
-          "pgType": "text",
+          "pgType": "timestamptz",
           "notNull": true
         },
         {
@@ -294,6 +294,11 @@
           "notNull": true
         },
         {
+          "name": "email_bidx",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
           "name": "role",
           "pgType": "text",
           "notNull": true
@@ -323,15 +328,34 @@
           ]
         },
         {
+          "name": "read_tenant_invitations_email_bidx_idx",
+          "columns": [
+            "email_bidx"
+          ]
+        },
+        {
           "name": "read_tenant_invitations_tenant_email_unique",
           "columns": [
             "tenant_id",
             "email"
           ],
           "unique": true
+        },
+        {
+          "name": "read_tenant_invitations_tenant_email_unique_bidx",
+          "columns": [
+            "tenant_id",
+            "email_bidx"
+          ],
+          "unique": true,
+          "whereSql": "\"email_bidx\" IS NOT NULL"
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "piiSubjectFields": [
+        "email",
+        "invitedBy"
+      ]
     },
     {
       "tableName": "read_tenant_memberships",
@@ -544,6 +568,11 @@
           "notNull": true
         },
         {
+          "name": "email_bidx",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
           "name": "password_hash",
           "pgType": "text",
           "notNull": false
@@ -599,9 +628,19 @@
           "columns": [
             "tenant_id"
           ]
+        },
+        {
+          "name": "read_users_email_bidx_idx",
+          "columns": [
+            "email_bidx"
+          ]
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "piiSubjectFields": [
+        "email",
+        "displayName"
+      ]
     }
   ]
 }

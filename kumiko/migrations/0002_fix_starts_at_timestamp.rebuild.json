@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "tables": [
+    "read_events",
+    "read_tenant_invitations"
+  ]
+}

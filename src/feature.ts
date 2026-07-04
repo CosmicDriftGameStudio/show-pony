@@ -16,7 +16,7 @@ import {
   createNumberField,
   createSelectField,
   createTextField,
-  createTzField,
+  createTimestampField,
   defineEntityCreateHandler,
   defineEntityDeleteHandler,
   defineEntityDetailHandler,
@@ -40,7 +40,7 @@ export const eventEntity = createEntity({
   fields: {
     title: createTextField({ required: true, sortable: true, searchable: true }),
     slug: createTextField({ required: true, searchable: true }),
-    startsAt: createTzField({ required: true }),
+    startsAt: createTimestampField({ required: true }),
     location: createTextField({ searchable: true }),
     // Host-authored public event copy — business data, not third-party PII.
     description: createLongTextField({ allowPlaintext: "is-business-data" }),
@@ -58,11 +58,20 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 export const rsvpEntity = createEntity({
   fields: {
     eventId: createTextField({ required: true, searchable: true }),
-    // Guest-submitted personal data (collected anonymously) — mark as PII so it
-    // reads as personal data in the schema and compliance audits. pii is a
-    // schema marker only; no encryption key needed (that's `encrypted: true`).
-    name: createTextField({ required: true, sortable: true, searchable: true, pii: true }),
-    email: createTextField({ searchable: true, pii: true }),
+    // Guest-submitted personal data (collected anonymously). Searchable/sortable
+    // guest-list lookup is a core feature here, which structurally conflicts with
+    // `pii: true` (encrypted fields can't be searched/sorted) — declared plaintext
+    // instead, same pattern as `note` below.
+    name: createTextField({
+      required: true,
+      sortable: true,
+      searchable: true,
+      allowPlaintext: "guest-list search/sort, no KMS provisioned",
+    }),
+    email: createTextField({
+      searchable: true,
+      allowPlaintext: "guest-list search, no KMS provisioned",
+    }),
     status: createSelectField({ options: RSVP_STATUSES, default: "yes", filterable: true }),
     plusN: createNumberField({ sortable: true }),
     // Free text from an anonymous submitter — no user FK, so userOwned can't
