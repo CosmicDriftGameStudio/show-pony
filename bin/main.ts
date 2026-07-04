@@ -35,6 +35,9 @@ const configResolver = createConfigResolver({
 
 await runProdApp({
   features: APP_FEATURES,
+  // No subject-keys KMS provisioned for this public demo/sample app —
+  // rsvp.name/rsvp.email + bundled user/tenant PII stay plaintext (fw#818/#119).
+  allowPlaintextPii: "show-pony demo app, no KMS provisioned",
   staticDir: "./dist",
   // Demo content for the public page (runs once per filename, idempotent).
   seedsDir: "./seeds",
