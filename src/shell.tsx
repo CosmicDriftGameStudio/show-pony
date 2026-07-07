@@ -1,8 +1,10 @@
-// AppShell for show-pony. DefaultAppShell with a brand wordmark — the nav
-// and entityList/entityEdit screens are rendered by the framework from
-// the schema.
+// AppShell for show-pony — WorkspaceShell with host + platform workspaces.
 
-import { type AppSchema, DefaultAppShell } from "@cosmicdrift/kumiko-renderer-web";
+import {
+  DefaultTopbarActions,
+  useShellUser,
+} from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
+import { type AppSchema, WorkspaceShell } from "@cosmicdrift/kumiko-renderer-web";
 import type { ReactNode } from "react";
 
 const Brand = (): ReactNode => (
@@ -16,9 +18,15 @@ export function AppShell({
   children: ReactNode;
   schema: AppSchema;
 }): ReactNode {
+  const user = useShellUser();
   return (
-    <DefaultAppShell schema={schema} brand={<Brand />}>
+    <WorkspaceShell
+      brand={<Brand />}
+      schema={schema}
+      topbarActions={<DefaultTopbarActions />}
+      {...(user !== undefined && { user })}
+    >
       {children}
-    </DefaultAppShell>
+    </WorkspaceShell>
   );
 }
