@@ -41,12 +41,13 @@
     "typescript": "^6.0.3"
   },
   "overrides": {
-    "@cosmicdrift/kumiko-framework": "0.125.2",
-    "@cosmicdrift/kumiko-bundled-features": "0.125.2",
-    "@cosmicdrift/kumiko-dev-server": "0.125.2",
-    "@cosmicdrift/kumiko-renderer": "0.125.2",
-    "@cosmicdrift/kumiko-renderer-web": "0.125.2",
-    "@cosmicdrift/kumiko-headless": "0.125.2",
-    "@cosmicdrift/kumiko-dispatcher-live": "0.125.2"
+    "@cosmicdrift/kumiko-framework": "0.129.0",
+    "@cosmicdrift/kumiko-bundled-features": "0.129.0",
+    "@cosmicdrift/kumiko-dev-server": "0.129.0",
+    "@cosmicdrift/kumiko-renderer": "0.129.0",
+    "@cosmicdrift/kumiko-renderer-web": "0.129.0",
+    "@cosmicdrift/kumiko-headless": "0.129.0",
+    "@cosmicdrift/kumiko-dispatcher-live": "0.129.0"
   }
 }
+

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-07T12:25:14.300Z",
+  "generatedAt": "2026-07-07T20:56:07.851Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -622,6 +622,37 @@
           "pgType": "boolean",
           "notNull": true,
           "defaultSql": "true"
+        },
+        {
+          "name": "status",
+          "pgType": "text",
+          "notNull": true,
+          "defaultSql": "'active'"
+        },
+        {
+          "name": "destroy_requested_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "destroy_requested_by",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "grace_period_end",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "destroy_started_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "destroyed_at",
+          "pgType": "timestamptz",
+          "notNull": false
         }
       ],
       "indexes": [

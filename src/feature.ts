@@ -17,13 +17,11 @@ import {
   createSelectField,
   createTextField,
   createTimestampField,
-  defineEntityCreateHandler,
-  defineEntityDeleteHandler,
   defineEntityDetailHandler,
   defineEntityListHandler,
-  defineEntityUpdateHandler,
   defineFeature,
   type HandlerContext,
+  registerEntityCrud,
   type TenantId,
 } from "@cosmicdrift/kumiko-framework/engine";
 import type {
@@ -31,6 +29,7 @@ import type {
   EntityListScreenDefinition,
 } from "@cosmicdrift/kumiko-framework/ui-types";
 import { z } from "zod";
+import { showPonyTranslationKeys } from "./i18n";
 
 // The event slug is unique per tenant (tenant-scoping is enough): the public
 // URL is <host>.show-pony.<domain>/e/<slug>, and the host comes from the
@@ -153,6 +152,7 @@ export const eventListScreen: EntityListScreenDefinition = {
   columns: ["title", "slug", "startsAt", "location", "guestLimit"],
   pageSize: 25,
   defaultSort: { field: "title", dir: "asc" },
+  rowActions: [{ kind: "navigate", id: "edit", label: "actions.edit", screen: "event-edit" }],
 };
 
 export const eventEditScreen: EntityEditScreenDefinition = {
@@ -182,13 +182,10 @@ export const rsvpListScreen: EntityListScreenDefinition = {
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
   r.requires(mailFoundationFeature.name);
+  r.translations({ keys: showPonyTranslationKeys });
 
   r.entity("event", eventEntity);
-  r.writeHandler(defineEntityCreateHandler("event", eventEntity, hostAccess));
-  r.writeHandler(defineEntityUpdateHandler("event", eventEntity, hostAccess));
-  r.writeHandler(defineEntityDeleteHandler("event", eventEntity, hostAccess));
-  r.queryHandler(defineEntityListHandler("event", eventEntity, hostAccess));
-  r.queryHandler(defineEntityDetailHandler("event", eventEntity, hostAccess));
+  registerEntityCrud(r, "event", eventEntity, { write: hostAccess, read: hostAccess });
 
   // Public: an anonymous visitor loads the event by its slug. Tenant-scoped via
   // the resolver (Host header) — the same slug on another subdomain is a

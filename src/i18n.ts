@@ -5,65 +5,44 @@
 
 import type { TranslationsByLocale } from "@cosmicdrift/kumiko-renderer";
 
-export const showPonyTranslations: TranslationsByLocale = {
-  de: {
-    "showpony:nav.events": "Events",
-    "showpony:nav.event-new": "Neues Event",
-    "showpony:nav.guests": "Gästeliste",
+type LocaleEntry = { de: string; en: string };
 
-    "screen:event-list.title": "Events",
-    "screen:event-edit.title": "Event bearbeiten",
-    "screen:rsvp-list.title": "Gästeliste",
+export const showPonyTranslationKeys: Record<string, LocaleEntry> = {
+  "showpony:nav.events": { de: "Events", en: "Events" },
+  "showpony:nav.event-new": { de: "Neues Event", en: "New event" },
+  "showpony:nav.guests": { de: "Gästeliste", en: "Guest list" },
 
-    "showpony:section.event-basics": "Eckdaten",
-    "showpony:section.event-details": "Beschreibung",
+  "screen:event-list.title": { de: "Events", en: "Events" },
+  "screen:event-edit.title": { de: "Event bearbeiten", en: "Edit event" },
+  "screen:rsvp-list.title": { de: "Gästeliste", en: "Guest list" },
 
-    "showpony:entity:event:field:title": "Titel",
-    "showpony:entity:event:field:slug": "Link-Kürzel",
-    "showpony:entity:event:field:startsAt": "Beginn",
-    "showpony:entity:event:field:location": "Ort",
-    "showpony:entity:event:field:description": "Beschreibung",
-    "showpony:entity:event:field:guestLimit": "Gäste-Limit",
+  "showpony:section.event-basics": { de: "Eckdaten", en: "Basics" },
+  "showpony:section.event-details": { de: "Beschreibung", en: "Description" },
 
-    "showpony:entity:rsvp:field:name": "Name",
-    "showpony:entity:rsvp:field:email": "E-Mail",
-    "showpony:entity:rsvp:field:status": "Status",
-    "showpony:entity:rsvp:field:plusN": "Begleitung",
-    "showpony:entity:rsvp:field:eventId": "Event",
-    "showpony:entity:rsvp:field:note": "Notiz",
+  "showpony:entity:event:field:title": { de: "Titel", en: "Title" },
+  "showpony:entity:event:field:slug": { de: "Link-Kürzel", en: "Link slug" },
+  "showpony:entity:event:field:startsAt": { de: "Beginn", en: "Starts at" },
+  "showpony:entity:event:field:location": { de: "Ort", en: "Location" },
+  "showpony:entity:event:field:description": { de: "Beschreibung", en: "Description" },
+  "showpony:entity:event:field:guestLimit": { de: "Gäste-Limit", en: "Guest limit" },
 
-    "showpony:entity:rsvp:field:status:option:yes": "Zusage",
-    "showpony:entity:rsvp:field:status:option:no": "Absage",
-    "showpony:entity:rsvp:field:status:option:maybe": "Vielleicht",
-  },
-  en: {
-    "showpony:nav.events": "Events",
-    "showpony:nav.event-new": "New event",
-    "showpony:nav.guests": "Guest list",
+  "showpony:entity:rsvp:field:name": { de: "Name", en: "Name" },
+  "showpony:entity:rsvp:field:email": { de: "E-Mail", en: "Email" },
+  "showpony:entity:rsvp:field:status": { de: "Status", en: "Status" },
+  "showpony:entity:rsvp:field:plusN": { de: "Begleitung", en: "Plus guests" },
+  "showpony:entity:rsvp:field:eventId": { de: "Event", en: "Event" },
+  "showpony:entity:rsvp:field:note": { de: "Notiz", en: "Note" },
 
-    "screen:event-list.title": "Events",
-    "screen:event-edit.title": "Edit event",
-    "screen:rsvp-list.title": "Guest list",
-
-    "showpony:section.event-basics": "Basics",
-    "showpony:section.event-details": "Description",
-
-    "showpony:entity:event:field:title": "Title",
-    "showpony:entity:event:field:slug": "Link slug",
-    "showpony:entity:event:field:startsAt": "Starts at",
-    "showpony:entity:event:field:location": "Location",
-    "showpony:entity:event:field:description": "Description",
-    "showpony:entity:event:field:guestLimit": "Guest limit",
-
-    "showpony:entity:rsvp:field:name": "Name",
-    "showpony:entity:rsvp:field:email": "Email",
-    "showpony:entity:rsvp:field:status": "Status",
-    "showpony:entity:rsvp:field:plusN": "Plus guests",
-    "showpony:entity:rsvp:field:eventId": "Event",
-    "showpony:entity:rsvp:field:note": "Note",
-
-    "showpony:entity:rsvp:field:status:option:yes": "Going",
-    "showpony:entity:rsvp:field:status:option:no": "Not going",
-    "showpony:entity:rsvp:field:status:option:maybe": "Maybe",
-  },
+  "showpony:entity:rsvp:field:status:option:yes": { de: "Zusage", en: "Going" },
+  "showpony:entity:rsvp:field:status:option:no": { de: "Absage", en: "Not going" },
+  "showpony:entity:rsvp:field:status:option:maybe": { de: "Vielleicht", en: "Maybe" },
 };
+
+function toTranslationsByLocale(keys: Record<string, LocaleEntry>): TranslationsByLocale {
+  return {
+    de: Object.fromEntries(Object.entries(keys).map(([key, entry]) => [key, entry.de])),
+    en: Object.fromEntries(Object.entries(keys).map(([key, entry]) => [key, entry.en])),
+  };
+}
+
+export const showPonyTranslations = toTranslationsByLocale(showPonyTranslationKeys);
