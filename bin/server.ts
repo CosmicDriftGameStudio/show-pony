@@ -13,6 +13,7 @@
 //
 //   admin@show-pony.local / changeme  — host account on the demo tenant
 
+import { seedAdmin } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/seeding";
 import {
   createConfigAccessorFactory,
   createConfigResolver,
@@ -71,4 +72,22 @@ await runDevApp({
       ],
     },
   },
+  seeds: [
+    async ({ db }) => {
+      await seedAdmin(db, {
+        email: "sysadmin@show-pony.local",
+        password: "changeme",
+        displayName: "Sysadmin",
+        globalRoles: ["SystemAdmin"],
+        memberships: [
+          {
+            tenantId: DEMO_TENANT_ID,
+            tenantKey: "demo",
+            tenantName: "Demo Host",
+            roles: ["Admin", "TenantAdmin"],
+          },
+        ],
+      });
+    },
+  ],
 });

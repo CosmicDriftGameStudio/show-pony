@@ -9,6 +9,7 @@
 //   BASE_DOMAIN is the host's surface, e.g. show-pony.kumiko.rocks — guest
 //   pages live on <key>.<BASE_DOMAIN>.
 
+import { seedAdmin } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/seeding";
 import {
   createConfigAccessorFactory,
   createConfigResolver,
@@ -74,6 +75,24 @@ await runProdApp({
       ],
     },
   },
+  seeds: [
+    async ({ db }) => {
+      await seedAdmin(db, {
+        email: required("DEMO_SYSADMIN_EMAIL"),
+        password: required("DEMO_SYSADMIN_PASSWORD"),
+        displayName: "Sysadmin",
+        globalRoles: ["SystemAdmin"],
+        memberships: [
+          {
+            tenantId: DEMO_TENANT_ID,
+            tenantKey: "demo",
+            tenantName: "Demo Host",
+            roles: ["Admin", "TenantAdmin"],
+          },
+        ],
+      });
+    },
+  ],
   extraRoutes: (app) => {
     app.get("/api/version", (c) => c.json({ version: process.env.BUILD_VERSION ?? "dev" }));
   },
