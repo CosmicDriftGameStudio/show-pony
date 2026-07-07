@@ -39,6 +39,8 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
       "app-shell:workspace.host": { de: "Events", en: "Events" },
       "app-shell:workspace.platform": { de: "Plattform", en: "Platform" },
       "app-shell:nav.users": { de: "Nutzer", en: "Users" },
+      // tenant feature label is tenant:nav.members; tenantClient bundles tenant.nav.members.
+      "tenant:nav.members": { de: "Team", en: "Team" },
     },
   });
 
