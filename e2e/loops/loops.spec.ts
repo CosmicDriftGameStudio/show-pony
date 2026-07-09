@@ -12,12 +12,32 @@ const LOOP_DIR =
 
 test.describe.configure({ mode: "serial" });
 
-test("02-login", async ({ browser }) => {
+test("02-theme-toggle", async ({ browser }) => {
   mkdirSync(LOOP_DIR, { recursive: true });
   await recordGif(
     browser,
-    resolve(LOOP_DIR, ".frames-02"),
-    resolve(LOOP_DIR, "02-login.gif"),
+    resolve(LOOP_DIR, ".frames-02-theme"),
+    resolve(LOOP_DIR, "02-theme-toggle.gif"),
+    HOST_VIEWPORT,
+    async (page, { hold }) => {
+      await page.goto(`${APEX_URL}/host/event-list`);
+      await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+      await hold(10);
+      await page.getByRole("button", { name: "Dunkler Modus" }).click();
+      await hold(12);
+      await page.getByRole("button", { name: "Heller Modus" }).click();
+      await hold(10);
+    },
+    STORAGE_STATE,
+  );
+});
+
+test("03-login", async ({ browser }) => {
+  mkdirSync(LOOP_DIR, { recursive: true });
+  await recordGif(
+    browser,
+    resolve(LOOP_DIR, ".frames-03-login"),
+    resolve(LOOP_DIR, "03-login.gif"),
     HOST_VIEWPORT,
     async (page, { hold, type }) => {
       await page.goto(`${APEX_URL}/login`);
@@ -34,12 +54,12 @@ test("02-login", async ({ browser }) => {
   );
 });
 
-test("06-rsvp-roundtrip", async ({ browser }) => {
+test("07-rsvp-roundtrip", async ({ browser }) => {
   mkdirSync(LOOP_DIR, { recursive: true });
   await recordMultiPartGif(
     browser,
-    resolve(LOOP_DIR, ".frames-06"),
-    resolve(LOOP_DIR, "06-rsvp-roundtrip.gif"),
+    resolve(LOOP_DIR, ".frames-07"),
+    resolve(LOOP_DIR, "07-rsvp-roundtrip.gif"),
     [
       {
         viewport: PUBLIC_VIEWPORT,
@@ -67,12 +87,12 @@ test("06-rsvp-roundtrip", async ({ browser }) => {
   );
 });
 
-test("08-public-form", async ({ browser }) => {
+test("09-public-form", async ({ browser }) => {
   mkdirSync(LOOP_DIR, { recursive: true });
   await recordGif(
     browser,
-    resolve(LOOP_DIR, ".frames-08"),
-    resolve(LOOP_DIR, "08-public-form.gif"),
+    resolve(LOOP_DIR, ".frames-09"),
+    resolve(LOOP_DIR, "09-public-form.gif"),
     PUBLIC_VIEWPORT,
     async (page, { hold, type }) => {
       await page.goto(publicEventUrl(DEMO_SLUG));

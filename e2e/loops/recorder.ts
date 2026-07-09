@@ -6,16 +6,15 @@ import { mkdirSync, readdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Browser, Locator, Page } from "@playwright/test";
 
-// One canvas size for every clip — mixed PNG dimensions break ffmpeg palettegen.
-export const HOST_VIEWPORT = { width: 960, height: 600 };
-export const PUBLIC_VIEWPORT = { width: 960, height: 600 };
+// Match screenshot runner desktop size — 960×600 felt like a tiny crop with sidebar.
+export const HOST_VIEWPORT = { width: 1280, height: 800 };
+export const PUBLIC_VIEWPORT = { width: 1280, height: 800 };
 
-const FRAME_MS = 120; // 25% faster than 160ms pacing
-const GIF_FPS = 8 / 0.75; // ~10.67 — 25% faster playback
+const FRAME_MS = 120;
+const GIF_FPS = 8 / 0.75;
 
 export interface LoopTools {
   hold: (count?: number) => Promise<void>;
-  /** Types char-by-char with a screenshot after each — visible in the GIF. */
   type: (target: Locator, text: string, framesPerChar?: number) => Promise<void>;
 }
 
@@ -49,6 +48,13 @@ function cleanDir(dir: string): void {
   for (const f of readdirSync(dir)) {
     if (f.startsWith("frame-") && f.endsWith(".png")) unlinkSync(resolve(dir, f));
   }
+}
+
+async function preparePage(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    localStorage.setItem("kumiko:locale", "en");
+    localStorage.removeItem("kumiko:theme");
+  });
 }
 
 function makeTools(page: Page, frameDir: string, getIdx: () => number, setIdx: (n: number) => void): LoopTools {
@@ -95,6 +101,7 @@ export async function recordMultiPartGif(
       viewport: part.viewport,
     });
     const page = await ctx.newPage();
+    await preparePage(page);
     const tools = makeTools(
       page,
       frameDir,
