@@ -4,14 +4,20 @@
 import { execSync } from "node:child_process";
 import { mkdirSync, readdirSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Browser, Page } from "@playwright/test";
+import type { Browser, Locator, Page } from "@playwright/test";
 
 // One canvas size for every clip — mixed PNG dimensions break ffmpeg palettegen.
 export const HOST_VIEWPORT = { width: 960, height: 600 };
 export const PUBLIC_VIEWPORT = { width: 960, height: 600 };
 
-const FRAME_MS = 120;
-const GIF_FPS = 10;
+const FRAME_MS = 160;
+const GIF_FPS = 8;
+
+export interface LoopTools {
+  hold: (count?: number) => Promise<void>;
+  /** Types char-by-char with a screenshot after each — visible in the GIF. */
+  type: (target: Locator, text: string, framesPerChar?: number) => Promise<void>;
+}
 
 function gifFilter(): string {
   return (
@@ -45,12 +51,27 @@ function cleanDir(dir: string): void {
   }
 }
 
+function makeTools(page: Page, frameDir: string, getIdx: () => number, setIdx: (n: number) => void): LoopTools {
+  const hold = async (count = 8): Promise<void> => {
+    setIdx(await holdFrames(page, frameDir, getIdx(), count));
+  };
+  const type = async (target: Locator, text: string, framesPerChar = 3): Promise<void> => {
+    await target.click();
+    await hold(2);
+    for (const char of text) {
+      await page.keyboard.type(char);
+      setIdx(await holdFrames(page, frameDir, getIdx(), framesPerChar));
+    }
+  };
+  return { hold, type };
+}
+
 export async function recordGif(
   browser: Browser,
   frameDir: string,
   gifPath: string,
   viewport: { width: number; height: number },
-  run: (page: Page, hold: (count?: number) => Promise<void>) => Promise<void>,
+  run: (page: Page, tools: LoopTools) => Promise<void>,
   storageState?: string,
 ): Promise<void> {
   await recordMultiPartGif(browser, frameDir, gifPath, [{ viewport, storageState, run }]);
@@ -63,7 +84,7 @@ export async function recordMultiPartGif(
   parts: ReadonlyArray<{
     viewport: { width: number; height: number };
     storageState?: string;
-    run: (page: Page, hold: (count?: number) => Promise<void>) => Promise<void>;
+    run: (page: Page, tools: LoopTools) => Promise<void>;
   }>,
 ): Promise<void> {
   cleanDir(frameDir);
@@ -74,10 +95,15 @@ export async function recordMultiPartGif(
       viewport: part.viewport,
     });
     const page = await ctx.newPage();
-    const hold = async (count = 8): Promise<void> => {
-      frameIdx = await holdFrames(page, frameDir, frameIdx, count);
-    };
-    await part.run(page, hold);
+    const tools = makeTools(
+      page,
+      frameDir,
+      () => frameIdx,
+      (n) => {
+        frameIdx = n;
+      },
+    );
+    await part.run(page, tools);
     await ctx.close();
   }
   framesToGif(frameDir, gifPath);

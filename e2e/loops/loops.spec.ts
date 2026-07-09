@@ -19,17 +19,17 @@ test("02-login", async ({ browser }) => {
     resolve(LOOP_DIR, ".frames-02"),
     resolve(LOOP_DIR, "02-login.gif"),
     HOST_VIEWPORT,
-    async (page, hold) => {
+    async (page, { hold, type }) => {
       await page.goto(`${APEX_URL}/login`);
       await expect(page.locator("#login-email")).toBeVisible();
-      await hold(10);
-      await page.fill("#login-email", "admin@show-pony.local");
+      await hold(12);
+      await type(page.locator("#login-email"), "admin@show-pony.local", 2);
       await hold(4);
-      await page.fill("#login-password", "changeme");
+      await type(page.locator("#login-password"), "changeme", 3);
       await hold(4);
       await page.click('button[type="submit"]');
       await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
-      await hold(14);
+      await hold(16);
     },
   );
 });
@@ -43,24 +43,24 @@ test("06-rsvp-roundtrip", async ({ browser }) => {
     [
       {
         viewport: PUBLIC_VIEWPORT,
-        run: async (page, hold) => {
+        run: async (page, { hold, type }) => {
           await page.goto(publicEventUrl(DEMO_SLUG));
           await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
-          await hold(10);
-          await page.getByRole("textbox", { name: "Name" }).pressSequentially("Alex", { delay: 80 });
+          await hold(12);
+          await type(page.getByRole("textbox", { name: "Name" }), "Alex", 4);
           await hold(6);
           await page.getByRole("button", { name: "Send RSVP" }).click();
           await expect(page.getByText(/Thanks, Alex/)).toBeVisible({ timeout: 10_000 });
-          await hold(12);
+          await hold(14);
         },
       },
       {
         viewport: HOST_VIEWPORT,
         storageState: STORAGE_STATE,
-        run: async (page, hold) => {
+        run: async (page, { hold }) => {
           await page.goto(`${APEX_URL}/host/rsvp-list`);
           await expect(page.getByRole("cell", { name: "Alex" })).toBeVisible({ timeout: 15_000 });
-          await hold(16);
+          await hold(18);
         },
       },
     ],
@@ -74,16 +74,14 @@ test("08-public-form", async ({ browser }) => {
     resolve(LOOP_DIR, ".frames-08"),
     resolve(LOOP_DIR, "08-public-form.gif"),
     PUBLIC_VIEWPORT,
-    async (page, hold) => {
+    async (page, { hold, type }) => {
       await page.goto(publicEventUrl(DEMO_SLUG));
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
-      await hold(10);
-      const name = page.getByRole("textbox", { name: "Name" });
-      await name.click();
-      await name.pressSequentially("Sam", { delay: 100 });
+      await hold(12);
+      await type(page.getByRole("textbox", { name: "Name" }), "Sam", 5);
       await hold(6);
       await page.getByRole("button", { name: "Maybe" }).click();
-      await hold(6);
+      await hold(8);
       await page.getByRole("button", { name: "Send RSVP" }).click();
       await expect(page.getByText(/Thanks, Sam/)).toBeVisible({ timeout: 10_000 });
       await hold(14);
