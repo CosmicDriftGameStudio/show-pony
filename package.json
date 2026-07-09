@@ -18,7 +18,9 @@
     "test": "bun --config=bunfig.ci.toml test --dots",
     "test:integration": "bun --env-file=.env test src/__tests__/*.integration.test.ts",
     "test:integration:ci": "bun test src/__tests__/*.integration.test.ts",
-    "screenshots": "bunx --bun playwright test --config=playwright.screenshots.config.ts"
+    "screenshots": "bunx --bun playwright test --config=playwright.screenshots.config.ts",
+    "loops": "bunx --bun playwright test --config=playwright.loops.config.ts",
+    "loops:dry-run": "bunx --bun playwright test --config=playwright.loops.config.ts --list"
   },
   "dependencies": {
     "@cosmicdrift/kumiko-bundled-features": "^0.125.2",
@@ -50,4 +52,5 @@
     "@cosmicdrift/kumiko-dispatcher-live": "0.129.0"
   }
 }
+
 
