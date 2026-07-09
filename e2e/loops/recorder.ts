@@ -10,8 +10,8 @@ import type { Browser, Locator, Page } from "@playwright/test";
 export const HOST_VIEWPORT = { width: 960, height: 600 };
 export const PUBLIC_VIEWPORT = { width: 960, height: 600 };
 
-const FRAME_MS = 160;
-const GIF_FPS = 8;
+const FRAME_MS = 120; // 25% faster than 160ms pacing
+const GIF_FPS = 8 / 0.75; // ~10.67 — 25% faster playback
 
 export interface LoopTools {
   hold: (count?: number) => Promise<void>;
