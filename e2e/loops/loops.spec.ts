@@ -61,8 +61,8 @@ test("06-rsvp-roundtrip", async ({ browser }) => {
   const guestPage = await guestCtx.newPage();
   await guestPage.goto(publicEventUrl(DEMO_SLUG));
   await expect(guestPage.locator("form")).toBeVisible();
-  await guestPage.locator('input[name="name"]').fill("Alex");
-  await guestPage.locator('button[type="submit"]').first().click();
+  await guestPage.getByRole("textbox", { name: "Name" }).fill("Alex");
+  await guestPage.getByRole("button", { name: "Send RSVP" }).click();
   await guestPage.waitForTimeout(1000);
   await guestCtx.close();
 
@@ -72,7 +72,7 @@ test("06-rsvp-roundtrip", async ({ browser }) => {
     viewport: { width: 640, height: 480 },
   });
   const hostPage = await hostCtx.newPage();
-  await hostPage.goto(`${APEX_URL}/rsvp-list`);
+  await hostPage.goto(`${APEX_URL}/host/rsvp-list`);
   await expect(hostPage.locator("table tbody tr").first()).toBeVisible({ timeout: 15_000 });
   await hostPage.waitForTimeout(600);
   await hostCtx.close();
@@ -92,7 +92,7 @@ test("08-public-form", async ({ browser }) => {
   const page = await ctx.newPage();
   await page.goto(publicEventUrl(DEMO_SLUG));
   await expect(page.locator("form")).toBeVisible();
-  await page.locator('input[name="name"]').fill("Sam");
+  await page.getByRole("textbox", { name: "Name" }).fill("Sam");
   await page.waitForTimeout(1200);
   await ctx.close();
 

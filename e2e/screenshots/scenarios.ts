@@ -31,7 +31,7 @@ export const SCENARIOS: readonly Scenario[] = [
   {
     name: "host-guests",
     description: "Gästeliste — die anonym eingegangenen RSVPs, tenant-scoped",
-    url: "/rsvp-list",
+    url: "/host/rsvp-list",
     waitFor: "table tbody tr",
     settleMs: 400,
   },

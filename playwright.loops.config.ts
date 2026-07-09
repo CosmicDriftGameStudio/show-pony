@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { APEX_URL, PORT, STORAGE_STATE } from "./e2e/screenshots/constants";
+import { APEX_URL, PORT } from "./e2e/screenshots/constants";
 
 export default defineConfig({
   testDir: "./e2e/loops",
@@ -16,7 +16,8 @@ export default defineConfig({
       name: "loops",
       testMatch: /loops\.spec\.ts$/,
       dependencies: ["setup"],
-      use: { ...devices["Desktop Chrome"], storageState: STORAGE_STATE },
+      // No global storageState — 02-login records a fresh sign-in; 06 passes it per-context.
+      use: { ...devices["Desktop Chrome"] },
     },
   ],
   webServer: {
