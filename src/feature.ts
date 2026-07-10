@@ -8,6 +8,7 @@ import {
   createTransportForTenant,
   mailFoundationFeature,
 } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
+import { escapeHtml } from "@cosmicdrift/kumiko-headless";
 import { buildEntityTable, createEventStoreExecutor } from "@cosmicdrift/kumiko-framework/db";
 import {
   access,
@@ -135,9 +136,9 @@ async function sendRsvpConfirmation(
     to: payload.email,
     subject: `Your RSVP for "${title}"`,
     html:
-      `<p>Hi ${escHtml(payload.name)},</p>` +
+      `<p>Hi ${escapeHtml(payload.name)},</p>` +
       `<p>your reply (<strong>${RSVP_STATUS_LABELS[payload.status]}</strong>) for ` +
-      `"${escHtml(title)}" is in. Thanks!</p>`,
+      `"${escapeHtml(title)}" is in. Thanks!</p>`,
   });
 }
 
@@ -252,3 +253,5 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
     screen: "showpony:screen:rsvp-list",
   });
 });
+
+
