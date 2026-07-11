@@ -24,4 +24,3 @@ export const eventEntity = createEntity({
 });
 
 export const eventTable = buildEntityTable("event", eventEntity);
-

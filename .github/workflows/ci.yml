@@ -30,6 +30,9 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -40,12 +43,31 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-${{ runner.os }}-
-      - run: bun install --frozen-lockfile
+      - name: Install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun install --frozen-lockfile
       - run: bun run typecheck
       # Static gate: fails if entity defs are ahead of kumiko/migrations or
       # validateBoot rejects the composed features.
       - run: bun kumiko-schema validate
       - run: bun run lint
+      - name: HTML-Escape guard
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-html-escape
+      - name: No-Date-API guard
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-no-date-api
+      - name: Silent-Skip guard
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-silent-skip
+      - name: UI guards
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-ui
       - run: |
           ulimit -n 65536 || true
           bun --config=bunfig.ci.toml test --dots
@@ -55,6 +77,9 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -65,7 +90,10 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-${{ runner.os }}-
-      - run: bun install --frozen-lockfile
+      - name: Install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun install --frozen-lockfile
       - name: Start services
         run: |
           docker rm -f sp-ci-pg sp-ci-redis 2>/dev/null || true
@@ -141,3 +169,6 @@ jobs:
           platforms: linux/arm64
           build-args: |
             BUILD_VERSION=${{ github.sha }}
+
+
+

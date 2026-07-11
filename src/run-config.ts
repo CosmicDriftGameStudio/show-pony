@@ -15,8 +15,8 @@ import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
-import { showPonyFeature } from "./features/show-pony/feature";
 import { appShellFeature } from "./features/app-shell/feature";
+import { showPonyFeature } from "./features/show-pony/feature";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -40,4 +40,3 @@ export const APP_FEATURES = [
 ] as const;
 
 export const HAS_AUTH = true;
-

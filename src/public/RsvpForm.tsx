@@ -1,6 +1,7 @@
 // The RSVP form — the anonymous write from the public page. Name is required,
 // email optional. Inline success on submit, no redirect.
 
+import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type FormEvent, type ReactElement, useState } from "react";
 import { type RsvpStatus, submitRsvp } from "./api";
 
@@ -10,18 +11,19 @@ type FormState =
   | { kind: "success"; name: string }
   | { kind: "error"; reason: string };
 
-const STATUS_LABELS: Record<RsvpStatus, string> = {
-  yes: "I'm in",
-  maybe: "Maybe",
-  no: "Can't make it",
-};
-
 export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElement {
+  const t = useTranslation();
   const [name, setName] = useState("");
   const [status, setStatus] = useState<RsvpStatus>("yes");
   const [plusN, setPlusN] = useState(0);
   const [email, setEmail] = useState("");
   const [state, setState] = useState<FormState>({ kind: "idle" });
+
+  const statusLabels: Record<RsvpStatus, string> = {
+    yes: t("showpony:public.rsvp.status.yes"),
+    maybe: t("showpony:public.rsvp.status.maybe"),
+    no: t("showpony:public.rsvp.status.no"),
+  };
 
   async function onSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -40,8 +42,10 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
   if (state.kind === "success") {
     return (
       <div className="mt-6 rounded-md border border-[var(--color-primary)] bg-[var(--color-card)] p-4 text-sm">
-        <strong>Thanks, {state.name}!</strong>
-        <p className="mt-1 text-[var(--color-muted-foreground)]">You're on the list.</p>
+        <strong>{t("showpony:public.rsvp.thanks", { name: state.name })}</strong>
+        <p className="mt-1 text-[var(--color-muted-foreground)]">
+          {t("showpony:public.rsvp.on-list")}
+        </p>
       </div>
     );
   }
@@ -56,15 +60,15 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
     >
       <div className="grid gap-3">
         <input
-          aria-label="Name"
+          aria-label={t("showpony:public.rsvp.name")}
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
+          placeholder={t("showpony:public.rsvp.name-placeholder")}
           className={field}
         />
         <div className="flex gap-2">
-          {(Object.keys(STATUS_LABELS) as RsvpStatus[]).map((s) => (
+          {(Object.keys(statusLabels) as RsvpStatus[]).map((s) => (
             <button
               key={s}
               type="button"
@@ -75,12 +79,12 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
                   : "border-[var(--color-border)] bg-[var(--color-background)]"
               }`}
             >
-              {STATUS_LABELS[s]}
+              {statusLabels[s]}
             </button>
           ))}
         </div>
         <label className="text-sm text-[var(--color-muted-foreground)]">
-          Bringing anyone?
+          {t("showpony:public.rsvp.plus-guests")}
           <input
             type="number"
             min={0}
@@ -91,11 +95,11 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
           />
         </label>
         <input
-          aria-label="Email (optional)"
+          aria-label={t("showpony:public.rsvp.email")}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email (optional, for your confirmation)"
+          placeholder={t("showpony:public.rsvp.email-placeholder")}
           className={field}
         />
         <button
@@ -103,11 +107,11 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
           disabled={state.kind === "submitting" || name.length === 0}
           className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] disabled:opacity-50"
         >
-          {state.kind === "submitting" ? "…" : "Send RSVP"}
+          {state.kind === "submitting" ? "…" : t("showpony:public.rsvp.submit")}
         </button>
         {state.kind === "error" && (
           <p className="text-sm text-[var(--color-destructive)]">
-            Something went wrong ({state.reason}). Try again.
+            {t("showpony:public.rsvp.error", { reason: state.reason })}
           </p>
         )}
       </div>

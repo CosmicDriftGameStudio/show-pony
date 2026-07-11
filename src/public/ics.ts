@@ -2,14 +2,16 @@
 // data URI. No server endpoint, no signing: an .ics is plain text and
 // the browser downloads it directly.
 
+import "temporal-polyfill/global";
+
 import type { PublicEvent } from "./api";
 
 // ISO → ICS timestamp: 2026-07-18T18:00:00.000Z → 20260718T180000Z
 function icsDate(iso: string): string {
-  return new Date(iso)
-    .toISOString()
+  return Temporal.Instant.from(iso)
+    .toString()
     .replace(/[-:]/g, "")
-    .replace(/\.\d{3}/, "");
+    .replace(/\.\d{3}Z$/, "Z");
 }
 
 // Escape ICS text values: backslash, semicolon, comma, newline.
@@ -23,7 +25,7 @@ function esc(value: string): string {
 export function buildIcs(event: PublicEvent): string {
   // Default duration 2h — the event model only stores startsAt; an end field
   // would be a separate step if anyone needs it.
-  const end = new Date(new Date(event.startsAt).getTime() + 2 * 60 * 60 * 1000).toISOString();
+  const end = Temporal.Instant.from(event.startsAt).add({ hours: 2 }).toString();
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",

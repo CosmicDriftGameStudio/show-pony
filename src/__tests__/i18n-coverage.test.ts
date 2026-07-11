@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { appShellTranslationsByLocale } from "../features/app-shell/client";
@@ -54,5 +54,3 @@ test("app-shell workspace labels reach the browser bundle", () => {
   expect(appShellTranslationsByLocale.de["app-shell:workspace.host"]).toBe("Events");
   expect(appShellTranslationsByLocale.en["app-shell:workspace.platform"]).toBe("Platform");
 });
-
-

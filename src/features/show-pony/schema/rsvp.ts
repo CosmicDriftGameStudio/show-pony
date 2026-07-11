@@ -44,4 +44,3 @@ export const rsvpTable = buildEntityTable("rsvp", rsvpEntity);
 export const rsvpExecutor = createEventStoreExecutor(rsvpTable, rsvpEntity, {
   entityName: "rsvp",
 });
-

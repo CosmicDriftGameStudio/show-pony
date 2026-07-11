@@ -196,4 +196,3 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
     expect(getInbox(ACME)).toHaveLength(0);
   });
 });
-

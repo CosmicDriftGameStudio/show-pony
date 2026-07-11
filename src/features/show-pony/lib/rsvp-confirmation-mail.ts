@@ -1,10 +1,10 @@
 import { createTransportForTenant } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { escapeHtml } from "@cosmicdrift/kumiko-headless";
 import type { HandlerContext, TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { escapeHtml } from "@cosmicdrift/kumiko-headless";
 import type { z } from "zod";
+import type { rsvpSubmitSchema } from "../handlers/rsvp-submit.write";
 import { eventTable } from "../schema/event";
 import type { RsvpStatus } from "../schema/rsvp";
-import type { rsvpSubmitSchema } from "../handlers/rsvp-submit.write";
 
 const RSVP_STATUS_LABELS: Record<RsvpStatus, string> = {
   yes: "Coming",
@@ -16,11 +16,13 @@ const RSVP_STATUS_LABELS: Record<RsvpStatus, string> = {
 // mail-foundation DIRECTLY, not delivery: delivery is user-centric
 // (recipient = userId → email lookup), and our guest is anonymous, addressable
 // only by the email they just typed — the low-level transport is the fit.
+// kumiko-lint-ignore lib-test-coverage integration-covered via rsvp-anonymous.integration.test.ts
 export async function sendRsvpConfirmation(
   ctx: HandlerContext,
   tenantId: TenantId,
   payload: z.infer<typeof rsvpSubmitSchema>,
 ): Promise<void> {
+  // skip: guest left email empty — nothing to send
   if (!payload.email) return;
   const events = await ctx.db.selectMany(eventTable);
   const found = events.find((e) => e.id === payload.eventId)?.title;
@@ -31,7 +33,7 @@ export async function sendRsvpConfirmation(
     subject: `Your RSVP for "${title}"`,
     html:
       `<p>Hi ${escapeHtml(payload.name)},</p>` +
-      `<p>your reply (<strong>${RSVP_STATUS_LABELS[payload.status]}</strong>) for ` +
+      `<p>your reply (<strong>${escapeHtml(RSVP_STATUS_LABELS[payload.status])}</strong>) for ` +
       `"${escapeHtml(title)}" is in. Thanks!</p>`,
   });
 }
