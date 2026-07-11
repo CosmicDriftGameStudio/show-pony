@@ -169,6 +169,8 @@ jobs:
           platforms: linux/arm64
           build-args: |
             BUILD_VERSION=${{ github.sha }}
+            NPM_AUTH_TOKEN=${{ secrets.GH_PACKAGES_PAT || secrets.GITHUB_TOKEN }}
+
 
 
 

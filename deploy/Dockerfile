@@ -20,8 +20,8 @@ ARG BUILD_TIME=unknown
 FROM oven/bun:${BUN_VERSION}-alpine AS build
 WORKDIR /app
 
-# All show-pony deps are public NPM (@cosmicdrift/kumiko-*). The token is wired
-# anyway so the proven _docker-build-push build-arg lands somewhere; harmless.
+# All @cosmicdrift/* deps are public NPM. @cosmicdriftgamestudio/kumiko-guards
+# is a restricted org package — NPM_AUTH_TOKEN (GH_PACKAGES_PAT in CI) required.
 ARG NPM_AUTH_TOKEN
 ENV GITHUB_TOKEN=${NPM_AUTH_TOKEN}
 
@@ -63,3 +63,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD wget --quiet --spider "http://127.0.0.1:${PORT}/health" || exit 1
 
 CMD ["sh", "-c", "exec bun run server.js"]
+
