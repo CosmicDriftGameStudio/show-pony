@@ -8,14 +8,16 @@ import { emailPasswordClient } from "@cosmicdrift/kumiko-bundled-features/auth-e
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
 import { tenantClient } from "@cosmicdrift/kumiko-bundled-features/tenant/web";
 import { createKumikoApp } from "@cosmicdrift/kumiko-renderer-web";
-import { AppShell } from "./shell";
-import { showPonyClient } from "./web";
+import { AppShell } from "./app/shell";
+import { appShellClient } from "./features/app-shell/client";
+import { showPonyClient } from "./features/show-pony/web";
 
 createKumikoApp({
   shell: AppShell,
   clientFeatures: [
     emailPasswordClient(),
     adminShellClient(),
+    appShellClient,
     tenantClient(),
     auditClient(),
     jobsClient(),

@@ -1,13 +1,11 @@
-// show-pony i18n bundle. Convention: feature prefix `showpony:`
+// show-pony i18n keys. Convention: feature prefix `showpony:`
 // + `entity:<e>:field:<name>` for field labels (columns + form),
 // `screen:<id>.title` for page titles, `showpony:nav.<id>` for
 // sidebar labels, `:option:<value>` for select values.
 
-import type { TranslationsByLocale } from "@cosmicdrift/kumiko-renderer";
-
 type LocaleEntry = { de: string; en: string };
 
-export const showPonyTranslationKeys: Record<string, LocaleEntry> = {
+export const showPonyTranslations = {
   "showpony:nav.events": { de: "Events", en: "Events" },
   "showpony:nav.event-new": { de: "Neues Event", en: "New event" },
   "showpony:nav.guests": { de: "Gästeliste", en: "Guest list" },
@@ -36,13 +34,4 @@ export const showPonyTranslationKeys: Record<string, LocaleEntry> = {
   "showpony:entity:rsvp:field:status:option:yes": { de: "Zusage", en: "Going" },
   "showpony:entity:rsvp:field:status:option:no": { de: "Absage", en: "Not going" },
   "showpony:entity:rsvp:field:status:option:maybe": { de: "Vielleicht", en: "Maybe" },
-};
-
-function toTranslationsByLocale(keys: Record<string, LocaleEntry>): TranslationsByLocale {
-  return {
-    de: Object.fromEntries(Object.entries(keys).map(([key, entry]) => [key, entry.de])),
-    en: Object.fromEntries(Object.entries(keys).map(([key, entry]) => [key, entry.en])),
-  };
-}
-
-export const showPonyTranslations = toTranslationsByLocale(showPonyTranslationKeys);
+} as const satisfies Record<string, LocaleEntry>;
