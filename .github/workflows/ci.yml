@@ -45,7 +45,8 @@ jobs:
           restore-keys: bun-${{ runner.os }}-
       - name: Install
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Public repo: default GITHUB_TOKEN cannot read restricted org packages.
+          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
         run: bun install --frozen-lockfile
       - run: bun run typecheck
       # Static gate: fails if entity defs are ahead of kumiko/migrations or
@@ -92,7 +93,7 @@ jobs:
           restore-keys: bun-${{ runner.os }}-
       - name: Install
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
         run: bun install --frozen-lockfile
       - name: Start services
         run: |
@@ -169,7 +170,10 @@ jobs:
           platforms: linux/arm64
           build-args: |
             BUILD_VERSION=${{ github.sha }}
-            NPM_AUTH_TOKEN=${{ secrets.GH_PACKAGES_PAT || secrets.GITHUB_TOKEN }}
+            NPM_AUTH_TOKEN=${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
+
+
+
 
 
 
