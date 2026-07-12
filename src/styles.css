@@ -1,25 +1,117 @@
-/* show-pony Theme. Pattern: erst das Renderer-Web-CSS importieren (bringt
-   das shadcn-Token-Schema + @source für renderer/renderer-web mit), dann
-   unsere Brand-Tokens als Override. Bernstein-Primary, helles Surface. */
+/* show-pony Theme — lavender/violet event-app identity. Deliberately NOT the
+   neutral Kumiko renderer chrome (gray/white) nor the kumiko.rocks Vice City
+   hero palette. Admin + public share this file; the guest page adds
+   `.show-pony-public` on <body> for a slightly warmer invite surface. */
 
 @import "@cosmicdrift/kumiko-renderer-web/styles.css";
 
 @source "./**/*.{ts,tsx}";
 
 @theme {
-  --color-primary: #7c3aed;
-  --color-primary-foreground: #ffffff;
-  --color-ring: #7c3aed;
+  /* Dark — deep violet chrome (not renderer neutral gray). */
+  --color-background: #140a24;
+  --color-foreground: #f5f0ff;
+  --color-card: #1f1235;
+  --color-card-foreground: #f5f0ff;
+  --color-popover: #1f1235;
+  --color-popover-foreground: #f5f0ff;
+  --color-border: #3d2a5c;
+  --color-input: #3d2a5c;
+  --color-muted: #261740;
+  --color-muted-foreground: #c4b5fd;
+  --color-secondary: #261740;
+  --color-secondary-foreground: #f5f0ff;
+  --color-accent: #372460;
+  --color-accent-foreground: #f5f0ff;
+  --color-destructive: #f87171;
+  --color-destructive-foreground: #ffffff;
+  --color-primary: #a78bfa;
+  --color-primary-foreground: #140a24;
+  --color-ring: #8b5cf6;
+
+  --color-sidebar: #1a1030;
+  --color-sidebar-foreground: #e9e0ff;
+  --color-sidebar-primary: #a78bfa;
+  --color-sidebar-primary-foreground: #140a24;
+  --color-sidebar-accent: #2d1b4e;
+  --color-sidebar-accent-foreground: #f5f0ff;
+  --color-sidebar-border: #3d2a5c;
+  --color-sidebar-ring: #8b5cf6;
 }
 
-/* Renderer-Web definiert in @layer base einen `:root:not(.dark)`-Block mit
-   eigenen Light-Mode-Tokens; dessen Spezifität (eine Klasse mehr) schlägt
-   unseren @theme-Default. Daher das Brand-Primary hier auf gleicher
-   Selektor-Ebene überschreiben, sonst rendert der Default-Schwarz. */
+/* Renderer-Web wins on :root:not(.dark) / .dark specificity — match its layer. */
 @layer base {
   :root:not(.dark) {
+    --color-background: #f8f6ff;
+    --color-foreground: #1e1033;
+    --color-card: #ffffff;
+    --color-card-foreground: #1e1033;
+    --color-popover: #ffffff;
+    --color-popover-foreground: #1e1033;
+    --color-border: #ddd6fe;
+    --color-input: #ddd6fe;
+    --color-muted: #f0edfa;
+    --color-muted-foreground: #6b5b8a;
+    --color-secondary: #ede9fe;
+    --color-secondary-foreground: #1e1033;
+    --color-accent: #ede9fe;
+    --color-accent-foreground: #1e1033;
+    --color-destructive: #dc2626;
+    --color-destructive-foreground: #ffffff;
     --color-primary: #7c3aed;
     --color-primary-foreground: #ffffff;
-    --color-ring: #7c3aed;
+    --color-ring: #8b5cf6;
+
+    --color-sidebar: #f3f0ff;
+    --color-sidebar-foreground: #4c3d6b;
+    --color-sidebar-primary: #7c3aed;
+    --color-sidebar-primary-foreground: #ffffff;
+    --color-sidebar-accent: #ede9fe;
+    --color-sidebar-accent-foreground: #1e1033;
+    --color-sidebar-border: #ddd6fe;
+    --color-sidebar-ring: #8b5cf6;
+  }
+
+  .dark {
+    --color-background: #140a24;
+    --color-foreground: #f5f0ff;
+    --color-card: #1f1235;
+    --color-card-foreground: #f5f0ff;
+    --color-popover: #1f1235;
+    --color-popover-foreground: #f5f0ff;
+    --color-border: #3d2a5c;
+    --color-input: #3d2a5c;
+    --color-muted: #261740;
+    --color-muted-foreground: #c4b5fd;
+    --color-secondary: #261740;
+    --color-secondary-foreground: #f5f0ff;
+    --color-accent: #372460;
+    --color-accent-foreground: #f5f0ff;
+    --color-destructive: #f87171;
+    --color-destructive-foreground: #ffffff;
+    --color-primary: #a78bfa;
+    --color-primary-foreground: #140a24;
+    --color-ring: #8b5cf6;
+
+    --color-sidebar: #1a1030;
+    --color-sidebar-foreground: #e9e0ff;
+    --color-sidebar-primary: #a78bfa;
+    --color-sidebar-primary-foreground: #140a24;
+    --color-sidebar-accent: #2d1b4e;
+    --color-sidebar-accent-foreground: #f5f0ff;
+    --color-sidebar-border: #3d2a5c;
+    --color-sidebar-ring: #8b5cf6;
+  }
+
+  /* Guest invite page — warmer lavender canvas, same violet CTAs. */
+  :root:not(.dark) body.show-pony-public {
+    --color-background: #faf8ff;
+    --color-muted: #f3effc;
+    --color-border: #e4dcff;
+  }
+
+  .dark body.show-pony-public {
+    --color-background: #120820;
+    --color-card: #1c1030;
   }
 }
