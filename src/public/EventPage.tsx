@@ -4,7 +4,9 @@
 
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
+import { fetchDemoMode } from "../demo-mode-client";
 import { fetchEventBySlug, type PublicEvent } from "./api";
+import { DemoPublicNotice } from "./DemoPublicNotice";
 import { icsHref } from "./ics";
 import { RsvpForm } from "./RsvpForm";
 
@@ -113,5 +115,6 @@ export function EventPage(): ReactElement {
     </div>
   );
 }
+
 
 
