@@ -82,23 +82,34 @@ setup("login + seed demo event", async ({ page, browser }) => {
   await page.locator("#login-password").press("Enter");
   await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
 
-  // 2. Create the event.
+  // 2. Create demo events (tutorial screenshots show a filled portfolio, not one row).
+  const rooftopDesc =
+    "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
   const created = await authedWrite(page, "showpony:write:event:create", {
     title: "Rooftop Launch Party",
     slug: DEMO_SLUG,
     startsAt: "2026-09-12T19:00:00.000Z",
     location: "Sky Lounge, 24th floor",
-    description: "Drinks, a live set, and 2.0 going out at midnight. Bring someone good.",
+    description: rooftopDesc,
     guestLimit: 80,
   });
   const parsed = JSON.parse(created.body) as { isSuccess: boolean; data?: { id: string } };
   const eventId = parsed.isSuccess ? (parsed.data?.id ?? null) : null;
   expect(eventId, created.body).toBeTruthy();
 
+  await authedWrite(page, "showpony:write:event:create", {
+    title: "Winter Warmup Drinks",
+    slug: "warmup-drinks",
+    startsAt: "2026-11-28T18:00:00.000Z",
+    location: "Ground-floor bar",
+    description: "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
+    guestLimit: 40,
+  });
+
   // 3. Wait for the event projection.
   await expect
     .poll(() => authedCount(page, "showpony:query:event:list"), { timeout: 15_000 })
-    .toBeGreaterThan(0);
+    .toBeGreaterThanOrEqual(2);
 
   // 4. RSVPs anonymously via the subdomain — fresh context without the host cookie,
   //    so the tenant is resolved from the Host header (not from a session).
@@ -126,3 +137,4 @@ setup("login + seed demo event", async ({ page, browser }) => {
   await mkdir("e2e/screenshots/.auth", { recursive: true });
   await page.context().storageState({ path: STORAGE_STATE });
 });
+

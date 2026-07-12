@@ -54,6 +54,28 @@ test("03-login", async ({ browser }) => {
   );
 });
 
+test("06-host-nav", async ({ browser }) => {
+  mkdirSync(LOOP_DIR, { recursive: true });
+  await recordGif(
+    browser,
+    resolve(LOOP_DIR, ".frames-06-nav"),
+    resolve(LOOP_DIR, "06-host-nav.gif"),
+    HOST_VIEWPORT,
+    async (page, { hold }) => {
+      await page.goto(`${APEX_URL}/host/event-list`);
+      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
+      await hold(10);
+      await page.getByRole("link", { name: /^Guest list$|^Gästeliste$/ }).click();
+      await expect(page.getByText("Ava Chen").first()).toBeVisible({ timeout: 15_000 });
+      await hold(14);
+      await page.getByRole("link", { name: /^Events$|^Neues Event$/ }).first().click();
+      await expect(page.getByText("Winter Warmup Drinks").first()).toBeVisible({ timeout: 15_000 });
+      await hold(12);
+    },
+    STORAGE_STATE,
+  );
+});
+
 test("07-rsvp-roundtrip", async ({ browser }) => {
   mkdirSync(LOOP_DIR, { recursive: true });
   await recordMultiPartGif(
@@ -108,3 +130,4 @@ test("09-public-form", async ({ browser }) => {
     },
   );
 });
+

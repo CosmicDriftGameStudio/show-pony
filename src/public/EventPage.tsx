@@ -27,39 +27,87 @@ export function EventPage(): ReactElement {
   }, []);
 
   if (load.kind === "loading") {
-    return <main className="mx-auto max-w-xl p-8 text-[var(--color-muted-foreground)]">…</main>;
+    return (
+      <main className="mx-auto max-w-2xl p-8 text-[var(--color-muted-foreground)] show-pony-public">
+        …
+      </main>
+    );
   }
   if (load.kind === "missing") {
-    return <main className="mx-auto max-w-xl p-8">{t("showpony:public.event.missing")}</main>;
+    return (
+      <main className="mx-auto max-w-2xl p-8 show-pony-public">
+        {t("showpony:public.event.missing")}
+      </main>
+    );
   }
 
   const { event } = load;
-  const when = new Date(event.startsAt).toLocaleString("en-US", {
+  const when = new Date(event.startsAt).toLocaleString(undefined, {
     dateStyle: "long",
     timeStyle: "short",
   });
   return (
-    <main className="mx-auto max-w-xl p-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-[var(--color-foreground)]">
-        {event.title}
-      </h1>
-      <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">
-        {when}
-        {event.location ? ` · ${event.location}` : ""}
-      </p>
-      {event.description ? (
-        <p className="mt-4 whitespace-pre-line text-[var(--color-foreground)]">
-          {event.description}
+    <div className="min-h-screen show-pony-public">
+      <header className="bg-[var(--color-primary)] px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10">
+        <p className="text-sm font-medium uppercase tracking-widest opacity-90">
+          {t("showpony:public.event.invited")}
         </p>
-      ) : null}
-      <a
-        href={icsHref(event)}
-        download={`${event.slug}.ics`}
-        className="mt-4 inline-block text-sm text-[var(--color-primary)] hover:underline"
-      >
-        {t("showpony:public.event.add-to-calendar")}
-      </a>
-      <RsvpForm eventId={event.id} />
-    </main>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{event.title}</h1>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <span className="rounded-full bg-[var(--color-primary-foreground)]/15 px-3 py-1 text-sm">
+            {when}
+          </span>
+          {event.location ? (
+            <span className="rounded-full bg-[var(--color-primary-foreground)]/15 px-3 py-1 text-sm">
+              {event.location}
+            </span>
+          ) : null}
+          {event.guestLimit != null && event.guestLimit > 0 ? (
+            <span className="rounded-full bg-[var(--color-primary-foreground)]/15 px-3 py-1 text-sm">
+              {t("showpony:public.event.guest-limit", { limit: String(event.guestLimit) })}
+            </span>
+          ) : null}
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-2xl px-4 pb-12 sm:px-6">
+        <div className="-mt-6 space-y-6">
+          {event.description ? (
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+              <p className="whitespace-pre-line text-[var(--color-foreground)] leading-relaxed">
+                {event.description}
+              </p>
+              <a
+                href={icsHref(event)}
+                download={`${event.slug}.ics`}
+                className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline"
+              >
+                {t("showpony:public.event.add-to-calendar")}
+              </a>
+            </section>
+          ) : (
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+              <a
+                href={icsHref(event)}
+                download={`${event.slug}.ics`}
+                className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline"
+              >
+                {t("showpony:public.event.add-to-calendar")}
+              </a>
+            </section>
+          )}
+
+          <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+            <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
+              {t("showpony:public.rsvp.heading")}
+            </h2>
+            <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+              {t("showpony:public.rsvp.subheading")}
+            </p>
+            <RsvpForm eventId={event.id} />
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }

@@ -16,6 +16,10 @@ const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 // Explicit aggregate id (the framework's seed pattern) so the RSVPs can
 // reference the event without reading back the create result.
 const DEMO_EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
+const WARMUP_EVENT_ID = "00000000-0000-4000-8000-0000000000e2";
+
+const ROOFTOP_DESC =
+  "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
 
 const GUESTS = [
   { name: "Ava Chen", status: "yes", plusN: 2 },
@@ -25,7 +29,7 @@ const GUESTS = [
 ] as const;
 
 export default {
-  description: "demo tenant content: Rooftop Launch Party + sample RSVPs",
+  description: "demo tenant content: Rooftop Launch Party + Winter Warmup + sample RSVPs",
   run: async (ctx) => {
     const event = await ctx.systemWriteAs(
       "showpony:write:event:create",
@@ -35,13 +39,31 @@ export default {
         slug: "rooftop-launch",
         startsAt: "2026-09-12T19:00:00.000Z",
         location: "Sky Lounge, 24th floor",
-        description: "Drinks, a live set, and 2.0 going out at midnight. Bring someone good.",
+        description: ROOFTOP_DESC,
         guestLimit: 80,
       },
       DEMO_TENANT_ID,
     );
     if (!event.isSuccess) {
       throw new Error(`show-pony seed: event:create failed — ${event.error.code}: ${event.error.message}`);
+    }
+
+    const warmup = await ctx.systemWriteAs(
+      "showpony:write:event:create",
+      {
+        id: WARMUP_EVENT_ID,
+        title: "Winter Warmup Drinks",
+        slug: "warmup-drinks",
+        startsAt: "2026-11-28T18:00:00.000Z",
+        location: "Ground-floor bar",
+        description:
+          "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
+        guestLimit: 40,
+      },
+      DEMO_TENANT_ID,
+    );
+    if (!warmup.isSuccess) {
+      throw new Error(`show-pony seed: warmup event failed — ${warmup.error.code}: ${warmup.error.message}`);
     }
 
     for (const guest of GUESTS) {
@@ -65,3 +87,6 @@ export default {
     }
   },
 } satisfies SeedMigration;
+
+
+
