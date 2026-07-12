@@ -17,14 +17,14 @@ export const SCENARIOS: readonly Scenario[] = [
   {
     name: "host-events",
     description: "Host-Dashboard — Event-Liste, schema-driven aus der Entity gerendert",
-    url: "/event-list",
-    waitFor: "table tbody tr",
+    url: "/host/event-list",
+    waitFor: "text=Rooftop Launch Party",
     settleMs: 400,
   },
   {
     name: "host-event-form",
     description: "Event anlegen — auto-generiertes Formular mit Sections + Feldern",
-    url: "/event-edit",
+    url: "/host/event-edit",
     waitFor: "form input",
     settleMs: 400,
   },
@@ -32,7 +32,7 @@ export const SCENARIOS: readonly Scenario[] = [
     name: "host-guests",
     description: "Gästeliste — die anonym eingegangenen RSVPs, tenant-scoped",
     url: "/host/rsvp-list",
-    waitFor: "table tbody tr",
+    waitFor: "text=Ava Chen",
     settleMs: 400,
   },
   {
@@ -44,3 +44,6 @@ export const SCENARIOS: readonly Scenario[] = [
     clearAuth: true,
   },
 ];
+
+
+
