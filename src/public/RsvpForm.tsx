@@ -54,10 +54,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
     "w-full rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)]";
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="mt-4"
-    >
+    <form onSubmit={onSubmit} className="mt-4">
       <div className="grid gap-3">
         <input
           aria-label={t("showpony:public.rsvp.name")}
@@ -118,4 +115,3 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
     </form>
   );
 }
-

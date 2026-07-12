@@ -72,4 +72,3 @@ export const showPonyTranslations = {
     en: "Something went wrong ({reason}). Try again.",
   },
 } as const satisfies Record<string, LocaleEntry>;
-
