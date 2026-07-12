@@ -24,16 +24,26 @@ function toRawSqlRunner(db: unknown): RawSqlRunner {
   throw new Error("refresh-demo-events: ctx.db exposes no raw .unsafe runner");
 }
 
+function asRows(result: unknown): EventRow[] {
+  if (Array.isArray(result)) return result as EventRow[];
+  if (result && typeof result === "object" && Array.isArray((result as { rows?: unknown }).rows)) {
+    return (result as { rows: EventRow[] }).rows;
+  }
+  return [];
+}
+
 async function findEventBySlug(
   raw: RawSqlRunner,
   slug: string,
 ): Promise<EventRow | null> {
-  const rows = (await raw.unsafe(
-    `SELECT id, version FROM read_events
-     WHERE tenant_id = $1 AND slug = $2
-     LIMIT 1`,
-    [DEMO_TENANT_ID, slug],
-  )) as EventRow[];
+  const rows = asRows(
+    await raw.unsafe(
+      `SELECT id, version FROM read_events
+       WHERE tenant_id = $1 AND slug = $2
+       LIMIT 1`,
+      [DEMO_TENANT_ID, slug],
+    ),
+  );
   return rows[0] ?? null;
 }
 
@@ -73,3 +83,4 @@ export default {
     }
   },
 } satisfies SeedMigration;
+
