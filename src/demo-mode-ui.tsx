@@ -60,7 +60,7 @@ export function DemoReadOnlyBanner(): ReactElement | null {
 
   return (
     <div
-      className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+      className="border-b border-[var(--color-border)] bg-[var(--color-muted)]/50 px-4 py-2 text-center text-sm text-[var(--color-foreground)]"
       role="status"
     >
       {t("showpony:demo.banner")}{" "}
