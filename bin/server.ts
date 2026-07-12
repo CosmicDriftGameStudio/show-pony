@@ -20,19 +20,18 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
+import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
 const port = Number.parseInt(process.env.PORT ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
-const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -79,9 +78,9 @@ await runDevApp({
       displayName: "Show-Pony Host",
       memberships: [
         {
-          tenantId: DEMO_TENANT_ID,
-          tenantKey: "demo",
-          tenantName: "Demo Host",
+          tenantId: DEMO_TENANT.id,
+          tenantKey: DEMO_TENANT.tenantKey,
+          tenantName: DEMO_TENANT.name,
           roles: ["Admin", "TenantAdmin"],
         },
       ],
@@ -99,9 +98,9 @@ await runDevApp({
         globalRoles: ["SystemAdmin"],
         memberships: [
           {
-            tenantId: DEMO_TENANT_ID,
-            tenantKey: "demo",
-            tenantName: "Demo Host",
+            tenantId: PLATFORM_TENANT.id,
+            tenantKey: PLATFORM_TENANT.tenantKey,
+            tenantName: PLATFORM_TENANT.name,
             roles: ["User"],
           },
         ],
