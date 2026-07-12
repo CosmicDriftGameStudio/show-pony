@@ -15,14 +15,63 @@ export interface Scenario {
 export const SCENARIOS: readonly Scenario[] = [
   {
     name: "host-login",
-    description: "Login screen on the apex — before the host enters the dashboard",
+    description: "Host login in marketing chrome at /login — post-mount gate before chapter 12 landing",
     clearAuth: true,
     flow: async (page) => {
       await page.goto(`${APEX_URL}/login`);
+      await expect(page.getByRole("link", { name: "Show Pony" }).first()).toBeVisible();
       await expect(page.locator("#login-email")).toBeVisible();
       await expect(page.locator("#login-password")).toBeVisible();
     },
     settleMs: 300,
+  },
+  {
+    name: "apex-landing",
+    description: "Marketing landing on apex / (English default)",
+    clearAuth: true,
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/`);
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole("link", { name: /Login/i }).first()).toBeVisible();
+    },
+    settleMs: 400,
+  },
+  {
+    name: "apex-features",
+    description: "Marketing features tour page",
+    clearAuth: true,
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/features`);
+      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible({
+        timeout: 15_000,
+      });
+    },
+    settleMs: 400,
+  },
+  {
+    name: "apex-pricing",
+    description: "Marketing pricing page",
+    clearAuth: true,
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/pricing`);
+      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+    },
+    settleMs: 400,
+  },
+  {
+    name: "legal-imprint",
+    description: "Legal imprint in marketing chrome",
+    clearAuth: true,
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/legal/imprint`);
+      await expect(page).toHaveTitle(/Imprint · Show Pony/i, { timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+    },
+    settleMs: 400,
   },
   {
     name: "host-events",
@@ -120,6 +169,9 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 400,
   },
 ];
+
+
+
 
 
 

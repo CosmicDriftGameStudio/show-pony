@@ -11,6 +11,7 @@ import { tenantTable } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
 import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { isSystemTenant, SYSTEM_TENANT_ID } from "@cosmicdrift/kumiko-framework/engine";
 
 // Strip the port: "acme.show-pony.localhost:4180" → "acme.show-pony.localhost".
 export function hostnameOf(host: string): string {
@@ -45,6 +46,23 @@ export function createShowPonyTenantResolver(config: { db: DbConnection; baseDom
       }
       return null;
     },
-    tenantExists: (id: TenantId): Promise<boolean> => isTenantEnabled(db, id),
+    tenantExists: (id: TenantId): Promise<boolean> =>
+      isSystemTenant(id) ? Promise.resolve(true) : isTenantEnabled(db, id),
+  };
+}
+
+/** Apex anonymous routes (legal pages) need SYSTEM tenant; subdomains keep host tenant. */
+export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDomain: string }) {
+  const subdomain = createShowPonyTenantResolver(config);
+  const { baseDomain } = config;
+  return {
+    tenantResolver: async (c: {
+      req: { header: (n: string) => string | undefined };
+    }): Promise<TenantId | null> => {
+      const host = hostnameOf(c.req.header("Host") ?? "");
+      if (host === baseDomain || host === `www.${baseDomain}`) return SYSTEM_TENANT_ID;
+      return subdomain.tenantResolver(c);
+    },
+    tenantExists: subdomain.tenantExists,
   };
 }

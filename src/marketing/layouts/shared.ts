@@ -214,7 +214,7 @@ export function apexHeader(lang: Lang, opts?: { readonly pathname?: string }): A
       { href: pricingPath(lang), label: s.navPricing },
     ],
     actions: [
-      { label: lang === "de" ? "EN" : "DE", href: altLangSwitchHref(pathname), variant: "link" },
+      { label: lang === "en" ? "DE" : "EN", href: altLangSwitchHref(pathname), variant: "link" },
       { label: s.login, href: "/login", variant: "link" },
       { label: s.cta, href: "/login", variant: "primary" },
     ],

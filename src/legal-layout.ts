@@ -23,6 +23,8 @@ const PROSE_CSS = `
 
 export function renderLegalLayout(opts: RenderLegalLayoutOptions): string {
   const lang: Lang = opts.lang === "en" ? "en" : "de";
+  const headerHtml = renderHeader(lang);
+  const footerHtml = renderFooter(lang);
   return `<!doctype html>
 <html lang="${lang}">
   <head>
@@ -33,13 +35,13 @@ export function renderLegalLayout(opts: RenderLegalLayoutOptions): string {
     <style>${SHARED_CSS}${PROSE_CSS}</style>
   </head>
   <body>
-    ${renderHeader(lang)}
+    ${headerHtml}
     <main>
       <div class="container-narrow prose">
         ${opts.bodyHtml}
       </div>
     </main>
-    ${renderFooter(lang)}
+    ${footerHtml}
   </body>
 </html>`;
 }

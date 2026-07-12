@@ -24,7 +24,7 @@ import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
-import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
+import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
 import { seedLegalContent } from "./seed-legal-content";
 
 function required(name: string): string {
@@ -55,7 +55,7 @@ const handle = await runProdApp({
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     textContent: createTextContentApi(db),
   }),
-  anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
+  anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
   hostDispatch: ({ host, path }) => {
     const h = hostnameOf(host);
     if (h === BASE_DOMAIN || h === `www.${BASE_DOMAIN}`) {

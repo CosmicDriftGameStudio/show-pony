@@ -167,5 +167,3 @@ export function tutorialLinksHtml(lang: Lang): string {
     .join("");
   return `<ul class="tutorial-links">${lis}</ul>`;
 }
-
-

@@ -1,11 +1,11 @@
 // @runtime client
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { LOGO_PONY } from "../brand-mark";
 import { type Lang, renderFooter, renderHeader, SHARED_CSS } from "./layouts/shared";
 import { localeRouter } from "./locale-routes";
 
 function currentLang(): Lang {
-  if (typeof window === "undefined") return "de";
+  if (typeof window === "undefined") return "en";
   return localeRouter.detectLang(window.location.pathname) as Lang;
 }
 
@@ -31,6 +31,7 @@ const ASIDE_COPY: Readonly<
 };
 
 const APEX_SHELL_CSS = `${SHARED_CSS}
+.display-contents { display: contents; }
 #root { display: flex; flex-direction: column; min-height: 100vh; flex: 1; }
 .auth-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; padding: 4rem 0; }
 .auth-aside-pony { width: 120px; height: auto; display: block; margin-bottom: 1.25rem; }
@@ -47,8 +48,6 @@ const APEX_SHELL_CSS = `${SHARED_CSS}
   .auth-aside-pony { width: 96px; margin: 0 auto 1rem; }
 }`;
 
-const CONTENTS: CSSProperties = { display: "contents" };
-
 export function MarketingShell({ children }: { readonly children: ReactNode }): ReactNode {
   const lang = currentLang();
   const aside = ASIDE_COPY[lang];
@@ -56,7 +55,7 @@ export function MarketingShell({ children }: { readonly children: ReactNode }): 
     <>
       <style>{APEX_SHELL_CSS}</style>
       <div
-        style={CONTENTS}
+        className="display-contents"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted server-render from shared.ts
         dangerouslySetInnerHTML={{
           __html: renderHeader(lang, { pathname: window.location.pathname }),
@@ -77,7 +76,7 @@ export function MarketingShell({ children }: { readonly children: ReactNode }): 
         </div>
       </main>
       <div
-        style={CONTENTS}
+        className="display-contents"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted server-render from shared.ts
         dangerouslySetInnerHTML={{ __html: renderFooter(lang) }}
       />
