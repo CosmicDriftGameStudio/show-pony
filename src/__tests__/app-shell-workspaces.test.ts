@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { access, createRegistry, type AccessRule } from "@cosmicdrift/kumiko-framework/engine";
+import { type AccessRule, access, createRegistry } from "@cosmicdrift/kumiko-framework/engine";
 import { appShellFeature } from "../features/app-shell/feature";
 
 function expectRoles(rule: AccessRule | undefined): readonly string[] {
@@ -18,4 +18,3 @@ describe("show-pony app-shell workspaces", () => {
     expect(expectRoles(platform?.access)).toEqual(access.systemAdmin);
   });
 });
-
