@@ -8,7 +8,7 @@ let inflight: Promise<DemoModePayload> | null = null;
 export async function fetchDemoMode(): Promise<DemoModePayload> {
   if (cached) return cached;
   if (inflight) return inflight;
-  inflight = fetch("/api/demo-mode")
+  inflight = fetch("/demo-mode")
     .then((res) => res.json() as Promise<DemoModePayload>)
     .then((payload) => {
       cached = payload;
@@ -29,3 +29,4 @@ export async function fetchDemoMode(): Promise<DemoModePayload> {
     });
   return inflight;
 }
+
