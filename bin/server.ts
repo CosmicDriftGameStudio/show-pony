@@ -20,6 +20,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
 
@@ -90,4 +91,7 @@ await runDevApp({
       });
     },
   ],
+  extraRoutes: (app) => {
+    wireDemoModeRoutes(app);
+  },
 });

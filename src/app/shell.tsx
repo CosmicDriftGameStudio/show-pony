@@ -3,6 +3,7 @@
 import { useShellUser } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
 import { type AppSchema, WorkspaceShell } from "@cosmicdrift/kumiko-renderer-web";
 import type { ReactNode } from "react";
+import { DemoReadOnlyBanner } from "../demo-mode-ui";
 import { AppTopbarActions } from "./topbar-actions";
 
 const Brand = (): ReactNode => (
@@ -18,13 +19,16 @@ export function AppShell({
 }): ReactNode {
   const user = useShellUser();
   return (
-    <WorkspaceShell
-      brand={<Brand />}
-      schema={schema}
-      topbarActions={<AppTopbarActions />}
-      {...(user !== undefined && { user })}
-    >
-      {children}
-    </WorkspaceShell>
+    <>
+      <DemoReadOnlyBanner />
+      <WorkspaceShell
+        brand={<Brand />}
+        schema={schema}
+        topbarActions={<AppTopbarActions />}
+        {...(user !== undefined && { user })}
+      >
+        {children}
+      </WorkspaceShell>
+    </>
   );
 }
