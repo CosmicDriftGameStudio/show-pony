@@ -32,7 +32,7 @@ import {
   unsafeCreateEntityTable,
   unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../feature";
+import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { createShowPonyTenantResolver } from "../tenant-routing";
 
 // Default the mail provider app-wide to inmemory (otherwise createTransportForTenant

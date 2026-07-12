@@ -2,6 +2,7 @@
 // (<key>.show-pony.<domain>/e/<slug>) and shows it plus the RSVP form.
 // Anonymous — no login, no account.
 
+import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchEventBySlug, type PublicEvent } from "./api";
 import { icsHref } from "./ics";
@@ -15,8 +16,10 @@ function slugFromPath(): string {
 type Load = { kind: "loading" } | { kind: "missing" } | { kind: "ready"; event: PublicEvent };
 
 export function EventPage(): ReactElement {
+  const t = useTranslation();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
 
+  // kumiko-lint-ignore no-raw-hooks anonymous public bundle — one-shot fetch by slug, no dispatcher
   useEffect(() => {
     void fetchEventBySlug(slugFromPath())
       .then((event) => setLoad(event ? { kind: "ready", event } : { kind: "missing" }))
@@ -27,7 +30,7 @@ export function EventPage(): ReactElement {
     return <main className="mx-auto max-w-xl p-8 text-[var(--color-muted-foreground)]">…</main>;
   }
   if (load.kind === "missing") {
-    return <main className="mx-auto max-w-xl p-8">This event doesn't exist.</main>;
+    return <main className="mx-auto max-w-xl p-8">{t("showpony:public.event.missing")}</main>;
   }
 
   const { event } = load;
@@ -54,7 +57,7 @@ export function EventPage(): ReactElement {
         download={`${event.slug}.ics`}
         className="mt-4 inline-block text-sm text-[var(--color-primary)] hover:underline"
       >
-        📅 Add to calendar
+        {t("showpony:public.event.add-to-calendar")}
       </a>
       <RsvpForm eventId={event.id} />
     </main>

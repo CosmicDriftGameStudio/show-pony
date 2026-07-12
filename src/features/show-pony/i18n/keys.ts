@@ -1,13 +1,11 @@
-// show-pony i18n bundle. Convention: feature prefix `showpony:`
+// show-pony i18n keys. Convention: feature prefix `showpony:`
 // + `entity:<e>:field:<name>` for field labels (columns + form),
 // `screen:<id>.title` for page titles, `showpony:nav.<id>` for
 // sidebar labels, `:option:<value>` for select values.
 
-import type { TranslationsByLocale } from "@cosmicdrift/kumiko-renderer";
-
 type LocaleEntry = { de: string; en: string };
 
-export const showPonyTranslationKeys: Record<string, LocaleEntry> = {
+export const showPonyTranslations = {
   "showpony:nav.events": { de: "Events", en: "Events" },
   "showpony:nav.event-new": { de: "Neues Event", en: "New event" },
   "showpony:nav.guests": { de: "Gästeliste", en: "Guest list" },
@@ -36,13 +34,31 @@ export const showPonyTranslationKeys: Record<string, LocaleEntry> = {
   "showpony:entity:rsvp:field:status:option:yes": { de: "Zusage", en: "Going" },
   "showpony:entity:rsvp:field:status:option:no": { de: "Absage", en: "Not going" },
   "showpony:entity:rsvp:field:status:option:maybe": { de: "Vielleicht", en: "Maybe" },
-};
 
-function toTranslationsByLocale(keys: Record<string, LocaleEntry>): TranslationsByLocale {
-  return {
-    de: Object.fromEntries(Object.entries(keys).map(([key, entry]) => [key, entry.de])),
-    en: Object.fromEntries(Object.entries(keys).map(([key, entry]) => [key, entry.en])),
-  };
-}
-
-export const showPonyTranslations = toTranslationsByLocale(showPonyTranslationKeys);
+  "showpony:public.event.missing": {
+    de: "Dieses Event gibt es nicht.",
+    en: "This event doesn't exist.",
+  },
+  "showpony:public.event.add-to-calendar": {
+    de: "📅 Zum Kalender hinzufügen",
+    en: "📅 Add to calendar",
+  },
+  "showpony:public.rsvp.thanks": { de: "Danke, {name}!", en: "Thanks, {name}!" },
+  "showpony:public.rsvp.on-list": { de: "Du stehst auf der Liste.", en: "You're on the list." },
+  "showpony:public.rsvp.plus-guests": { de: "Begleitung?", en: "Bringing anyone?" },
+  "showpony:public.rsvp.name": { de: "Name", en: "Name" },
+  "showpony:public.rsvp.name-placeholder": { de: "Dein Name", en: "Your name" },
+  "showpony:public.rsvp.email": { de: "E-Mail (optional)", en: "Email (optional)" },
+  "showpony:public.rsvp.email-placeholder": {
+    de: "E-Mail (optional, für die Bestätigung)",
+    en: "Email (optional, for your confirmation)",
+  },
+  "showpony:public.rsvp.status.yes": { de: "Ich komme", en: "I'm in" },
+  "showpony:public.rsvp.status.maybe": { de: "Vielleicht", en: "Maybe" },
+  "showpony:public.rsvp.status.no": { de: "Kann leider nicht", en: "Can't make it" },
+  "showpony:public.rsvp.submit": { de: "RSVP senden", en: "Send RSVP" },
+  "showpony:public.rsvp.error": {
+    de: "Etwas ist schiefgelaufen ({reason}). Bitte nochmal versuchen.",
+    en: "Something went wrong ({reason}). Try again.",
+  },
+} as const satisfies Record<string, LocaleEntry>;
