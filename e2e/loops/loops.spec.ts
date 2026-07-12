@@ -131,3 +131,55 @@ test("09-public-form", async ({ browser }) => {
   );
 });
 
+test("12-marketing-journey", async ({ browser }) => {
+  mkdirSync(LOOP_DIR, { recursive: true });
+  await recordGif(
+    browser,
+    resolve(LOOP_DIR, ".frames-12-marketing"),
+    resolve(LOOP_DIR, "12-marketing-journey.gif"),
+    HOST_VIEWPORT,
+    async (page, { hold }) => {
+      await page.goto(`${APEX_URL}/`);
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
+      await hold(14);
+      await page.getByRole("link", { name: /^Features$/i }).first().click();
+      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible({
+        timeout: 15_000,
+      });
+      await hold(12);
+      await page.getByRole("link", { name: /^Pricing$/i }).first().click();
+      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+      await hold(12);
+      await page.getByRole("link", { name: /^Login$/i }).first().click();
+      await expect(page.locator("#login-email")).toBeVisible({ timeout: 15_000 });
+      await hold(16);
+    },
+  );
+});
+
+test("13-legal-page", async ({ browser }) => {
+  mkdirSync(LOOP_DIR, { recursive: true });
+  await recordGif(
+    browser,
+    resolve(LOOP_DIR, ".frames-13-legal"),
+    resolve(LOOP_DIR, "13-legal-page.gif"),
+    HOST_VIEWPORT,
+    async (page, { hold }) => {
+      await page.goto(`${APEX_URL}/`);
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
+      await hold(8);
+      await page.goto(`${APEX_URL}/legal/imprint`);
+      await expect(page).toHaveTitle(/Imprint · Show Pony/i, { timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+      await hold(18);
+    },
+  );
+});
+
+
+
+

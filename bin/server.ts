@@ -26,7 +26,7 @@ import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
-import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
+import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
 import { seedLegalContent } from "./seed-legal-content";
 
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
@@ -66,7 +66,7 @@ await runDevApp({
     return { kind: "html", entryName: "public", injectSchema: false };
   },
   watchDirs: ["./src", "./bin"],
-  anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
+  anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
   extraContext: ({ registry, db }) => ({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -121,3 +121,5 @@ await runDevApp({
     });
   },
 });
+
+

@@ -7,15 +7,21 @@ describe("show-pony apex static dispatch", () => {
   test("home routes map to locale pages", () => {
     const home = dispatchShowPonyApexStatic("/");
     expect(home?.kind).toBe("html");
-    if (home?.kind === "html") expect(home.file).toBe("pages/de/index.html");
-    const en = dispatchShowPonyApexStatic("/en");
-    if (en?.kind === "html") expect(en.file).toBe("pages/en/index.html");
+    if (home?.kind === "html") expect(home.file).toBe("pages/en/index.html");
+    const de = dispatchShowPonyApexStatic("/de");
+    if (de?.kind === "html") expect(de.file).toBe("pages/de/index.html");
   });
 
-  test("english aliases redirect", () => {
-    const r = dispatchShowPonyApexStatic("/features");
+  test("legacy /en home redirects to /", () => {
+    const r = dispatchShowPonyApexStatic("/en");
     expect(r?.kind).toBe("redirect");
-    if (r?.kind === "redirect") expect(r.to).toBe("/en/features");
+    if (r?.kind === "redirect") expect(r.to).toBe("/");
+  });
+
+  test("english features at /features", () => {
+    const r = dispatchShowPonyApexStatic("/features");
+    expect(r?.kind).toBe("html");
+    if (r?.kind === "html") expect(r.file).toBe("pages/en/features/index.html");
   });
 
   test("login path falls through to admin SPA", () => {
@@ -25,22 +31,22 @@ describe("show-pony apex static dispatch", () => {
 
 describe("show-pony marketing render", () => {
   test("landing HTML includes brand and login CTA", () => {
-    const html = renderMarketingLayout("de");
+    const html = renderMarketingLayout("en");
     expect(html).toContain("Show Pony");
     expect(html).toContain("/login");
-    expect(html).toContain('lang="de"');
+    expect(html).toContain('lang="en"');
   });
 });
 
 describe("show-pony legal layout", () => {
   test("wraps body in marketing chrome", () => {
     const html = renderLegalLayout({
-      title: "Impressum",
-      bodyHtml: "<h1>Impressum</h1><p>Test</p>",
-      lang: "de",
+      title: "Imprint",
+      bodyHtml: "<h1>Imprint</h1><p>Test</p>",
+      lang: "en",
     });
     expect(html).toContain("<header");
-    expect(html).toContain("Impressum");
-    expect(html).toContain("/legal/datenschutz");
+    expect(html).toContain("Imprint");
+    expect(html).toContain("/legal/privacy");
   });
 });
