@@ -10,4 +10,6 @@ e2e/screenshots/.auth/
 test-results/
 playwright-report/
 docs/loops/
+public/screenshots/
+
 

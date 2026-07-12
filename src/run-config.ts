@@ -15,8 +15,10 @@ import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
+import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
 import { appShellFeature } from "./features/app-shell/feature";
 import { showPonyFeature } from "./features/show-pony/feature";
+import { renderLegalLayout } from "./legal-layout";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -29,6 +31,7 @@ const adminShellFeature = createAdminShellFeature({
 // dev/test provide a default, but runProdApp doesn't, so the seed's
 // rsvp:submit crashed at boot. Loading this feature wires the resolver.
 export const APP_FEATURES = [
+  ...composePagesStack({ wrapLayout: renderLegalLayout }),
   mailFoundationFeature,
   mailTransportInMemoryFeature,
   createRateLimitingFeature(),

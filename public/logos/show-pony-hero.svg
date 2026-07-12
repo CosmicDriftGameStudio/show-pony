@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Show Pony">
+  <rect width="96" height="96" rx="20" fill="#7c3aed"/>
+  <path d="M24 66c6-14 16-22 30-24 8-1 14 3 16 12-8 3-14 8-16 16-6 2-12 1-18-2 3-6 3-12-12-2z" fill="#ede9fe"/>
+  <circle cx="62" cy="34" r="4" fill="#1e1033"/>
+  <path d="M18 70c8 6 18 8 28 6" stroke="#ddd6fe" stroke-width="4" stroke-linecap="round" fill="none"/>
+</svg>
