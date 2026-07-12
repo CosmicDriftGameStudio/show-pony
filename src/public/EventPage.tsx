@@ -18,9 +18,11 @@ type Load = { kind: "loading" } | { kind: "missing" } | { kind: "ready"; event: 
 export function EventPage(): ReactElement {
   const t = useTranslation();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
+  const [readOnly, setReadOnly] = useState(false);
 
   // kumiko-lint-ignore no-raw-hooks anonymous public bundle — one-shot fetch by slug, no dispatcher
   useEffect(() => {
+    void fetchDemoMode().then((demo) => setReadOnly(demo.readOnly));
     void fetchEventBySlug(slugFromPath())
       .then((event) => setLoad(event ? { kind: "ready", event } : { kind: "missing" }))
       .catch(() => setLoad({ kind: "missing" }));
@@ -104,10 +106,12 @@ export function EventPage(): ReactElement {
             <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
               {t("showpony:public.rsvp.subheading")}
             </p>
-            <RsvpForm eventId={event.id} />
+            {readOnly ? <DemoPublicNotice /> : <RsvpForm eventId={event.id} />}
           </section>
         </div>
       </main>
     </div>
   );
 }
+
+

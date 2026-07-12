@@ -5,7 +5,8 @@
 //
 // Required env: DATABASE_URL, REDIS_URL, JWT_SECRET, BASE_DOMAIN,
 //   DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD (the names the Pulumi createKumikoApp
-//   deploy helper injects). Optional: PORT (default 3000), BUILD_VERSION.
+//   deploy helper injects). Optional: PORT (default 3000), BUILD_VERSION,
+//   DEMO_READ_ONLY=true (live cloud demo — blocks /api/write, shows login hints).
 //   BASE_DOMAIN is the host's surface, e.g. show-pony.kumiko.rocks — guest
 //   pages live on <key>.<BASE_DOMAIN>.
 
@@ -16,6 +17,8 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { wireDemoModeRoutes } from "../src/demo-mode-routes";
+import { isDemoReadOnly, withDemoReadOnlyFetch } from "../src/demo-mode";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
 
@@ -27,30 +30,23 @@ function required(name: string): string {
 
 const BASE_DOMAIN = required("BASE_DOMAIN");
 const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
+const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 
-// Same mail-provider override as dev — the sample uses the in-memory transport.
-// A real deploy swaps in mail-transport-smtp and points this at its name.
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
 
-await runProdApp({
+const handle = await runProdApp({
   features: APP_FEATURES,
-  // No subject-keys KMS provisioned for this public demo/sample app —
-  // rsvp.name/rsvp.email + bundled user/tenant PII stay plaintext (fw#818/#119).
+  autoListen: false,
   allowPlaintextPii: "show-pony demo app, no KMS provisioned",
   staticDir: "./dist",
-  // Demo content for the public page (runs once per filename, idempotent).
   seedsDir: "./seeds",
   extraContext: ({ registry }) => ({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
   }),
-  // Multi-tenant anonymous access — no defaultTenantId; every request resolves
-  // to a tenant by subdomain (or gets 400 tenant_required).
   anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
-  // Apex → host dashboard (schema-injected), every subdomain → public page.
-  // `file` is resolved relative to staticDir ("./dist") — no ./dist/ prefix.
   hostDispatch: ({ host }) => {
     const h = hostnameOf(host);
     if (h === BASE_DOMAIN || h === `www.${BASE_DOMAIN}`) {
@@ -94,6 +90,34 @@ await runProdApp({
     },
   ],
   extraRoutes: (app) => {
-    app.get("/api/version", (c) => c.json({ version: process.env.BUILD_VERSION ?? "dev" }));
+    wireDemoModeRoutes(app);
   },
 });
+
+const fetch = withDemoReadOnlyFetch(handle.fetch);
+
+if (isDemoReadOnly()) {
+  console.log("[show-pony] DEMO_READ_ONLY enabled — /api/write blocked on this instance");
+}
+
+if (typeof Bun !== "undefined") {
+  handle.server = Bun.serve({ port, fetch, idleTimeout: 0 });
+  console.log(`[runProdApp] ready on http://0.0.0.0:${port}`);
+
+  let shuttingDown = false;
+  const shutdown = async (signal: string) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log(`[runProdApp] ${signal} received — draining…`);
+    try {
+      await handle.stop();
+      console.log("[runProdApp] graceful shutdown complete.");
+    } catch (e) {
+      console.error("[runProdApp] error during shutdown:", e);
+    } finally {
+      process.exit(0);
+    }
+  };
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+}

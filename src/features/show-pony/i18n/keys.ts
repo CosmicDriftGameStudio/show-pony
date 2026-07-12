@@ -71,4 +71,31 @@ export const showPonyTranslations = {
     de: "Etwas ist schiefgelaufen ({reason}). Bitte nochmal versuchen.",
     en: "Something went wrong ({reason}). Try again.",
   },
+
+  "showpony:demo.login.title": { de: "Live-Demo", en: "Live demo" },
+  "showpony:demo.login.body": {
+    de: "Melde dich an, um Dashboard und Plattform-Workspace zu erkunden:",
+    en: "Sign in to explore the host dashboard and platform workspace:",
+  },
+  "showpony:demo.login.read-only": {
+    de: "Nur ansehen — Änderungen werden auf dieser Instanz nicht gespeichert.",
+    en: "Browse only — changes are not saved on this instance.",
+  },
+  "showpony:demo.banner": {
+    de: "Live-Demo (read-only). Zum Bauen lokal klonen —",
+    en: "Live demo (read-only). Clone locally to build your own —",
+  },
+  "showpony:demo.banner.link": { de: "Tutorial", en: "tutorial" },
+  "showpony:demo.public.title": { de: "Live-Demo", en: "Live demo" },
+  "showpony:demo.public.body": {
+    de: "RSVPs funktionieren nur in der lokalen Installation. Hier kannst du die Invite-Seite ansehen.",
+    en: "RSVPs work in the local install only. Here you can browse the invite page.",
+  },
+  "showpony:demo.public.host-link": { de: "Host-Login", en: "Host login" },
+  "showpony:demo.public.tutorial-link": { de: "Tutorial", en: "Tutorial" },
+  "showpony:demo.read-only.error": {
+    de: "Live-Demo ist read-only — lokal klonen zum Ausprobieren.",
+    en: "Live demo is read-only — clone locally to try writes.",
+  },
 } as const satisfies Record<string, LocaleEntry>;
+

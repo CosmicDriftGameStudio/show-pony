@@ -68,6 +68,21 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 400,
   },
   {
+    name: "platform-overview",
+    description: "Platform workspace — sysadmin sees operator overview on the apex",
+    clearAuth: true,
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/login`);
+      await page.fill("#login-email", "sysadmin@show-pony.local");
+      await page.fill("#login-password", "changeme");
+      await page.locator("#login-password").press("Enter");
+      await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+      await page.getByRole("tab", { name: /^Platform$|^Plattform$/ }).click();
+      await expect(page.getByTestId("platform-overview-screen")).toBeVisible({ timeout: 15_000 });
+    },
+    settleMs: 500,
+  },
+  {
     name: "public-event",
     description: "Public invite page — hero, event copy, and RSVP form",
     clearAuth: true,
@@ -105,6 +120,7 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 400,
   },
 ];
+
 
 
 
