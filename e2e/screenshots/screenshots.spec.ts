@@ -59,8 +59,7 @@ for (const locale of LOCALES) {
         localStorage.removeItem("kumiko:theme");
       }, locale);
       if (s.clearAuth) await page.context().clearCookies();
-      await page.goto(s.url);
-      await expect(page.locator(s.waitFor).first()).toBeVisible({ timeout: 15_000 });
+      await s.flow(page);
       if (s.settleMs) await page.waitForTimeout(s.settleMs);
 
       for (const theme of THEME_AXIS) {
@@ -78,5 +77,6 @@ for (const locale of LOCALES) {
     });
   }
 }
+
 
 

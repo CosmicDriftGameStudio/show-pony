@@ -56,7 +56,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
   return (
     <form
       onSubmit={onSubmit}
-      className="mt-6 rounded-md border border-[var(--color-border)] bg-[var(--color-card)] p-4"
+      className="mt-4"
     >
       <div className="grid gap-3">
         <input
@@ -118,3 +118,4 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
     </form>
   );
 }
+

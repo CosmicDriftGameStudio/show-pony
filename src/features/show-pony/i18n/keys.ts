@@ -39,11 +39,21 @@ export const showPonyTranslations = {
     de: "Dieses Event gibt es nicht.",
     en: "This event doesn't exist.",
   },
+  "showpony:public.event.invited": { de: "Du bist eingeladen", en: "You're invited" },
+  "showpony:public.event.guest-limit": {
+    de: "Bis zu {limit} Gäste",
+    en: "Up to {limit} guests",
+  },
   "showpony:public.event.add-to-calendar": {
     de: "📅 Zum Kalender hinzufügen",
     en: "📅 Add to calendar",
   },
   "showpony:public.rsvp.thanks": { de: "Danke, {name}!", en: "Thanks, {name}!" },
+  "showpony:public.rsvp.heading": { de: "RSVP", en: "RSVP" },
+  "showpony:public.rsvp.subheading": {
+    de: "Kein Account nötig — Name reicht.",
+    en: "No account needed — just your name.",
+  },
   "showpony:public.rsvp.on-list": { de: "Du stehst auf der Liste.", en: "You're on the list." },
   "showpony:public.rsvp.plus-guests": { de: "Begleitung?", en: "Bringing anyone?" },
   "showpony:public.rsvp.name": { de: "Name", en: "Name" },
@@ -62,3 +72,4 @@ export const showPonyTranslations = {
     en: "Something went wrong ({reason}). Try again.",
   },
 } as const satisfies Record<string, LocaleEntry>;
+

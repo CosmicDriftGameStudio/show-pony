@@ -10,7 +10,7 @@ export const eventListScreen: EntityListScreenDefinition = {
   columns: ["title", "slug", "startsAt", "location", "guestLimit"],
   pageSize: 25,
   defaultSort: { field: "title", dir: "asc" },
-  rowActions: [{ kind: "navigate", id: "edit", label: "actions.edit", screen: "event-edit" }],
+  rowActions: [{ kind: "navigate", id: "edit", label: "kumiko.actions.edit", screen: "event-edit" }],
 };
 
 export const eventEditScreen: EntityEditScreenDefinition = {
@@ -37,3 +37,4 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   pageSize: 50,
   defaultSort: { field: "name", dir: "asc" },
 };
+
