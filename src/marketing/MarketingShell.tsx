@@ -1,5 +1,5 @@
 // @runtime client
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { LOGO_PONY } from "../brand-mark";
 import { type Lang, renderFooter, renderHeader, SHARED_CSS } from "./layouts/shared";
 import { localeRouter } from "./locale-routes";
@@ -31,6 +31,7 @@ const ASIDE_COPY: Readonly<
 };
 
 const APEX_SHELL_CSS = `${SHARED_CSS}
+.display-contents { display: contents; }
 #root { display: flex; flex-direction: column; min-height: 100vh; flex: 1; }
 .auth-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center; padding: 4rem 0; }
 .auth-aside-pony { width: 120px; height: auto; display: block; margin-bottom: 1.25rem; }
@@ -77,10 +78,13 @@ export function MarketingShell({ children }: { readonly children: ReactNode }): 
         </div>
       </main>
       <div
-        style={CONTENTS}
+        className="display-contents"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted server-render from shared.ts
         dangerouslySetInnerHTML={{ __html: renderFooter(lang) }}
       />
     </>
   );
 }
+
+
+
