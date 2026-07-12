@@ -85,7 +85,7 @@ await runDevApp({
             tenantId: DEMO_TENANT_ID,
             tenantKey: "demo",
             tenantName: "Demo Host",
-            roles: ["Admin", "TenantAdmin"],
+            roles: ["User"],
           },
         ],
       });

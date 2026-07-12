@@ -4,6 +4,7 @@ import { useShellUser } from "@cosmicdrift/kumiko-bundled-features/auth-email-pa
 import { type AppSchema, WorkspaceShell } from "@cosmicdrift/kumiko-renderer-web";
 import type { ReactNode } from "react";
 import { DemoReadOnlyBanner } from "../demo-mode-ui";
+import { SidebarProfile } from "./sidebar-profile";
 import { AppTopbarActions } from "./topbar-actions";
 
 const Brand = (): ReactNode => (
@@ -25,6 +26,7 @@ export function AppShell({
         brand={<Brand />}
         schema={schema}
         topbarActions={<AppTopbarActions />}
+        sidebarFooter={<SidebarProfile />}
         {...(user !== undefined && { user })}
       >
         {children}

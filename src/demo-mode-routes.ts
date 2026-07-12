@@ -6,4 +6,3 @@ export function wireDemoModeRoutes(app: Hono): void {
   // is framework-owned; demo-mode is app-specific).
   app.get("/demo-mode", (c) => c.json(demoModePayload()));
 }
-

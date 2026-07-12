@@ -29,4 +29,3 @@ export async function fetchDemoMode(): Promise<DemoModePayload> {
     });
   return inflight;
 }
-

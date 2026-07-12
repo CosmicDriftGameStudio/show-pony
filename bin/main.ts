@@ -83,7 +83,8 @@ const handle = await runProdApp({
             tenantId: DEMO_TENANT_ID,
             tenantKey: "demo",
             tenantName: "Demo Host",
-            roles: ["Admin", "TenantAdmin"],
+            // Login membership only — platform admin via globalRoles, not tenant Admin.
+            roles: ["User"],
           },
         ],
       });
