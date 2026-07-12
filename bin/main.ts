@@ -17,7 +17,6 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { isDemoReadOnly, withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireTermsRoutes } from "../src/legal-terms";
@@ -35,7 +34,6 @@ function required(name: string): string {
 
 const BASE_DOMAIN = required("BASE_DOMAIN");
 const APEX_ORIGIN = `https://${BASE_DOMAIN}`;
-const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 
 const configResolver = createConfigResolver({
@@ -94,9 +92,9 @@ const handle = await runProdApp({
         globalRoles: ["SystemAdmin"],
         memberships: [
           {
-            tenantId: DEMO_TENANT_ID,
-            tenantKey: "demo",
-            tenantName: "Demo Host",
+            tenantId: PLATFORM_TENANT.id,
+            tenantKey: PLATFORM_TENANT.tenantKey,
+            tenantName: PLATFORM_TENANT.name,
             roles: ["User"],
           },
         ],
@@ -136,3 +134,7 @@ if (typeof Bun !== "undefined") {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));
 }
+
+
+
+

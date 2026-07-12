@@ -22,6 +22,9 @@ const PLATFORM_NAV_MEMBERS = [
   "jobs:nav:job-runs",
 ] as const;
 
+/** Tenant-scoped host tools — excludes global SystemAdmin (platform workspace). */
+const HOST_WORKSPACE_ROLES = access.roles("TenantAdmin", "Admin");
+
 export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r) => {
   r.systemScope();
 
@@ -49,7 +52,7 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     label: "app-shell:workspace.host",
     icon: "calendar",
     order: 1,
-    access: { roles: access.admin },
+    access: { roles: HOST_WORKSPACE_ROLES },
     nav: [...HOST_NAV_MEMBERS],
     default: true,
   });
@@ -63,3 +66,5 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     nav: [...PLATFORM_NAV_MEMBERS],
   });
 });
+
+

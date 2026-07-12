@@ -32,7 +32,6 @@ import { seedLegalContent } from "./seed-legal-content";
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
 const port = Number.parseInt(process.env.PORT ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
-const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -79,9 +78,9 @@ await runDevApp({
       displayName: "Show-Pony Host",
       memberships: [
         {
-          tenantId: DEMO_TENANT_ID,
-          tenantKey: "demo",
-          tenantName: "Demo Host",
+          tenantId: DEMO_TENANT.id,
+          tenantKey: DEMO_TENANT.tenantKey,
+          tenantName: DEMO_TENANT.name,
           roles: ["Admin", "TenantAdmin"],
         },
       ],
@@ -99,9 +98,9 @@ await runDevApp({
         globalRoles: ["SystemAdmin"],
         memberships: [
           {
-            tenantId: DEMO_TENANT_ID,
-            tenantKey: "demo",
-            tenantName: "Demo Host",
+            tenantId: PLATFORM_TENANT.id,
+            tenantKey: PLATFORM_TENANT.tenantKey,
+            tenantName: PLATFORM_TENANT.name,
             roles: ["User"],
           },
         ],
@@ -121,3 +120,7 @@ await runDevApp({
     });
   },
 });
+
+
+
+
