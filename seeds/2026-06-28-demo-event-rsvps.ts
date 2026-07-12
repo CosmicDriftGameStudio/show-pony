@@ -6,17 +6,18 @@
 // The "demo" tenant itself is created by the admin bootstrap
 // (auth.admin.memberships in bin/main.ts), so this seed only adds content.
 //
-// Seeds run once per filename (tracked in kumiko_es_operations) — re-runs are
-// skipped, so no manual idempotency guard is needed.
+// Seeds run once per filename (kumiko_es_operations), but dispatcher writes
+// commit outside the marker tx — retries after partial failure MUST be
+// idempotent. Entity create schemas strip `id`, so guard by slug before create.
 
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
-
-const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
-// Explicit aggregate id (the framework's seed pattern) so the RSVPs can
-// reference the event without reading back the create result.
-const DEMO_EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
-const WARMUP_EVENT_ID = "00000000-0000-4000-8000-0000000000e2";
+import {
+  DEMO_EVENT_ID,
+  DEMO_TENANT_ID,
+  findEventBySlug,
+  toRawSqlRunner,
+  WARMUP_EVENT_ID,
+} from "./_demo-event-db";
 
 const ROOFTOP_DESC =
   "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
@@ -31,40 +32,55 @@ const GUESTS = [
 export default {
   description: "demo tenant content: Rooftop Launch Party + Winter Warmup + sample RSVPs",
   run: async (ctx) => {
-    const event = await ctx.systemWriteAs(
-      "showpony:write:event:create",
-      {
-        id: DEMO_EVENT_ID,
-        title: "Rooftop Launch Party",
-        slug: "rooftop-launch",
-        startsAt: "2026-09-12T19:00:00.000Z",
-        location: "Sky Lounge, 24th floor",
-        description: ROOFTOP_DESC,
-        guestLimit: 80,
-      },
-      DEMO_TENANT_ID,
-    );
-    if (!event.isSuccess) {
-      throw new Error(`show-pony seed: event:create failed — ${event.error.code}: ${event.error.message}`);
+    const raw = toRawSqlRunner(ctx.db);
+
+    let rooftop = await findEventBySlug(raw, "rooftop-launch");
+    if (!rooftop) {
+      const event = await ctx.systemWriteAs(
+        "showpony:write:event:create",
+        {
+          id: DEMO_EVENT_ID,
+          title: "Rooftop Launch Party",
+          slug: "rooftop-launch",
+          startsAt: "2026-09-12T19:00:00.000Z",
+          location: "Sky Lounge, 24th floor",
+          description: ROOFTOP_DESC,
+          guestLimit: 80,
+        },
+        DEMO_TENANT_ID,
+      );
+      if (!event.isSuccess) {
+        throw new Error(
+          `show-pony seed: event:create failed — ${event.error.code}: ${event.error.message}`,
+        );
+      }
+      rooftop = await findEventBySlug(raw, "rooftop-launch");
     }
 
-    const warmup = await ctx.systemWriteAs(
-      "showpony:write:event:create",
-      {
-        id: WARMUP_EVENT_ID,
-        title: "Winter Warmup Drinks",
-        slug: "warmup-drinks",
-        startsAt: "2026-11-28T18:00:00.000Z",
-        location: "Ground-floor bar",
-        description:
-          "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
-        guestLimit: 40,
-      },
-      DEMO_TENANT_ID,
-    );
-    if (!warmup.isSuccess) {
-      throw new Error(`show-pony seed: warmup event failed — ${warmup.error.code}: ${warmup.error.message}`);
+    let warmup = await findEventBySlug(raw, "warmup-drinks");
+    if (!warmup) {
+      const created = await ctx.systemWriteAs(
+        "showpony:write:event:create",
+        {
+          id: WARMUP_EVENT_ID,
+          title: "Winter Warmup Drinks",
+          slug: "warmup-drinks",
+          startsAt: "2026-11-28T18:00:00.000Z",
+          location: "Ground-floor bar",
+          description:
+            "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
+          guestLimit: 40,
+        },
+        DEMO_TENANT_ID,
+      );
+      if (!created.isSuccess) {
+        throw new Error(
+          `show-pony seed: warmup event failed — ${created.error.code}: ${created.error.message}`,
+        );
+      }
     }
+
+    const eventId = rooftop?.id ?? DEMO_EVENT_ID;
 
     for (const guest of GUESTS) {
       // systemWriteAs THROWS on a failed write. rsvp:submit declares a rateLimit
@@ -76,7 +92,7 @@ export default {
       try {
         await ctx.systemWriteAs(
           "showpony:write:rsvp:submit",
-          { eventId: DEMO_EVENT_ID, ...guest },
+          { eventId, ...guest },
           DEMO_TENANT_ID,
         );
       } catch (err) {
@@ -87,6 +103,4 @@ export default {
     }
   },
 } satisfies SeedMigration;
-
-
 
