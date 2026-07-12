@@ -5,7 +5,7 @@ import { type Lang, renderFooter, renderHeader, SHARED_CSS } from "./layouts/sha
 import { localeRouter } from "./locale-routes";
 
 function currentLang(): Lang {
-  if (typeof window === "undefined") return "de";
+  if (typeof window === "undefined") return "en";
   return localeRouter.detectLang(window.location.pathname) as Lang;
 }
 
@@ -48,8 +48,6 @@ const APEX_SHELL_CSS = `${SHARED_CSS}
   .auth-aside-pony { width: 96px; margin: 0 auto 1rem; }
 }`;
 
-const CONTENTS: CSSProperties = { display: "contents" };
-
 export function MarketingShell({ children }: { readonly children: ReactNode }): ReactNode {
   const lang = currentLang();
   const aside = ASIDE_COPY[lang];
@@ -57,7 +55,7 @@ export function MarketingShell({ children }: { readonly children: ReactNode }): 
     <>
       <style>{APEX_SHELL_CSS}</style>
       <div
-        style={CONTENTS}
+        className="display-contents"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted server-render from shared.ts
         dangerouslySetInnerHTML={{
           __html: renderHeader(lang, { pathname: window.location.pathname }),
@@ -85,6 +83,8 @@ export function MarketingShell({ children }: { readonly children: ReactNode }): 
     </>
   );
 }
+
+
 
 
 
