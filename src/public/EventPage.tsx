@@ -73,7 +73,7 @@ export function EventPage(): ReactElement {
       <main className="mx-auto max-w-2xl px-4 pb-12 sm:px-6">
         <div className="-mt-6 space-y-6">
           {event.description ? (
-            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-sm">
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
               <p className="whitespace-pre-line text-[var(--color-foreground)] leading-relaxed">
                 {event.description}
               </p>
@@ -86,7 +86,7 @@ export function EventPage(): ReactElement {
               </a>
             </section>
           ) : (
-            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-sm">
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
               <a
                 href={icsHref(event)}
                 download={`${event.slug}.ics`}
@@ -97,7 +97,7 @@ export function EventPage(): ReactElement {
             </section>
           )}
 
-          <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-sm">
+          <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
             <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
               {t("showpony:public.rsvp.heading")}
             </h2>
@@ -111,3 +111,5 @@ export function EventPage(): ReactElement {
     </div>
   );
 }
+
+
