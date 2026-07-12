@@ -17,8 +17,8 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { isDemoReadOnly, withDemoReadOnlyFetch } from "../src/demo-mode";
+import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
 

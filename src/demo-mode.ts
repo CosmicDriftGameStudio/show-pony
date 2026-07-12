@@ -20,7 +20,9 @@ export function isDemoReadOnly(env: Record<string, string | undefined> = process
   return env["DEMO_READ_ONLY"] === "true" || env["DEMO_READ_ONLY"] === "1";
 }
 
-export function demoModePayload(env: Record<string, string | undefined> = process.env): DemoModePayload {
+export function demoModePayload(
+  env: Record<string, string | undefined> = process.env,
+): DemoModePayload {
   const baseDomain = env["BASE_DOMAIN"] ?? "show-pony.localhost";
   const hostLoginUrl = baseDomain.includes("localhost")
     ? `http://${baseDomain}:${env["PORT"] ?? "4180"}`

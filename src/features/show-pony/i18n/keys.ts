@@ -98,4 +98,3 @@ export const showPonyTranslations = {
     en: "Live demo is read-only — clone locally to try writes.",
   },
 } as const satisfies Record<string, LocaleEntry>;
-

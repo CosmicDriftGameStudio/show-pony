@@ -16,7 +16,9 @@ export function DemoPublicNotice(): ReactElement | null {
 
   return (
     <div className="rounded-md border border-dashed border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 p-4 text-sm">
-      <p className="font-medium text-[var(--color-foreground)]">{t("showpony:demo.public.title")}</p>
+      <p className="font-medium text-[var(--color-foreground)]">
+        {t("showpony:demo.public.title")}
+      </p>
       <p className="mt-1 text-[var(--color-muted-foreground)]">{t("showpony:demo.public.body")}</p>
       <p className="mt-2">
         <a
@@ -26,7 +28,10 @@ export function DemoPublicNotice(): ReactElement | null {
           {t("showpony:demo.public.host-link")}
         </a>
         {" · "}
-        <a href={demo.tutorialUrl} className="font-medium text-[var(--color-primary)] hover:underline">
+        <a
+          href={demo.tutorialUrl}
+          className="font-medium text-[var(--color-primary)] hover:underline"
+        >
           {t("showpony:demo.public.tutorial-link")}
         </a>
       </p>

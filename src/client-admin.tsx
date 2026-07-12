@@ -27,4 +27,3 @@ createKumikoApp({
     showPonyClient,
   ],
 });
-

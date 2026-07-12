@@ -27,7 +27,10 @@ export function DemoLoginHint(): ReactElement | null {
       <p className="mt-1 text-[var(--color-muted-foreground)]">{t("showpony:demo.login.body")}</p>
       <ul className="mt-2 space-y-2">
         {demo.accounts.map((account) => (
-          <li key={account.role} className="rounded border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-1.5">
+          <li
+            key={account.role}
+            className="rounded border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-1.5"
+          >
             <div className="text-xs font-medium text-[var(--color-muted-foreground)]">
               {localeLabel(account.label, locale)}
             </div>
@@ -37,7 +40,9 @@ export function DemoLoginHint(): ReactElement | null {
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">{t("showpony:demo.login.read-only")}</p>
+      <p className="mt-2 text-xs text-[var(--color-muted-foreground)]">
+        {t("showpony:demo.login.read-only")}
+      </p>
     </div>
   );
 }
@@ -65,6 +70,3 @@ export function DemoReadOnlyBanner(): ReactElement | null {
     </div>
   );
 }
-
-
-

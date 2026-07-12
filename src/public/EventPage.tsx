@@ -115,6 +115,3 @@ export function EventPage(): ReactElement {
     </div>
   );
 }
-
-
-

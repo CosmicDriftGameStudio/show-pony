@@ -27,14 +27,16 @@ describe("demo-mode", () => {
   });
 
   test("withDemoReadOnlyFetch blocks POST /api/write", async () => {
-    const inner = async (req: Request) => Response.json({ ok: true, path: new URL(req.url).pathname });
+    const inner = async (req: Request) =>
+      Response.json({ ok: true, path: new URL(req.url).pathname });
     const guarded = withDemoReadOnlyFetch(inner, { DEMO_READ_ONLY: "true" });
     const blocked = await guarded(
       new Request("https://show-pony.kumiko.rocks/api/write", { method: "POST" }),
     );
     expect(blocked.status).toBe(403);
-    const allowed = await guarded(new Request("https://show-pony.kumiko.rocks/api/query", { method: "POST" }));
+    const allowed = await guarded(
+      new Request("https://show-pony.kumiko.rocks/api/query", { method: "POST" }),
+    );
     expect(allowed.status).toBe(200);
   });
 });
-
