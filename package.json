@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "PORT=4180 bun run kumiko-dev bin/server.ts",
-    "build": "bun kumiko-build",
+    "build": "bun kumiko-build && bun scripts/copy-marketing-assets.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "bun --config=bunfig.ci.toml test --dots",
@@ -56,4 +56,5 @@
     "react-dom": "19.2.6"
   }
 }
+
 

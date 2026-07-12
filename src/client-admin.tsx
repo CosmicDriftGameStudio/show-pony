@@ -4,18 +4,35 @@
 
 import { adminShellClient } from "@cosmicdrift/kumiko-bundled-features/admin-shell/web";
 import { auditClient } from "@cosmicdrift/kumiko-bundled-features/audit/web";
-import { emailPasswordClient } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
+import {
+  AuthShellProvider,
+  emailPasswordClient,
+} from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
 import { tenantClient } from "@cosmicdrift/kumiko-bundled-features/tenant/web";
+import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer-web";
 import { createKumikoApp } from "@cosmicdrift/kumiko-renderer-web";
 import { AppShell } from "./app/shell";
 import { DemoLoginHint } from "./demo-mode-ui";
 import { appShellClient } from "./features/app-shell/client";
 import { showPonyClient } from "./features/show-pony/web";
+import { MarketingShell } from "./marketing/MarketingShell";
+
+const marketingAuthShell: ClientFeatureDefinition = {
+  name: "marketing-auth-shell",
+  gates: [
+    ({ children }) => (
+      <AuthShellProvider shell={(card) => <MarketingShell>{card}</MarketingShell>}>
+        {children}
+      </AuthShellProvider>
+    ),
+  ],
+};
 
 createKumikoApp({
   shell: AppShell,
   clientFeatures: [
+    marketingAuthShell,
     emailPasswordClient({
       loginScreenProps: { subtitle: <DemoLoginHint /> },
     }),

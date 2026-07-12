@@ -15,12 +15,17 @@ import {
   createConfigAccessorFactory,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
+import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { isDemoReadOnly, withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
+import { wireTermsRoutes } from "../src/legal-terms";
+import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
+import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyTenantResolver, hostnameOf } from "../src/tenant-routing";
+import { seedLegalContent } from "./seed-legal-content";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -29,6 +34,7 @@ function required(name: string): string {
 }
 
 const BASE_DOMAIN = required("BASE_DOMAIN");
+const APEX_ORIGIN = `https://${BASE_DOMAIN}`;
 const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 
@@ -36,27 +42,32 @@ const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
 
+await renderAllMarketingPages(APEX_ORIGIN);
+
 const handle = await runProdApp({
   features: APP_FEATURES,
   autoListen: false,
   allowPlaintextPii: "show-pony demo app, no KMS provisioned",
   staticDir: "./dist",
   seedsDir: "./seeds",
-  extraContext: ({ registry }) => ({
+  extraContext: ({ registry, db }) => ({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+    textContent: createTextContentApi(db),
   }),
   anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
-  hostDispatch: ({ host }) => {
+  hostDispatch: ({ host, path }) => {
     const h = hostnameOf(host);
     if (h === BASE_DOMAIN || h === `www.${BASE_DOMAIN}`) {
+      const dispatched = dispatchShowPonyApexStatic(path);
+      if (dispatched !== null) return dispatched;
       return { kind: "html", file: "admin.html", injectSchema: true };
     }
     return { kind: "html", file: "index.html", injectSchema: false };
   },
   auth: {
     cookieDomain: BASE_DOMAIN,
-    allowedOrigins: [`https://${BASE_DOMAIN}`],
+    allowedOrigins: [APEX_ORIGIN],
     admin: {
       email: required("DEMO_ADMIN_EMAIL"),
       password: required("DEMO_ADMIN_PASSWORD"),
@@ -73,6 +84,9 @@ const handle = await runProdApp({
   },
   seeds: [
     async ({ db }) => {
+      await seedLegalContent(db);
+    },
+    async ({ db }) => {
       await seedAdmin(db, {
         email: required("DEMO_SYSADMIN_EMAIL"),
         password: required("DEMO_SYSADMIN_PASSWORD"),
@@ -83,15 +97,15 @@ const handle = await runProdApp({
             tenantId: DEMO_TENANT_ID,
             tenantKey: "demo",
             tenantName: "Demo Host",
-            // Login membership only — platform admin via globalRoles, not tenant Admin.
             roles: ["User"],
           },
         ],
       });
     },
   ],
-  extraRoutes: (app) => {
+  extraRoutes: (app, { db }) => {
     wireDemoModeRoutes(app);
+    wireTermsRoutes(app, createTextContentApi(db));
   },
 });
 
