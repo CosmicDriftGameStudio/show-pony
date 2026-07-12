@@ -20,13 +20,13 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
+import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
@@ -120,6 +120,8 @@ await runDevApp({
     });
   },
 });
+
+
 
 
 

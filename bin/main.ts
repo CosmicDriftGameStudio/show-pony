@@ -24,6 +24,7 @@ import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
+import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 
 function required(name: string): string {
@@ -72,9 +73,9 @@ const handle = await runProdApp({
       displayName: "Show-Pony Host",
       memberships: [
         {
-          tenantId: DEMO_TENANT_ID,
-          tenantKey: "demo",
-          tenantName: "Demo Host",
+          tenantId: DEMO_TENANT.id,
+          tenantKey: DEMO_TENANT.tenantKey,
+          tenantName: DEMO_TENANT.name,
           roles: ["Admin", "TenantAdmin"],
         },
       ],
@@ -134,6 +135,8 @@ if (typeof Bun !== "undefined") {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));
 }
+
+
 
 
 
