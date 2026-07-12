@@ -36,7 +36,12 @@ export function dispatchShowPonyApexStatic(
   if (path === "/en/features" || path === "/en/features/") {
     return { kind: "redirect", to: "/features", status: 301 };
   }
-  if (path === "/funktionen" || path === "/funktionen/" || path === "/de/funktionen" || path === "/de/funktionen/") {
+  if (
+    path === "/funktionen" ||
+    path === "/funktionen/" ||
+    path === "/de/funktionen" ||
+    path === "/de/funktionen/"
+  ) {
     return { kind: "html", file: "pages/de/features/index.html", injectSchema: false };
   }
   if (path === "/pricing" || path === "/pricing/") {
@@ -45,7 +50,12 @@ export function dispatchShowPonyApexStatic(
   if (path === "/en/pricing" || path === "/en/pricing/") {
     return { kind: "redirect", to: "/pricing", status: 301 };
   }
-  if (path === "/preise" || path === "/preise/" || path === "/de/preise" || path === "/de/preise/") {
+  if (
+    path === "/preise" ||
+    path === "/preise/" ||
+    path === "/de/preise" ||
+    path === "/de/preise/"
+  ) {
     return { kind: "html", file: "pages/de/pricing/index.html", injectSchema: false };
   }
   return null;

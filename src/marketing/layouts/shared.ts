@@ -255,4 +255,3 @@ export function apexFooter(lang: Lang): ApexFooter {
     bottomRight: s.noTracking,
   };
 }
-

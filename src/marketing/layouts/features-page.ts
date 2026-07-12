@@ -127,4 +127,3 @@ export function renderFeaturesPage(lang: Lang, opts: RenderFeaturesPageOptions =
 
   return renderApexPage(page);
 }
-
