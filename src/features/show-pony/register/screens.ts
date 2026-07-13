@@ -46,6 +46,7 @@ export function registerShowPonyScreens(r: FeatureRegistrar): void {
   r.screen(eventEditScreen);
   r.screen(rsvpListScreen);
 
+  // kumiko-lint-ignore app-feature-structure Stripe checkout + usage dashboard, kein deklarativer Typ
   r.screen({
     id: "billing",
     type: "custom",
@@ -53,3 +54,5 @@ export function registerShowPonyScreens(r: FeatureRegistrar): void {
     access: { roles: ["Admin"] },
   });
 }
+
+

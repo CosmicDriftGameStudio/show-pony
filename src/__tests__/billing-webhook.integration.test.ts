@@ -1,8 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { configValuesTable } from "@cosmicdrift/kumiko-bundled-features/config";
+import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
+import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import {
   TenantHandlers,
   tenantMembershipsTable,
@@ -34,6 +36,8 @@ const stripeForFixtures = new Stripe(TEST_API_KEY);
 const features = composeFeatures(
   [
     createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
+    createComplianceProfilesFeature(),
+    createTenantLifecycleFeature(),
     billingFoundationFeature,
     createSecretsFeature(),
     createSubscriptionStripeFeature({
@@ -197,3 +201,5 @@ describe("show-pony billing webhook → tier-sync", () => {
     expect(await countWhere(stack.db, tierAssignmentTable, { tenantId })).toBe(1);
   });
 });
+
+
