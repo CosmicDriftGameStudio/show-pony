@@ -28,7 +28,7 @@ import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
-import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
+import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -105,6 +105,12 @@ await runDevApp({
           tenantId: DEMO_TENANT.id,
           tenantKey: DEMO_TENANT.tenantKey,
           tenantName: DEMO_TENANT.name,
+          roles: ["Admin", "TenantAdmin"],
+        },
+        {
+          tenantId: ACME_TENANT.id,
+          tenantKey: ACME_TENANT.tenantKey,
+          tenantName: ACME_TENANT.name,
           roles: ["Admin", "TenantAdmin"],
         },
       ],

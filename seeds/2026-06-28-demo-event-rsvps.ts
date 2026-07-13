@@ -11,6 +11,7 @@
 
 import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
 import {
+  ACME_TENANT_ID,
   DEMO_EVENT_ID,
   DEMO_TENANT_ID,
   findEventBySlug,
@@ -28,11 +29,12 @@ const GUESTS = [
 ] as const;
 
 export default {
-  description: "demo tenant content: Rooftop Launch Party + Winter Warmup + sample RSVPs",
+  description:
+    "demo tenant content: Rooftop Launch Party + sample RSVPs (demo) + seeded event (acme)",
   run: async (ctx) => {
     const raw = toRawSqlRunner(ctx.db);
 
-    let rooftop = await findEventBySlug(raw, "rooftop-launch");
+    let rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
     if (rooftop) {
       await ctx.systemWriteAs(
         "showpony:write:event:update",
@@ -61,10 +63,10 @@ export default {
           `show-pony seed: event:create failed — ${event.error.code}: ${event.error.message}`,
         );
       }
-      rooftop = await findEventBySlug(raw, "rooftop-launch");
+      rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
     }
 
-    const warmup = await findEventBySlug(raw, "warmup-drinks");
+    const warmup = await findEventBySlug(raw, DEMO_TENANT_ID, "warmup-drinks");
     if (!warmup) {
       // Winter Warmup is best-effort: free tier caps maxEvents at 1 (spent by
       // Rooftop), so this create throws upgrade_required — skip, don't crash boot.
@@ -112,5 +114,29 @@ export default {
         );
       }
     }
+
+    // Second tenant for isolation demo — keep it cap-safe (one event only).
+    const acme = await findEventBySlug(raw, ACME_TENANT_ID, "acme-offsite");
+    if (!acme) {
+      try {
+        await ctx.systemWriteAs(
+          "showpony:write:event:create",
+          {
+            title: "Acme Offsite RSVP",
+            slug: "acme-offsite",
+            startsAt: "2026-10-03T18:00:00.000Z",
+            location: "Acme HQ — Studio floor",
+            description: "Acme’s internal offsite invite. Separate tenant, separate guest list.",
+            guestLimit: 60,
+          },
+          ACME_TENANT_ID,
+        );
+      } catch (err) {
+        console.warn(
+          `show-pony seed: acme event skipped — ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
   },
 } satisfies SeedMigration;
+

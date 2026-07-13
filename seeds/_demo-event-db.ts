@@ -3,6 +3,7 @@
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 
 export const DEMO_TENANT_ID = "00000000-0000-4000-8000-0000000000a1" as TenantId;
+export const ACME_TENANT_ID = "00000000-0000-4000-8000-0000000000a2" as TenantId;
 export const DEMO_EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
 
 export type EventRow = { id: string; version: number };
@@ -29,14 +30,16 @@ function asEventRows(result: unknown): EventRow[] {
 
 export async function findEventBySlug(
   raw: RawSqlRunner,
+  tenantId: TenantId,
   slug: string,
 ): Promise<EventRow | null> {
   const result = await raw.unsafe(
     `SELECT id, version FROM read_events
      WHERE tenant_id = $1 AND slug = $2
      LIMIT 1`,
-    [DEMO_TENANT_ID, slug],
+    [tenantId, slug],
   );
   const rows = asEventRows(result);
   return rows[0] ?? null;
 }
+
