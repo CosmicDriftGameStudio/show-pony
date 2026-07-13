@@ -8,8 +8,10 @@ import {
   AuthShellProvider,
   emailPasswordClient,
 } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
+import { configClient } from "@cosmicdrift/kumiko-bundled-features/config/web";
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
 import { tenantClient } from "@cosmicdrift/kumiko-bundled-features/tenant/web";
+import { tierEngineClient } from "@cosmicdrift/kumiko-bundled-features/tier-engine/web";
 import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer-web";
 import { createKumikoApp } from "@cosmicdrift/kumiko-renderer-web";
 import { AppShell } from "./app/shell";
@@ -36,9 +38,26 @@ createKumikoApp({
     emailPasswordClient({
       loginScreenProps: { subtitle: <DemoLoginHint /> },
     }),
+    configClient({
+      translations: {
+        de: {
+          "subscription-stripe.settings": "Stripe",
+          "subscription-stripe.api-key": "Stripe API Key",
+          "subscription-stripe.webhook-secret": "Stripe Webhook Secret",
+          "subscription-stripe.billing-live": "Stripe Billing live",
+        },
+        en: {
+          "subscription-stripe.settings": "Stripe",
+          "subscription-stripe.api-key": "Stripe API Key",
+          "subscription-stripe.webhook-secret": "Stripe Webhook Secret",
+          "subscription-stripe.billing-live": "Stripe Billing Live",
+        },
+      },
+    }),
     adminShellClient(),
     appShellClient,
     tenantClient(),
+    tierEngineClient(),
     auditClient(),
     jobsClient(),
     showPonyClient,

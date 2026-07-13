@@ -4,32 +4,31 @@
 //
 // HAS_AUTH=true → composeFeatures automatically pulls in the bundled auth chain
 // (config/user/tenant/auth-email-password/secrets).
-//
-// mail-foundation + a transport for guest confirmation emails. In the sample,
-// the inmemory transport (inbox via getInbox); switching to a real SMTP transport
-// is a deploy-time swap (mail-transport-smtp), not a code change.
 
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
+import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { capCounterFeature } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
+import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
+import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
+import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
+import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
 import { appShellFeature } from "./features/app-shell/feature";
 import { showPonyFeature } from "./features/show-pony/feature";
+import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
   registerWorkspaces: false,
-  includeTierAdmin: false,
+  includeTierAdmin: true,
 });
 
-// rsvp:submit is an anonymous write, so it MUST declare a rateLimit (all anon
-// callers share user.id="anonymous"). That needs a RateLimitResolver wired —
-// dev/test provide a default, but runProdApp doesn't, so the seed's
-// rsvp:submit crashed at boot. Loading this feature wires the resolver.
 export const APP_FEATURES = [
   ...composePagesStack({ wrapLayout: renderLegalLayout }),
   mailFoundationFeature,
@@ -37,6 +36,12 @@ export const APP_FEATURES = [
   createRateLimitingFeature(),
   createAuditFeature(),
   createJobsFeature(),
+  createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
+  createComplianceProfilesFeature(),
+  createTenantLifecycleFeature(),
+  billingFoundationFeature,
+  createSecretsFeature(),
+  capCounterFeature,
   adminShellFeature,
   appShellFeature,
   showPonyFeature,

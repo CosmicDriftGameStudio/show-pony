@@ -33,6 +33,7 @@ import {
   unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
 import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../features/show-pony/feature";
+import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyTenantResolver } from "../tenant-routing";
 
 // Default the mail provider app-wide to inmemory (otherwise createTransportForTenant
@@ -82,7 +83,10 @@ beforeAll(async () => {
   await unsafeCreateEntityTable(stack.db, tenantEntity);
   await unsafeCreateEntityTable(stack.db, eventEntity, "event");
   await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
-  await unsafePushTables(stack.db, { configValuesTable });
+  await unsafePushTables(stack.db, {
+    configValuesTable,
+    tier_assignments: tierAssignmentTable,
+  });
   await createEventsTable(stack.db);
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
   await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });

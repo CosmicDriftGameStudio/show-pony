@@ -18,7 +18,13 @@ function referencedKeys(): ReadonlySet<string> {
     for (const m of src.matchAll(KEY_RE)) {
       const key = m[1] as string;
       // Qualified handler/screen/nav refs — not translation keys.
-      if (key.includes(":write:") || key.includes(":screen:") || key.includes(":nav:")) continue;
+      if (
+        key.includes(":write:") ||
+        key.includes(":screen:") ||
+        key.includes(":nav:") ||
+        key.includes(":query:")
+      )
+        continue;
       out.add(key);
     }
   }

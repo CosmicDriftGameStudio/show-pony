@@ -11,12 +11,16 @@ const HOST_NAV_MEMBERS = [
   "showpony:nav:events",
   "showpony:nav:event-new",
   "showpony:nav:guests",
+  "showpony:nav:account",
+  "showpony:nav:billing",
   "tenant:nav:members",
 ] as const;
 
 const PLATFORM_NAV_MEMBERS = [
   "admin-shell:nav:platform-overview",
   "admin-shell:nav:tenants",
+  "admin-shell:nav:tier-admin",
+  "config:nav:audience-system",
   "app-shell:nav:users",
   "audit:nav:audit-log",
   "jobs:nav:job-runs",

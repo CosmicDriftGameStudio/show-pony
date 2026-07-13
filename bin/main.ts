@@ -15,10 +15,12 @@ import {
   createConfigAccessorFactory,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
+import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
 import { isDemoReadOnly, withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
+import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
@@ -26,6 +28,7 @@ import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
 import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
+import { buildStripeBillingConfig } from "./stripe-billing-env";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -43,8 +46,28 @@ const configResolver = createConfigResolver({
 
 await renderAllMarketingPages(APEX_ORIGIN);
 
+const stripeBilling = buildStripeBillingConfig({
+  STRIPE_API_KEY: process.env.STRIPE_API_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_STARTER: process.env.STRIPE_PRICE_STARTER,
+  STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
+});
+
 const handle = await runProdApp({
-  features: APP_FEATURES,
+  features: [
+    ...APP_FEATURES,
+    ...(stripeBilling
+      ? [
+          createSubscriptionStripeFeature({
+            ...(stripeBilling.webhookSecret !== undefined && {
+              webhookSecret: stripeBilling.webhookSecret,
+            }),
+            ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
+            priceToTier: stripeBilling.priceToTier,
+          }),
+        ]
+      : []),
+  ],
   autoListen: false,
   allowPlaintextPii: "show-pony demo app, no KMS provisioned",
   staticDir: "./dist",
@@ -53,6 +76,7 @@ const handle = await runProdApp({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     textContent: createTextContentApi(db),
+    ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
   anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
   hostDispatch: ({ host, path }) => {
@@ -102,9 +126,12 @@ const handle = await runProdApp({
       });
     },
   ],
-  extraRoutes: (app, { db }) => {
+  extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
     wireDemoModeRoutes(app);
     wireTermsRoutes(app, createTextContentApi(db));
+    if (stripeBilling !== null) {
+      wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
+    }
   },
 });
 

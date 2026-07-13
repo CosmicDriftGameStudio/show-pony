@@ -1,3 +1,4 @@
+import type { FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 import type {
   EntityEditScreenDefinition,
   EntityListScreenDefinition,
@@ -39,3 +40,17 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   pageSize: 50,
   defaultSort: { field: "name", dir: "asc" },
 };
+
+export function registerShowPonyScreens(r: FeatureRegistrar): void {
+  r.screen(eventListScreen);
+  r.screen(eventEditScreen);
+  r.screen(rsvpListScreen);
+
+  // kumiko-lint-ignore app-feature-structure Stripe checkout + usage dashboard, kein deklarativer Typ
+  r.screen({
+    id: "billing",
+    type: "custom",
+    renderer: { react: { __component: "BillingScreen" } },
+    access: { roles: ["Admin"] },
+  });
+}

@@ -82,11 +82,24 @@ migration chains.
 Inline boot seeds (accounts, legal) live in `bin/main.ts` / `bin/server.ts` via
 `seedAdmin` + `seedLegalContent` — idempotent, no dated files.
 
+**Billing (optional):** mount Stripe test keys to try checkout locally:
+
+```bash
+export STRIPE_API_KEY=sk_test_…
+export STRIPE_WEBHOOK_SECRET=whsec_…
+export STRIPE_PRICE_STARTER=price_…
+export STRIPE_PRICE_PRO=price_…
+```
+
+Sysadmin → **Platform** → Stripe settings → flip **billing live** when keys are set.
+Prod demo stays read-only; tier + usage still show on **Plan & billing**.
+
 After code changes that affect [docs.kumiko.rocks](https://docs.kumiko.rocks/en/show-pony/)
 embeds, sync the tutorial mirror:
 
 ```bash
 ./scripts/sync-docs-samples.sh
+./scripts/sync-env-example.ts   # optional — refreshes .env.example from env.example
 ```
 
 ## Scripts
@@ -101,6 +114,9 @@ embeds, sync the tutorial mirror:
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+
+
 
 
 
