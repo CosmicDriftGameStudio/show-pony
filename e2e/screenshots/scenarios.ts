@@ -2,7 +2,7 @@
 // function (money-horse pattern) so screens can be filled before capture.
 
 import { expect, type Page } from "@playwright/test";
-import { APEX_URL, DEMO_SLUG, publicEventUrl } from "./constants";
+import { ACME_SLUG, APEX_URL, DEMO_SLUG, acmePublicEventUrl, publicEventUrl } from "./constants";
 
 export interface Scenario {
   readonly name: string;
@@ -75,11 +75,10 @@ export const SCENARIOS: readonly Scenario[] = [
   },
   {
     name: "host-events",
-    description: "Host dashboard — seeded event list with two upcoming events",
+    description: "Host dashboard — seeded Rooftop Launch on the demo tenant",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByText("Winter Warmup Drinks").first()).toBeVisible();
     },
     settleMs: 400,
   },
@@ -125,8 +124,6 @@ export const SCENARIOS: readonly Scenario[] = [
       await page.fill("#login-email", "sysadmin@show-pony.local");
       await page.fill("#login-password", "changeme");
       await page.locator("#login-password").press("Enter");
-      await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
-      await page.getByRole("tab", { name: /^Platform$|^Plattform$/ }).click();
       await expect(page.getByTestId("platform-overview-screen")).toBeVisible({ timeout: 15_000 });
     },
     settleMs: 500,
@@ -144,13 +141,13 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 500,
   },
   {
-    name: "public-warmup-event",
-    description: "Second seeded event — smaller invite, same subdomain routing",
+    name: "public-acme-event",
+    description: "Acme tenant invite — separate subdomain, separate guest list",
     clearAuth: true,
     flow: async (page) => {
-      await page.goto(publicEventUrl("warmup-drinks"));
-      await expect(page.getByRole("heading", { name: /Winter Warmup/i })).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByText(/Ground-floor bar/i).first()).toBeVisible();
+      await page.goto(acmePublicEventUrl(ACME_SLUG));
+      await expect(page.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText(/Acme HQ/i).first()).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
     },
     settleMs: 500,
@@ -169,6 +166,10 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 400,
   },
 ];
+
+
+
+
 
 
 

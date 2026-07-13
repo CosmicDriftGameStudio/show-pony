@@ -1,15 +1,20 @@
-// Setup step for the screenshot runner: log in as host, create a demo event
-// (authed) + have a few guests RSVP anonymously via the subdomain —
-// so the dashboard, guest list, and public page are not empty.
+// Setup step for the screenshot runner: log in as host, create demo + acme
+// events (one per tenant under free-tier caps) + seed guest RSVPs on demo.
 // Saves the login state at the end for the shots project.
 //
-// Event-sourced: poll the projection after each write (lag). Authed
-// requests set X-Tenant explicitly — a raw fetch has no SPA tenant
-// switcher to do it automatically.
+// Entity writes use the session tenant (cap-guard counts against it), so we
+// switch via the top-bar TenantSwitcher — X-Tenant alone is not enough.
 
 import { mkdir } from "node:fs/promises";
 import { expect, test as setup } from "@playwright/test";
-import { APEX_URL, DEMO_SLUG, DEMO_TENANT_ID, publicEventUrl, STORAGE_STATE } from "./constants";
+import {
+  ACME_SLUG,
+  APEX_URL,
+  DEMO_SLUG,
+  acmePublicEventUrl,
+  publicEventUrl,
+  STORAGE_STATE,
+} from "./constants";
 
 const HOST = { email: "admin@show-pony.local", password: "changeme" };
 
@@ -26,7 +31,7 @@ async function authedWrite(
   payload: Record<string, unknown>,
 ): Promise<{ status: number; body: string }> {
   return page.evaluate(
-    async ({ type, payload, tenantId }) => {
+    async ({ type, payload }) => {
       const csrf = document.cookie
         .split("; ")
         .find((r) => r.startsWith("kumiko_csrf="))
@@ -35,7 +40,6 @@ async function authedWrite(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Tenant": tenantId,
           ...(csrf ? { "X-CSRF-Token": decodeURIComponent(csrf) } : {}),
         },
         credentials: "include",
@@ -43,48 +47,43 @@ async function authedWrite(
       });
       return { status: res.status, body: await res.text() };
     },
-    { type, payload, tenantId: DEMO_TENANT_ID },
+    { type, payload },
   );
 }
 
-async function authedCount(
-  page: import("@playwright/test").Page,
-  type: string,
-): Promise<number> {
-  return page.evaluate(
-    async ({ type, tenantId }) => {
-      const csrf = document.cookie
-        .split("; ")
-        .find((r) => r.startsWith("kumiko_csrf="))
-        ?.split("=")[1];
-      const res = await fetch("/api/query", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Tenant": tenantId,
-          ...(csrf ? { "X-CSRF-Token": decodeURIComponent(csrf) } : {}),
-        },
-        credentials: "include",
-        body: JSON.stringify({ type, payload: {} }),
-      });
-      const body = (await res.json()) as { data?: { rows?: unknown[] } };
-      return body.data?.rows?.length ?? 0;
-    },
-    { type, tenantId: DEMO_TENANT_ID },
-  );
+async function switchTenant(page: import("@playwright/test").Page, targetLabel: string): Promise<void> {
+  const active = page.getByRole("button").filter({ hasText: /Demo Host|Acme Studios/ });
+  if ((await active.textContent())?.match(new RegExp(targetLabel, "i"))) return;
+  await active.click();
+  await page.getByRole("menuitemcheckbox", { name: new RegExp(targetLabel, "i") }).click();
+  await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+  await expect(
+    page.getByRole("button").filter({ hasText: new RegExp(targetLabel, "i") }),
+  ).toBeVisible();
 }
 
 setup("login + seed demo event", async ({ page, browser }) => {
-  // 1. UI login as host (sets the auth cookie on the apex).
   await page.goto(`${APEX_URL}/login`);
   await page.fill("#login-email", HOST.email);
   await page.fill("#login-password", HOST.password);
   await page.locator("#login-password").press("Enter");
   await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
 
-  // 2. Create demo events (tutorial screenshots show a filled portfolio, not one row).
   const rooftopDesc =
     "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
+
+  await switchTenant(page, "Acme Studios");
+  const acmeCreated = await authedWrite(page, "showpony:write:event:create", {
+    title: "Acme Offsite RSVP",
+    slug: ACME_SLUG,
+    startsAt: "2026-10-03T18:00:00.000Z",
+    location: "Acme HQ — Studio floor",
+    description: "Acme's internal offsite invite. Separate tenant, separate guest list.",
+    guestLimit: 60,
+  });
+  expect(JSON.parse(acmeCreated.body).isSuccess, acmeCreated.body).toBe(true);
+
+  await switchTenant(page, "Demo Host");
   const created = await authedWrite(page, "showpony:write:event:create", {
     title: "Rooftop Launch Party",
     slug: DEMO_SLUG,
@@ -97,22 +96,12 @@ setup("login + seed demo event", async ({ page, browser }) => {
   const eventId = parsed.isSuccess ? (parsed.data?.id ?? null) : null;
   expect(eventId, created.body).toBeTruthy();
 
-  await authedWrite(page, "showpony:write:event:create", {
-    title: "Winter Warmup Drinks",
-    slug: "warmup-drinks",
-    startsAt: "2026-11-28T18:00:00.000Z",
-    location: "Ground-floor bar",
-    description: "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
-    guestLimit: 40,
-  });
+  const verify = await browser.newContext();
+  const verifyPage = await verify.newPage();
+  await verifyPage.goto(acmePublicEventUrl(ACME_SLUG));
+  await expect(verifyPage.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible({ timeout: 15_000 });
+  await verify.close();
 
-  // 3. Wait for the event projection.
-  await expect
-    .poll(() => authedCount(page, "showpony:query:event:list"), { timeout: 15_000 })
-    .toBeGreaterThanOrEqual(2);
-
-  // 4. RSVPs anonymously via the subdomain — fresh context without the host cookie,
-  //    so the tenant is resolved from the Host header (not from a session).
   const anon = await browser.newContext();
   const anonPage = await anon.newPage();
   await anonPage.goto(publicEventUrl(DEMO_SLUG));
@@ -130,11 +119,9 @@ setup("login + seed demo event", async ({ page, browser }) => {
   }
   await anon.close();
 
-  // 5. Wait for the RSVP projection (read authed).
-  await expect.poll(() => authedCount(page, "showpony:query:rsvp:list"), { timeout: 15_000 }).toBeGreaterThanOrEqual(GUESTS.length);
+  await page.goto(`${APEX_URL}/host/rsvp-list`);
+  await expect.poll(async () => page.getByText("Ava Chen").count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(1);
 
-  // 6. Save login state (the apex cookie lives in the page context).
   await mkdir("e2e/screenshots/.auth", { recursive: true });
   await page.context().storageState({ path: STORAGE_STATE });
 });
-
