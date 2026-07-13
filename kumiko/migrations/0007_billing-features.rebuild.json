@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "tables": [
+    "read_cap_counters",
+    "read_tenant_compliance_profiles",
+    "read_tier_assignments"
+  ]
+}

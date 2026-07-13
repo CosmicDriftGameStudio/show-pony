@@ -1,7 +1,81 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-12T14:59:55.186Z",
+  "generatedAt": "2026-07-13T12:28:18.276Z",
   "tables": [
+    {
+      "tableName": "read_cap_counters",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "defaultSql": "gen_random_uuid()",
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "version",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "1"
+        },
+        {
+          "name": "inserted_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        },
+        {
+          "name": "modified_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "inserted_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "modified_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "cap_name",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "value",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "0"
+        },
+        {
+          "name": "period_start",
+          "pgType": "timestamptz",
+          "notNull": true
+        },
+        {
+          "name": "last_soft_warned_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "read_cap_counters_tenant_id_idx",
+          "columns": [
+            "tenant_id"
+          ]
+        }
+      ],
+      "source": "managed"
+    },
     {
       "tableName": "read_config_values",
       "columns": [
@@ -384,6 +458,159 @@
       "source": "managed"
     },
     {
+      "tableName": "read_subscriptions",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "primaryKey": true,
+          "defaultSql": "gen_random_uuid()"
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "version",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "1"
+        },
+        {
+          "name": "inserted_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        },
+        {
+          "name": "modified_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "inserted_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "modified_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "provider_name",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "provider_customer_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "provider_subscription_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "status",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "tier",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "current_period_end",
+          "pgType": "timestamptz",
+          "notNull": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "read_subscriptions_tenant_id_idx",
+          "columns": [
+            "tenant_id"
+          ]
+        }
+      ],
+      "source": "unmanaged"
+    },
+    {
+      "tableName": "read_tenant_compliance_profiles",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "defaultSql": "gen_random_uuid()",
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "version",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "1"
+        },
+        {
+          "name": "inserted_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        },
+        {
+          "name": "modified_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "inserted_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "modified_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "profile_key",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "override",
+          "pgType": "text",
+          "notNull": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "read_tenant_compliance_profiles_tenant_id_idx",
+          "columns": [
+            "tenant_id"
+          ]
+        },
+        {
+          "name": "read_tenant_compliance_profiles_tenant_id_unique",
+          "columns": [
+            "tenant_id"
+          ],
+          "unique": true
+        }
+      ],
+      "source": "managed"
+    },
+    {
       "tableName": "read_tenant_invitations",
       "columns": [
         {
@@ -564,6 +791,88 @@
         }
       ],
       "source": "managed"
+    },
+    {
+      "tableName": "read_tenant_secrets",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "primaryKey": true,
+          "defaultSql": "gen_random_uuid()"
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "version",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "1"
+        },
+        {
+          "name": "inserted_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        },
+        {
+          "name": "modified_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "inserted_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "modified_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "key",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "envelope",
+          "pgType": "jsonb",
+          "notNull": true
+        },
+        {
+          "name": "kek_version",
+          "pgType": "integer",
+          "notNull": true
+        },
+        {
+          "name": "metadata",
+          "pgType": "jsonb",
+          "notNull": true,
+          "defaultSql": "'{}'::jsonb"
+        },
+        {
+          "name": "last_rotated_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "read_tenant_secrets_tenant_key_unique",
+          "columns": [
+            "tenant_id",
+            "key"
+          ],
+          "unique": true
+        }
+      ],
+      "source": "unmanaged"
     },
     {
       "tableName": "read_tenants",
@@ -755,6 +1064,69 @@
             "lang"
           ],
           "unique": true
+        }
+      ],
+      "source": "managed"
+    },
+    {
+      "tableName": "read_tier_assignments",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "defaultSql": "gen_random_uuid()",
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "version",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "1"
+        },
+        {
+          "name": "inserted_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        },
+        {
+          "name": "modified_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "inserted_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "modified_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "tier",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "source",
+          "pgType": "text",
+          "notNull": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "read_tier_assignments_tenant_id_idx",
+          "columns": [
+            "tenant_id"
+          ]
         }
       ],
       "source": "managed"
