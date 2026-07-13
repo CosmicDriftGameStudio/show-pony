@@ -1,14 +1,13 @@
-// Demo content for the deployed public page: one event on the "demo" tenant
-// plus a handful of RSVPs — otherwise demo.show-pony.kumiko.rocks is empty
-// until a host signs in and creates something. Matches the tutorial
-// screenshots so the live demo looks like the docs.
+// Demo content for the deployed public page: Rooftop Launch + Winter Warmup +
+// sample RSVPs on the "demo" tenant. Matches tutorial screenshots.
 //
-// The "demo" tenant itself is created by the admin bootstrap
-// (auth.admin.memberships in bin/main.ts), so this seed only adds content.
+// This is the **only** dated seed for demo content — show-pony is a learning
+// sample with a resettable prod DB (see README "Demo ops"). Do not add repair
+// migrations; edit this file and reset the database.
 //
-// Seeds run once per filename (kumiko_es_operations), but dispatcher writes
-// commit outside the marker tx — retries after partial failure MUST be
-// idempotent. Entity create schemas strip `id`, so guard by slug before create.
+// Tenants + accounts come from boot seeds in bin/main.ts / bin/server.ts.
+// Seeds run once per filename (kumiko_es_operations). Dispatcher writes commit
+// outside the marker tx — retries MUST be idempotent (slug guard before create).
 
 import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
 import {
@@ -16,7 +15,6 @@ import {
   DEMO_TENANT_ID,
   findEventBySlug,
   toRawSqlRunner,
-  WARMUP_EVENT_ID,
 } from "./_demo-event-db";
 
 const ROOFTOP_DESC =
@@ -35,11 +33,20 @@ export default {
     const raw = toRawSqlRunner(ctx.db);
 
     let rooftop = await findEventBySlug(raw, "rooftop-launch");
-    if (!rooftop) {
+    if (rooftop) {
+      await ctx.systemWriteAs(
+        "showpony:write:event:update",
+        {
+          id: rooftop.id,
+          version: rooftop.version,
+          changes: { description: ROOFTOP_DESC },
+        },
+        DEMO_TENANT_ID,
+      );
+    } else {
       const event = await ctx.systemWriteAs(
         "showpony:write:event:create",
         {
-          id: DEMO_EVENT_ID,
           title: "Rooftop Launch Party",
           slug: "rooftop-launch",
           startsAt: "2026-09-12T19:00:00.000Z",
@@ -57,12 +64,11 @@ export default {
       rooftop = await findEventBySlug(raw, "rooftop-launch");
     }
 
-    let warmup = await findEventBySlug(raw, "warmup-drinks");
+    const warmup = await findEventBySlug(raw, "warmup-drinks");
     if (!warmup) {
       const created = await ctx.systemWriteAs(
         "showpony:write:event:create",
         {
-          id: WARMUP_EVENT_ID,
           title: "Winter Warmup Drinks",
           slug: "warmup-drinks",
           startsAt: "2026-11-28T18:00:00.000Z",
@@ -103,4 +109,3 @@ export default {
     }
   },
 } satisfies SeedMigration;
-
