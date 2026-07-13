@@ -27,7 +27,7 @@ import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
-import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
+import { bindSubdomainPageResolver, createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
@@ -88,7 +88,10 @@ await runDevApp({
     return { kind: "html", entryName: "public", injectSchema: false };
   },
   watchDirs: ["./src", "./bin"],
-  anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+  anonymousAccess: ({ db }) => {
+    bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
+    return createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN });
+  },
   extraContext: ({ registry, db }) => ({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -151,5 +154,11 @@ await runDevApp({
       const r = await serveFromDir("logos", c.req.param("file"));
       return r ?? c.notFound();
     });
+    app.get("/heroes/:file", async (c) => {
+      const r = await serveFromDir("heroes", c.req.param("file"));
+      return r ?? c.notFound();
+    });
   },
 });
+
+

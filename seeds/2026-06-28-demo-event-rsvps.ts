@@ -10,6 +10,9 @@
 // outside the marker tx — retries MUST be idempotent (slug guard before create).
 
 import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
+import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { INVITE_BRANDING_QN } from "../src/features/show-pony/invite-branding";
 import {
   ACME_TENANT_ID,
   DEMO_EVENT_ID,
@@ -17,6 +20,16 @@ import {
   findEventBySlug,
   toRawSqlRunner,
 } from "./_demo-event-db";
+
+async function seedInviteBranding(
+  ctx: Parameters<SeedMigration["run"]>[0],
+  tenantId: TenantId,
+  entries: ReadonlyArray<readonly [string, string]>,
+): Promise<void> {
+  for (const [key, value] of entries) {
+    await ctx.systemWriteAs("config:write:set", { key, value }, tenantId);
+  }
+}
 
 const ROOFTOP_DESC =
   "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
@@ -137,6 +150,24 @@ export default {
         );
       }
     }
+
+    await seedInviteBranding(ctx, DEMO_TENANT_ID, [
+      [BRANDING_QN.title, "Mira Events"],
+      [BRANDING_QN.description, "Boutique launch invites with a rooftop vibe."],
+      [BRANDING_QN.accentColor, "#7c3aed"],
+      [INVITE_BRANDING_QN.heroImageUrl, "/heroes/demo-rooftop.svg"],
+      [INVITE_BRANDING_QN.heroStyle, "immersive"],
+    ]);
+
+    await seedInviteBranding(ctx, ACME_TENANT_ID, [
+      [BRANDING_QN.title, "Acme Studios"],
+      [BRANDING_QN.description, "Creative agency offsite — clean split layout."],
+      [BRANDING_QN.accentColor, "#0d9488"],
+      [INVITE_BRANDING_QN.heroImageUrl, "/heroes/acme-studio.svg"],
+      [INVITE_BRANDING_QN.heroStyle, "split"],
+    ]);
   },
 } satisfies SeedMigration;
+
+
 

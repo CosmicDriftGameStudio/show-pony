@@ -11,6 +11,8 @@ const HOST_NAV_MEMBERS = [
   "showpony:nav:events",
   "showpony:nav:event-new",
   "showpony:nav:guests",
+  "showpony:nav:appearance",
+  "showpony:nav:invite-branding",
   "showpony:nav:account",
   "showpony:nav:billing",
   "tenant:nav:members",
@@ -70,3 +72,4 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     nav: [...PLATFORM_NAV_MEMBERS],
   });
 });
+

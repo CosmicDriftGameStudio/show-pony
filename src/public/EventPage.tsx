@@ -5,8 +5,10 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchDemoMode } from "../demo-mode-client";
-import { fetchEventBySlug, type PublicEvent } from "./api";
+import { EMPTY_INVITE_BRANDING, type InviteBranding } from "../features/show-pony/invite-branding";
+import { fetchEventBySlug, fetchInviteBranding, type PublicEvent } from "./api";
 import { DemoPublicNotice } from "./DemoPublicNotice";
+import { InviteHero, inviteBrandingCssVars } from "./InviteHero";
 import { icsHref } from "./ics";
 import { RsvpForm } from "./RsvpForm";
 
@@ -15,7 +17,10 @@ function slugFromPath(): string {
   return segments[segments.length - 1] ?? "";
 }
 
-type Load = { kind: "loading" } | { kind: "missing" } | { kind: "ready"; event: PublicEvent };
+type Load =
+  | { kind: "loading" }
+  | { kind: "missing" }
+  | { kind: "ready"; event: PublicEvent; branding: InviteBranding };
 
 export function EventPage(): ReactElement {
   const t = useTranslation();
@@ -25,8 +30,15 @@ export function EventPage(): ReactElement {
   // kumiko-lint-ignore no-raw-hooks anonymous public bundle — one-shot fetch by slug, no dispatcher
   useEffect(() => {
     void fetchDemoMode().then((demo) => setReadOnly(demo.readOnly));
-    void fetchEventBySlug(slugFromPath())
-      .then((event) => setLoad(event ? { kind: "ready", event } : { kind: "missing" }))
+    const slug = slugFromPath();
+    void Promise.all([fetchEventBySlug(slug), fetchInviteBranding()])
+      .then(([event, branding]) =>
+        setLoad(
+          event
+            ? { kind: "ready", event, branding: branding ?? EMPTY_INVITE_BRANDING }
+            : { kind: "missing" },
+        ),
+      )
       .catch(() => setLoad({ kind: "missing" }));
   }, []);
 
@@ -45,34 +57,22 @@ export function EventPage(): ReactElement {
     );
   }
 
-  const { event } = load;
+  const { event, branding } = load;
   const when = new Date(event.startsAt).toLocaleString(undefined, {
     dateStyle: "long",
     timeStyle: "short",
   });
+  const guestLimit = event.guestLimit > 0 ? event.guestLimit : null;
+
   return (
-    <div className="min-h-screen show-pony-public">
-      <header className="bg-[var(--color-primary)] px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10">
-        <p className="text-sm font-medium uppercase tracking-widest opacity-90">
-          {t("showpony:public.event.invited")}
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{event.title}</h1>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <span className="rounded-full bg-[var(--color-primary-foreground)]/15 px-3 py-1 text-sm">
-            {when}
-          </span>
-          {event.location ? (
-            <span className="rounded-full bg-[var(--color-primary-foreground)]/15 px-3 py-1 text-sm">
-              {event.location}
-            </span>
-          ) : null}
-          {event.guestLimit != null && event.guestLimit > 0 ? (
-            <span className="rounded-full bg-[var(--color-primary-foreground)]/15 px-3 py-1 text-sm">
-              {t("showpony:public.event.guest-limit", { limit: String(event.guestLimit) })}
-            </span>
-          ) : null}
-        </div>
-      </header>
+    <div className="min-h-screen show-pony-public" style={inviteBrandingCssVars(branding)}>
+      <InviteHero
+        branding={branding}
+        title={event.title}
+        when={when}
+        location={event.location || null}
+        guestLimit={guestLimit}
+      />
 
       <main className="mx-auto max-w-2xl px-4 pb-12 sm:px-6">
         <div className="-mt-6 space-y-6">

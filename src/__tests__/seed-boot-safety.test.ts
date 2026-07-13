@@ -79,7 +79,7 @@ describe("demo seed boot-safety", () => {
         ) {
           throw new Error("rooftop boom");
         }
-        return { isSuccess: true, data: { id: "evt" } };
+        return { isSuccess: true as const };
       },
     } as unknown as SeedCtx;
 
@@ -98,7 +98,7 @@ describe("demo seed boot-safety", () => {
         ) {
           throw new Error("warmup cap exceeded");
         }
-        return { isSuccess: true, data: { id: "evt" } };
+        return { isSuccess: true as const };
       },
     } as unknown as SeedCtx;
 
@@ -108,3 +108,5 @@ describe("demo seed boot-safety", () => {
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 });
+
+

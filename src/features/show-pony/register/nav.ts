@@ -33,4 +33,15 @@ export function registerShowPonyNav(r: FeatureRegistrar): void {
     order: 20,
     screen: "showpony:screen:rsvp-list",
   });
+
+  r.nav({ id: "appearance", icon: "sparkles", label: "showpony:nav.appearance", order: 25 });
+  r.nav({
+    id: "invite-branding",
+    icon: "sparkles",
+    label: "showpony:nav.invite-branding",
+    parent: "showpony:nav:appearance",
+    screen: "showpony:screen:invite-branding-settings",
+    order: 10,
+  });
 }
+

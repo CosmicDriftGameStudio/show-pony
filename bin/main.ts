@@ -25,7 +25,7 @@ import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
-import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
+import { createShowPonyAnonymousAccess, bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
@@ -78,7 +78,10 @@ const handle = await runProdApp({
     textContent: createTextContentApi(db),
     ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
-  anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+  anonymousAccess: ({ db }) => {
+    bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
+    return createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN });
+  },
   hostDispatch: ({ host, path }) => {
     const h = hostnameOf(host);
     if (h === BASE_DOMAIN || h === `www.${BASE_DOMAIN}`) {
@@ -138,6 +141,16 @@ const handle = await runProdApp({
     if (stripeBilling !== null) {
       wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
     }
+    const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
+    const serveFromDir = async (dir: string, file: string): Promise<Response | null> => {
+      if (!isAssetName(file)) return null;
+      const f = Bun.file(`./dist/${dir}/${file}`);
+      return (await f.exists()) ? new Response(f) : null;
+    };
+    app.get("/heroes/:file", async (c) => {
+      const r = await serveFromDir("heroes", c.req.param("file"));
+      return r ?? c.notFound();
+    });
   },
 });
 
@@ -163,3 +176,5 @@ if (typeof Bun !== "undefined") {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));
 }
+
+

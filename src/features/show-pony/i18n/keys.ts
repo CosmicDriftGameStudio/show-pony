@@ -9,13 +9,32 @@ export const showPonyTranslations = {
   "showpony:nav.events": { de: "Events", en: "Events" },
   "showpony:nav.event-new": { de: "Neues Event", en: "New event" },
   "showpony:nav.guests": { de: "Gästeliste", en: "Guest list" },
+  "showpony:nav.appearance": { de: "Erscheinungsbild", en: "Appearance" },
+  "showpony:nav.invite-branding": { de: "Invite-Branding", en: "Invite branding" },
   "showpony:nav.account": { de: "Konto", en: "Account" },
   "showpony:nav.billing": { de: "Tarif & Abrechnung", en: "Plan & billing" },
 
   "screen:event-list.title": { de: "Events", en: "Events" },
   "screen:event-edit.title": { de: "Event bearbeiten", en: "Edit event" },
   "screen:rsvp-list.title": { de: "Gästeliste", en: "Guest list" },
+  "screen:invite-branding-settings.title": {
+    de: "Invite-Branding",
+    en: "Invite branding",
+  },
   "screen:billing.title": { de: "Tarif & Abrechnung", en: "Plan & billing" },
+
+  "showpony:branding.section.identity": { de: "Marke", en: "Brand" },
+  "showpony:branding.section.hero": { de: "Hero-Bild", en: "Hero image" },
+  "showpony:config:invite-hero-image-url": { de: "Hero-Bild-URL", en: "Hero image URL" },
+  "showpony:config:invite-hero-style": { de: "Hero-Layout", en: "Hero layout" },
+  "showpony:config:invite-hero-style:option:immersive": {
+    de: "Immersiv (Vollbild)",
+    en: "Immersive (full bleed)",
+  },
+  "showpony:config:invite-hero-style:option:split": {
+    de: "Geteilt (Text + Bild)",
+    en: "Split (text + image)",
+  },
 
   "showpony:section.event-basics": { de: "Eckdaten", en: "Basics" },
   "showpony:section.event-details": { de: "Beschreibung", en: "Description" },
@@ -150,3 +169,5 @@ export const showPonyTranslations = {
     en: "The guest list is full.",
   },
 } as const satisfies Record<string, LocaleEntry>;
+
+

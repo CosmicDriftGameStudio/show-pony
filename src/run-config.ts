@@ -11,6 +11,7 @@ import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/b
 import { capCounterFeature } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
+import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
@@ -22,6 +23,7 @@ import { appShellFeature } from "./features/app-shell/feature";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
+import { resolveSubdomainPageTenant } from "./tenant-routing";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -31,6 +33,10 @@ const adminShellFeature = createAdminShellFeature({
 
 export const APP_FEATURES = [
   ...composePagesStack({ wrapLayout: renderLegalLayout }),
+  createManagedPagesFeature({
+    resolveApexTenant: resolveSubdomainPageTenant,
+    allowCustomCss: false,
+  }),
   mailFoundationFeature,
   mailTransportInMemoryFeature,
   createRateLimitingFeature(),
@@ -48,3 +54,6 @@ export const APP_FEATURES = [
 ] as const;
 
 export const HAS_AUTH = true;
+
+
+

@@ -52,6 +52,25 @@ export function createShowPonyTenantResolver(config: { db: DbConnection; baseDom
 }
 
 /** Apex anonymous routes (legal pages) need SYSTEM tenant; subdomains keep host tenant. */
+let subdomainPageResolver: { db: DbConnection; baseDomain: string } | null = null;
+
+/** Wire db for managed-pages `resolveApexTenant` (boot hook — APP_FEATURES is static). */
+export function bindSubdomainPageResolver(config: { db: DbConnection; baseDomain: string }): void {
+  subdomainPageResolver = config;
+}
+
+/** Host → tenantId for managed-pages branding reads (subdomain = tenant.key). */
+export async function resolveSubdomainPageTenant(host: string): Promise<TenantId | null> {
+  if (!subdomainPageResolver) return null;
+  const { db, baseDomain } = subdomainPageResolver;
+  const h = hostnameOf(host);
+  if (h === baseDomain || h === `www.${baseDomain}`) return null;
+  if (h.endsWith(`.${baseDomain}`)) {
+    return enabledTenantByKey(db, h.slice(0, -(baseDomain.length + 1)));
+  }
+  return null;
+}
+
 export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDomain: string }) {
   const subdomain = createShowPonyTenantResolver(config);
   const { baseDomain } = config;
@@ -66,3 +85,4 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
     tenantExists: subdomain.tenantExists,
   };
 }
+
