@@ -38,6 +38,31 @@ describe("demo seed boot-safety", () => {
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 
+  test("grants the demo tenant a headroom tier BEFORE creating events (free caps maxEvents at 1)", async () => {
+    const calls: string[] = [];
+    let tierGrantedAt = -1;
+    let firstEventCreateAt = -1;
+    const ctx = {
+      db: emptyDb(),
+      systemWriteAs: async (handler: string, payload: unknown) => {
+        if (handler === "tier-engine:write:set-tenant-tier") {
+          tierGrantedAt = calls.length;
+          expect((payload as { tier: string }).tier).toBe("studio");
+        }
+        if (handler === "showpony:write:event:create" && firstEventCreateAt === -1) {
+          firstEventCreateAt = calls.length;
+        }
+        calls.push(handler);
+        return { isSuccess: true, data: { id: "evt" } };
+      },
+    } as unknown as SeedCtx;
+
+    await seed.run(ctx);
+    expect(tierGrantedAt).toBeGreaterThanOrEqual(0);
+    expect(tierGrantedAt).toBeLessThan(firstEventCreateAt);
+    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(2);
+  });
+
   test("patches rooftop description when slug already exists (idempotent retry)", async () => {
     const calls: string[] = [];
     const ctx = {
