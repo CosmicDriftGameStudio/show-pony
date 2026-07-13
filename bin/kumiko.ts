@@ -15,12 +15,9 @@ import { APP_FEATURES, HAS_AUTH } from "../src/run-config";
 
 const [, , cmd, ...rest] = Bun.argv;
 if (cmd !== "schema") {
-  console.error(
-    `\n  Unknown: kumiko ${cmd ?? ""} — only 'kumiko schema <sub>' in the standalone bundle.\n`,
-  );
   process.exit(1);
 }
 
 const features = composeFeatures([...APP_FEATURES], { includeBundled: HAS_AUTH });
-const out = { log: (l: string) => console.log(l), err: (l: string) => console.error(l) };
+const out = { log: (_l: string) => {}, err: (_l: string) => {} };
 process.exit(await runSchemaCli(rest, process.env.INIT_CWD ?? process.cwd(), out, { features }));

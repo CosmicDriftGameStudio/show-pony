@@ -17,23 +17,23 @@ export type DemoModePayload = {
 };
 
 export function isDemoReadOnly(env: Record<string, string | undefined> = process.env): boolean {
-  return env["DEMO_READ_ONLY"] === "true" || env["DEMO_READ_ONLY"] === "1";
+  return env.DEMO_READ_ONLY === "true" || env.DEMO_READ_ONLY === "1";
 }
 
 export function demoModePayload(
   env: Record<string, string | undefined> = process.env,
 ): DemoModePayload {
-  const baseDomain = env["BASE_DOMAIN"] ?? "show-pony.localhost";
+  const baseDomain = env.BASE_DOMAIN ?? "show-pony.localhost";
   const hostLoginUrl = baseDomain.includes("localhost")
-    ? `http://${baseDomain}:${env["PORT"] ?? "4180"}`
+    ? `http://${baseDomain}:${env.PORT ?? "4180"}`
     : `https://${baseDomain}`;
   const readOnly = isDemoReadOnly(env);
   const accounts: DemoAccount[] = [];
   if (readOnly) {
-    const hostEmail = env["DEMO_ADMIN_EMAIL"];
-    const hostPassword = env["DEMO_ADMIN_PASSWORD"];
-    const sysEmail = env["DEMO_SYSADMIN_EMAIL"];
-    const sysPassword = env["DEMO_SYSADMIN_PASSWORD"];
+    const hostEmail = env.DEMO_ADMIN_EMAIL;
+    const hostPassword = env.DEMO_ADMIN_PASSWORD;
+    const sysEmail = env.DEMO_SYSADMIN_EMAIL;
+    const sysPassword = env.DEMO_SYSADMIN_PASSWORD;
     if (hostEmail && hostPassword) {
       accounts.push({
         role: "host",

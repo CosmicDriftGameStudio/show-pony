@@ -33,8 +33,8 @@ describe("demo seed boot-safety", () => {
     } as unknown as SeedCtx;
 
     await expect(seed.run(ctx)).resolves.toBeUndefined();
-    // Both demo events seeded first (critical), then all 4 guest attempts made + caught.
-    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(2);
+    // Rooftop seeded (critical), Warmup attempted (best-effort), plus one Acme seed event.
+    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(3);
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 
@@ -44,11 +44,15 @@ describe("demo seed boot-safety", () => {
       db: {
         unsafe: async (_sql: string, params?: readonly unknown[]) => {
           const slug = params?.[1];
+          const tenantId = params?.[0];
           if (slug === "rooftop-launch") {
             return [{ id: "existing-rooftop", version: 1 }];
           }
           if (slug === "warmup-drinks") {
             return [{ id: "existing-warmup", version: 1 }];
+          }
+          if (slug === "acme-offsite" && tenantId) {
+            return [{ id: "existing-acme", version: 1 }];
           }
           return [];
         },
@@ -99,8 +103,8 @@ describe("demo seed boot-safety", () => {
     } as unknown as SeedCtx;
 
     await expect(seed.run(ctx)).resolves.toBeUndefined();
-    // Rooftop still created; warmup attempted but caught; guests still attempted.
-    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(2);
+    // Rooftop created; warmup attempted but caught; Acme event attempted; guests attempted.
+    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(3);
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 });

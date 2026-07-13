@@ -26,7 +26,7 @@ import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
-import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
+import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -102,6 +102,12 @@ const handle = await runProdApp({
           tenantName: DEMO_TENANT.name,
           roles: ["Admin", "TenantAdmin"],
         },
+        {
+          tenantId: ACME_TENANT.id,
+          tenantKey: ACME_TENANT.tenantKey,
+          tenantName: ACME_TENANT.name,
+          roles: ["Admin", "TenantAdmin"],
+        },
       ],
     },
   },
@@ -138,23 +144,18 @@ const handle = await runProdApp({
 const fetch = withDemoReadOnlyFetch(handle.fetch);
 
 if (isDemoReadOnly()) {
-  console.log("[show-pony] DEMO_READ_ONLY enabled — /api/write blocked on this instance");
 }
 
 if (typeof Bun !== "undefined") {
   handle.server = Bun.serve({ port, fetch, idleTimeout: 0 });
-  console.log(`[runProdApp] ready on http://0.0.0.0:${port}`);
 
   let shuttingDown = false;
-  const shutdown = async (signal: string) => {
+  const shutdown = async (_signal: string) => {
     if (shuttingDown) return;
     shuttingDown = true;
-    console.log(`[runProdApp] ${signal} received — draining…`);
     try {
       await handle.stop();
-      console.log("[runProdApp] graceful shutdown complete.");
-    } catch (e) {
-      console.error("[runProdApp] error during shutdown:", e);
+    } catch (_e) {
     } finally {
       process.exit(0);
     }
