@@ -16,7 +16,6 @@ import {
   findEventBySlug,
   toRawSqlRunner,
 } from "./_demo-event-db";
-import { TierEngineHandlers } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import type { ShowPonyTier } from "../src/marketing/pricing";
 
 const DEMO_TIER: ShowPonyTier = "studio";
@@ -38,7 +37,9 @@ export default {
 
     // free tier caps maxEvents at 1; the demo seeds 2 events → grant headroom before create.
     await ctx.systemWriteAs(
-      TierEngineHandlers.setTenantTier,
+      // literal QN, not the TierEngineHandlers const: seeds/ runs unbundled at boot
+      // and cannot resolve the bundled-features subpath at runtime.
+      "tier-engine:write:set-tenant-tier",
       { tenantId: DEMO_TENANT_ID, tier: DEMO_TIER },
       DEMO_TENANT_ID,
     );
