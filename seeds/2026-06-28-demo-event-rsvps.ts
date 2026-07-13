@@ -16,9 +16,6 @@ import {
   findEventBySlug,
   toRawSqlRunner,
 } from "./_demo-event-db";
-import type { ShowPonyTier } from "../src/marketing/pricing";
-
-const DEMO_TIER: ShowPonyTier = "studio";
 
 const ROOFTOP_DESC =
   "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
@@ -34,15 +31,6 @@ export default {
   description: "demo tenant content: Rooftop Launch Party + Winter Warmup + sample RSVPs",
   run: async (ctx) => {
     const raw = toRawSqlRunner(ctx.db);
-
-    // free tier caps maxEvents at 1; the demo seeds 2 events → grant headroom before create.
-    await ctx.systemWriteAs(
-      // literal QN, not the TierEngineHandlers const: seeds/ runs unbundled at boot
-      // and cannot resolve the bundled-features subpath at runtime.
-      "tier-engine:write:set-tenant-tier",
-      { tenantId: DEMO_TENANT_ID, tier: DEMO_TIER },
-      DEMO_TENANT_ID,
-    );
 
     let rooftop = await findEventBySlug(raw, "rooftop-launch");
     if (rooftop) {
@@ -78,22 +66,27 @@ export default {
 
     const warmup = await findEventBySlug(raw, "warmup-drinks");
     if (!warmup) {
-      const created = await ctx.systemWriteAs(
-        "showpony:write:event:create",
-        {
-          title: "Winter Warmup Drinks",
-          slug: "warmup-drinks",
-          startsAt: "2026-11-28T18:00:00.000Z",
-          location: "Ground-floor bar",
-          description:
-            "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
-          guestLimit: 40,
-        },
-        DEMO_TENANT_ID,
-      );
-      if (!created.isSuccess) {
-        throw new Error(
-          `show-pony seed: warmup event failed — ${created.error.code}: ${created.error.message}`,
+      // Winter Warmup is best-effort: free tier caps maxEvents at 1 (spent by
+      // Rooftop), so this create throws upgrade_required — skip, don't crash boot.
+      // ponytail: 1-event demo on free tier; grant the demo tenant a paid tier via
+      // the tier-admin screen + DB reset to restore the full 2-event demo.
+      try {
+        await ctx.systemWriteAs(
+          "showpony:write:event:create",
+          {
+            title: "Winter Warmup Drinks",
+            slug: "warmup-drinks",
+            startsAt: "2026-11-28T18:00:00.000Z",
+            location: "Ground-floor bar",
+            description:
+              "Low-key pre-holiday drinks for the team and friends. No agenda — just show up.",
+            guestLimit: 40,
+          },
+          DEMO_TENANT_ID,
+        );
+      } catch (err) {
+        console.warn(
+          `show-pony seed: warmup event skipped — ${err instanceof Error ? err.message : String(err)}`,
         );
       }
     }
