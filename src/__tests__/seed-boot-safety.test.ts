@@ -77,4 +77,3 @@ describe("demo seed boot-safety", () => {
     await expect(seed.run(ctx)).rejects.toThrow("event boom");
   });
 });
-
