@@ -1,5 +1,5 @@
-import { capsForTier, type TierName } from "../tier-map";
 import { TIER_MONTHLY_EUR } from "../../../marketing/pricing";
+import { capsForTier, type TierName } from "../tier-map";
 
 /** Billable via Stripe — studio is sales-assisted only. */
 export type PaidTier = "starter" | "pro";

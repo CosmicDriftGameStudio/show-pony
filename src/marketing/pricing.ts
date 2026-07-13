@@ -20,4 +20,3 @@ export const TIER_MAX_GUESTS: Record<ShowPonyTier, number | null> = {
   pro: 5000,
   studio: null,
 };
-

@@ -18,8 +18,8 @@ import {
   createConfigAccessorFactory,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
+import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
@@ -57,7 +57,20 @@ async function serveFromDir(dir: string, file: string): Promise<Response | null>
 }
 
 await runDevApp({
-  features: APP_FEATURES,
+  features: [
+    ...APP_FEATURES,
+    ...(stripeBilling
+      ? [
+          createSubscriptionStripeFeature({
+            ...(stripeBilling.webhookSecret !== undefined && {
+              webhookSecret: stripeBilling.webhookSecret,
+            }),
+            ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
+            priceToTier: stripeBilling.priceToTier,
+          }),
+        ]
+      : []),
+  ],
   port,
   clientEntries: [
     { name: "admin", sourceFile: "./src/client-admin.tsx", htmlPath: "./public/admin.html" },
@@ -134,8 +147,3 @@ await runDevApp({
     });
   },
 });
-
-
-
-
-

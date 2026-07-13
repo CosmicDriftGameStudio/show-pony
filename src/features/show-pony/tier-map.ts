@@ -1,16 +1,17 @@
 // Tier caps for show-pony — aligned with src/marketing/pricing.ts (apex preview).
 
 import type { TierMap } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
-import {
-  TIER_MAX_EVENTS,
-  TIER_MAX_GUESTS,
-  type ShowPonyTier,
-} from "../../marketing/pricing";
+import { type ShowPonyTier, TIER_MAX_EVENTS, TIER_MAX_GUESTS } from "../../marketing/pricing";
 
 export type { ShowPonyTier };
 export type TierName = ShowPonyTier;
 
-export const TIER_NAMES = ["free", "starter", "pro", "studio"] as const satisfies readonly TierName[];
+export const TIER_NAMES = [
+  "free",
+  "starter",
+  "pro",
+  "studio",
+] as const satisfies readonly TierName[];
 
 export const DEFAULT_TIER: TierName = "free";
 

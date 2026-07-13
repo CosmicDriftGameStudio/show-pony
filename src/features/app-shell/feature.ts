@@ -70,4 +70,3 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     nav: [...PLATFORM_NAV_MEMBERS],
   });
 });
-

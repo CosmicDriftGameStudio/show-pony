@@ -17,9 +17,6 @@ export async function resolveTier(db: DbConnection, tenantId: TenantId): Promise
   return typeof tier === "string" && isTierName(tier) ? tier : DEFAULT_TIER;
 }
 
-export async function resolveTierCaps(
-  db: DbConnection,
-  tenantId: TenantId,
-): Promise<ShowPonyCaps> {
+export async function resolveTierCaps(db: DbConnection, tenantId: TenantId): Promise<ShowPonyCaps> {
   return capsForTier(await resolveTier(db, tenantId));
 }

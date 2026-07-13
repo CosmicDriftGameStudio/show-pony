@@ -32,11 +32,7 @@ function UsageOverview(props: { readonly usage: UsageInfo }): ReactNode {
   const { Card } = usePrimitives();
   const { usage } = props;
   return (
-    <Card
-      testId="billing-usage"
-      className="mt-4"
-      slots={{ title: t("showpony:caps.usageTitle") }}
-    >
+    <Card testId="billing-usage" className="mt-4" slots={{ title: t("showpony:caps.usageTitle") }}>
       <div className="space-y-1">
         <CapCounter capKey="events" label={t("showpony:caps.events")} usage={usage.events} />
         <CapCounter capKey="guests" label={t("showpony:caps.guests")} usage={usage.guests} />
@@ -268,4 +264,3 @@ export function BillingScreen(): ReactNode {
     />
   );
 }
-

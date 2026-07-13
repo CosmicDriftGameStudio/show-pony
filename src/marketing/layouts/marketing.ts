@@ -333,5 +333,3 @@ export function renderPricingPage(lang: Lang, opts: RenderMarketingLayoutOptions
   };
   return renderApexPage(page);
 }
-
-

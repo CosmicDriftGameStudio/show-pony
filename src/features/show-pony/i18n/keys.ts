@@ -150,5 +150,3 @@ export const showPonyTranslations = {
     en: "The guest list is full.",
   },
 } as const satisfies Record<string, LocaleEntry>;
-
-

@@ -1,8 +1,8 @@
+import type { FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 import type {
   EntityEditScreenDefinition,
   EntityListScreenDefinition,
 } from "@cosmicdrift/kumiko-framework/ui-types";
-import type { FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 
 export const eventListScreen: EntityListScreenDefinition = {
   id: "event-list",
