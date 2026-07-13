@@ -72,7 +72,7 @@ const COPY: Record<
     pricing: {
       eyebrow: "Preise",
       heading: "Pläne für wachsende Hosts",
-      sub: "P2 bringt Stripe + tier-engine — diese Zahlen sind das Produkt-Versprechen der Demo.",
+      sub: "Starter und Pro sind per Stripe buchbar — Studio auf Anfrage.",
       perMonth: "/Monat",
       onRequest: "auf Anfrage",
       unlimited: "unbegrenzt",
@@ -129,7 +129,7 @@ const COPY: Record<
     pricing: {
       eyebrow: "Pricing",
       heading: "Plans for growing hosts",
-      sub: "P2 adds Stripe + tier-engine — these numbers are the demo product promise.",
+      sub: "Starter and Pro checkout via Stripe — Studio is sales-assisted.",
       perMonth: "/month",
       onRequest: "on request",
       unlimited: "unlimited",
@@ -333,3 +333,5 @@ export function renderPricingPage(lang: Lang, opts: RenderMarketingLayoutOptions
   };
   return renderApexPage(page);
 }
+
+

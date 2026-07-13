@@ -1,4 +1,4 @@
-// Marketing-only tier numbers (P2 will wire tier-engine + Stripe).
+// Marketing tier numbers — wired to tier-engine + Stripe in run-config.ts (P2).
 
 export type ShowPonyTier = "free" | "starter" | "pro" | "studio";
 
@@ -20,3 +20,4 @@ export const TIER_MAX_GUESTS: Record<ShowPonyTier, number | null> = {
   pro: 5000,
   studio: null,
 };
+

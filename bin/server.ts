@@ -19,8 +19,10 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
+import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
+import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
@@ -28,6 +30,7 @@ import { APP_FEATURES } from "../src/run-config";
 import { createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
 import { DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
+import { buildStripeBillingConfig } from "./stripe-billing-env";
 
 const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
 const port = Number.parseInt(process.env.PORT ?? "4180", 10);
@@ -38,6 +41,13 @@ const configResolver = createConfigResolver({
 });
 
 await renderAllMarketingPages(DEV_ORIGIN);
+
+const stripeBilling = buildStripeBillingConfig({
+  STRIPE_API_KEY: process.env.STRIPE_API_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_STARTER: process.env.STRIPE_PRICE_STARTER,
+  STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
+});
 
 const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
 async function serveFromDir(dir: string, file: string): Promise<Response | null> {
@@ -70,6 +80,7 @@ await runDevApp({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     textContent: createTextContentApi(db),
+    ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
   auth: {
     admin: {
@@ -107,9 +118,12 @@ await runDevApp({
       });
     },
   ],
-  extraRoutes: (app, { db }) => {
+  extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
     wireDemoModeRoutes(app);
     wireTermsRoutes(app, createTextContentApi(db));
+    if (stripeBilling !== null) {
+      wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
+    }
     app.get("/screenshots/:file", async (c) => {
       const r = await serveFromDir("screenshots", c.req.param("file"));
       return r ?? c.notFound();
@@ -120,3 +134,8 @@ await runDevApp({
     });
   },
 });
+
+
+
+
+

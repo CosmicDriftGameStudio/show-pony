@@ -1,7 +1,8 @@
 import { access, defineWriteHandler } from "@cosmicdrift/kumiko-framework/engine";
 import { z } from "zod";
+import { checkStockCap } from "../cap-guard";
 import { sendRsvpConfirmation } from "../lib/rsvp-confirmation-mail";
-import { RSVP_STATUSES, rsvpExecutor } from "../schema/rsvp";
+import { RSVP_STATUSES, rsvpExecutor, rsvpTable } from "../schema/rsvp";
 
 export const rsvpSubmitSchema = z.object({
   eventId: z.uuid(),
@@ -18,9 +19,19 @@ export const rsvpSubmitHandler = defineWriteHandler({
   access: { roles: [...access.anonymous] },
   rateLimit: { per: "ip+handler", limit: 20, windowSeconds: 60 },
   handler: async (event, ctx) => {
+    const capFailure = await checkStockCap(ctx.db.raw, event.user.tenantId, {
+      table: rsvpTable,
+      limit: (caps) => caps.maxGuests,
+      code: "guest_limit_reached",
+      i18nKey: "showpony:errors.guestLimitReached",
+      field: "rsvp",
+    });
+    if (capFailure) return capFailure;
+
     const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
     // The mail is best-effort — a transport error must not fail the RSVP.
     await sendRsvpConfirmation(ctx, event.user.tenantId, event.payload).catch(() => undefined);
     return result;
   },
 });
+

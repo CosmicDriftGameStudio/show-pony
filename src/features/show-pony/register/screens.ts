@@ -2,6 +2,7 @@ import type {
   EntityEditScreenDefinition,
   EntityListScreenDefinition,
 } from "@cosmicdrift/kumiko-framework/ui-types";
+import type { FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 
 export const eventListScreen: EntityListScreenDefinition = {
   id: "event-list",
@@ -39,3 +40,16 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   pageSize: 50,
   defaultSort: { field: "name", dir: "asc" },
 };
+
+export function registerShowPonyScreens(r: FeatureRegistrar): void {
+  r.screen(eventListScreen);
+  r.screen(eventEditScreen);
+  r.screen(rsvpListScreen);
+
+  r.screen({
+    id: "billing",
+    type: "custom",
+    renderer: { react: { __component: "BillingScreen" } },
+    access: { roles: ["Admin"] },
+  });
+}

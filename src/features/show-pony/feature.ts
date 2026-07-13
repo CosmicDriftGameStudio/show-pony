@@ -5,13 +5,21 @@ import {
   defineEntityDetailHandler,
   defineEntityListHandler,
   defineFeature,
-  registerEntityCrud,
 } from "@cosmicdrift/kumiko-framework/engine";
+import { billingInfoQuery } from "./handlers/billing-info.query";
 import { eventBySlugQuery } from "./handlers/event-by-slug.query";
+import {
+  eventCreateHandler,
+  eventDeleteHandler,
+  eventDetailHandler,
+  eventListHandler,
+  eventUpdateHandler,
+} from "./handlers/event-handlers";
 import { rsvpSubmitHandler } from "./handlers/rsvp-submit.write";
+import { usageQuery } from "./handlers/usage.query";
 import { showPonyTranslations } from "./i18n";
 import { registerShowPonyNav } from "./register/nav";
-import { eventEditScreen, eventListScreen, rsvpListScreen } from "./register/screens";
+import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
 
 const hostAccess = { access: { openToAll: true } } as const;
@@ -20,10 +28,15 @@ export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
   r.requires(mailFoundationFeature.name);
+
   r.translations({ keys: showPonyTranslations });
 
   r.entity("event", eventEntity);
-  registerEntityCrud(r, "event", eventEntity, { write: hostAccess, read: hostAccess });
+  r.writeHandler(eventCreateHandler);
+  r.writeHandler(eventUpdateHandler);
+  r.writeHandler(eventDeleteHandler);
+  r.queryHandler(eventListHandler);
+  r.queryHandler(eventDetailHandler);
 
   r.queryHandler(eventBySlugQuery);
 
@@ -33,8 +46,9 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, hostAccess));
   r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, hostAccess));
 
-  r.screen(eventListScreen);
-  r.screen(eventEditScreen);
-  r.screen(rsvpListScreen);
+  r.queryHandler(billingInfoQuery);
+  r.queryHandler(usageQuery);
+
+  registerShowPonyScreens(r);
   registerShowPonyNav(r);
 });
