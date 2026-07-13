@@ -16,6 +16,10 @@ import {
   findEventBySlug,
   toRawSqlRunner,
 } from "./_demo-event-db";
+import { TierEngineHandlers } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
+import type { ShowPonyTier } from "../src/marketing/pricing";
+
+const DEMO_TIER: ShowPonyTier = "studio";
 
 const ROOFTOP_DESC =
   "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
@@ -31,6 +35,13 @@ export default {
   description: "demo tenant content: Rooftop Launch Party + Winter Warmup + sample RSVPs",
   run: async (ctx) => {
     const raw = toRawSqlRunner(ctx.db);
+
+    // free tier caps maxEvents at 1; the demo seeds 2 events → grant headroom before create.
+    await ctx.systemWriteAs(
+      TierEngineHandlers.setTenantTier,
+      { tenantId: DEMO_TENANT_ID, tier: DEMO_TIER },
+      DEMO_TENANT_ID,
+    );
 
     let rooftop = await findEventBySlug(raw, "rooftop-launch");
     if (rooftop) {
