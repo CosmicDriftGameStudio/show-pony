@@ -1,15 +1,15 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
-import { configValuesTable } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
+import { configValuesTable } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
-import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import {
   TenantHandlers,
   tenantMembershipsTable,
   tenantTable,
 } from "@cosmicdrift/kumiko-bundled-features/tenant";
+import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { composeFeatures } from "@cosmicdrift/kumiko-dev-server/compose-features";
@@ -201,5 +201,3 @@ describe("show-pony billing webhook → tier-sync", () => {
     expect(await countWhere(stack.db, tierAssignmentTable, { tenantId })).toBe(1);
   });
 });
-
-

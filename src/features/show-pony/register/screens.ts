@@ -54,5 +54,3 @@ export function registerShowPonyScreens(r: FeatureRegistrar): void {
     access: { roles: ["Admin"] },
   });
 }
-
-
