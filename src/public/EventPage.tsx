@@ -5,7 +5,10 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchDemoMode } from "../demo-mode-client";
-import { EMPTY_INVITE_BRANDING, type InviteBranding } from "../features/show-pony/invite-branding.shared";
+import {
+  EMPTY_INVITE_BRANDING,
+  type InviteBranding,
+} from "../features/show-pony/invite-branding.shared";
 import { fetchEventBySlug, fetchInviteBranding, type PublicEvent } from "./api";
 import { DemoPublicNotice } from "./DemoPublicNotice";
 import { InviteHero, inviteBrandingCssVars } from "./InviteHero";
@@ -116,5 +119,3 @@ export function EventPage(): ReactElement {
     </div>
   );
 }
-
-

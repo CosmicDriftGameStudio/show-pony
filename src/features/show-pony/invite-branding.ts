@@ -9,9 +9,9 @@ export {
   coerceInviteBranding,
   EMPTY_INVITE_BRANDING,
   HERO_STYLES,
+  type HeroStyle,
   INVITE_BRANDING_QN,
   INVITE_BRANDING_QUERY_QN,
-  type HeroStyle,
   type InviteBranding,
 } from "./invite-branding.shared";
 
