@@ -65,6 +65,7 @@ export function EventPage(): ReactElement {
   const guestLimit = event.guestLimit > 0 ? event.guestLimit : null;
 
   return (
+    // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
     <div className="min-h-screen show-pony-public" style={inviteBrandingCssVars(branding)}>
       <InviteHero
         branding={branding}
@@ -115,3 +116,4 @@ export function EventPage(): ReactElement {
     </div>
   );
 }
+

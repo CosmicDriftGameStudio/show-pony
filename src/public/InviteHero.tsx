@@ -1,5 +1,5 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
-import type { CSSProperties, ReactElement } from "react";
+import type { ReactElement } from "react";
 import type { InviteBranding } from "../features/show-pony/invite-branding";
 
 type InviteHeroProps = {
@@ -10,15 +10,14 @@ type InviteHeroProps = {
   readonly guestLimit: number | null;
 };
 
-function brandingThemeStyle(accent: string): CSSProperties | undefined {
+type CssVarStyle = Record<string, string>;
+
+function brandingThemeStyle(accent: string): CssVarStyle | undefined {
   if (!accent) return undefined;
-  return {
-    "--color-primary": accent,
-    "--color-ring": accent,
-  } as CSSProperties;
+  return { "--color-primary": accent, "--color-ring": accent };
 }
 
-function heroOverlayStyle(accent: string): CSSProperties {
+function heroOverlayStyle(accent: string): CssVarStyle {
   const tint = accent || "#7c3aed";
   return {
     background: `linear-gradient(135deg, ${tint}dd 0%, ${tint}99 45%, ${tint}44 100%)`,
@@ -96,6 +95,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 
   if (branding.heroStyle === "split") {
     return (
+      // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
       <header
         className="border-b border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-foreground)]"
         style={themeStyle}
@@ -120,18 +120,16 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   }
 
   return (
+    // kumiko-lint-ignore no-inline-styles tenant accent color + hero overlay from branding config
     <header
       className="relative overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
       style={themeStyle}
     >
-      {heroUrl ? (
-        <>
-          <img src={heroUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0" style={heroOverlayStyle(branding.accentColor)} />
-        </>
-      ) : (
-        <div className="absolute inset-0 bg-[var(--color-primary)]" style={themeStyle} />
-      )}
+      <ImmersiveHeroBackdrop
+        heroUrl={heroUrl}
+        accent={branding.accentColor}
+        themeStyle={themeStyle}
+      />
       <div className="relative z-10 mx-auto max-w-3xl">
         <HeroCopy {...props} />
       </div>
@@ -139,6 +137,8 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   );
 }
 
-export function inviteBrandingCssVars(branding: InviteBranding): CSSProperties | undefined {
+export function inviteBrandingCssVars(branding: InviteBranding): CssVarStyle | undefined {
   return brandingThemeStyle(branding.accentColor);
 }
+
+
