@@ -181,7 +181,7 @@ export default {
       [BRANDING_TITLE, "Mira Events"],
       [BRANDING_DESCRIPTION, "✨ Rooftop invites with sparkle ✨"],
       [BRANDING_ACCENT_COLOR, "#7c3aed"],
-      [INVITE_HERO_IMAGE_URL, "/heroes/demo-rooftop.svg"],
+      [INVITE_HERO_IMAGE_URL, "/heroes/demo-rooftop.webp"],
       [INVITE_HERO_STYLE, "immersive"],
     ]);
 
@@ -189,7 +189,7 @@ export default {
       [BRANDING_TITLE, "Acme Studios"],
       [BRANDING_DESCRIPTION, "Clean design. Loud ideas. 🎨"],
       [BRANDING_ACCENT_COLOR, "#0d9488"],
-      [INVITE_HERO_IMAGE_URL, "/heroes/acme-studio.svg"],
+      [INVITE_HERO_IMAGE_URL, "/heroes/acme-studio.webp"],
       [INVITE_HERO_STYLE, "split"],
     ]);
   },
