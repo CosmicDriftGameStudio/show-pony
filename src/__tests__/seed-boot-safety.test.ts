@@ -65,7 +65,7 @@ describe("demo seed boot-safety", () => {
 
     await expect(seed.run(ctx)).resolves.toBeUndefined();
     expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(0);
-    expect(calls.filter((c) => c === "showpony:write:event:update")).toHaveLength(1);
+    expect(calls.filter((c) => c === "showpony:write:event:update")).toHaveLength(2);
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 

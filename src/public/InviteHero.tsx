@@ -144,7 +144,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   return (
     // kumiko-lint-ignore no-inline-styles tenant accent color + hero overlay from branding config
     <header
-      className="relative overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
+      className="relative isolate z-0 overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
       style={themeStyle}
     >
       <ImmersiveHeroBackdrop

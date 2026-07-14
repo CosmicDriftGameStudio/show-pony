@@ -31,8 +31,18 @@ async function seedInviteBranding(
   }
 }
 
-const ROOFTOP_DESC =
-  "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
+const ROOFTOP_DESC = `✨ You're on the list for something special.
+
+Join us on the 24th floor — cocktails, live DJ, and the Show Pony 2.0 launch at midnight 🎉
+
+Dress code: rooftop-ready 👠
+Bring someone you'd proudly introduce to the team 💜`;
+
+const ACME_DESC = `🎨 Team offsite season is here!
+
+Workshops in the morning, pizza on the studio floor, and zero mandatory fun runs 😅
+
+RSVP so we know how many chairs (and how much coffee) to order ☕️`;
 
 const GUESTS = [
   { name: "Ava Chen", status: "yes", plusN: 2 },
@@ -130,7 +140,17 @@ export default {
 
     // Second tenant for isolation demo — keep it cap-safe (one event only).
     const acme = await findEventBySlug(raw, ACME_TENANT_ID, "acme-offsite");
-    if (!acme) {
+    if (acme) {
+      await ctx.systemWriteAs(
+        "showpony:write:event:update",
+        {
+          id: acme.id,
+          version: acme.version,
+          changes: { description: ACME_DESC },
+        },
+        ACME_TENANT_ID,
+      );
+    } else {
       try {
         await ctx.systemWriteAs(
           "showpony:write:event:create",
@@ -139,7 +159,7 @@ export default {
             slug: "acme-offsite",
             startsAt: "2026-10-03T18:00:00.000Z",
             location: "Acme HQ — Studio floor",
-            description: "Acme’s internal offsite invite. Separate tenant, separate guest list.",
+            description: ACME_DESC,
             guestLimit: 60,
           },
           ACME_TENANT_ID,
@@ -153,7 +173,7 @@ export default {
 
     await seedInviteBranding(ctx, DEMO_TENANT_ID, [
       [BRANDING_QN.title, "Mira Events"],
-      [BRANDING_QN.description, "Boutique launch invites with a rooftop vibe."],
+      [BRANDING_QN.description, "✨ Rooftop invites with sparkle ✨"],
       [BRANDING_QN.accentColor, "#7c3aed"],
       [INVITE_BRANDING_QN.heroImageUrl, "/heroes/demo-rooftop.svg"],
       [INVITE_BRANDING_QN.heroStyle, "immersive"],
@@ -161,7 +181,7 @@ export default {
 
     await seedInviteBranding(ctx, ACME_TENANT_ID, [
       [BRANDING_QN.title, "Acme Studios"],
-      [BRANDING_QN.description, "Creative agency offsite — clean split layout."],
+      [BRANDING_QN.description, "Clean design. Loud ideas. 🎨"],
       [BRANDING_QN.accentColor, "#0d9488"],
       [INVITE_BRANDING_QN.heroImageUrl, "/heroes/acme-studio.svg"],
       [INVITE_BRANDING_QN.heroStyle, "split"],

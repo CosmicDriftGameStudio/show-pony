@@ -85,13 +85,23 @@ setup("login + seed demo event", async ({ page, browser }) => {
   await page.locator("#login-password").press("Enter");
   await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
 
-  const rooftopDesc =
-    "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
+  const rooftopDesc = `✨ You're on the list for something special.
+
+Join us on the 24th floor — cocktails, live DJ, and the Show Pony 2.0 launch at midnight 🎉
+
+Dress code: rooftop-ready 👠
+Bring someone you'd proudly introduce to the team 💜`;
+
+  const acmeDesc = `🎨 Team offsite season is here!
+
+Workshops in the morning, pizza on the studio floor, and zero mandatory fun runs 😅
+
+RSVP so we know how many chairs (and how much coffee) to order ☕️`;
 
   await switchTenant(page, "Acme Studios");
   await seedBranding(page, [
     [BRANDING_TITLE, "Acme Studios"],
-    [BRANDING_DESCRIPTION, "Creative agency offsite — clean split layout."],
+    [BRANDING_DESCRIPTION, "Clean design. Loud ideas. 🎨"],
     [BRANDING_ACCENT, "#0d9488"],
     [INVITE_HERO_URL, "/heroes/acme-studio.svg"],
     [INVITE_HERO_STYLE, "split"],
@@ -101,7 +111,7 @@ setup("login + seed demo event", async ({ page, browser }) => {
     slug: ACME_SLUG,
     startsAt: "2026-10-03T18:00:00.000Z",
     location: "Acme HQ — Studio floor",
-    description: "Acme's internal offsite invite. Separate tenant, separate guest list.",
+    description: acmeDesc,
     guestLimit: 60,
   });
   expect(JSON.parse(acmeCreated.body).isSuccess, acmeCreated.body).toBe(true);
@@ -109,7 +119,7 @@ setup("login + seed demo event", async ({ page, browser }) => {
   await switchTenant(page, "Demo Host");
   await seedBranding(page, [
     [BRANDING_TITLE, "Mira Events"],
-    [BRANDING_DESCRIPTION, "Boutique launch invites with a rooftop vibe."],
+    [BRANDING_DESCRIPTION, "✨ Rooftop invites with sparkle ✨"],
     [BRANDING_ACCENT, "#7c3aed"],
     [INVITE_HERO_URL, "/heroes/demo-rooftop.svg"],
     [INVITE_HERO_STYLE, "immersive"],

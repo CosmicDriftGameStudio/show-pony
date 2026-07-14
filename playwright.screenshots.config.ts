@@ -32,6 +32,12 @@ export default defineConfig({
       dependencies: ["setup"],
       use: { ...devices["Desktop Chrome"], storageState: STORAGE_STATE },
     },
+    {
+      name: "verify",
+      testMatch: /verify-invite-stack\.spec\.ts$/,
+      dependencies: ["setup"],
+      use: { ...devices["Desktop Chrome"] },
+    },
   ],
   webServer: {
     command: "bun --env-file=.env run bin/server.ts",
