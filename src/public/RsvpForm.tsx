@@ -41,7 +41,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
 
   if (state.kind === "success") {
     return (
-      <div className="mt-6 rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-card)] p-5 text-sm shadow-sm">
+      <div className="sp-rsvp-success mt-6 rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-card)] p-5 text-sm">
         <div className="flex items-start gap-3">
           <span
             className="sp-rsvp-check flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-lg text-[var(--color-primary-foreground)]"
