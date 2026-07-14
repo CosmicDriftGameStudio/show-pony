@@ -3,12 +3,11 @@ import type { ConfigAccessor } from "@cosmicdrift/kumiko-framework/engine";
 import { defineQueryHandler } from "@cosmicdrift/kumiko-framework/engine";
 import { z } from "zod";
 import {
-  EMPTY_INVITE_BRANDING,
   HERO_STYLES,
   type HeroStyle,
   INVITE_BRANDING_QN,
   type InviteBranding,
-} from "../invite-branding";
+} from "../invite-branding.shared";
 
 async function readText(config: ConfigAccessor | undefined, key: string): Promise<string> {
   if (!config) return "";
@@ -51,18 +50,4 @@ export function createInviteBrandingQuery() {
       };
     },
   });
-}
-
-export function coerceInviteBranding(value: unknown): InviteBranding {
-  if (typeof value !== "object" || value === null) return EMPTY_INVITE_BRANDING;
-  const source = value as Record<string, unknown>;
-  const str = (key: string) => (typeof source[key] === "string" ? (source[key] as string) : "");
-  return {
-    title: str("title"),
-    description: str("description"),
-    accentColor: str("accentColor"),
-    logoUrl: str("logoUrl"),
-    heroImageUrl: str("heroImageUrl"),
-    heroStyle: parseHeroStyle(str("heroStyle")),
-  };
 }
