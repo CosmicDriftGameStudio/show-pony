@@ -88,6 +88,28 @@ function HeroImage({ url, alt }: { url: string; alt: string }): ReactElement {
   return <img src={url} alt={alt} className="h-full w-full object-cover" />;
 }
 
+function ImmersiveHeroBackdrop({
+  heroUrl,
+  accent,
+  themeStyle,
+}: {
+  heroUrl: string;
+  accent: string;
+  themeStyle: CssVarStyle | undefined;
+}): ReactElement {
+  if (heroUrl) {
+    return (
+      <>
+        <img src={heroUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        {/* kumiko-lint-ignore no-inline-styles tenant hero gradient from branding config */}
+        <div className="absolute inset-0" style={heroOverlayStyle(accent)} />
+      </>
+    );
+  }
+  // kumiko-lint-ignore no-inline-styles tenant accent fallback when no hero image
+  return <div className="absolute inset-0 bg-[var(--color-primary)]" style={themeStyle} />;
+}
+
 export function InviteHero(props: InviteHeroProps): ReactElement {
   const { branding } = props;
   const themeStyle = brandingThemeStyle(branding.accentColor);
@@ -140,5 +162,6 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 export function inviteBrandingCssVars(branding: InviteBranding): CssVarStyle | undefined {
   return brandingThemeStyle(branding.accentColor);
 }
+
 
 
