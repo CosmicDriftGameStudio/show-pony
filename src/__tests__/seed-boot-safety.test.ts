@@ -24,6 +24,12 @@ describe("demo seed boot-safety", () => {
     expect(source).not.toMatch(/from\s+["']\.\.\/src\//);
   });
 
+  test("seed file has no runtime @cosmicdrift imports (dist-server omits npm deps)", () => {
+    const source = readFileSync(SEED_PATH, "utf8");
+    const runtimeImports = source.match(/^import\s+(?!type\b)[^;]+from\s+["']@cosmicdrift\//gm);
+    expect(runtimeImports).toBeNull();
+  });
+
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
     const calls: string[] = [];
     const ctx = {

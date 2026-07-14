@@ -9,11 +9,10 @@
 // Seeds run once per filename (kumiko_es_operations). Dispatcher writes commit
 // outside the marker tx — retries MUST be idempotent (slug guard before create).
 //
-// RUNTIME: seeds/ is copied into the Docker image WITHOUT src/ — never import
-// from ../src; use npm packages or inline QN strings only.
+// RUNTIME: seeds/ is copied into the Docker image WITHOUT src/ and WITHOUT
+// @cosmicdrift/* in node_modules — only type-only framework imports + inline QNs.
 
 import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   ACME_TENANT_ID,
@@ -25,6 +24,9 @@ import {
 
 const INVITE_HERO_IMAGE_URL = "showpony:config:invite-hero-image-url";
 const INVITE_HERO_STYLE = "showpony:config:invite-hero-style";
+const BRANDING_TITLE = "managed-pages:config:branding-title";
+const BRANDING_DESCRIPTION = "managed-pages:config:branding-description";
+const BRANDING_ACCENT_COLOR = "managed-pages:config:branding-accent-color";
 
 function seedWarn(label: string, err: unknown): void {
   console.warn(`show-pony seed: ${label} skipped — ${err instanceof Error ? err.message : String(err)}`);
@@ -176,17 +178,17 @@ export default {
     }
 
     await seedInviteBranding(ctx, DEMO_TENANT_ID, [
-      [BRANDING_QN.title, "Mira Events"],
-      [BRANDING_QN.description, "✨ Rooftop invites with sparkle ✨"],
-      [BRANDING_QN.accentColor, "#7c3aed"],
+      [BRANDING_TITLE, "Mira Events"],
+      [BRANDING_DESCRIPTION, "✨ Rooftop invites with sparkle ✨"],
+      [BRANDING_ACCENT_COLOR, "#7c3aed"],
       [INVITE_HERO_IMAGE_URL, "/heroes/demo-rooftop.svg"],
       [INVITE_HERO_STYLE, "immersive"],
     ]);
 
     await seedInviteBranding(ctx, ACME_TENANT_ID, [
-      [BRANDING_QN.title, "Acme Studios"],
-      [BRANDING_QN.description, "Clean design. Loud ideas. 🎨"],
-      [BRANDING_QN.accentColor, "#0d9488"],
+      [BRANDING_TITLE, "Acme Studios"],
+      [BRANDING_DESCRIPTION, "Clean design. Loud ideas. 🎨"],
+      [BRANDING_ACCENT_COLOR, "#0d9488"],
       [INVITE_HERO_IMAGE_URL, "/heroes/acme-studio.svg"],
       [INVITE_HERO_STYLE, "split"],
     ]);
