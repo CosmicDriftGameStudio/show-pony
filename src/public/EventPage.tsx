@@ -69,7 +69,10 @@ export function EventPage(): ReactElement {
 
   return (
     // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
-    <div className="min-h-screen show-pony-public" style={inviteBrandingCssVars(branding)}>
+    <div
+      className={`min-h-screen show-pony-public${branding.heroStyle === "split" ? " sp-invite-split-page" : ""}`}
+      style={inviteBrandingCssVars(branding)}
+    >
       <InviteHero
         branding={branding}
         title={event.title}

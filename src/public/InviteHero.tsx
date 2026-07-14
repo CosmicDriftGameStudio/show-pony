@@ -131,7 +131,7 @@ function ImmersiveHeroBackdrop({
   if (heroUrl) {
     return (
       <>
-        <HeroImage url={heroUrl} alt="" />
+        <HeroImage url={heroUrl} alt="" focus="bottom" />
         {/* kumiko-lint-ignore no-inline-styles tenant hero gradient from branding config */}
         <div className="sp-hero-grain absolute inset-0" style={heroOverlayStyle(accent)} />
       </>
@@ -150,22 +150,19 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
     return (
       // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
       <header
-        className="border-b border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-foreground)]"
+        className="sp-hero-split border-b border-[var(--color-border)] text-[var(--color-foreground)]"
         style={themeStyle}
       >
-        <div className="mx-auto grid max-w-6xl lg:grid-cols-2">
-          <div className="flex flex-col justify-center px-6 py-12 sm:px-10 lg:py-16">
+        <div className="grid lg:grid-cols-[minmax(0,42rem)_1fr] lg:min-h-[420px]">
+          <div className="sp-hero-split-copy flex flex-col justify-center px-6 py-12 sm:px-10 lg:py-16 lg:pl-[max(1.5rem,calc((100vw-42rem)/2))]">
             <HeroCopy {...props} metaVariant="card" />
           </div>
           {heroUrl ? (
-            <div className="relative min-h-[220px] overflow-hidden lg:min-h-[360px]">
-              <HeroImage url={heroUrl} alt="" />
+            <div className="relative min-h-[260px] overflow-hidden lg:min-h-full">
+              <HeroImage url={heroUrl} alt="" focus="right" />
             </div>
           ) : (
-            <div
-              className="min-h-[220px] bg-[var(--color-primary)]/20 lg:min-h-[360px]"
-              aria-hidden
-            />
+            <div className="min-h-[260px] bg-[var(--color-primary)]/20 lg:min-h-full" aria-hidden />
           )}
         </div>
       </header>
@@ -175,7 +172,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   return (
     // kumiko-lint-ignore no-inline-styles tenant accent color + hero overlay from branding config
     <header
-      className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
+      className="sp-hero-immersive relative isolate z-0 min-h-[420px] overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:min-h-[480px] sm:px-10 sm:py-16"
       style={themeStyle}
     >
       <ImmersiveHeroBackdrop
@@ -183,7 +180,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
         accent={branding.accentColor}
         themeStyle={themeStyle}
       />
-      <div className="relative z-10 mx-auto max-w-3xl">
+      <div className="relative z-10 mx-auto flex min-h-[inherit] max-w-3xl flex-col justify-end pb-2">
         <HeroCopy {...props} metaVariant="hero" />
       </div>
     </header>

@@ -141,10 +141,10 @@
 @layer components {
   @keyframes sp-hero-zoom {
     from {
-      transform: scale(1);
+      transform: scale(1.1);
     }
     to {
-      transform: scale(1.06);
+      transform: scale(1.16);
     }
   }
 
@@ -217,6 +217,7 @@
   @media (prefers-reduced-motion: reduce) {
     .show-pony-public .sp-hero-ken-burns {
       animation: none;
+      transform: scale(1.1);
     }
 
     .show-pony-public .sp-rsvp-check {
