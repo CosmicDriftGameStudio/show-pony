@@ -20,7 +20,7 @@ function brandingThemeStyle(accent: string): CssVarStyle | undefined {
 function heroOverlayStyle(accent: string): CssVarStyle {
   const tint = accent || "#7c3aed";
   return {
-    background: `linear-gradient(135deg, ${tint}dd 0%, ${tint}99 45%, ${tint}44 100%)`,
+    background: `linear-gradient(135deg, ${tint}99 0%, ${tint}55 45%, ${tint}22 100%)`,
   };
 }
 
@@ -175,7 +175,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   return (
     // kumiko-lint-ignore no-inline-styles tenant accent color + hero overlay from branding config
     <header
-      className="relative isolate z-0 overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
+      className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
       style={themeStyle}
     >
       <ImmersiveHeroBackdrop

@@ -114,6 +114,27 @@
     --color-background: #120820;
     --color-card: #1c1030;
   }
+
+  body.show-pony-public,
+  .show-pony-public.min-h-screen {
+    background-color: var(--color-background);
+    background-image:
+      radial-gradient(
+        ellipse 90% 55% at 50% -8%,
+        color-mix(in srgb, var(--color-primary) 16%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 45% 35% at 100% 20%,
+        color-mix(in srgb, var(--color-primary) 10%, transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        ellipse 40% 30% at 0% 80%,
+        color-mix(in srgb, var(--color-primary) 8%, transparent),
+        transparent 60%
+      );
+  }
 }
 
 /* Public invite polish — CSS-only motion; respects prefers-reduced-motion. */
@@ -139,6 +160,21 @@
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  .show-pony-public .sp-hero-immersive {
+    box-shadow: 0 28px 56px -16px color-mix(in srgb, var(--color-primary) 28%, transparent);
+  }
+
+  .show-pony-public .sp-hero-immersive::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 5;
+    height: 5rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--color-background));
   }
 
   .show-pony-public .sp-hero-media {

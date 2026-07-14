@@ -91,7 +91,7 @@ describe("invite-branding query", () => {
     );
     await stack.dispatcher.write(
       "config:write:set",
-      { key: INVITE_BRANDING_QN.heroImageUrl, value: "/heroes/demo-rooftop.svg" },
+      { key: INVITE_BRANDING_QN.heroImageUrl, value: "/heroes/demo-rooftop.webp" },
       createSystemUser(DEMO),
     );
 
@@ -108,7 +108,7 @@ describe("invite-branding query", () => {
     expect(body.data).toMatchObject({
       accentColor: "#7c3aed",
       heroStyle: "immersive",
-      heroImageUrl: "/heroes/demo-rooftop.svg",
+      heroImageUrl: "/heroes/demo-rooftop.webp",
     });
 
     await stack.dispatcher.write(
@@ -143,7 +143,7 @@ describe("invite-branding query", () => {
   test("tenant admin can write hero image URL (relative path allowed)", async () => {
     await stack.http.writeOk(
       "config:write:set",
-      { key: INVITE_BRANDING_QN.heroImageUrl, value: "/heroes/acme-studio.svg" },
+      { key: INVITE_BRANDING_QN.heroImageUrl, value: "/heroes/acme-studio.webp" },
       acmeAdmin,
     );
     const branding = await stack.http.queryOk<{ heroImageUrl: string }>(
@@ -151,6 +151,6 @@ describe("invite-branding query", () => {
       {},
       acmeAdmin,
     );
-    expect(branding.heroImageUrl).toBe("/heroes/acme-studio.svg");
+    expect(branding.heroImageUrl).toBe("/heroes/acme-studio.webp");
   });
 });

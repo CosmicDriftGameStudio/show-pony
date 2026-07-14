@@ -125,7 +125,7 @@ export const SCENARIOS: readonly Scenario[] = [
       });
       await expect(page.getByRole("textbox", { name: /Brand name/i })).toHaveValue("Mira Events");
       await expect(page.getByRole("textbox", { name: /Hero image URL/i })).toHaveValue(
-        "/heroes/demo-rooftop.svg",
+        "/heroes/demo-rooftop.webp",
       );
     },
     settleMs: 400,
