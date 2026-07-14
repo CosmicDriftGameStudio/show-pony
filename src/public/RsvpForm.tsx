@@ -84,7 +84,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
               onClick={() => setStatus(s)}
               className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors duration-150 ${
                 status === s
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm"
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                   : "border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-primary)]/40"
               }`}
             >
