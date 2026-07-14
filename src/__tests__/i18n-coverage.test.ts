@@ -22,7 +22,8 @@ function referencedKeys(): ReadonlySet<string> {
         key.includes(":write:") ||
         key.includes(":screen:") ||
         key.includes(":nav:") ||
-        key.includes(":query:")
+        key.includes(":query:") ||
+        key.includes(":config:")
       )
         continue;
       out.add(key);
@@ -60,3 +61,4 @@ test("app-shell workspace labels reach the browser bundle", () => {
   expect(appShellTranslationsByLocale.de["app-shell:workspace.host"]).toBe("Events");
   expect(appShellTranslationsByLocale.en["app-shell:workspace.platform"]).toBe("Platform");
 });
+

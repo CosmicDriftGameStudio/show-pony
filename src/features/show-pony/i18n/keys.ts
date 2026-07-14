@@ -25,13 +25,27 @@ export const showPonyTranslations = {
 
   "showpony:branding.section.identity": { de: "Marke", en: "Brand" },
   "showpony:branding.section.hero": { de: "Hero-Bild", en: "Hero image" },
-  "showpony:config:invite-hero-image-url": { de: "Hero-Bild-URL", en: "Hero image URL" },
-  "showpony:config:invite-hero-style": { de: "Hero-Layout", en: "Hero layout" },
-  "showpony:config:invite-hero-style:option:immersive": {
+
+  "showpony:entity:__config-edit__:field:title": { de: "Markenname", en: "Brand name" },
+  "showpony:entity:__config-edit__:field:description": {
+    de: "Tagline / Beschreibung",
+    en: "Tagline / description",
+  },
+  "showpony:entity:__config-edit__:field:accentColor": {
+    de: "Akzentfarbe",
+    en: "Accent color",
+  },
+  "showpony:entity:__config-edit__:field:logoUrl": { de: "Logo-URL", en: "Logo URL" },
+  "showpony:entity:__config-edit__:field:heroImageUrl": {
+    de: "Hero-Bild-URL",
+    en: "Hero image URL",
+  },
+  "showpony:entity:__config-edit__:field:heroStyle": { de: "Hero-Layout", en: "Hero layout" },
+  "showpony:entity:__config-edit__:field:heroStyle:option:immersive": {
     de: "Immersiv (Vollbild)",
     en: "Immersive (full bleed)",
   },
-  "showpony:config:invite-hero-style:option:split": {
+  "showpony:entity:__config-edit__:field:heroStyle:option:split": {
     de: "Geteilt (Text + Bild)",
     en: "Split (text + image)",
   },
@@ -169,5 +183,6 @@ export const showPonyTranslations = {
     en: "The guest list is full.",
   },
 } as const satisfies Record<string, LocaleEntry>;
+
 
 
