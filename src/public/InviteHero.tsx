@@ -111,10 +111,24 @@ function HeroCopy({
   );
 }
 
-function HeroImage({ url, alt }: { url: string; alt: string }): ReactElement {
+function HeroImage({
+  url,
+  alt,
+  focus = "center",
+}: {
+  url: string;
+  alt: string;
+  focus?: "center" | "bottom" | "right";
+}): ReactElement {
+  const focusClass =
+    focus === "bottom" ? "sp-hero-focus-bottom" : focus === "right" ? "sp-hero-focus-right" : "";
   return (
     <div className="sp-hero-media absolute inset-0">
-      <img src={url} alt={alt} className="sp-hero-ken-burns h-full w-full object-cover" />
+      <img
+        src={url}
+        alt={alt}
+        className={`sp-hero-ken-burns h-full w-full object-cover ${focusClass}`}
+      />
     </div>
   );
 }
@@ -131,7 +145,7 @@ function ImmersiveHeroBackdrop({
   if (heroUrl) {
     return (
       <>
-        <HeroImage url={heroUrl} alt="" />
+        <HeroImage url={heroUrl} alt="" focus="bottom" />
         {/* kumiko-lint-ignore no-inline-styles tenant hero gradient from branding config */}
         <div className="sp-hero-grain absolute inset-0" style={heroOverlayStyle(accent)} />
       </>
@@ -150,22 +164,19 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
     return (
       // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
       <header
-        className="border-b border-[var(--color-border)] bg-[var(--color-card)] text-[var(--color-foreground)]"
+        className="sp-hero-split border-b border-[var(--color-border)] text-[var(--color-foreground)]"
         style={themeStyle}
       >
-        <div className="mx-auto grid max-w-6xl lg:grid-cols-2">
-          <div className="flex flex-col justify-center px-6 py-12 sm:px-10 lg:py-16">
+        <div className="sp-hero-split-row">
+          <div className="sp-hero-split-copy flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
             <HeroCopy {...props} metaVariant="card" />
           </div>
           {heroUrl ? (
-            <div className="relative min-h-[220px] overflow-hidden lg:min-h-[360px]">
-              <HeroImage url={heroUrl} alt="" />
+            <div className="sp-hero-split-media relative overflow-hidden">
+              <HeroImage url={heroUrl} alt="" focus="right" />
             </div>
           ) : (
-            <div
-              className="min-h-[220px] bg-[var(--color-primary)]/20 lg:min-h-[360px]"
-              aria-hidden
-            />
+            <div className="sp-hero-split-media bg-[var(--color-primary)]/20" aria-hidden />
           )}
         </div>
       </header>
@@ -175,7 +186,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   return (
     // kumiko-lint-ignore no-inline-styles tenant accent color + hero overlay from branding config
     <header
-      className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-14 text-[var(--color-primary-foreground)] sm:px-10 sm:py-16"
+      className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10 sm:py-14"
       style={themeStyle}
     >
       <ImmersiveHeroBackdrop
@@ -183,7 +194,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
         accent={branding.accentColor}
         themeStyle={themeStyle}
       />
-      <div className="relative z-10 mx-auto max-w-3xl">
+      <div className="relative z-10 mx-auto flex min-h-[inherit] max-w-3xl flex-col justify-end pb-2">
         <HeroCopy {...props} metaVariant="hero" />
       </div>
     </header>
