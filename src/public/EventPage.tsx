@@ -78,8 +78,8 @@ export function EventPage(): ReactElement {
         guestLimit={guestLimit}
       />
 
-      <main className="mx-auto max-w-2xl px-4 pb-12 sm:px-6">
-        <div className="-mt-6 space-y-6">
+      <main className="relative z-10 mx-auto max-w-2xl px-4 pb-12 pt-6 sm:px-6">
+        <div className="space-y-6">
           {event.description ? (
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
               <p className="whitespace-pre-line text-[var(--color-foreground)] leading-relaxed">
