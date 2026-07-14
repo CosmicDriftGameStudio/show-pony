@@ -111,10 +111,28 @@ function HeroCopy({
   );
 }
 
-function HeroImage({ url, alt }: { url: string; alt: string }): ReactElement {
+function HeroImage({
+  url,
+  alt,
+  focus = "center",
+}: {
+  url: string;
+  alt: string;
+  focus?: "center" | "bottom" | "right";
+}): ReactElement {
+  const focusClass =
+    focus === "bottom"
+      ? "sp-hero-focus-bottom"
+      : focus === "right"
+        ? "sp-hero-focus-right"
+        : "";
   return (
     <div className="sp-hero-media absolute inset-0">
-      <img src={url} alt={alt} className="sp-hero-ken-burns h-full w-full object-cover" />
+      <img
+        src={url}
+        alt={alt}
+        className={`sp-hero-ken-burns h-full w-full object-cover ${focusClass}`}
+      />
     </div>
   );
 }
