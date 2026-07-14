@@ -25,6 +25,19 @@ type Load =
   | { kind: "missing" }
   | { kind: "ready"; event: PublicEvent; branding: InviteBranding };
 
+function splitInviteCanvasStyle(accent: string): Record<string, string> {
+  return {
+    "--color-primary": accent,
+    "--color-ring": accent,
+    backgroundColor: `color-mix(in srgb, ${accent} 10%, var(--color-background))`,
+    backgroundImage: [
+      `radial-gradient(ellipse 90% 60% at 0% 0%, color-mix(in srgb, ${accent} 38%, transparent), transparent 55%)`,
+      `radial-gradient(ellipse 75% 55% at 100% 100%, color-mix(in srgb, ${accent} 28%, transparent), transparent 50%)`,
+      `linear-gradient(180deg, color-mix(in srgb, ${accent} 18%, var(--color-background)) 0%, color-mix(in srgb, ${accent} 10%, var(--color-background)) 50%, var(--color-background) 95%)`,
+    ].join(", "),
+  };
+}
+
 export function EventPage(): ReactElement {
   const t = useTranslation();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
@@ -44,6 +57,27 @@ export function EventPage(): ReactElement {
       )
       .catch(() => setLoad({ kind: "missing" }));
   }, []);
+
+  const splitPage = load.kind === "ready" && load.branding.heroStyle === "split";
+  const splitAccent = load.kind === "ready" ? load.branding.accentColor : "";
+
+  // kumiko-lint-ignore no-raw-hooks sync split-page canvas + tenant accent onto body for page-wide gradient
+  useEffect(() => {
+    if (!splitPage || !splitAccent) return;
+    const canvas = splitInviteCanvasStyle(splitAccent);
+    document.body.classList.add("sp-invite-split-page");
+    document.body.style.backgroundColor = canvas.backgroundColor ?? "";
+    document.body.style.backgroundImage = canvas.backgroundImage ?? "";
+    document.body.style.setProperty("--color-primary", splitAccent);
+    document.body.style.setProperty("--color-ring", splitAccent);
+    return () => {
+      document.body.classList.remove("sp-invite-split-page");
+      document.body.style.backgroundColor = "";
+      document.body.style.backgroundImage = "";
+      document.body.style.removeProperty("--color-primary");
+      document.body.style.removeProperty("--color-ring");
+    };
+  }, [splitPage, splitAccent]);
 
   if (load.kind === "loading") {
     return (
@@ -66,10 +100,17 @@ export function EventPage(): ReactElement {
     timeStyle: "short",
   });
   const guestLimit = event.guestLimit > 0 ? event.guestLimit : null;
+  const canvasStyle =
+    splitPage && splitAccent
+      ? splitInviteCanvasStyle(splitAccent)
+      : inviteBrandingCssVars(branding);
 
   return (
     // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
-    <div className="min-h-screen show-pony-public" style={inviteBrandingCssVars(branding)}>
+    <div
+      className={`min-h-screen show-pony-public${splitPage ? " sp-invite-split-page" : ""}`}
+      style={canvasStyle}
+    >
       <InviteHero
         branding={branding}
         title={event.title}

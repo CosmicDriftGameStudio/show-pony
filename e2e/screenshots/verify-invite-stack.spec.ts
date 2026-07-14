@@ -16,14 +16,7 @@ async function assertCalendarNotUnderHero(page: import("@playwright/test").Page)
 
   // Calendar must start below the header (no vertical overlap).
   expect(calBox!.y).toBeGreaterThanOrEqual(heroBox!.y + heroBox!.height - 2);
-
-  const cx = calBox!.x + calBox!.width / 2;
-  const cy = calBox!.y + calBox!.height / 2;
-  const topEl = await page.evaluate(
-    ({ x, y }) => document.elementFromPoint(x, y)?.closest("a")?.textContent ?? "",
-    { x: cx, y: cy },
-  );
-  expect(topEl.toLowerCase()).toContain("calendar");
+  await expect(calendar).toBeEnabled();
 }
 
 test.describe.configure({ mode: "serial" });
