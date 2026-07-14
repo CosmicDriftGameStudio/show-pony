@@ -1,16 +1,16 @@
 // The demo seed runs at boot (seedsDir). A write that throws there aborts the
-// whole boot — that's exactly what crash-looped the first prod deploy:
-// systemWriteAs("rsvp:submit") threw because the es-ops seed dispatcher has no
-// RateLimitResolver in prod. These tests pin the boot-safety so a future edit
-// can't silently re-introduce a boot-crashing seed.
+// whole boot — that's exactly what crash-looped prod deploys.
 //
-// systemWriteAs THROWS on a failed write (it doesn't return a failure result),
-// so the mock throws to model the real framework behaviour.
+// systemWriteAs THROWS on a failed write — mocks must throw to match prod.
 
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import seed from "../../seeds/2026-06-28-demo-event-rsvps";
 
 type SeedCtx = Parameters<typeof seed.run>[0];
+
+const SEED_PATH = join(import.meta.dirname, "../../seeds/2026-06-28-demo-event-rsvps.ts");
 
 function emptyDb(): SeedCtx["db"] {
   return {
@@ -19,6 +19,11 @@ function emptyDb(): SeedCtx["db"] {
 }
 
 describe("demo seed boot-safety", () => {
+  test("seed file never imports ../src (Docker runtime has no src/)", () => {
+    const source = readFileSync(SEED_PATH, "utf8");
+    expect(source).not.toMatch(/from\s+["']\.\.\/src\//);
+  });
+
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
     const calls: string[] = [];
     const ctx = {
@@ -33,7 +38,6 @@ describe("demo seed boot-safety", () => {
     } as unknown as SeedCtx;
 
     await expect(seed.run(ctx)).resolves.toBeUndefined();
-    // Rooftop seeded (critical), Warmup attempted (best-effort), plus one Acme seed event.
     expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(3);
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
@@ -67,6 +71,31 @@ describe("demo seed boot-safety", () => {
     expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(0);
     expect(calls.filter((c) => c === "showpony:write:event:update")).toHaveLength(2);
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
+  });
+
+  test("event:update and branding failures do NOT crash — best-effort patch", async () => {
+    const ctx = {
+      db: {
+        unsafe: async (_sql: string, params?: readonly unknown[]) => {
+          const slug = params?.[1];
+          if (slug === "rooftop-launch") return [{ id: "existing-rooftop", version: 1 }];
+          if (slug === "warmup-drinks") return [{ id: "existing-warmup", version: 1 }];
+          if (slug === "acme-offsite") return [{ id: "existing-acme", version: 1 }];
+          return [];
+        },
+      },
+      systemWriteAs: async (handler: string) => {
+        if (handler === "showpony:write:event:update") {
+          throw new Error("stale_state");
+        }
+        if (handler === "config:write:set") {
+          throw new Error("config boom");
+        }
+        return { isSuccess: true, data: { id: "evt" } };
+      },
+    } as unknown as SeedCtx;
+
+    await expect(seed.run(ctx)).resolves.toBeUndefined();
   });
 
   test("a Rooftop event:create failure DOES crash the seed — Rooftop is critical", async () => {
@@ -103,7 +132,6 @@ describe("demo seed boot-safety", () => {
     } as unknown as SeedCtx;
 
     await expect(seed.run(ctx)).resolves.toBeUndefined();
-    // Rooftop created; warmup attempted but caught; Acme event attempted; guests attempted.
     expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(3);
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
