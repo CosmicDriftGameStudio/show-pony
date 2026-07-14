@@ -18,6 +18,12 @@ import {
 
 const HOST = { email: "admin@show-pony.local", password: "changeme" };
 
+const BRANDING_TITLE = "managed-pages:config:branding-title";
+const BRANDING_DESCRIPTION = "managed-pages:config:branding-description";
+const BRANDING_ACCENT = "managed-pages:config:branding-accent-color";
+const INVITE_HERO_URL = "showpony:config:invite-hero-image-url";
+const INVITE_HERO_STYLE = "showpony:config:invite-hero-style";
+
 const GUESTS = [
   { name: "Ava Chen", status: "yes", plusN: 2 },
   { name: "Marcus Bell", status: "yes", plusN: 0 },
@@ -51,6 +57,16 @@ async function authedWrite(
   );
 }
 
+async function seedBranding(
+  page: import("@playwright/test").Page,
+  entries: ReadonlyArray<readonly [string, string]>,
+): Promise<void> {
+  for (const [key, value] of entries) {
+    const res = await authedWrite(page, "config:write:set", { key, value });
+    expect(JSON.parse(res.body).isSuccess, res.body).toBe(true);
+  }
+}
+
 async function switchTenant(page: import("@playwright/test").Page, targetLabel: string): Promise<void> {
   const active = page.getByRole("button").filter({ hasText: /Demo Host|Acme Studios/ });
   if ((await active.textContent())?.match(new RegExp(targetLabel, "i"))) return;
@@ -73,6 +89,13 @@ setup("login + seed demo event", async ({ page, browser }) => {
     "Join us on the 24th floor for cocktails, a live DJ set, and the Show Pony 2.0 launch at midnight. Dress code: rooftop-ready. Bring someone you'd introduce to the team.";
 
   await switchTenant(page, "Acme Studios");
+  await seedBranding(page, [
+    [BRANDING_TITLE, "Acme Studios"],
+    [BRANDING_DESCRIPTION, "Creative agency offsite — clean split layout."],
+    [BRANDING_ACCENT, "#0d9488"],
+    [INVITE_HERO_URL, "/heroes/acme-studio.svg"],
+    [INVITE_HERO_STYLE, "split"],
+  ]);
   const acmeCreated = await authedWrite(page, "showpony:write:event:create", {
     title: "Acme Offsite RSVP",
     slug: ACME_SLUG,
@@ -84,6 +107,13 @@ setup("login + seed demo event", async ({ page, browser }) => {
   expect(JSON.parse(acmeCreated.body).isSuccess, acmeCreated.body).toBe(true);
 
   await switchTenant(page, "Demo Host");
+  await seedBranding(page, [
+    [BRANDING_TITLE, "Mira Events"],
+    [BRANDING_DESCRIPTION, "Boutique launch invites with a rooftop vibe."],
+    [BRANDING_ACCENT, "#7c3aed"],
+    [INVITE_HERO_URL, "/heroes/demo-rooftop.svg"],
+    [INVITE_HERO_STYLE, "immersive"],
+  ]);
   const created = await authedWrite(page, "showpony:write:event:create", {
     title: "Rooftop Launch Party",
     slug: DEMO_SLUG,
@@ -125,3 +155,8 @@ setup("login + seed demo event", async ({ page, browser }) => {
   await mkdir("e2e/screenshots/.auth", { recursive: true });
   await page.context().storageState({ path: STORAGE_STATE });
 });
+
+
+
+
+

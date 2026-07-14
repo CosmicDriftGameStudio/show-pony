@@ -1,6 +1,6 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import type { ReactElement } from "react";
-import type { InviteBranding } from "../features/show-pony/invite-branding";
+import type { InviteBranding } from "../features/show-pony/invite-branding.shared";
 
 type InviteHeroProps = {
   readonly branding: InviteBranding;
@@ -162,3 +162,4 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 export function inviteBrandingCssVars(branding: InviteBranding): CssVarStyle | undefined {
   return brandingThemeStyle(branding.accentColor);
 }
+

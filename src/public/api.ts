@@ -3,8 +3,7 @@
 // The tenant is resolved server-side from the subdomain (Host header), not
 // from the payload.
 
-import { coerceInviteBranding } from "../features/show-pony/handlers/invite-branding.query";
-import type { InviteBranding } from "../features/show-pony/invite-branding";
+import { coerceInviteBranding, type InviteBranding } from "../features/show-pony/invite-branding.shared";
 
 export type PublicEvent = {
   readonly id: string;
@@ -63,3 +62,5 @@ export async function submitRsvp(input: RsvpInput): Promise<SubmitResult> {
     | { isSuccess: false; error: { code: string } };
   return body.isSuccess ? { ok: true } : { ok: false, reason: body.error.code };
 }
+
+

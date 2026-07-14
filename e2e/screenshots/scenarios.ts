@@ -116,6 +116,21 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 400,
   },
   {
+    name: "host-invite-branding",
+    description: "Invite branding settings — tenant-scoped hero + accent on public invites",
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/host/invite-branding-settings`);
+      await expect(page.getByRole("heading", { name: /Invite branding/i })).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(page.getByRole("textbox", { name: /Brand name/i })).toHaveValue("Mira Events");
+      await expect(page.getByRole("textbox", { name: /Hero image URL/i })).toHaveValue(
+        "/heroes/demo-rooftop.svg",
+      );
+    },
+    settleMs: 400,
+  },
+  {
     name: "platform-overview",
     description: "Platform workspace — sysadmin sees operator overview on the apex",
     clearAuth: true,
@@ -134,7 +149,7 @@ export const SCENARIOS: readonly Scenario[] = [
     clearAuth: true,
     flow: async (page) => {
       await page.goto(publicEventUrl(DEMO_SLUG));
-      await expect(page.getByText("You're invited").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Mira Events").first()).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
     },
@@ -146,6 +161,7 @@ export const SCENARIOS: readonly Scenario[] = [
     clearAuth: true,
     flow: async (page) => {
       await page.goto(acmePublicEventUrl(ACME_SLUG));
+      await expect(page.getByText("Acme Studios").first()).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible({ timeout: 15_000 });
       await expect(page.getByText(/Acme HQ/i).first()).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
@@ -166,6 +182,9 @@ export const SCENARIOS: readonly Scenario[] = [
     settleMs: 400,
   },
 ];
+
+
+
 
 
 
