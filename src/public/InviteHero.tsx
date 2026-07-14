@@ -162,6 +162,3 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 export function inviteBrandingCssVars(branding: InviteBranding): CssVarStyle | undefined {
   return brandingThemeStyle(branding.accentColor);
 }
-
-
-
