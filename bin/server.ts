@@ -33,6 +33,7 @@ import {
   hostnameOf,
 } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
+import { seedDemoContent } from "./seed-demo-content";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -142,6 +143,9 @@ await runDevApp({
           },
         ],
       });
+    },
+    async (stack) => {
+      await seedDemoContent(stack);
     },
   ],
   extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {

@@ -11,7 +11,7 @@
     "url": "git+https://github.com/CosmicDriftGameStudio/show-pony.git"
   },
   "scripts": {
-    "dev": "PORT=4180 bun run kumiko-dev bin/server.ts",
+    "dev": "BASE_DOMAIN=show-pony.localhost PORT=4180 bun run kumiko-dev bin/server.ts",
     "build": "bun kumiko-build && bun scripts/copy-marketing-assets.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
