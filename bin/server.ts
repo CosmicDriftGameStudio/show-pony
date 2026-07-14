@@ -27,7 +27,11 @@ import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
-import { bindSubdomainPageResolver, createShowPonyAnonymousAccess, hostnameOf } from "../src/tenant-routing";
+import {
+  bindSubdomainPageResolver,
+  createShowPonyAnonymousAccess,
+  hostnameOf,
+} from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
@@ -160,5 +164,3 @@ await runDevApp({
     });
   },
 });
-
-

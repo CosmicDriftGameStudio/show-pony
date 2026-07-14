@@ -25,7 +25,11 @@ import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { APP_FEATURES } from "../src/run-config";
-import { createShowPonyAnonymousAccess, bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
+import {
+  bindSubdomainPageResolver,
+  createShowPonyAnonymousAccess,
+  hostnameOf,
+} from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
@@ -176,5 +180,3 @@ if (typeof Bun !== "undefined") {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
   process.on("SIGINT", () => void shutdown("SIGINT"));
 }
-
-

@@ -85,4 +85,3 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
     tenantExists: subdomain.tenantExists,
   };
 }
-

@@ -66,13 +66,11 @@ function HeroCopy({
   return (
     <div className={className}>
       {branding.logoUrl ? (
-        <img
-          src={branding.logoUrl}
-          alt=""
-          className="mb-4 h-10 w-auto object-contain"
-        />
+        <img src={branding.logoUrl} alt="" className="mb-4 h-10 w-auto object-contain" />
       ) : branding.title ? (
-        <p className="text-sm font-semibold uppercase tracking-widest opacity-90">{branding.title}</p>
+        <p className="text-sm font-semibold uppercase tracking-widest opacity-90">
+          {branding.title}
+        </p>
       ) : (
         <p className="text-sm font-medium uppercase tracking-widest opacity-90">
           {t("showpony:public.event.invited")}
@@ -88,13 +86,7 @@ function HeroCopy({
 }
 
 function HeroImage({ url, alt }: { url: string; alt: string }): ReactElement {
-  return (
-    <img
-      src={url}
-      alt={alt}
-      className="h-full w-full object-cover"
-    />
-  );
+  return <img src={url} alt={alt} className="h-full w-full object-cover" />;
 }
 
 export function InviteHero(props: InviteHeroProps): ReactElement {
@@ -134,18 +126,11 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
     >
       {heroUrl ? (
         <>
-          <img
-            src={heroUrl}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <img src={heroUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0" style={heroOverlayStyle(branding.accentColor)} />
         </>
       ) : (
-        <div
-          className="absolute inset-0 bg-[var(--color-primary)]"
-          style={themeStyle}
-        />
+        <div className="absolute inset-0 bg-[var(--color-primary)]" style={themeStyle} />
       )}
       <div className="relative z-10 mx-auto max-w-3xl">
         <HeroCopy {...props} />
@@ -157,4 +142,3 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 export function inviteBrandingCssVars(branding: InviteBranding): CSSProperties | undefined {
   return brandingThemeStyle(branding.accentColor);
 }
-

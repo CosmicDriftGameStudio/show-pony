@@ -44,4 +44,3 @@ export function registerShowPonyNav(r: FeatureRegistrar): void {
     order: 10,
   });
 }
-

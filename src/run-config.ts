@@ -11,9 +11,9 @@ import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/b
 import { capCounterFeature } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
-import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
+import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
@@ -54,6 +54,3 @@ export const APP_FEATURES = [
 ] as const;
 
 export const HAS_AUTH = true;
-
-
-

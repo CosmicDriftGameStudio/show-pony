@@ -5,10 +5,12 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
+import {
+  BRANDING_QN,
+  createManagedPagesFeature,
+} from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { createSystemUser } from "@cosmicdrift/kumiko-framework/engine";
@@ -24,10 +26,7 @@ import {
 import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import {
-  bindSubdomainPageResolver,
-  createShowPonyTenantResolver,
-} from "../tenant-routing";
+import { bindSubdomainPageResolver, createShowPonyTenantResolver } from "../tenant-routing";
 
 const BASE_DOMAIN = "show-pony.test";
 const DEMO = testTenantId(1);
@@ -155,4 +154,3 @@ describe("invite-branding query", () => {
     expect(branding.heroImageUrl).toBe("/heroes/acme-studio.svg");
   });
 });
-

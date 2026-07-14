@@ -108,5 +108,3 @@ describe("demo seed boot-safety", () => {
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 });
-
-
