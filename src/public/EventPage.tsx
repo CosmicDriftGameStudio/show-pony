@@ -94,7 +94,7 @@ export function EventPage(): ReactElement {
               </a>
             </section>
           ) : (
-            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+            <section className="sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
               <a
                 href={icsHref(event)}
                 download={`${event.slug}.ics`}
@@ -105,7 +105,7 @@ export function EventPage(): ReactElement {
             </section>
           )}
 
-          <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+          <section className="sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
             <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
               {t("showpony:public.rsvp.heading")}
             </h2>
