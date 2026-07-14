@@ -41,11 +41,23 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
 
   if (state.kind === "success") {
     return (
-      <div className="mt-6 rounded-md border border-[var(--color-primary)] bg-[var(--color-card)] p-4 text-sm">
-        <strong>{t("showpony:public.rsvp.thanks", { name: state.name })}</strong>
-        <p className="mt-1 text-[var(--color-muted-foreground)]">
-          {t("showpony:public.rsvp.on-list")}
-        </p>
+      <div className="mt-6 rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-card)] p-5 text-sm shadow-sm">
+        <div className="flex items-start gap-3">
+          <span
+            className="sp-rsvp-check flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-lg text-[var(--color-primary-foreground)]"
+            aria-hidden
+          >
+            ✓
+          </span>
+          <div>
+            <strong className="text-base">
+              {t("showpony:public.rsvp.thanks", { name: state.name })}
+            </strong>
+            <p className="mt-1 text-[var(--color-muted-foreground)]">
+              {t("showpony:public.rsvp.on-list")}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -70,10 +82,10 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
               key={s}
               type="button"
               onClick={() => setStatus(s)}
-              className={`flex-1 rounded-md border px-3 py-2 text-sm ${
+              className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors duration-150 ${
                 status === s
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                  : "border-[var(--color-border)] bg-[var(--color-background)]"
+                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm"
+                  : "border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-primary)]/40"
               }`}
             >
               {statusLabels[s]}

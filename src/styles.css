@@ -115,3 +115,76 @@
     --color-card: #1c1030;
   }
 }
+
+/* Public invite polish — CSS-only motion; respects prefers-reduced-motion. */
+@layer components {
+  @keyframes sp-hero-zoom {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.06);
+    }
+  }
+
+  @keyframes sp-check-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    70% {
+      transform: scale(1.08);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .show-pony-public .sp-hero-media {
+    overflow: hidden;
+  }
+
+  .show-pony-public .sp-hero-ken-burns {
+    animation: sp-hero-zoom 22s ease-out forwards;
+    will-change: transform;
+  }
+
+  .show-pony-public .sp-hero-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .show-pony-public .sp-invite-card {
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .show-pony-public .sp-invite-card:hover {
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--color-primary) 12%, transparent);
+  }
+
+  .show-pony-public .sp-rsvp-check {
+    animation: sp-check-pop 0.45s ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .show-pony-public .sp-hero-ken-burns {
+      animation: none;
+    }
+
+    .show-pony-public .sp-rsvp-check {
+      animation: none;
+    }
+
+    .show-pony-public .sp-invite-card {
+      transition: none;
+    }
+  }
+}
