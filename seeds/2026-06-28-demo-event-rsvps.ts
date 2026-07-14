@@ -8,11 +8,13 @@
 // Tenants + accounts come from boot seeds in bin/main.ts / bin/server.ts.
 // Seeds run once per filename (kumiko_es_operations). Dispatcher writes commit
 // outside the marker tx — retries MUST be idempotent (slug guard before create).
+//
+// RUNTIME: seeds/ is copied into the Docker image WITHOUT src/ — never import
+// from ../src; use npm packages or inline QN strings only.
 
 import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
 import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { INVITE_BRANDING_QN } from "../src/features/show-pony/invite-branding";
 import {
   ACME_TENANT_ID,
   DEMO_EVENT_ID,
@@ -21,13 +23,24 @@ import {
   toRawSqlRunner,
 } from "./_demo-event-db";
 
+const INVITE_HERO_IMAGE_URL = "showpony:config:invite-hero-image-url";
+const INVITE_HERO_STYLE = "showpony:config:invite-hero-style";
+
+function seedWarn(label: string, err: unknown): void {
+  console.warn(`show-pony seed: ${label} skipped — ${err instanceof Error ? err.message : String(err)}`);
+}
+
 async function seedInviteBranding(
   ctx: Parameters<SeedMigration["run"]>[0],
   tenantId: TenantId,
   entries: ReadonlyArray<readonly [string, string]>,
 ): Promise<void> {
   for (const [key, value] of entries) {
-    await ctx.systemWriteAs("config:write:set", { key, value }, tenantId);
+    try {
+      await ctx.systemWriteAs("config:write:set", { key, value }, tenantId);
+    } catch (err) {
+      seedWarn(`branding ${key}`, err);
+    }
   }
 }
 
@@ -59,15 +72,19 @@ export default {
 
     let rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
     if (rooftop) {
-      await ctx.systemWriteAs(
-        "showpony:write:event:update",
-        {
-          id: rooftop.id,
-          version: rooftop.version,
-          changes: { description: ROOFTOP_DESC },
-        },
-        DEMO_TENANT_ID,
-      );
+      try {
+        await ctx.systemWriteAs(
+          "showpony:write:event:update",
+          {
+            id: rooftop.id,
+            version: rooftop.version,
+            changes: { description: ROOFTOP_DESC },
+          },
+          DEMO_TENANT_ID,
+        );
+      } catch (err) {
+        seedWarn("rooftop description patch", err);
+      }
     } else {
       const event = await ctx.systemWriteAs(
         "showpony:write:event:create",
@@ -91,10 +108,6 @@ export default {
 
     const warmup = await findEventBySlug(raw, DEMO_TENANT_ID, "warmup-drinks");
     if (!warmup) {
-      // Winter Warmup is best-effort: free tier caps maxEvents at 1 (spent by
-      // Rooftop), so this create throws upgrade_required — skip, don't crash boot.
-      // ponytail: 1-event demo on free tier; grant the demo tenant a paid tier via
-      // the tier-admin screen + DB reset to restore the full 2-event demo.
       try {
         await ctx.systemWriteAs(
           "showpony:write:event:create",
@@ -110,21 +123,13 @@ export default {
           DEMO_TENANT_ID,
         );
       } catch (err) {
-        console.warn(
-          `show-pony seed: warmup event skipped — ${err instanceof Error ? err.message : String(err)}`,
-        );
+        seedWarn("warmup event", err);
       }
     }
 
     const eventId = rooftop?.id ?? DEMO_EVENT_ID;
 
     for (const guest of GUESTS) {
-      // systemWriteAs THROWS on a failed write. rsvp:submit declares a rateLimit
-      // (mandatory for anon writes), but the es-ops seed dispatcher has no
-      // RateLimitResolver in prod (it's separate from the HTTP dispatcher) — so
-      // catch + skip. A demo RSVP must never crash the prod boot; the event
-      // above is the critical content, and the public RSVP form (HTTP path,
-      // which DOES have the resolver) works for real guests regardless.
       try {
         await ctx.systemWriteAs(
           "showpony:write:rsvp:submit",
@@ -132,24 +137,25 @@ export default {
           DEMO_TENANT_ID,
         );
       } catch (err) {
-        console.warn(
-          `show-pony seed: rsvp:submit skipped for ${guest.name} — ${err instanceof Error ? err.message : String(err)}`,
-        );
+        seedWarn(`rsvp:submit for ${guest.name}`, err);
       }
     }
 
-    // Second tenant for isolation demo — keep it cap-safe (one event only).
     const acme = await findEventBySlug(raw, ACME_TENANT_ID, "acme-offsite");
     if (acme) {
-      await ctx.systemWriteAs(
-        "showpony:write:event:update",
-        {
-          id: acme.id,
-          version: acme.version,
-          changes: { description: ACME_DESC },
-        },
-        ACME_TENANT_ID,
-      );
+      try {
+        await ctx.systemWriteAs(
+          "showpony:write:event:update",
+          {
+            id: acme.id,
+            version: acme.version,
+            changes: { description: ACME_DESC },
+          },
+          ACME_TENANT_ID,
+        );
+      } catch (err) {
+        seedWarn("acme description patch", err);
+      }
     } else {
       try {
         await ctx.systemWriteAs(
@@ -165,9 +171,7 @@ export default {
           ACME_TENANT_ID,
         );
       } catch (err) {
-        console.warn(
-          `show-pony seed: acme event skipped — ${err instanceof Error ? err.message : String(err)}`,
-        );
+        seedWarn("acme event", err);
       }
     }
 
@@ -175,19 +179,16 @@ export default {
       [BRANDING_QN.title, "Mira Events"],
       [BRANDING_QN.description, "✨ Rooftop invites with sparkle ✨"],
       [BRANDING_QN.accentColor, "#7c3aed"],
-      [INVITE_BRANDING_QN.heroImageUrl, "/heroes/demo-rooftop.svg"],
-      [INVITE_BRANDING_QN.heroStyle, "immersive"],
+      [INVITE_HERO_IMAGE_URL, "/heroes/demo-rooftop.svg"],
+      [INVITE_HERO_STYLE, "immersive"],
     ]);
 
     await seedInviteBranding(ctx, ACME_TENANT_ID, [
       [BRANDING_QN.title, "Acme Studios"],
       [BRANDING_QN.description, "Clean design. Loud ideas. 🎨"],
       [BRANDING_QN.accentColor, "#0d9488"],
-      [INVITE_BRANDING_QN.heroImageUrl, "/heroes/acme-studio.svg"],
-      [INVITE_BRANDING_QN.heroStyle, "split"],
+      [INVITE_HERO_IMAGE_URL, "/heroes/acme-studio.svg"],
+      [INVITE_HERO_STYLE, "split"],
     ]);
   },
 } satisfies SeedMigration;
-
-
-
