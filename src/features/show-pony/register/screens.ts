@@ -41,10 +41,13 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   defaultSort: { field: "name", dir: "asc" },
 };
 
+import { inviteBrandingScreen } from "../screens/invite-branding-screen";
+
 export function registerShowPonyScreens(r: FeatureRegistrar): void {
   r.screen(eventListScreen);
   r.screen(eventEditScreen);
   r.screen(rsvpListScreen);
+  r.screen(inviteBrandingScreen);
 
   // kumiko-lint-ignore app-feature-structure Stripe checkout + usage dashboard, kein deklarativer Typ
   r.screen({

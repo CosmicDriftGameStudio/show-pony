@@ -9,13 +9,46 @@ export const showPonyTranslations = {
   "showpony:nav.events": { de: "Events", en: "Events" },
   "showpony:nav.event-new": { de: "Neues Event", en: "New event" },
   "showpony:nav.guests": { de: "Gästeliste", en: "Guest list" },
+  "showpony:nav.appearance": { de: "Erscheinungsbild", en: "Appearance" },
+  "showpony:nav.invite-branding": { de: "Invite-Branding", en: "Invite branding" },
   "showpony:nav.account": { de: "Konto", en: "Account" },
   "showpony:nav.billing": { de: "Tarif & Abrechnung", en: "Plan & billing" },
 
   "screen:event-list.title": { de: "Events", en: "Events" },
   "screen:event-edit.title": { de: "Event bearbeiten", en: "Edit event" },
   "screen:rsvp-list.title": { de: "Gästeliste", en: "Guest list" },
+  "screen:invite-branding-settings.title": {
+    de: "Invite-Branding",
+    en: "Invite branding",
+  },
   "screen:billing.title": { de: "Tarif & Abrechnung", en: "Plan & billing" },
+
+  "showpony:branding.section.identity": { de: "Marke", en: "Brand" },
+  "showpony:branding.section.hero": { de: "Hero-Bild", en: "Hero image" },
+
+  "showpony:entity:__config-edit__:field:title": { de: "Markenname", en: "Brand name" },
+  "showpony:entity:__config-edit__:field:description": {
+    de: "Tagline / Beschreibung",
+    en: "Tagline / description",
+  },
+  "showpony:entity:__config-edit__:field:accentColor": {
+    de: "Akzentfarbe",
+    en: "Accent color",
+  },
+  "showpony:entity:__config-edit__:field:logoUrl": { de: "Logo-URL", en: "Logo URL" },
+  "showpony:entity:__config-edit__:field:heroImageUrl": {
+    de: "Hero-Bild-URL",
+    en: "Hero image URL",
+  },
+  "showpony:entity:__config-edit__:field:heroStyle": { de: "Hero-Layout", en: "Hero layout" },
+  "showpony:entity:__config-edit__:field:heroStyle:option:immersive": {
+    de: "Immersiv (Vollbild)",
+    en: "Immersive (full bleed)",
+  },
+  "showpony:entity:__config-edit__:field:heroStyle:option:split": {
+    de: "Geteilt (Text + Bild)",
+    en: "Split (text + image)",
+  },
 
   "showpony:section.event-basics": { de: "Eckdaten", en: "Basics" },
   "showpony:section.event-details": { de: "Beschreibung", en: "Description" },

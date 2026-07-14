@@ -10,6 +10,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
 import { configClient } from "@cosmicdrift/kumiko-bundled-features/config/web";
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
+import { managedPagesClient } from "@cosmicdrift/kumiko-bundled-features/managed-pages/web";
 import { tenantClient } from "@cosmicdrift/kumiko-bundled-features/tenant/web";
 import { tierEngineClient } from "@cosmicdrift/kumiko-bundled-features/tier-engine/web";
 import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer-web";
@@ -60,6 +61,7 @@ createKumikoApp({
     tierEngineClient(),
     auditClient(),
     jobsClient(),
+    managedPagesClient(),
     showPonyClient,
   ],
 });

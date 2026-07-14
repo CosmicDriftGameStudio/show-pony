@@ -3,6 +3,9 @@
 // The tenant is resolved server-side from the subdomain (Host header), not
 // from the payload.
 
+import { coerceInviteBranding } from "../features/show-pony/handlers/invite-branding.query";
+import type { InviteBranding } from "../features/show-pony/invite-branding";
+
 export type PublicEvent = {
   readonly id: string;
   readonly title: string;
@@ -33,6 +36,17 @@ export async function fetchEventBySlug(slug: string): Promise<PublicEvent | null
   if (!res.ok) return null;
   const body = (await res.json()) as { data: PublicEvent | null };
   return body.data;
+}
+
+export async function fetchInviteBranding(): Promise<InviteBranding> {
+  const res = await fetch("/api/query", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "showpony:query:invite-branding", payload: {} }),
+  });
+  if (!res.ok) return coerceInviteBranding(null);
+  const body = (await res.json()) as { data: unknown };
+  return coerceInviteBranding(body.data);
 }
 
 export type SubmitResult = { ok: true } | { ok: false; reason: string };

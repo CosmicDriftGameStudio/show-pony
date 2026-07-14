@@ -15,9 +15,11 @@ import {
   eventListHandler,
   eventUpdateHandler,
 } from "./handlers/event-handlers";
+import { createInviteBrandingQuery } from "./handlers/invite-branding.query";
 import { rsvpSubmitHandler } from "./handlers/rsvp-submit.write";
 import { usageQuery } from "./handlers/usage.query";
 import { showPonyTranslations } from "./i18n";
+import { INVITE_BRANDING_KEYS } from "./invite-branding";
 import { registerShowPonyNav } from "./register/nav";
 import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
@@ -27,7 +29,9 @@ const hostAccess = { access: { openToAll: true } } as const;
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
-  r.requires(mailFoundationFeature.name);
+  r.requires(mailFoundationFeature.name, "config", "managed-pages");
+
+  r.config({ keys: INVITE_BRANDING_KEYS });
 
   r.translations({ keys: showPonyTranslations });
 
@@ -39,6 +43,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(eventDetailHandler);
 
   r.queryHandler(eventBySlugQuery);
+  r.queryHandler(createInviteBrandingQuery());
 
   r.entity("rsvp", rsvpEntity);
   r.writeHandler(rsvpSubmitHandler);

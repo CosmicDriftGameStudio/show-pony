@@ -20,6 +20,7 @@ import {
   getInbox,
   mailTransportInMemoryFeature,
 } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
+import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
@@ -68,6 +69,7 @@ beforeAll(async () => {
   stack = await setupTestStack({
     features: [
       createConfigFeature(),
+      createManagedPagesFeature({ resolveApexTenant: async () => null }),
       mailFoundationFeature,
       mailTransportInMemoryFeature,
       showPonyFeature,
