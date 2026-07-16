@@ -43,6 +43,20 @@ describe("demo seed boot-safety", () => {
     expect(source).toContain(`ACME_TENANT_ID = "${ACME_TENANT.id}"`);
   });
 
+  test("inline QN literals for invite/branding config match the real constants (drift pin)", async () => {
+    const { INVITE_BRANDING_QN } = await import("../features/show-pony/invite-branding.shared");
+    const { BRANDING_QN } = await import("@cosmicdrift/kumiko-bundled-features/managed-pages");
+    const source = readFileSync(
+      join(import.meta.dirname, "../../seeds/2026-06-28-demo-event-rsvps.ts"),
+      "utf8",
+    );
+    expect(source).toContain(`INVITE_HERO_IMAGE_URL = "${INVITE_BRANDING_QN.heroImageUrl}"`);
+    expect(source).toContain(`INVITE_HERO_STYLE = "${INVITE_BRANDING_QN.heroStyle}"`);
+    expect(source).toContain(`BRANDING_TITLE = "${BRANDING_QN.title}"`);
+    expect(source).toContain(`BRANDING_DESCRIPTION = "${BRANDING_QN.description}"`);
+    expect(source).toContain(`BRANDING_ACCENT_COLOR = "${BRANDING_QN.accentColor}"`);
+  });
+
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
     const calls: string[] = [];
     const ctx = {
@@ -93,6 +107,7 @@ describe("demo seed boot-safety", () => {
   });
 
   test("event:update and branding failures do NOT crash — best-effort patch", async () => {
+    const calls: string[] = [];
     const ctx = {
       db: {
         unsafe: async (sql: string) => {
@@ -104,6 +119,7 @@ describe("demo seed boot-safety", () => {
         },
       },
       systemWriteAs: async (handler: string) => {
+        calls.push(handler);
         if (handler === "showpony:write:event:update") {
           throw new Error("stale_state");
         }
@@ -115,6 +131,12 @@ describe("demo seed boot-safety", () => {
     } as unknown as SeedCtx;
 
     await expect(seed.run(ctx)).resolves.toBeUndefined();
+    // Best-effort: both stale event:update attempts AND all 10 branding
+    // config:write:set calls (5 keys × 2 tenants) happen despite every one
+    // throwing — a no-op regression (nothing attempted) would resolve too,
+    // but wouldn't produce these counts.
+    expect(calls.filter((c) => c === "showpony:write:event:update")).toHaveLength(2);
+    expect(calls.filter((c) => c === "config:write:set")).toHaveLength(10);
   });
 
   test("a Rooftop event:create failure DOES crash the seed — Rooftop is critical", async () => {
