@@ -28,6 +28,6 @@ export function tierBenefits(tier: PaidTier): readonly BenefitItem[] {
   ];
 }
 
-export function tierDisplayName(tier: TierName | string): string {
+export function tierDisplayName(tier: TierName): string {
   return tier.charAt(0).toUpperCase() + tier.slice(1);
 }

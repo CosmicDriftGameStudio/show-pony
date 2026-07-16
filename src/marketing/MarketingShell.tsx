@@ -4,9 +4,13 @@ import { LOGO_PONY } from "../brand-mark";
 import { type Lang, renderFooter, renderHeader, SHARED_CSS } from "./layouts/shared";
 import { localeRouter } from "./locale-routes";
 
+function currentPathname(): string {
+  return typeof window === "undefined" ? "" : window.location.pathname;
+}
+
 function currentLang(): Lang {
   if (typeof window === "undefined") return "en";
-  return localeRouter.detectLang(window.location.pathname) as Lang;
+  return localeRouter.detectLang(currentPathname()) as Lang;
 }
 
 const ASIDE_COPY: Readonly<
@@ -58,7 +62,7 @@ export function MarketingShell({ children }: { readonly children: ReactNode }): 
         className="display-contents"
         // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted server-render from shared.ts
         dangerouslySetInnerHTML={{
-          __html: renderHeader(lang, { pathname: window.location.pathname }),
+          __html: renderHeader(lang, { pathname: currentPathname() }),
         }}
       />
       <main>

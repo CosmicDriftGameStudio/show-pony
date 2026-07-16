@@ -129,7 +129,8 @@ const handle = await runProdApp({
     },
   ],
   extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
-    wireDemoModeRoutes(app);
+    wireDemoModeRoutes(app, port);
+    app.get("/api/version", (c) => c.json({ version: process.env.BUILD_VERSION ?? "dev" }));
     wireTermsRoutes(app, createTextContentApi(db));
     if (stripeBilling !== null) {
       wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
@@ -158,7 +159,8 @@ if (typeof Bun !== "undefined") {
     shuttingDown = true;
     try {
       await handle.stop();
-    } catch (_e) {
+    } catch (e) {
+      console.error("[runProdApp] error during shutdown:", e);
     } finally {
       process.exit(0);
     }

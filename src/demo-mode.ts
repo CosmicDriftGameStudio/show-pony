@@ -22,10 +22,11 @@ export function isDemoReadOnly(env: Record<string, string | undefined> = process
 
 export function demoModePayload(
   env: Record<string, string | undefined> = process.env,
+  defaultPort = 3000,
 ): DemoModePayload {
   const baseDomain = env.BASE_DOMAIN ?? "show-pony.localhost";
   const hostLoginUrl = baseDomain.includes("localhost")
-    ? `http://${baseDomain}:${env.PORT ?? "4180"}`
+    ? `http://${baseDomain}:${env.PORT ?? String(defaultPort)}`
     : `https://${baseDomain}`;
   const readOnly = isDemoReadOnly(env);
   const accounts: DemoAccount[] = [];

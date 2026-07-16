@@ -21,5 +21,4 @@ rsync -a "$ROOT/e2e/screenshots/scenarios.ts" "$DEST/e2e/screenshots/"
 mkdir -p "$DEST/seeds"
 rsync -a "$ROOT/seeds/2026-06-28-demo-event-rsvps.ts" "$ROOT/seeds/2026-07-14-invite-hero-webp.ts" "$ROOT/seeds/_demo-event-db.ts" "$DEST/seeds/"
 rsync -a "$ROOT/public/heroes/" "$DEST/public/heroes/"
-rm -f "$DEST/seeds"/2026-07-12-*.ts
 echo "sync-docs-samples: $ROOT -> $DEST"

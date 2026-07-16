@@ -68,7 +68,7 @@ async function seedBranding(
 }
 
 async function switchTenant(page: import("@playwright/test").Page, targetLabel: string): Promise<void> {
-  const active = page.getByRole("button").filter({ hasText: /Demo Host|Acme Studios/ });
+  const active = page.getByRole("button").filter({ hasText: /Demo Host|Acme Studios/ }).first();
   if ((await active.textContent())?.match(new RegExp(targetLabel, "i"))) return;
   await active.click();
   await page.getByRole("menuitemcheckbox", { name: new RegExp(targetLabel, "i") }).click();

@@ -134,7 +134,7 @@ await runDevApp({
     },
   ],
   extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
-    wireDemoModeRoutes(app);
+    wireDemoModeRoutes(app, port);
     wireTermsRoutes(app, createTextContentApi(db));
     if (stripeBilling !== null) {
       wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
