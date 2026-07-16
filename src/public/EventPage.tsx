@@ -59,9 +59,10 @@ export function EventPage(): ReactElement {
   const splitPage = load.kind === "ready" && load.branding.heroStyle === "split";
   const splitAccent = load.kind === "ready" ? load.branding.accentColor : "";
 
-  // kumiko-lint-ignore no-raw-hooks sync split-page body classes + tenant
-  // accent CSS vars; the gradient itself comes from the CSS fallback rule
-  // (styles.css) keyed off these same classes, so JS never sets it inline.
+  // Syncs split-page body classes + tenant accent CSS vars; the gradient
+  // itself comes from the CSS fallback rule (styles.css) keyed off these
+  // same classes, so JS never sets it inline.
+  // kumiko-lint-ignore no-raw-hooks DOM-side-effect on document.body, not app state
   useEffect(() => {
     if (!splitPage || !splitAccent) return;
     document.body.classList.add("show-pony-public", "sp-invite-split-page");
