@@ -17,6 +17,11 @@ async function setHeroUrl(
       tenantId,
     );
   } catch (err) {
+    // skip: config:write:set itself is idempotent (last-write-wins), but
+    // it can still fail — most plausibly DEMO_TENANT_ID/ACME_TENANT_ID not
+    // existing yet on an older demo DB this patch runs against. A failure
+    // here must not abort the whole migration. Same best-effort convention
+    // as seedInviteBranding in the 2026-06-28 seed.
     console.warn(
       `show-pony seed: hero webp patch skipped — ${err instanceof Error ? err.message : String(err)}`,
     );

@@ -25,16 +25,14 @@ type Load =
   | { kind: "missing" }
   | { kind: "ready"; event: PublicEvent; branding: InviteBranding };
 
+// The gradient itself lives once, in styles.css's `.sp-invite-split-page`
+// fallback rule — it reads var(--color-primary)/var(--color-ring), so
+// setting just these two custom properties is enough for the CSS rule to
+// paint the same gradient with the tenant's accent, no JS-side duplicate.
 function splitInviteCanvasStyle(accent: string): Record<string, string> {
   return {
     "--color-primary": accent,
     "--color-ring": accent,
-    backgroundColor: `color-mix(in srgb, ${accent} 10%, var(--color-background))`,
-    backgroundImage: [
-      `radial-gradient(ellipse 90% 60% at 0% 0%, color-mix(in srgb, ${accent} 38%, transparent), transparent 55%)`,
-      `radial-gradient(ellipse 75% 55% at 100% 100%, color-mix(in srgb, ${accent} 28%, transparent), transparent 50%)`,
-      `linear-gradient(180deg, color-mix(in srgb, ${accent} 18%, var(--color-background)) 0%, color-mix(in srgb, ${accent} 10%, var(--color-background)) 50%, var(--color-background) 95%)`,
-    ].join(", "),
   };
 }
 
