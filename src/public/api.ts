@@ -41,14 +41,20 @@ export async function fetchEventBySlug(slug: string): Promise<PublicEvent | null
 }
 
 export async function fetchInviteBranding(): Promise<InviteBranding> {
-  const res = await fetch("/api/query", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "showpony:query:invite-branding", payload: {} }),
-  });
-  if (!res.ok) return coerceInviteBranding(null);
-  const body = (await res.json()) as { data: unknown };
-  return coerceInviteBranding(body.data);
+  // Branding is non-essential: never let a network/parse failure here
+  // reject the Promise.all in EventPage and hide an event that DID load.
+  try {
+    const res = await fetch("/api/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "showpony:query:invite-branding", payload: {} }),
+    });
+    if (!res.ok) return coerceInviteBranding(null);
+    const body = (await res.json()) as { data: unknown };
+    return coerceInviteBranding(body.data);
+  } catch {
+    return coerceInviteBranding(null);
+  }
 }
 
 export type SubmitResult = { ok: true } | { ok: false; reason: string };

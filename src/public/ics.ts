@@ -11,7 +11,7 @@ function icsDate(iso: string): string {
   return Temporal.Instant.from(iso)
     .toString()
     .replace(/[-:]/g, "")
-    .replace(/\.\d{3}Z$/, "Z");
+    .replace(/\.\d+Z$/, "Z");
 }
 
 // Escape ICS text values: backslash, semicolon, comma, newline.

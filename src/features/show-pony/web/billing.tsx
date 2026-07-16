@@ -117,21 +117,34 @@ function PricingBox(props: {
   );
 }
 
+const TERMINAL_SUBSCRIPTION_STATUSES = ["canceled", "incomplete_expired"];
+
+export function hasManageableSubscriptionState(subscription: BillingInfo["subscription"]): boolean {
+  return subscription !== null && !TERMINAL_SUBSCRIPTION_STATUSES.includes(subscription.status);
+}
+
+// The status pill only shows for a subscription that's either the tier the
+// tenant is currently on, or in a non-"active" state worth surfacing (e.g.
+// "past_due" while browsing a different tier). Returns the i18n status key
+// to render, or null to hide the pill.
+export function subscriptionStatusKey(
+  subscription: BillingInfo["subscription"],
+  currentTier: BillingInfo["tier"],
+): string | null {
+  if (!subscription) return null;
+  if (subscription.tier !== currentTier && subscription.status === "active") return null;
+  return subscription.status;
+}
+
 export function BillingView(props: BillingViewProps): ReactNode {
   const t = useTranslation();
   const { Card } = usePrimitives();
   const { data, usage, redirecting, formError, onUpgrade, onPortal } = props;
 
-  const statusLabel =
-    data.subscription &&
-    (data.subscription.tier === data.tier || data.subscription.status !== "active")
-      ? t(`showpony:billing.status.${data.subscription.status}`)
-      : null;
+  const statusKey = subscriptionStatusKey(data.subscription, data.tier);
+  const statusLabel = statusKey ? t(`showpony:billing.status.${statusKey}`) : null;
 
-  const TERMINAL_SUBSCRIPTION_STATUSES = ["canceled", "incomplete_expired"];
-  const hasManageableSubscription =
-    data.subscription !== null &&
-    !TERMINAL_SUBSCRIPTION_STATUSES.includes(data.subscription.status);
+  const hasManageableSubscription = hasManageableSubscriptionState(data.subscription);
 
   return (
     <FormScreenShell testId="billing">

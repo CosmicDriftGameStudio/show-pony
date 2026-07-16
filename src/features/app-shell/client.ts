@@ -1,21 +1,12 @@
 // Client i18n for app-shell — server r.translations() never reaches the browser.
 
+import { translationsByLocaleFromKeys } from "@cosmicdrift/kumiko-renderer";
 import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer-web";
+import { APP_SHELL_TRANSLATION_KEYS } from "./i18n";
 
-export const appShellTranslationsByLocale = {
-  de: {
-    "app-shell:workspace.host": "Events",
-    "app-shell:workspace.platform": "Plattform",
-    "app-shell:nav.users": "Nutzer",
-    "tenant:nav.members": "Team",
-  },
-  en: {
-    "app-shell:workspace.host": "Events",
-    "app-shell:workspace.platform": "Platform",
-    "app-shell:nav.users": "Users",
-    "tenant:nav.members": "Team",
-  },
-} as const;
+export const appShellTranslationsByLocale = translationsByLocaleFromKeys(
+  APP_SHELL_TRANSLATION_KEYS,
+);
 
 export const appShellClient: ClientFeatureDefinition = {
   name: "app-shell",

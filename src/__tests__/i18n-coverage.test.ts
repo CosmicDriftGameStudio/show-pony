@@ -42,6 +42,7 @@ test("source scan finds i18n references", () => {
 test("every referenced show-pony key is defined with de + en", () => {
   for (const key of usedKeys) {
     expect(definedKeys.has(key)).toBe(true);
+    if (!definedKeys.has(key)) continue;
     const entry = showPonyTranslations[key as keyof typeof showPonyTranslations];
     expect(entry.de.length).toBeGreaterThan(0);
     expect(entry.en.length).toBeGreaterThan(0);
@@ -58,6 +59,6 @@ test("every showpony nav label from feature registry is defined", () => {
 });
 
 test("app-shell workspace labels reach the browser bundle", () => {
-  expect(appShellTranslationsByLocale.de["app-shell:workspace.host"]).toBe("Events");
-  expect(appShellTranslationsByLocale.en["app-shell:workspace.platform"]).toBe("Platform");
+  expect(appShellTranslationsByLocale.de?.["app-shell:workspace.host"]).toBe("Events");
+  expect(appShellTranslationsByLocale.en?.["app-shell:workspace.platform"]).toBe("Platform");
 });

@@ -15,7 +15,7 @@ import {
   eventListHandler,
   eventUpdateHandler,
 } from "./handlers/event-handlers";
-import { createInviteBrandingQuery } from "./handlers/invite-branding.query";
+import { inviteBrandingQuery } from "./handlers/invite-branding.query";
 import { rsvpSubmitHandler } from "./handlers/rsvp-submit.write";
 import { usageQuery } from "./handlers/usage.query";
 import { showPonyTranslations } from "./i18n";
@@ -43,7 +43,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(eventDetailHandler);
 
   r.queryHandler(eventBySlugQuery);
-  r.queryHandler(createInviteBrandingQuery());
+  r.queryHandler(inviteBrandingQuery);
 
   r.entity("rsvp", rsvpEntity);
   r.writeHandler(rsvpSubmitHandler);

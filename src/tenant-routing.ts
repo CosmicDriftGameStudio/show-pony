@@ -52,6 +52,11 @@ export function createShowPonyTenantResolver(config: { db: DbConnection; baseDom
 }
 
 /** Apex anonymous routes (legal pages) need SYSTEM tenant; subdomains keep host tenant. */
+// Module-global singleton, not per-stack state: acceptable because
+// APP_FEATURES/resolveApexTenant are wired once at static boot, never per
+// request, and this process only ever runs one app stack. Bind BEFORE the
+// first request that needs it (bindSubdomainPageResolver at boot) — a
+// second stack in the same process would silently share this db.
 let subdomainPageResolver: { db: DbConnection; baseDomain: string } | null = null;
 
 /** Wire db for managed-pages `resolveApexTenant` (boot hook — APP_FEATURES is static). */
@@ -79,6 +84,11 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
       req: { header: (n: string) => string | undefined };
     }): Promise<TenantId | null> => {
       const host = hostnameOf(c.req.header("Host") ?? "");
+      // Apex anon is read-only-GET by design (legal pages) — this resolver
+      // itself doesn't gate writes. The only reason apex-origin anonymous
+      // writes into SYSTEM_TENANT_ID can't happen is DEMO_READ_ONLY + the
+      // origin guard upstream; if either is ever dropped, writes for
+      // SYSTEM_TENANT_ID from this path must be rejected explicitly here.
       if (host === baseDomain || host === `www.${baseDomain}`) return SYSTEM_TENANT_ID;
       return subdomain.tenantResolver(c);
     },
