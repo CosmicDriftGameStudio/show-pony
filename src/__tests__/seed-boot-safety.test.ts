@@ -30,6 +30,12 @@ describe("demo seed boot-safety", () => {
     expect(runtimeImports).toBeNull();
   });
 
+  test("_demo-event-db.ts's hardcoded table literal matches the real event table (drift pin)", async () => {
+    const { eventTable } = await import("../features/show-pony/schema/event");
+    const source = readFileSync(join(import.meta.dirname, "../../seeds/_demo-event-db.ts"), "utf8");
+    expect(source).toContain(`FROM ${eventTable.tableName}`);
+  });
+
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
     const calls: string[] = [];
     const ctx = {
@@ -52,9 +58,9 @@ describe("demo seed boot-safety", () => {
     const calls: string[] = [];
     const ctx = {
       db: {
-        unsafe: async (_sql: string, params?: readonly unknown[]) => {
-          const slug = params?.[1];
-          const tenantId = params?.[0];
+        unsafe: async (sql: string) => {
+          const slug = /slug = '([^']+)'/.exec(sql)?.[1];
+          const tenantId = /tenant_id = '([^']+)'/.exec(sql)?.[1];
           if (slug === "rooftop-launch") {
             return [{ id: "existing-rooftop", version: 1 }];
           }
@@ -82,8 +88,8 @@ describe("demo seed boot-safety", () => {
   test("event:update and branding failures do NOT crash — best-effort patch", async () => {
     const ctx = {
       db: {
-        unsafe: async (_sql: string, params?: readonly unknown[]) => {
-          const slug = params?.[1];
+        unsafe: async (sql: string) => {
+          const slug = /slug = '([^']+)'/.exec(sql)?.[1];
           if (slug === "rooftop-launch") return [{ id: "existing-rooftop", version: 1 }];
           if (slug === "warmup-drinks") return [{ id: "existing-warmup", version: 1 }];
           if (slug === "acme-offsite") return [{ id: "existing-acme", version: 1 }];

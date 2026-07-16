@@ -1,4 +1,11 @@
 // Shared read helpers for demo-event seeds. Underscore prefix → ignored by es-ops runner.
+//
+// RUNTIME: seeds/ is copied into the Docker image WITHOUT src/ and WITHOUT
+// @cosmicdrift/* in node_modules — only type-only framework imports + inline
+// QNs, so this can't import `eventTable`/`fetchOne` to derive the table name
+// or use bound params. The "read_events" literal below MUST match the real
+// entity table name — pinned against drift in
+// src/__tests__/seed-boot-safety.test.ts.
 
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 
@@ -28,18 +35,28 @@ function asEventRows(result: unknown): EventRow[] {
   return [];
 }
 
+// UUID-shaped values only (TenantId literals + hardcoded slugs from this
+// file, never user input) — inlined instead of $1/$2 bound params, which
+// returned empty rows against the prod raw runner (see the deleted seed
+// 2026-07-12-rooftop-desc-fetchone.ts this replaced).
+function assertSqlSafe(value: string, label: string): void {
+  if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
+    throw new Error(`demo-event-db: unsafe ${label} value: ${JSON.stringify(value)}`);
+  }
+}
+
 export async function findEventBySlug(
   raw: RawSqlRunner,
   tenantId: TenantId,
   slug: string,
 ): Promise<EventRow | null> {
+  assertSqlSafe(tenantId, "tenantId");
+  assertSqlSafe(slug, "slug");
   const result = await raw.unsafe(
     `SELECT id, version FROM read_events
-     WHERE tenant_id = $1 AND slug = $2
+     WHERE tenant_id = '${tenantId}' AND slug = '${slug}'
      LIMIT 1`,
-    [tenantId, slug],
   );
   const rows = asEventRows(result);
   return rows[0] ?? null;
 }
-
