@@ -17,8 +17,20 @@ function brandingThemeStyle(accent: string): CssVarStyle | undefined {
   return { "--color-primary": accent, "--color-ring": accent };
 }
 
+const HEX6_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const HEX8_PATTERN = /^#[0-9a-fA-F]{8}$/;
+
+// The alpha suffixes below assume a 6-digit hex. The config field allows
+// #rrggbbaa (8-digit, already has alpha), which would otherwise grow into
+// an invalid 10-digit color — strip any existing alpha channel first.
+function normalizedTint(accent: string): string {
+  if (HEX6_PATTERN.test(accent)) return accent;
+  if (HEX8_PATTERN.test(accent)) return accent.slice(0, 7);
+  return "#7c3aed";
+}
+
 function heroOverlayStyle(accent: string): CssVarStyle {
-  const tint = accent || "#7c3aed";
+  const tint = normalizedTint(accent);
   return {
     background: `linear-gradient(135deg, ${tint}99 0%, ${tint}55 45%, ${tint}22 100%)`,
   };

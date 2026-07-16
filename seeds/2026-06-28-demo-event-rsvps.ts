@@ -16,7 +16,6 @@ import type { SeedMigration } from "@cosmicdrift/kumiko-framework/es-ops";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   ACME_TENANT_ID,
-  DEMO_EVENT_ID,
   DEMO_TENANT_ID,
   findEventBySlug,
   toRawSqlRunner,
@@ -88,7 +87,10 @@ export default {
         seedWarn("rooftop description patch", err);
       }
     } else {
-      await ctx.systemWriteAs(
+      // systemWriteAs throws on failure (see context.ts) — created.data.id is
+      // guaranteed here. Read-after-write via findEventBySlug is unsafe on
+      // read-model lag: use the write response's own id instead of re-querying.
+      const created = await ctx.systemWriteAs(
         "showpony:write:event:create",
         {
           title: "Rooftop Launch Party",
@@ -100,8 +102,14 @@ export default {
         },
         DEMO_TENANT_ID,
       );
-      // systemWriteAs throws on failure (see context.ts) — event is guaranteed created here.
-      rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
+      const createdId =
+        created.isSuccess && typeof (created.data as { id?: unknown })?.id === "string"
+          ? ((created.data as { id: string }).id as string)
+          : undefined;
+      if (!createdId) {
+        throw new Error("show-pony seed: rooftop event:create returned no id");
+      }
+      rooftop = { id: createdId, version: 1 };
     }
 
     const warmup = await findEventBySlug(raw, DEMO_TENANT_ID, "warmup-drinks");
@@ -125,7 +133,7 @@ export default {
       }
     }
 
-    const eventId = rooftop?.id ?? DEMO_EVENT_ID;
+    const eventId = rooftop.id;
 
     for (const guest of GUESTS) {
       try {
@@ -177,7 +185,7 @@ export default {
       [BRANDING_TITLE, "Mira Events"],
       [BRANDING_DESCRIPTION, "✨ Rooftop invites with sparkle ✨"],
       [BRANDING_ACCENT_COLOR, "#7c3aed"],
-      [INVITE_HERO_IMAGE_URL, "/heroes/demo-rooftop.webp"],
+      [INVITE_HERO_IMAGE_URL, "/heroes/demo-rooftop.svg"],
       [INVITE_HERO_STYLE, "immersive"],
     ]);
 
@@ -185,7 +193,7 @@ export default {
       [BRANDING_TITLE, "Acme Studios"],
       [BRANDING_DESCRIPTION, "Clean design. Loud ideas. 🎨"],
       [BRANDING_ACCENT_COLOR, "#0d9488"],
-      [INVITE_HERO_IMAGE_URL, "/heroes/acme-studio.webp"],
+      [INVITE_HERO_IMAGE_URL, "/heroes/acme-studio.svg"],
       [INVITE_HERO_STYLE, "split"],
     ]);
   },

@@ -40,13 +40,17 @@ test("source scan finds i18n references", () => {
 });
 
 test("every referenced show-pony key is defined with de + en", () => {
+  const missing: string[] = [];
   for (const key of usedKeys) {
-    expect(definedKeys.has(key)).toBe(true);
-    if (!definedKeys.has(key)) continue;
+    if (!definedKeys.has(key)) {
+      missing.push(key);
+      continue;
+    }
     const entry = showPonyTranslations[key as keyof typeof showPonyTranslations];
     expect(entry.de.length).toBeGreaterThan(0);
     expect(entry.en.length).toBeGreaterThan(0);
   }
+  expect(missing).toEqual([]);
 });
 
 test("every showpony nav label from feature registry is defined", () => {

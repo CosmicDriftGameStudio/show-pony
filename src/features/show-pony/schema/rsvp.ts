@@ -19,7 +19,8 @@ export const rsvpEntity = createEntity({
     eventId: createTextField({ required: true, searchable: true }),
     // Guest-submitted personal data (collected anonymously). Searchable/sortable
     // guest-list lookup is a core feature here, which structurally conflicts with
-    // `pii: true` (encrypted fields can't be searched/sorted) — declared plaintext
+    // `pii: true` (validatePiiAndRetention throws on ANY subject annotation +
+    // searchable/sortable, not just encrypted fields) — declared plaintext
     // instead, same pattern as `note` below.
     name: createTextField({
       required: true,

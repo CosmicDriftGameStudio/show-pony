@@ -22,7 +22,7 @@ export function isDemoReadOnly(env: Record<string, string | undefined> = process
 
 export function demoModePayload(
   env: Record<string, string | undefined> = process.env,
-  defaultPort = 3000,
+  defaultPort: number,
 ): DemoModePayload {
   const baseDomain = env.BASE_DOMAIN ?? "show-pony.localhost";
   const hostLoginUrl = baseDomain.includes("localhost")
@@ -65,7 +65,17 @@ export function demoModePayload(
   };
 }
 
-const WRITE_PATHS = new Set(["/api/write", "/api/batch"]);
+// Deny-by-default: every mutating request is blocked unless explicitly
+// allowlisted below. A per-path Set (as this used to be) only covers paths
+// someone remembered to add — auth/invite/switch-tenant routes mounted by
+// the framework after this guard was written slipped through that way.
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+const ALLOWED_MUTATING_PATHS = new Set([
+  "/api/query",
+  "/api/auth/login",
+  "/api/auth/logout",
+  "/api/auth/mfa/verify",
+]);
 
 /** Blocks data writes on the live demo; auth routes stay open. */
 export function withDemoReadOnlyFetch(
@@ -75,7 +85,7 @@ export function withDemoReadOnlyFetch(
   if (!isDemoReadOnly(env)) return fetchHandler;
   return async (req: Request) => {
     const url = new URL(req.url);
-    if (req.method === "POST" && WRITE_PATHS.has(url.pathname)) {
+    if (MUTATING_METHODS.has(req.method) && !ALLOWED_MUTATING_PATHS.has(url.pathname)) {
       return Response.json(
         {
           isSuccess: false,

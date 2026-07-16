@@ -8,7 +8,6 @@
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
 import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
-import { capCounterFeature } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
@@ -47,7 +46,6 @@ export const APP_FEATURES = [
   createTenantLifecycleFeature(),
   billingFoundationFeature,
   createSecretsFeature(),
-  capCounterFeature,
   adminShellFeature,
   appShellFeature,
   showPonyFeature,
