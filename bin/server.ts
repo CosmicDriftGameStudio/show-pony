@@ -13,7 +13,6 @@
 //
 //   admin@show-pony.local / changeme  — host account on the demo tenant
 
-import { seedAdmin } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/seeding";
 import {
   createConfigAccessorFactory,
   createConfigResolver,
@@ -32,7 +31,7 @@ import {
   createShowPonyAnonymousAccess,
   hostnameOf,
 } from "../src/tenant-routing";
-import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
+import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -128,19 +127,9 @@ await runDevApp({
       await seedLegalContent(stack.db);
     },
     async ({ db }) => {
-      await seedAdmin(db, {
+      await seedSysadmin(db, {
         email: "sysadmin@show-pony.local",
         password: "changeme",
-        displayName: "Sysadmin",
-        globalRoles: ["SystemAdmin"],
-        memberships: [
-          {
-            tenantId: PLATFORM_TENANT.id,
-            tenantKey: PLATFORM_TENANT.tenantKey,
-            tenantName: PLATFORM_TENANT.name,
-            roles: ["User"],
-          },
-        ],
       });
     },
   ],

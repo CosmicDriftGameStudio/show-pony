@@ -10,7 +10,6 @@
 //   BASE_DOMAIN is the host's surface, e.g. show-pony.kumiko.rocks — guest
 //   pages live on <key>.<BASE_DOMAIN>.
 
-import { seedAdmin } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/seeding";
 import {
   createConfigAccessorFactory,
   createConfigResolver,
@@ -18,7 +17,7 @@ import {
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
 import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
-import { isDemoReadOnly, withDemoReadOnlyFetch } from "../src/demo-mode";
+import { withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { wireTermsRoutes } from "../src/legal-terms";
@@ -30,7 +29,7 @@ import {
   createShowPonyAnonymousAccess,
   hostnameOf,
 } from "../src/tenant-routing";
-import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
+import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -123,19 +122,9 @@ const handle = await runProdApp({
       await seedLegalContent(db);
     },
     async ({ db }) => {
-      await seedAdmin(db, {
+      await seedSysadmin(db, {
         email: required("DEMO_SYSADMIN_EMAIL"),
         password: required("DEMO_SYSADMIN_PASSWORD"),
-        displayName: "Sysadmin",
-        globalRoles: ["SystemAdmin"],
-        memberships: [
-          {
-            tenantId: PLATFORM_TENANT.id,
-            tenantKey: PLATFORM_TENANT.tenantKey,
-            tenantName: PLATFORM_TENANT.name,
-            roles: ["User"],
-          },
-        ],
       });
     },
   ],
@@ -159,9 +148,6 @@ const handle = await runProdApp({
 });
 
 const fetch = withDemoReadOnlyFetch(handle.fetch);
-
-if (isDemoReadOnly()) {
-}
 
 if (typeof Bun !== "undefined") {
   handle.server = Bun.serve({ port, fetch, idleTimeout: 0 });
