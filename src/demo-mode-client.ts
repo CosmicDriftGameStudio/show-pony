@@ -21,7 +21,6 @@ export async function fetchDemoMode(): Promise<DemoModePayload> {
         hostLoginUrl: "",
         tutorialUrl: "https://docs.kumiko.rocks/en/show-pony/",
       };
-      cached = fallback;
       return fallback;
     })
     .finally(() => {

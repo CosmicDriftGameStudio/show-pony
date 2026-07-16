@@ -77,6 +77,3 @@ for (const locale of LOCALES) {
     });
   }
 }
-
-
-

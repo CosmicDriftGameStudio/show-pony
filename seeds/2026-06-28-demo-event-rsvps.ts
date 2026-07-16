@@ -1,5 +1,5 @@
-// Demo content for the deployed public page: Rooftop Launch + Winter Warmup +
-// sample RSVPs on the "demo" tenant. Matches tutorial screenshots.
+// Demo content for the deployed public page: Rooftop Launch Party +
+// sample RSVPs on the "demo" tenant (best-effort). Matches tutorial screenshots.
 //
 // This is the **only** dated seed for demo content — show-pony is a learning
 // sample with a resettable prod DB (see README "Demo ops"). Do not add repair

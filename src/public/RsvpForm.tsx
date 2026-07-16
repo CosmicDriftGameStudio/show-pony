@@ -81,6 +81,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
             <button
               key={s}
               type="button"
+              aria-pressed={status === s}
               onClick={() => setStatus(s)}
               className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors duration-150 ${
                 status === s

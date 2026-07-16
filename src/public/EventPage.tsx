@@ -2,7 +2,7 @@
 // (<key>.show-pony.<domain>/e/<slug>) and shows it plus the RSVP form.
 // Anonymous — no login, no account.
 
-import { useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { useLocale, useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchDemoMode } from "../demo-mode-client";
 import type { InviteBranding } from "../features/show-pony/invite-branding.shared";
@@ -35,6 +35,7 @@ function splitInviteCanvasStyle(accent: string): Record<string, string> {
 
 export function EventPage(): ReactElement {
   const t = useTranslation();
+  const appLocale = useLocale().locale();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
   const [readOnly, setReadOnly] = useState(false);
 
@@ -84,7 +85,7 @@ export function EventPage(): ReactElement {
   }
 
   const { event, branding } = load;
-  const when = new Date(event.startsAt).toLocaleString(undefined, {
+  const when = new Date(event.startsAt).toLocaleString(appLocale, {
     dateStyle: "long",
     timeStyle: "short",
   });

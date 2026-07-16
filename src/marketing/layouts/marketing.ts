@@ -199,7 +199,7 @@ function toApexTier(key: TierKey, lang: Lang): ApexPricingTier {
     benefits: [],
     cta: {
       label: tier.cta,
-      href: key === "studio" ? "/legal/impressum" : LOGIN_PATH,
+      href: key === "studio" ? "mailto:hello@kumiko.rocks" : LOGIN_PATH,
     },
   };
 }

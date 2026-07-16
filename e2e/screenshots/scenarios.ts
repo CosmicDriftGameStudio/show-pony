@@ -98,7 +98,9 @@ export const SCENARIOS: readonly Scenario[] = [
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
       await page.getByRole("row", { name: /Rooftop Launch Party/ }).click();
-      await expect(page.getByRole("heading", { name: /Edit event/i })).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible({
+        timeout: 10_000,
+      });
       await expect(page.getByRole("textbox", { name: /Title/i })).toHaveValue("Rooftop Launch Party");
       await expect(page.getByRole("textbox", { name: /Location/i })).toHaveValue("Sky Lounge, 24th floor");
     },
@@ -176,24 +178,10 @@ export const SCENARIOS: readonly Scenario[] = [
       await page.goto(publicEventUrl(DEMO_SLUG));
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible({ timeout: 15_000 });
       await page.getByRole("textbox", { name: "Name" }).fill("Jordan Lee");
-      await page.getByRole("button", { name: "I'm in" }).click();
-      await expect(page.getByRole("textbox", { name: "Name" })).toHaveValue("Jordan Lee");
+      const yesButton = page.getByRole("button", { name: /I'm in|Ich komme/ });
+      await yesButton.click();
+      await expect(yesButton).toHaveAttribute("aria-pressed", "true");
     },
     settleMs: 400,
   },
 ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
