@@ -99,9 +99,11 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
     // A client-supplied X-Tenant header disagreeing with it (e.g. a guest
     // on acme.show-pony.<domain> claiming Globex's real tenant id) is
     // rejected with 400 tenant_mismatch instead of silently overriding the
-    // subdomain (kumiko-platform#278/1 / #51). Also closes the apex path:
-    // a header trying to override SYSTEM_TENANT_ID now 400s directly, no
-    // longer relying solely on DEMO_READ_ONLY + the origin guard upstream.
+    // subdomain (kumiko-platform#278/1 / #51). This additionally closes the
+    // apex X-Tenant header override (now 400s directly instead of trusting
+    // the header) — it does NOT close the header-less apex write path: that
+    // one still relies solely on DEMO_READ_ONLY + the origin guard upstream,
+    // per the resolverTrust comment above.
     resolverTrust: "authoritative" as const,
   };
 }

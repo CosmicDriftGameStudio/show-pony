@@ -22,7 +22,7 @@ async function setHeroUrl(
     // existing yet on an older demo DB this patch runs against. A failure
     // here must not abort the whole migration. Same best-effort convention
     // as seedInviteBranding in the 2026-06-28 seed.
-    console.warn(
+    console.error(
       `show-pony seed: hero webp patch skipped — ${err instanceof Error ? err.message : String(err)}`,
     );
   }

@@ -8,4 +8,3 @@ export const publicEventUrl = (slug: string): string =>
 export const acmePublicEventUrl = (slug: string): string =>
   `http://acme.${BASE_DOMAIN}:${PORT}/e/${slug}`;
 export const STORAGE_STATE = "e2e/screenshots/.auth/state.json";
-

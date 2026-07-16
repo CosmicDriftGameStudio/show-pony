@@ -72,6 +72,10 @@ const handle = await runProdApp({
       : []),
   ],
   autoListen: false,
+  // read_users.email_bidx (added by migration 0002) stays NULL for
+  // pre-existing rows in plaintext mode — lookups/dedup run against the
+  // plaintext `email` column instead, so this is inert today. A future
+  // switch to KMS-backed encryption needs its own backfill for email_bidx.
   allowPlaintextPii: "show-pony demo app, no KMS provisioned",
   staticDir: "./dist",
   seedsDir: "./seeds",
@@ -130,7 +134,6 @@ const handle = await runProdApp({
   ],
   extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
     wireDemoModeRoutes(app, port);
-    app.get("/api/version", (c) => c.json({ version: process.env.BUILD_VERSION ?? "dev" }));
     wireTermsRoutes(app, createTextContentApi(db));
     if (stripeBilling !== null) {
       wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });

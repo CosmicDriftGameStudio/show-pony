@@ -16,6 +16,16 @@ async function assertCalendarNotUnderHero(page: import("@playwright/test").Page)
 
   // Calendar must start below the header (no vertical overlap).
   expect(calBox!.y).toBeGreaterThanOrEqual(heroBox!.y + heroBox!.height - 2);
+
+  // Real hit-testing: the link must be the top element at its own center,
+  // not visually covered by the hero/gradient/overlay stack.
+  const centerX = calBox!.x + calBox!.width / 2;
+  const centerY = calBox!.y + calBox!.height / 2;
+  const isTopElement = await page.evaluate(
+    ({ x, y }) => document.elementFromPoint(x, y)?.closest("a") !== null,
+    { x: centerX, y: centerY },
+  );
+  expect(isTopElement, "calendar link must be the top element at its center").toBe(true);
   await expect(calendar).toBeEnabled();
 }
 

@@ -62,6 +62,17 @@ describe("demo seed boot-safety", () => {
     expect(source).toContain(`FROM ${eventTable.tableName}`);
   });
 
+  test("findEventBySlug rejects quote/injection-shaped slug or tenantId instead of interpolating them", async () => {
+    const { findEventBySlug } = await import("../../seeds/_demo-event-db");
+    const raw = { unsafe: async () => [] };
+    await expect(findEventBySlug(raw, "tenant" as never, "x' OR '1'='1")).rejects.toThrow(
+      /unsafe slug value/,
+    );
+    await expect(findEventBySlug(raw, "' OR '1'='1" as never, "rooftop-launch")).rejects.toThrow(
+      /unsafe tenantId value/,
+    );
+  });
+
   test("DEMO_TENANT_ID / ACME_TENANT_ID literals match bin/demo-tenants.ts (drift pin)", async () => {
     const { DEMO_TENANT, ACME_TENANT } = await import("../../bin/demo-tenants");
     const source = readFileSync(join(import.meta.dirname, "../../seeds/_demo-event-db.ts"), "utf8");
@@ -194,7 +205,7 @@ describe("demo seed boot-safety", () => {
         ) {
           throw new Error("warmup cap exceeded");
         }
-        return { isSuccess: true as const };
+        return { isSuccess: true as const, data: { id: "evt" } };
       },
     } as unknown as SeedCtx;
 
@@ -219,6 +230,30 @@ describe("demo seed boot-safety", () => {
     expect(creates).toHaveLength(3);
     for (const { payload } of creates) {
       expect(payload).not.toHaveProperty("id");
+    }
+  });
+
+  test("rsvp eventId comes from the create response, not a re-query (regression pin for the phantom-fallback incident)", async () => {
+    const payloads: Array<{ handler: string; payload: unknown }> = [];
+    const ctx = {
+      // findEventBySlug always misses — simulates read-model lag right after create.
+      db: emptyDb(),
+      systemWriteAs: async (handler: string, payload: unknown) => {
+        payloads.push({ handler, payload });
+        if (handler === "showpony:write:event:create") {
+          const slug = (payload as { slug?: string }).slug;
+          return { isSuccess: true as const, data: { id: `created-${slug}` } };
+        }
+        return { isSuccess: true as const, data: { id: "evt" } };
+      },
+    } as unknown as SeedCtx;
+
+    await expect(seed.run(ctx)).resolves.toBeUndefined();
+
+    const rsvps = payloads.filter((p) => p.handler === "showpony:write:rsvp:submit");
+    expect(rsvps).toHaveLength(4);
+    for (const { payload } of rsvps) {
+      expect((payload as { eventId: string }).eventId).toBe("created-rooftop-launch");
     }
   });
 });

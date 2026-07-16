@@ -142,6 +142,17 @@ RSVP so we know how many chairs (and how much coffee) to order ☕️`;
   await expect(verifyPage.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible({ timeout: 15_000 });
   await verify.close();
 
+  // Acme's projection being built doesn't guarantee the later-written Demo
+  // event is projected too — verify Demo's own public page before the
+  // anonymous RSVP loop below hits it.
+  const demoVerify = await browser.newContext();
+  const demoVerifyPage = await demoVerify.newPage();
+  await demoVerifyPage.goto(publicEventUrl(DEMO_SLUG));
+  await expect(demoVerifyPage.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible({
+    timeout: 15_000,
+  });
+  await demoVerify.close();
+
   const anon = await browser.newContext();
   const anonPage = await anon.newPage();
   await anonPage.goto(publicEventUrl(DEMO_SLUG));
