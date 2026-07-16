@@ -48,6 +48,8 @@ export function createShowPonyTenantResolver(config: { db: DbConnection; baseDom
     },
     tenantExists: (id: TenantId): Promise<boolean> =>
       isSystemTenant(id) ? Promise.resolve(true) : isTenantEnabled(db, id),
+    // Host-derived, not client-controlled — see createShowPonyAnonymousAccess.
+    resolverTrust: "authoritative" as const,
   };
 }
 
@@ -93,5 +95,13 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
       return subdomain.tenantResolver(c);
     },
     tenantExists: subdomain.tenantExists,
+    // Host-derived, not client-controlled — the resolver's answer is final.
+    // A client-supplied X-Tenant header disagreeing with it (e.g. a guest
+    // on acme.show-pony.<domain> claiming Globex's real tenant id) is
+    // rejected with 400 tenant_mismatch instead of silently overriding the
+    // subdomain (kumiko-platform#278/1 / #51). Also closes the apex path:
+    // a header trying to override SYSTEM_TENANT_ID now 400s directly, no
+    // longer relying solely on DEMO_READ_ONLY + the origin guard upstream.
+    resolverTrust: "authoritative" as const,
   };
 }
