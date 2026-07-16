@@ -163,9 +163,25 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
 });
 
 describe("guest confirmation mail (mail-foundation direct)", () => {
+  let seededEventId = EVENT_ID;
+
+  beforeAll(async () => {
+    const created = await stack.http.writeOk<{ id: string }>(
+      "showpony:write:event:create",
+      {
+        title: "Rooftop Launch Party",
+        slug: "rooftop-launch-mail-test",
+        startsAt: "2026-09-12T19:00:00.000Z",
+        guestLimit: 50,
+      },
+      acmeHost,
+    );
+    seededEventId = created.id;
+  });
+
   test("sends a confirmation to the host tenant's inbox when email is given", async () => {
     const res = await submit("acme.show-pony.test", {
-      eventId: EVENT_ID,
+      eventId: seededEventId,
       name: "Alice",
       email: "alice@example.com",
       status: "yes",
@@ -175,7 +191,9 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
     const inbox = getInbox(ACME);
     expect(inbox).toHaveLength(1);
     expect(inbox[0]?.to).toBe("alice@example.com");
-    expect(inbox[0]?.subject).toContain("RSVP");
+    // The real event title, not the "your event" fallback — proves the
+    // event-title lookup in sendRsvpConfirmation actually matched a row.
+    expect(inbox[0]?.subject).toContain("Rooftop Launch Party");
     // Lands in the right tenant buffer — Globex stays empty.
     expect(getInbox(GLOBEX)).toHaveLength(0);
   });
