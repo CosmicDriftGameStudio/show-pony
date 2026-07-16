@@ -61,19 +61,16 @@ export function EventPage(): ReactElement {
   const splitPage = load.kind === "ready" && load.branding.heroStyle === "split";
   const splitAccent = load.kind === "ready" ? load.branding.accentColor : "";
 
-  // kumiko-lint-ignore no-raw-hooks sync split-page canvas + tenant accent onto body for page-wide gradient
+  // kumiko-lint-ignore no-raw-hooks sync split-page body classes + tenant
+  // accent CSS vars; the gradient itself comes from the CSS fallback rule
+  // (styles.css) keyed off these same classes, so JS never sets it inline.
   useEffect(() => {
     if (!splitPage || !splitAccent) return;
-    const canvas = splitInviteCanvasStyle(splitAccent);
-    document.body.classList.add("sp-invite-split-page");
-    document.body.style.backgroundColor = canvas.backgroundColor ?? "";
-    document.body.style.backgroundImage = canvas.backgroundImage ?? "";
+    document.body.classList.add("show-pony-public", "sp-invite-split-page");
     document.body.style.setProperty("--color-primary", splitAccent);
     document.body.style.setProperty("--color-ring", splitAccent);
     return () => {
-      document.body.classList.remove("sp-invite-split-page");
-      document.body.style.backgroundColor = "";
-      document.body.style.backgroundImage = "";
+      document.body.classList.remove("show-pony-public", "sp-invite-split-page");
       document.body.style.removeProperty("--color-primary");
       document.body.style.removeProperty("--color-ring");
     };
@@ -121,30 +118,26 @@ export function EventPage(): ReactElement {
 
       <main className="relative z-10 mx-auto max-w-2xl px-4 pb-12 pt-6 sm:px-6">
         <div className="space-y-6">
-          {event.description ? (
-            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+          <section
+            className={
+              event.description
+                ? "rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
+                : "sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6"
+            }
+          >
+            {event.description ? (
               <p className="whitespace-pre-line text-[var(--color-foreground)] leading-relaxed">
                 {event.description}
               </p>
-              <a
-                href={icsHref(event)}
-                download={`${event.slug}.ics`}
-                className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline"
-              >
-                {t("showpony:public.event.add-to-calendar")}
-              </a>
-            </section>
-          ) : (
-            <section className="sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
-              <a
-                href={icsHref(event)}
-                download={`${event.slug}.ics`}
-                className="inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline"
-              >
-                {t("showpony:public.event.add-to-calendar")}
-              </a>
-            </section>
-          )}
+            ) : null}
+            <a
+              href={icsHref(event)}
+              download={`${event.slug}.ics`}
+              className={`${event.description ? "mt-5 " : ""}inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline`}
+            >
+              {t("showpony:public.event.add-to-calendar")}
+            </a>
+          </section>
 
           <section className="sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
             <h2 className="text-lg font-semibold text-[var(--color-foreground)]">

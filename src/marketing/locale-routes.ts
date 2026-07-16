@@ -20,7 +20,7 @@ export function dispatchShowPonyApexStatic(
   | { kind: "html"; file: string; injectSchema?: boolean }
   | { kind: "redirect"; to: string; status: 301 }
   | null {
-  if (path === "/" || path === "/") {
+  if (path === "" || path === "/") {
     return { kind: "html", file: "pages/en/index.html", injectSchema: false };
   }
   if (path === "/de" || path === "/de/") {

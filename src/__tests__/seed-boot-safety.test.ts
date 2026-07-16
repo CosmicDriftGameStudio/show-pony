@@ -36,6 +36,13 @@ describe("demo seed boot-safety", () => {
     expect(source).toContain(`FROM ${eventTable.tableName}`);
   });
 
+  test("DEMO_TENANT_ID / ACME_TENANT_ID literals match bin/demo-tenants.ts (drift pin)", async () => {
+    const { DEMO_TENANT, ACME_TENANT } = await import("../../bin/demo-tenants");
+    const source = readFileSync(join(import.meta.dirname, "../../seeds/_demo-event-db.ts"), "utf8");
+    expect(source).toContain(`DEMO_TENANT_ID = "${DEMO_TENANT.id}"`);
+    expect(source).toContain(`ACME_TENANT_ID = "${ACME_TENANT.id}"`);
+  });
+
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
     const calls: string[] = [];
     const ctx = {

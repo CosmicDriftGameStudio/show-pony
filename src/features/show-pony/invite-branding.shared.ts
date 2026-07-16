@@ -26,7 +26,7 @@ export const EMPTY_INVITE_BRANDING: InviteBranding = {
   heroStyle: "immersive",
 };
 
-function parseHeroStyle(raw: string): HeroStyle {
+export function parseHeroStyle(raw: string): HeroStyle {
   return (HERO_STYLES as readonly string[]).includes(raw) ? (raw as HeroStyle) : "immersive";
 }
 

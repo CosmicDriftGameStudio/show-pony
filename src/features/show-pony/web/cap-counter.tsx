@@ -1,4 +1,4 @@
-import { useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { useLocale, useTranslation } from "@cosmicdrift/kumiko-renderer";
 import type { ReactNode } from "react";
 import type { CapUsage } from "../handlers/usage.query";
 
@@ -14,6 +14,7 @@ export function isAtLimit(usage: CapUsage): boolean {
 
 export function CapCounter(props: CapCounterProps): ReactNode {
   const t = useTranslation();
+  const appLocale = useLocale().locale();
   const { capKey, label, usage } = props;
   const unlimited = usage.limit === null;
   const atLimit = isAtLimit(usage);
@@ -29,11 +30,11 @@ export function CapCounter(props: CapCounterProps): ReactNode {
       >
         {unlimited ? (
           <>
-            {usage.used.toLocaleString()}{" "}
+            {usage.used.toLocaleString(appLocale)}{" "}
             <span className="text-muted-foreground">{t("showpony:caps.unlimited")}</span>
           </>
         ) : (
-          `${usage.used}/${usage.limit}`
+          `${usage.used.toLocaleString(appLocale)}/${usage.limit?.toLocaleString(appLocale)}`
         )}
         {atLimit && (
           <span data-testid={`cap-counter-${capKey}-upgrade`} className="ml-1 font-normal">
