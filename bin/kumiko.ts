@@ -15,6 +15,7 @@ import { APP_FEATURES, HAS_AUTH } from "../src/run-config";
 
 const [, , cmd, ...rest] = Bun.argv;
 if (cmd !== "schema") {
+  console.error(`Unknown command: ${cmd ?? "(none)"} — only "schema" is supported.`);
   process.exit(1);
 }
 
