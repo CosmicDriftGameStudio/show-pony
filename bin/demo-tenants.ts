@@ -4,6 +4,8 @@
 // acme: second demo tenant for isolation proof (separate subdomain).
 // _platform: internal anchor for sysadmin login only — not a customer subdomain.
 
+import { seedAdmin } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/seeding";
+import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 
 export type DemoTenant = {
@@ -30,3 +32,25 @@ export const PLATFORM_TENANT: DemoTenant = {
   tenantKey: "_platform",
   name: "Platform (sysadmin only)",
 };
+
+/** Shared sysadmin-seed shape for bin/main.ts (prod) + bin/server.ts (dev) — same
+ *  membership/role wiring, only the credential source differs (env vs. dev const). */
+export async function seedSysadmin(
+  db: DbConnection,
+  credentials: { readonly email: string; readonly password: string },
+): Promise<void> {
+  await seedAdmin(db, {
+    email: credentials.email,
+    password: credentials.password,
+    displayName: "Sysadmin",
+    globalRoles: ["SystemAdmin"],
+    memberships: [
+      {
+        tenantId: PLATFORM_TENANT.id,
+        tenantKey: PLATFORM_TENANT.tenantKey,
+        tenantName: PLATFORM_TENANT.name,
+        roles: ["User"],
+      },
+    ],
+  });
+}

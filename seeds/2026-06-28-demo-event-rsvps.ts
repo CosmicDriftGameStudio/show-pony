@@ -88,7 +88,7 @@ export default {
         seedWarn("rooftop description patch", err);
       }
     } else {
-      const event = await ctx.systemWriteAs(
+      await ctx.systemWriteAs(
         "showpony:write:event:create",
         {
           title: "Rooftop Launch Party",
@@ -100,11 +100,7 @@ export default {
         },
         DEMO_TENANT_ID,
       );
-      if (!event.isSuccess) {
-        throw new Error(
-          `show-pony seed: event:create failed — ${event.error.code}: ${event.error.message}`,
-        );
-      }
+      // systemWriteAs throws on failure (see context.ts) — event is guaranteed created here.
       rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
     }
 

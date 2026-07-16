@@ -5,10 +5,7 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchDemoMode } from "../demo-mode-client";
-import {
-  EMPTY_INVITE_BRANDING,
-  type InviteBranding,
-} from "../features/show-pony/invite-branding.shared";
+import type { InviteBranding } from "../features/show-pony/invite-branding.shared";
 import { fetchEventBySlug, fetchInviteBranding, type PublicEvent } from "./api";
 import { DemoPublicNotice } from "./DemoPublicNotice";
 import { InviteHero, inviteBrandingCssVars } from "./InviteHero";
@@ -47,11 +44,7 @@ export function EventPage(): ReactElement {
     const slug = slugFromPath();
     void Promise.all([fetchEventBySlug(slug), fetchInviteBranding()])
       .then(([event, branding]) =>
-        setLoad(
-          event
-            ? { kind: "ready", event, branding: branding ?? EMPTY_INVITE_BRANDING }
-            : { kind: "missing" },
-        ),
+        setLoad(event ? { kind: "ready", event, branding } : { kind: "missing" }),
       )
       .catch(() => setLoad({ kind: "missing" }));
   }, []);

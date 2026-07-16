@@ -165,8 +165,3 @@ RSVP so we know how many chairs (and how much coffee) to order ☕️`;
   await mkdir("e2e/screenshots/.auth", { recursive: true });
   await page.context().storageState({ path: STORAGE_STATE });
 });
-
-
-
-
-
