@@ -19,5 +19,5 @@ if (cmd !== "schema") {
 }
 
 const features = composeFeatures([...APP_FEATURES], { includeBundled: HAS_AUTH });
-const out = { log: (_l: string) => {}, err: (_l: string) => {} };
+const out = { log: (l: string) => console.log(l), err: (l: string) => console.error(l) };
 process.exit(await runSchemaCli(rest, process.env.INIT_CWD ?? process.cwd(), out, { features }));

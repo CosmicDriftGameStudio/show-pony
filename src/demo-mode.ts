@@ -42,6 +42,11 @@ export function demoModePayload(
         password: hostPassword,
       });
     }
+    // Exposes sysadmin credentials to any anonymous visitor of a read-only
+    // public demo — deliberate: writes are blocked read-only regardless of
+    // role (withDemoReadOnlyFetch), so the only extra exposure is anonymous
+    // cross-tenant READS. Kept for the tutorial's "here's what a platform
+    // admin sees" walkthrough; drop this block if that stops being worth it.
     if (sysEmail && sysPassword) {
       accounts.push({
         role: "sysadmin",

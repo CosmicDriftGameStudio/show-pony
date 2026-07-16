@@ -5,6 +5,7 @@ import {
   defineFeature,
   type FeatureDefinition,
 } from "@cosmicdrift/kumiko-framework/engine";
+import { APP_SHELL_TRANSLATION_KEYS } from "./i18n";
 
 const HOST_NAV_MEMBERS = [
   "admin-shell:nav:tenant-overview",
@@ -44,13 +45,7 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
   });
 
   r.translations({
-    keys: {
-      "app-shell:workspace.host": { de: "Events", en: "Events" },
-      "app-shell:workspace.platform": { de: "Plattform", en: "Platform" },
-      "app-shell:nav.users": { de: "Nutzer", en: "Users" },
-      // tenant feature label is tenant:nav.members; tenantClient bundles tenant.nav.members.
-      "tenant:nav.members": { de: "Team", en: "Team" },
-    },
+    keys: APP_SHELL_TRANSLATION_KEYS,
   });
 
   r.workspace({
