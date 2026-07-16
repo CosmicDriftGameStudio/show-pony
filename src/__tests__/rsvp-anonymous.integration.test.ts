@@ -2,8 +2,8 @@
 // tenant resolved from the subdomain (Host header) — never on the wrong one.
 // That's the gap show-pony fills as a sample.
 //
-// We run the REAL resolver (createShowPonyTenantResolver) against real tenant
-// rows, with the exact boot wiring from bin/server.ts — no mock. So the
+// We run the REAL production factory (createShowPonyAnonymousAccess, the
+// same factory bin/main.ts/bin/server.ts wire) against real tenant rows —
 // subdomain→key lookup AND the tenantExists guard against a forged X-Tenant
 // header are both covered, not just the framework pipeline.
 
@@ -35,7 +35,7 @@ import {
 } from "@cosmicdrift/kumiko-framework/stack";
 import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyTenantResolver } from "../tenant-routing";
+import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
 // Default the mail provider app-wide to inmemory (otherwise createTransportForTenant
 // throws "no provider selected") — the same appOverride as in bin/server.ts.
@@ -76,7 +76,7 @@ beforeAll(async () => {
     ],
     // Exact boot wiring from bin/server.ts: the factory gets the stack db and
     // builds the real DB resolver.
-    anonymousAccess: ({ db }) => createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN }),
+    anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
     extraContext: ({ registry }) => ({
       configResolver,
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -140,15 +140,44 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     expect(body.error.code).toBe("tenant_required");
   });
 
-  test("forged X-Tenant header → 404 (tenantExists rejects the unknown id)", async () => {
+  test("forged X-Tenant header (unknown id) → 400 tenant_mismatch, resolver's tenant is NOT overridden", async () => {
+    // resolverTrust: "authoritative" rejects ANY client tenant that
+    // disagrees with the subdomain-resolved one before tenantExists ever
+    // runs — the mismatch check fires first, so this is now tenant_mismatch
+    // rather than the old tenant_not_found (which only proved the *unknown*
+    // id was rejected, never that a REAL other tenant's id would be too).
     const res = await submit(
       "acme.show-pony.test",
       { eventId: EVENT_ID, name: "Mallory", status: "yes" },
       { "X-Tenant": "00000000-0000-4000-8000-deadbeefdead" },
     );
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(400);
     const body = (await res.json()) as { error: { code: string } };
-    expect(body.error.code).toBe("tenant_not_found");
+    expect(body.error.code).toBe("tenant_mismatch");
+  });
+
+  test("forged X-Tenant = Globex's REAL tenant id on acme's subdomain → 400 tenant_mismatch, RSVP does NOT land in Globex (#51)", async () => {
+    // The actual kumiko-platform#278/1 / show-pony#51 scenario: a guest on
+    // acme.show-pony.test claims a real, active, OTHER tenant's id via the
+    // header — not a garbage id tenantExists would catch anyway. Before
+    // resolverTrust: "authoritative" this landed the RSVP in Globex's
+    // guest list while served on Acme's subdomain (source="header" won
+    // resolveTenant's precedence). Now the resolver (Acme, from the host)
+    // is authoritative and a disagreeing client tenant is rejected outright.
+    const res = await submit(
+      "acme.show-pony.test",
+      { eventId: EVENT_ID, name: "Mallory", status: "yes" },
+      { "X-Tenant": GLOBEX },
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("tenant_mismatch");
+
+    // Belt-and-suspenders: prove it structurally, not just via the status
+    // code — Globex's guest list must still be empty.
+    const globexList = await stack.http.query("showpony:query:rsvp:list", {}, globexHost);
+    const globexBody = (await globexList.json()) as { data: { rows: Array<{ name: string }> } };
+    expect(globexBody.data.rows).toHaveLength(0);
   });
 
   test("host CRUD rejects anonymous callers (event:create stays gated)", async () => {
@@ -159,6 +188,25 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
       { Host: "acme.show-pony.test" },
     );
     expect(res.status).toBe(403);
+  });
+
+  test("apex host + disagreeing X-Tenant → 400 tenant_mismatch (SYSTEM_TENANT_ID not overridden)", async () => {
+    // Proves the apex branch inside createShowPonyAnonymousAccess (only
+    // exercised by the production factory, not the bare subdomain
+    // resolver): the apex resolver always returns SYSTEM_TENANT_ID — with
+    // resolverTrust: "authoritative" a client-supplied X-Tenant claiming a
+    // real, different tenant is rejected outright instead of silently
+    // winning. Previously the only thing stopping an apex-origin write
+    // from landing in an arbitrary tenant was DEMO_READ_ONLY + the origin
+    // guard upstream; this closes it at the tenant-resolution layer too.
+    const res = await submit(
+      BASE_DOMAIN,
+      { eventId: EVENT_ID, name: "Mallory", status: "yes" },
+      { "X-Tenant": ACME },
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("tenant_mismatch");
   });
 });
 
