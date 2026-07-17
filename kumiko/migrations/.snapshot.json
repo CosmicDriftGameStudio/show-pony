@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-16T20:28:39.204Z",
+  "generatedAt": "2026-07-17T22:29:20.359Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -148,7 +148,7 @@
         },
         {
           "name": "guest_limit",
-          "pgType": "integer",
+          "pgType": "double precision",
           "notNull": false
         }
       ],
@@ -280,7 +280,7 @@
         },
         {
           "name": "duration",
-          "pgType": "integer",
+          "pgType": "double precision",
           "notNull": false
         },
         {
@@ -462,7 +462,7 @@
         },
         {
           "name": "plus_n",
-          "pgType": "integer",
+          "pgType": "double precision",
           "notNull": false
         },
         {
