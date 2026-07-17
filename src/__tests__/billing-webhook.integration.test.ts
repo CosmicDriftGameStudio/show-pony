@@ -12,7 +12,6 @@ import {
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import { countWhere } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
@@ -22,6 +21,7 @@ import {
   unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
 import { deleteRows } from "@cosmicdrift/kumiko-framework/testing";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import Stripe from "stripe";
 import { wireSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
