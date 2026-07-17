@@ -25,7 +25,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { UserQueries, userTable } from "@cosmicdrift/kumiko-bundled-features/user";
-import { composeFeatures } from "@cosmicdrift/kumiko-dev-server/compose-features";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   setupTestStack,

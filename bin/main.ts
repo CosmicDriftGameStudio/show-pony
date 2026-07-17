@@ -16,7 +16,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
-import { runProdApp } from "@cosmicdrift/kumiko-dev-server";
+import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import { withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";

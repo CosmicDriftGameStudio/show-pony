@@ -12,7 +12,7 @@ import {
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
-import { composeFeatures } from "@cosmicdrift/kumiko-dev-server/compose-features";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import { countWhere } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {

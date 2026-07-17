@@ -9,7 +9,7 @@
 // runSchemaCli. We only compose the app feature set (for the rebuild's
 // registry) and delegate.
 
-import { composeFeatures } from "@cosmicdrift/kumiko-dev-server/compose-features";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import { runSchemaCli } from "@cosmicdrift/kumiko-framework/schema-cli";
 import { APP_FEATURES, HAS_AUTH } from "../src/run-config";
 
