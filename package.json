@@ -23,12 +23,13 @@
     "loops:dry-run": "bunx --bun playwright test --config=playwright.loops.config.ts --list"
   },
   "dependencies": {
-    "@cosmicdrift/kumiko-bundled-features": "^0.147.3",
-    "@cosmicdrift/kumiko-dev-server": "^0.147.3",
-    "@cosmicdrift/kumiko-framework": "^0.147.3",
-    "@cosmicdrift/kumiko-headless": "^0.147.3",
-    "@cosmicdrift/kumiko-renderer": "^0.147.3",
-    "@cosmicdrift/kumiko-renderer-web": "^0.147.3",
+    "@cosmicdrift/kumiko-bundled-features": "^0.154.1",
+    "@cosmicdrift/kumiko-dev-server": "^0.154.1",
+    "@cosmicdrift/kumiko-server-runtime": "^0.154.1",
+    "@cosmicdrift/kumiko-framework": "^0.154.1",
+    "@cosmicdrift/kumiko-headless": "^0.154.1",
+    "@cosmicdrift/kumiko-renderer": "^0.154.1",
+    "@cosmicdrift/kumiko-renderer-web": "^0.154.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "zod": "^4.4.3"
@@ -45,13 +46,14 @@
     "typescript": "^7.0.2"
   },
   "overrides": {
-    "@cosmicdrift/kumiko-framework": "0.147.3",
-    "@cosmicdrift/kumiko-bundled-features": "0.147.3",
-    "@cosmicdrift/kumiko-dev-server": "0.147.3",
-    "@cosmicdrift/kumiko-renderer": "0.147.3",
-    "@cosmicdrift/kumiko-renderer-web": "0.147.3",
-    "@cosmicdrift/kumiko-headless": "0.147.3",
-    "@cosmicdrift/kumiko-dispatcher-live": "0.147.3",
+    "@cosmicdrift/kumiko-framework": "0.154.1",
+    "@cosmicdrift/kumiko-bundled-features": "0.154.1",
+    "@cosmicdrift/kumiko-dev-server": "0.154.1",
+    "@cosmicdrift/kumiko-server-runtime": "0.154.1",
+    "@cosmicdrift/kumiko-renderer": "0.154.1",
+    "@cosmicdrift/kumiko-renderer-web": "0.154.1",
+    "@cosmicdrift/kumiko-headless": "0.154.1",
+    "@cosmicdrift/kumiko-dispatcher-live": "0.154.1",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   }
