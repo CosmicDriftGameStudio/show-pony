@@ -2,7 +2,7 @@
 # The defaults match .env.example, so a fresh clone runs with no edits.
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18.3-alpine
     environment:
       POSTGRES_USER: showpony
       POSTGRES_PASSWORD: showpony
