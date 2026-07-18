@@ -1,4 +1,5 @@
 import { TIER_MONTHLY_EUR } from "../../../marketing/pricing";
+import type { BillingInfo } from "../handlers/billing-info.query";
 import { capsForTier, type TierName } from "../tier-map";
 
 /** Billable via Stripe — studio is sales-assisted only. */
@@ -30,4 +31,23 @@ export function tierBenefits(tier: PaidTier): readonly BenefitItem[] {
 
 export function tierDisplayName(tier: TierName): string {
   return tier.charAt(0).toUpperCase() + tier.slice(1);
+}
+
+const TERMINAL_SUBSCRIPTION_STATUSES = ["canceled", "incomplete_expired"];
+
+export function hasManageableSubscriptionState(subscription: BillingInfo["subscription"]): boolean {
+  return subscription !== null && !TERMINAL_SUBSCRIPTION_STATUSES.includes(subscription.status);
+}
+
+// The status pill only shows for a subscription that's either the tier the
+// tenant is currently on, or in a non-"active" state worth surfacing (e.g.
+// "past_due" while browsing a different tier). Returns the i18n status key
+// to render, or null to hide the pill.
+export function subscriptionStatusKey(
+  subscription: BillingInfo["subscription"],
+  currentTier: BillingInfo["tier"],
+): string | null {
+  if (!subscription) return null;
+  if (subscription.tier !== currentTier && subscription.status === "active") return null;
+  return subscription.status;
 }

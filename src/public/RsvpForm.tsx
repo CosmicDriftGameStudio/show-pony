@@ -1,8 +1,9 @@
 // The RSVP form — the anonymous write from the public page. Name is required,
 // email optional. Inline success on submit, no redirect.
 
-import { useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { type FormEvent, type ReactElement, useState } from "react";
+import { usePrimitives, useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { ModeSwitch } from "@cosmicdrift/kumiko-renderer-web";
+import { type ReactElement, useState } from "react";
 import { type RsvpStatus, submitRsvp } from "./api";
 
 type FormState =
@@ -13,6 +14,7 @@ type FormState =
 
 export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElement {
   const t = useTranslation();
+  const { Banner, Button, Field, Form, Input } = usePrimitives();
   const [name, setName] = useState("");
   const [status, setStatus] = useState<RsvpStatus>("yes");
   const [plusN, setPlusN] = useState(0);
@@ -25,8 +27,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
     no: t("showpony:public.rsvp.status.no"),
   };
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
-    e.preventDefault();
+  async function onSubmit(): Promise<void> {
     if (name.length === 0) return;
     setState({ kind: "submitting" });
     const result = await submitRsvp({
@@ -62,69 +63,64 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
     );
   }
 
-  const field =
-    "w-full rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-ring)]";
-
   return (
-    <form onSubmit={onSubmit} className="mt-4">
-      <div className="grid gap-3">
-        <input
-          aria-label={t("showpony:public.rsvp.name")}
-          required
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={t("showpony:public.rsvp.name-placeholder")}
-          className={field}
-        />
-        <div className="flex gap-2">
-          {(Object.keys(statusLabels) as RsvpStatus[]).map((s) => (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={status === s}
-              onClick={() => setStatus(s)}
-              className={`flex-1 rounded-md border px-3 py-2 text-sm transition-colors duration-150 ${
-                status === s
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
-                  : "border-[var(--color-border)] bg-[var(--color-background)] hover:border-[var(--color-primary)]/40"
-              }`}
-            >
-              {statusLabels[s]}
-            </button>
-          ))}
-        </div>
-        <label className="text-sm text-[var(--color-muted-foreground)]">
-          {t("showpony:public.rsvp.plus-guests")}
-          <input
-            type="number"
-            min={0}
-            max={20}
-            value={plusN}
-            onChange={(e) => setPlusN(Number.parseInt(e.target.value, 10) || 0)}
-            className={`${field} mt-1`}
+    <div className="mt-4">
+      <Form
+        onSubmit={(e) => {
+          e?.preventDefault();
+          void onSubmit();
+        }}
+      >
+        <Field id="rsvp-name" label={t("showpony:public.rsvp.name")} required>
+          <Input
+            kind="text"
+            id="rsvp-name"
+            name="rsvp-name"
+            value={name}
+            onChange={setName}
+            placeholder={t("showpony:public.rsvp.name-placeholder")}
+            required
+            disabled={state.kind === "submitting"}
           />
-        </label>
-        <input
-          aria-label={t("showpony:public.rsvp.email")}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder={t("showpony:public.rsvp.email-placeholder")}
-          className={field}
+        </Field>
+        <ModeSwitch
+          value={status}
+          onChange={setStatus}
+          options={(Object.keys(statusLabels) as RsvpStatus[]).map((s) => ({
+            value: s,
+            label: statusLabels[s],
+          }))}
         />
-        <button
-          type="submit"
-          disabled={state.kind === "submitting" || name.length === 0}
-          className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] disabled:opacity-50"
-        >
-          {state.kind === "submitting" ? "…" : t("showpony:public.rsvp.submit")}
-        </button>
+        <Field id="rsvp-plus-n" label={t("showpony:public.rsvp.plus-guests")}>
+          <Input
+            kind="number"
+            id="rsvp-plus-n"
+            name="rsvp-plus-n"
+            value={plusN}
+            onChange={(v) => setPlusN(Math.min(20, Math.max(0, v ?? 0)))}
+            disabled={state.kind === "submitting"}
+          />
+        </Field>
+        <Field id="rsvp-email" label={t("showpony:public.rsvp.email")}>
+          <Input
+            kind="email"
+            id="rsvp-email"
+            name="rsvp-email"
+            value={email}
+            onChange={setEmail}
+            placeholder={t("showpony:public.rsvp.email-placeholder")}
+            disabled={state.kind === "submitting"}
+          />
+        </Field>
         {state.kind === "error" && (
-          <p className="text-sm text-[var(--color-destructive)]">
+          <Banner variant="error">
             {t("showpony:public.rsvp.error", { reason: state.reason })}
-          </p>
+          </Banner>
         )}
-      </div>
-    </form>
+        <Button type="submit" loading={state.kind === "submitting"} disabled={name.length === 0}>
+          {t("showpony:public.rsvp.submit")}
+        </Button>
+      </Form>
+    </div>
   );
 }

@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import {
   hasManageableSubscriptionState,
   subscriptionStatusKey,
-} from "../features/show-pony/web/billing";
+} from "../features/show-pony/billing/pricing";
 import { isAtLimit } from "../features/show-pony/web/cap-counter";
 
 test("isAtLimit", () => {
