@@ -42,7 +42,15 @@ export default defineConfig({
   webServer: {
     command: "bun --env-file=.env run bin/server.ts",
     url: `http://localhost:${PORT}/`,
-    env: { PORT: String(PORT), KUMIKO_DEV_DB_NAME: "" },
+    env: {
+      PORT: String(PORT),
+      KUMIKO_DEV_DB_NAME: "",
+      // Dev-Fallback: secrets-Feature hat keinen Hardcoded-Default
+      // (createEnvMasterKeyProvider wirft ohne _V1). Ephemere DB, nie Prod.
+      // Gleicher Key wie publicstatus/money-horse/kumiko-studio Playwright-Boots.
+      KUMIKO_SECRETS_MASTER_KEY_V1: "a3VtaWtvLXNjcmVlbnNob3QtZGV2LW1hc3Rlci0zMmI=",
+      KUMIKO_SECRETS_MASTER_KEY_CURRENT_VERSION: "1",
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 90_000,
     stdout: "pipe",
