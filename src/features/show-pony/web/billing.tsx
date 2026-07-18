@@ -9,8 +9,10 @@ import { FormScreenShell } from "@cosmicdrift/kumiko-renderer-web";
 import { type ReactNode, useState } from "react";
 import {
   BILLING_TIER_MONTHLY_EUR,
+  hasManageableSubscriptionState,
   PAID_TIERS,
   type PaidTier,
+  subscriptionStatusKey,
   tierBenefits,
   tierDisplayName,
 } from "../billing/pricing";
@@ -115,25 +117,6 @@ function PricingBox(props: {
       </ul>
     </Card>
   );
-}
-
-const TERMINAL_SUBSCRIPTION_STATUSES = ["canceled", "incomplete_expired"];
-
-export function hasManageableSubscriptionState(subscription: BillingInfo["subscription"]): boolean {
-  return subscription !== null && !TERMINAL_SUBSCRIPTION_STATUSES.includes(subscription.status);
-}
-
-// The status pill only shows for a subscription that's either the tier the
-// tenant is currently on, or in a non-"active" state worth surfacing (e.g.
-// "past_due" while browsing a different tier). Returns the i18n status key
-// to render, or null to hide the pill.
-export function subscriptionStatusKey(
-  subscription: BillingInfo["subscription"],
-  currentTier: BillingInfo["tier"],
-): string | null {
-  if (!subscription) return null;
-  if (subscription.tier !== currentTier && subscription.status === "active") return null;
-  return subscription.status;
 }
 
 export function BillingView(props: BillingViewProps): ReactNode {
