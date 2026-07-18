@@ -65,6 +65,13 @@ jobs:
         env:
           KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guard-silent-skip
+      - name: Comment-Language guard
+        # Baseline-Regression-Guard (infra#295): failt nur bei NEUEN
+        # DE-Kommentaren, Altbestand via .kumiko-comment-lang-baseline.json
+        # eingefroren.
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-comment-lang
       - name: UI guards
         env:
           KUMIKO_GUARD_ROOTS: show-pony
