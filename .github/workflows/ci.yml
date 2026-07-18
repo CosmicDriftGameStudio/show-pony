@@ -100,7 +100,7 @@ jobs:
           docker rm -f sp-ci-pg sp-ci-redis 2>/dev/null || true
           # Docker Hub pulls from GitHub-hosted runners time out intermittently —
           # pull with retries before running, so a transient hiccup doesn't fail CI.
-          for img in postgres:18.3-alpine redis:7-alpine; do
+          for img in postgres:18.3-alpine redis:8-alpine; do
             for attempt in 1 2 3 4 5; do
               docker pull "$img" && break || { echo "pull $img failed (attempt $attempt), retrying"; sleep 10; }
             done
@@ -110,7 +110,7 @@ jobs:
             --health-cmd="pg_isready -U kumiko -d kumiko_dev" \
             --health-interval=2s --health-timeout=3s --health-retries=30 \
             postgres:18.3-alpine
-          docker run -d --name sp-ci-redis -p 16379:6379 redis:7-alpine
+          docker run -d --name sp-ci-redis -p 16379:6379 redis:8-alpine
           for i in $(seq 1 60); do
             [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg 2>/dev/null)" = healthy ] && break
             sleep 2
