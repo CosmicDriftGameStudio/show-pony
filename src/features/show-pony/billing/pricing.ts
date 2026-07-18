@@ -1,5 +1,5 @@
-import type { BillingInfo } from "../handlers/billing-info.query";
 import { TIER_MONTHLY_EUR } from "../../../marketing/pricing";
+import type { BillingInfo } from "../handlers/billing-info.query";
 import { capsForTier, type TierName } from "../tier-map";
 
 /** Billable via Stripe — studio is sales-assisted only. */

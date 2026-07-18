@@ -69,6 +69,18 @@ jobs:
         env:
           KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guard-ui
+      - name: Primitives-discipline guard
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-primitives-discipline
+      - name: Lib-test-coverage guard
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-lib-test-coverage
+      - name: No-logic-in-views guard
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-guard-no-logic-in-views
       - run: |
           ulimit -n 65536 || true
           bun --config=bunfig.ci.toml test --dots
