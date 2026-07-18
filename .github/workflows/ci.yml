@@ -145,6 +145,68 @@ jobs:
         if: always()
         run: docker rm -f sp-ci-pg sp-ci-redis || true
 
+  # Tutorial-/Docs-Screenshots (studio/mh/ps-Muster). Non-blocking —
+  # Verletzungen sollen sichtbar sein, aber nicht das Merge-Gate sein.
+  screenshots:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.14"
+      - uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - name: Install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
+        run: bun install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: bunx --bun playwright install --with-deps chromium
+      - name: Start services
+        run: |
+          docker rm -f sp-ci-pg sp-ci-redis 2>/dev/null || true
+          # Docker Hub pulls from GitHub-hosted runners time out intermittently —
+          # pull with retries before running, so a transient hiccup doesn't fail CI.
+          for img in postgres:18.4-alpine redis:8-alpine; do
+            for attempt in 1 2 3 4 5; do
+              docker pull "$img" && break || { echo "pull $img failed (attempt $attempt), retrying"; sleep 10; }
+            done
+          done
+          docker run -d --name sp-ci-pg -p 15432:5432 \
+            -e POSTGRES_USER=kumiko -e POSTGRES_PASSWORD=kumiko -e POSTGRES_DB=kumiko_dev \
+            --health-cmd="pg_isready -U kumiko -d kumiko_dev" \
+            --health-interval=2s --health-timeout=3s --health-retries=30 \
+            postgres:18.4-alpine
+          docker run -d --name sp-ci-redis -p 16379:6379 redis:8-alpine
+          for i in $(seq 1 60); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg 2>/dev/null)" = healthy ] && break
+            sleep 2
+          done
+          if [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg)" != healthy ]; then
+            docker logs sp-ci-pg
+            exit 1
+          fi
+          docker exec sp-ci-pg psql -U kumiko -d kumiko_dev -c "CREATE DATABASE kumiko_test;" || true
+      - name: Run screenshot recipe
+        env:
+          DATABASE_URL: postgresql://kumiko:kumiko@localhost:15432/kumiko_dev
+          TEST_DATABASE_URL: postgresql://kumiko:kumiko@localhost:15432/kumiko_test
+          REDIS_URL: redis://localhost:16379
+          JWT_SECRET: test-jwt-secret-at-least-32-characters-long
+        run: bun run screenshots
+      - name: Stop services
+        if: always()
+        run: docker rm -f sp-ci-pg sp-ci-redis || true
+
   # Build + push the arm64 image to GHCR on merge to main. Native arm64 on a
   # GitHub-hosted runner (cluster nodes are arm64) — no QEMU, no self-hosted
   # runner. GITHUB_TOKEN is enough: the package's origin is this repo.
