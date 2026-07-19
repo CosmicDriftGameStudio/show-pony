@@ -10,7 +10,10 @@ import {
   tenantTable,
 } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
-import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
+import {
+  createTierEngineFeature,
+  TierEngineHandlers,
+} from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { countWhere } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
@@ -50,6 +53,7 @@ const features = composeFeatures(
 );
 
 let stack: TestStack;
+let tierSyncFailureTenant: TenantId | null = null;
 const PLATFORM_TENANT = "00000000-0000-4000-8000-000000000001";
 const sysadmin = createTestUser({
   id: "platform-sysadmin",
@@ -71,6 +75,16 @@ beforeAll(async () => {
     db: stack.db,
     registry: stack.registry,
     dispatchSystemWrite: async ({ handlerQn, payload, tenantId }) => {
+      // Fault injection for the "subscription write ok, tier-sync fails"
+      // regression test below — only tier-engine calls for the targeted
+      // tenant are affected, the subscription-write itself always goes
+      // through for real.
+      const isTierEngineCall =
+        handlerQn === TierEngineHandlers.create || handlerQn === TierEngineHandlers.update;
+      if (isTierEngineCall && tenantId === tierSyncFailureTenant) {
+        return { isSuccess: false, error: { code: "injected_tier_sync_failure" } };
+      }
+
       const systemUser = createTestUser({
         id: "billing-system",
         tenantId,
@@ -199,5 +213,34 @@ describe("show-pony billing webhook → tier-sync", () => {
     expect(res.status).toBe(200);
     expect(await resolveTier(stack.db, tenantId)).toBe("pro");
     expect(await countWhere(stack.db, tierAssignmentTable, { tenantId })).toBe(1);
+  });
+
+  test("subscription write ok, tier-sync fails → 500, then self-heals on Stripe retry", async () => {
+    // Regression test for the "idempotent skip breaks the sync" worry:
+    // process-event's own idempotency returns isSuccess:true even on a
+    // provider-replayed duplicate (see billing-foundation's
+    // process-event.write.ts), so syncTierFromSubscription runs again on
+    // every retry — it never gets silently skipped. This proves the retry
+    // actually recovers instead of leaving the tier permanently drifted.
+    const tenantId = await createTenant("sp-billing-tier-sync-retry");
+    tierSyncFailureTenant = tenantId;
+
+    const first = await postSignedWebhook(
+      buildStripeSubscriptionEvent({ eventId: "evt_sp_sync_fail_1", tenantId }),
+    );
+    expect(first.status).toBe(500);
+    const firstBody = (await first.json()) as { error: { code?: string; message?: string } };
+    expect(firstBody.error.code).toBe("subscription_webhook_processing_failed");
+    // The subscription write itself went through for real — only tier-sync
+    // was injected to fail — so the projection already reflects "starter".
+    expect(await resolveTier(stack.db, tenantId)).toBe("free");
+
+    // Stripe retries the exact same event (same id) after a 500.
+    tierSyncFailureTenant = null;
+    const retried = await postSignedWebhook(
+      buildStripeSubscriptionEvent({ eventId: "evt_sp_sync_fail_1", tenantId }),
+    );
+    expect(retried.status).toBe(200);
+    expect(await resolveTier(stack.db, tenantId)).toBe("starter");
   });
 });

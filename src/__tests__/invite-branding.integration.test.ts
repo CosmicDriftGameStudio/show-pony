@@ -26,7 +26,11 @@ import {
 import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { bindSubdomainPageResolver, createShowPonyTenantResolver } from "../tenant-routing";
+import {
+  bindSubdomainPageResolver,
+  createShowPonyTenantResolver,
+  resolveSubdomainPageTenant,
+} from "../tenant-routing";
 
 const BASE_DOMAIN = "show-pony.test";
 const DEMO = testTenantId(1);
@@ -36,12 +40,12 @@ const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
 
+// Real production wiring (run-config.ts): resolveApexTenant IS
+// resolveSubdomainPageTenant, the actual Host→tenant parsing (apex/www
+// exclusion + `.baseDomain` suffix lookup), not a hand-rolled stub — proves
+// the prod path itself, not just the framework pipeline around it.
 const managedPages = createManagedPagesFeature({
-  resolveApexTenant: async (host) => {
-    if (host.startsWith("demo.")) return DEMO;
-    if (host.startsWith("acme.")) return ACME;
-    return null;
-  },
+  resolveApexTenant: resolveSubdomainPageTenant,
 });
 
 let stack: TestStack;

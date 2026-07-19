@@ -190,15 +190,15 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     expect(res.status).toBe(403);
   });
 
-  test("apex host + disagreeing X-Tenant → 400 tenant_mismatch (SYSTEM_TENANT_ID not overridden)", async () => {
+  test("apex host + X-Tenant → 400 tenant_required (apex resolves to no tenant)", async () => {
     // Proves the apex branch inside createShowPonyAnonymousAccess (only
     // exercised by the production factory, not the bare subdomain
-    // resolver): the apex resolver always returns SYSTEM_TENANT_ID — with
-    // resolverTrust: "authoritative" a client-supplied X-Tenant claiming a
-    // real, different tenant is rejected outright instead of silently
-    // winning. Previously the only thing stopping an apex-origin write
-    // from landing in an arbitrary tenant was DEMO_READ_ONLY + the origin
-    // guard upstream; this closes it at the tenant-resolution layer too.
+    // resolver): the apex resolver returns null — no anonymous tenant
+    // exists at apex, legal/marketing pages are static and branding reads
+    // go through the separate resolveSubdomainPageTenant pipeline. With
+    // resolverTrust: "authoritative" a resolver returning null never falls
+    // back to a client-supplied X-Tenant, so this 400s as tenant_required,
+    // same as the header-less case below.
     const res = await submit(
       BASE_DOMAIN,
       { eventId: EVENT_ID, name: "Mallory", status: "yes" },
@@ -206,7 +206,19 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     );
     expect(res.status).toBe(400);
     const body = (await res.json()) as { error: { code: string } };
-    expect(body.error.code).toBe("tenant_mismatch");
+    expect(body.error.code).toBe("tenant_required");
+  });
+
+  test("apex host, no X-Tenant → 400 tenant_required (no silent SYSTEM_TENANT_ID write)", async () => {
+    // Regression pin: before this fix, an apex-origin anonymous write with
+    // no X-Tenant header at all silently landed on SYSTEM_TENANT_ID (200,
+    // real row written) — the only things stopping it in production were
+    // DEMO_READ_ONLY + the origin guard upstream, neither of which this
+    // test stack exercises. The resolver itself must reject it.
+    const res = await submit(BASE_DOMAIN, { eventId: EVENT_ID, name: "Mallory", status: "yes" });
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("tenant_required");
   });
 });
 
