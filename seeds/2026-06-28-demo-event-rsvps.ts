@@ -71,6 +71,24 @@ export default {
   run: async (ctx) => {
     const raw = toRawSqlRunner(ctx.db);
 
+    // Demo tenant shows 2 events (Rooftop + Warmup) — the free-tier default
+    // (no tier-assignment after a DB wipe, no billing sync) only allows 1
+    // (TIER_MAX_EVENTS.free, see pricing.ts). Without this grant the second
+    // event:create fails with `unprocessable: upgrade_required`.
+    // tenantIdOverride deliberately omitted: set-tenant-tier is system-scoped,
+    // its cross-tenant override mechanic only works with SYSTEM_TENANT_ID as
+    // the actor tenant (see set-tenant-tier.write.ts's own comment).
+    try {
+      await ctx.systemWriteAs(
+        "tier-engine:write:set-tenant-tier",
+        { tenantId: DEMO_TENANT_ID, tier: "starter" },
+        undefined,
+        ["SystemAdmin"],
+      );
+    } catch (err) {
+      seedWarn("demo tenant tier grant", err);
+    }
+
     let rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
     if (rooftop) {
       try {
@@ -141,6 +159,9 @@ export default {
           "showpony:write:rsvp:submit",
           { eventId, ...guest },
           DEMO_TENANT_ID,
+          // rsvp:submit is gated on access.anonymous (public RSVP flow) — the
+          // bare system actor has neither anonymous nor an explicit role.
+          ["anonymous"],
         );
       } catch (err) {
         seedWarn(`rsvp:submit for ${guest.name}`, err);
