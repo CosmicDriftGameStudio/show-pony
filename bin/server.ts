@@ -132,8 +132,18 @@ await runDevApp({
   seeds: [
     async (stack) => {
       const searchableFields = stack.registry.getSearchableFields("event");
-      for (const tenantId of [DEMO_TENANT.id, ACME_TENANT.id]) {
-        await searchAdapter.configure(tenantId, { searchableFields, rankingFields: searchableFields });
+      // Meilisearch is optional local/CI infra (docker compose, not always
+      // running) — a dev/CI boot without it should degrade to an inert
+      // search box, not crash the whole server.
+      try {
+        for (const tenantId of [DEMO_TENANT.id, ACME_TENANT.id]) {
+          await searchAdapter.configure(tenantId, {
+            searchableFields,
+            rankingFields: searchableFields,
+          });
+        }
+      } catch (err) {
+        console.warn(`[search] Meilisearch unreachable, search index not configured: ${err}`);
       }
     },
     async (stack) => {
