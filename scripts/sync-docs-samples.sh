@@ -12,14 +12,14 @@ if [ ! -d "$DEST" ]; then
   exit 1
 fi
 
-rsync -a "$ROOT/bin/" "$DEST/bin/"
+rsync -a --delete "$ROOT/bin/" "$DEST/bin/"
 rsync -a --delete --exclude generated "$ROOT/src/" "$DEST/src/"
-rsync -a "$ROOT/deploy/" "$DEST/deploy/"
+rsync -a --delete "$ROOT/deploy/" "$DEST/deploy/"
 rsync -a "$ROOT/docker-compose.yml" "$DEST/"
 rsync -a "$ROOT/public/index.html" "$DEST/public/"
 rsync -a "$ROOT/e2e/screenshots/scenarios.ts" "$DEST/e2e/screenshots/"
 rm -rf "$DEST/seeds"
 mkdir -p "$DEST/seeds"
 rsync -a "$ROOT/seeds/2026-06-28-demo-event-rsvps.ts" "$ROOT/seeds/2026-07-14-invite-hero-webp.ts" "$ROOT/seeds/_demo-event-db.ts" "$DEST/seeds/"
-rsync -a "$ROOT/public/heroes/" "$DEST/public/heroes/"
+rsync -a --delete "$ROOT/public/heroes/" "$DEST/public/heroes/"
 echo "sync-docs-samples: $ROOT -> $DEST"
