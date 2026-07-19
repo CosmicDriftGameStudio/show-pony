@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - showpony-pg:/var/lib/postgresql/data
+      - showpony-pg:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U showpony -d show_pony_dev"]
       interval: 3s
@@ -20,6 +20,21 @@ services:
     image: redis:8-alpine
     ports:
       - "6379:6379"
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    environment:
+      MEILI_MASTER_KEY: kumiko-dev-key
+      MEILI_ENV: development
+    ports:
+      - "17700:7700"
+    volumes:
+      - showpony-meili:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   showpony-pg:
+  showpony-meili:
