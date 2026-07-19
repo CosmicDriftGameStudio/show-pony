@@ -167,6 +167,12 @@
     min-height: 360px;
   }
 
+  /* Text sits directly on the hero photo (no scrim behind the heading) —
+     a shadow keeps it legible against light photos regardless of tint. */
+  .show-pony-public .sp-hero-immersive :is(h1, p, span) {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  }
+
   @media (min-width: 640px) {
     .show-pony-public .sp-hero-immersive {
       min-height: 420px;

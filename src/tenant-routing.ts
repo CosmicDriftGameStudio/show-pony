@@ -11,7 +11,7 @@ import { tenantTable } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
 import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { isSystemTenant, SYSTEM_TENANT_ID } from "@cosmicdrift/kumiko-framework/engine";
+import { isSystemTenant } from "@cosmicdrift/kumiko-framework/engine";
 
 // Strip the port: "acme.show-pony.localhost:4180" → "acme.show-pony.localhost".
 export function hostnameOf(host: string): string {
@@ -86,24 +86,23 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
       req: { header: (n: string) => string | undefined };
     }): Promise<TenantId | null> => {
       const host = hostnameOf(c.req.header("Host") ?? "");
-      // Apex anon is read-only-GET by design (legal pages) — this resolver
-      // itself doesn't gate writes. The only reason apex-origin anonymous
-      // writes into SYSTEM_TENANT_ID can't happen is DEMO_READ_ONLY + the
-      // origin guard upstream; if either is ever dropped, writes for
-      // SYSTEM_TENANT_ID from this path must be rejected explicitly here.
-      if (host === baseDomain || host === `www.${baseDomain}`) return SYSTEM_TENANT_ID;
+      // Apex has no anonymous tenant: legal/marketing pages are pre-rendered
+      // static HTML (renderAllMarketingPages) and branding reads go through
+      // the separate resolveSubdomainPageTenant/bindSubdomainPageResolver
+      // pipeline, not this resolver. Returning null here (not
+      // SYSTEM_TENANT_ID) means an apex-origin anonymous /api/write or
+      // /api/query — with or without an X-Tenant header — gets
+      // "tenant_required" from the authoritative resolver instead of
+      // silently landing on SYSTEM_TENANT_ID.
+      if (host === baseDomain || host === `www.${baseDomain}`) return null;
       return subdomain.tenantResolver(c);
     },
     tenantExists: subdomain.tenantExists,
     // Host-derived, not client-controlled — the resolver's answer is final.
-    // A client-supplied X-Tenant header disagreeing with it (e.g. a guest
-    // on acme.show-pony.<domain> claiming Globex's real tenant id) is
-    // rejected with 400 tenant_mismatch instead of silently overriding the
-    // subdomain (kumiko-platform#278/1 / #51). This additionally closes the
-    // apex X-Tenant header override (now 400s directly instead of trusting
-    // the header) — it does NOT close the header-less apex write path: that
-    // one still relies solely on DEMO_READ_ONLY + the origin guard upstream,
-    // per the resolverTrust comment above.
+    // A client-supplied X-Tenant header disagreeing with the subdomain (e.g.
+    // a guest on acme.show-pony.<domain> claiming Globex's real tenant id)
+    // is rejected with 400 tenant_mismatch instead of silently overriding
+    // the subdomain (kumiko-platform#278/1 / #51).
     resolverTrust: "authoritative" as const,
   };
 }
