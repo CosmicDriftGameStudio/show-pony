@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-17T22:29:20.359Z",
+  "generatedAt": "2026-07-19T19:02:56.286Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -163,39 +163,6 @@
       "source": "managed"
     },
     {
-      "tableName": "read_job_run_logs",
-      "columns": [
-        {
-          "name": "id",
-          "pgType": "serial",
-          "notNull": true,
-          "primaryKey": true
-        },
-        {
-          "name": "run_id",
-          "pgType": "text",
-          "notNull": true
-        },
-        {
-          "name": "level",
-          "pgType": "text",
-          "notNull": true
-        },
-        {
-          "name": "message",
-          "pgType": "text",
-          "notNull": true
-        },
-        {
-          "name": "timestamp",
-          "pgType": "timestamptz",
-          "notNull": true
-        }
-      ],
-      "indexes": [],
-      "source": "unmanaged"
-    },
-    {
       "tableName": "read_job_runs",
       "columns": [
         {
@@ -280,7 +247,7 @@
         },
         {
           "name": "duration",
-          "pgType": "double precision",
+          "pgType": "integer",
           "notNull": false
         },
         {
@@ -1292,6 +1259,39 @@
         "email",
         "displayName"
       ]
+    },
+    {
+      "tableName": "store_job_run_logs",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "serial",
+          "notNull": true,
+          "primaryKey": true
+        },
+        {
+          "name": "run_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "level",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "message",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "timestamp",
+          "pgType": "timestamptz",
+          "notNull": true
+        }
+      ],
+      "indexes": [],
+      "source": "unmanaged"
     }
   ]
 }
