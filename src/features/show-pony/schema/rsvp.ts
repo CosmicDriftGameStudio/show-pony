@@ -33,7 +33,7 @@ export const rsvpEntity = createEntity({
       allowPlaintext: "guest-list search, no KMS provisioned",
     }),
     status: createSelectField({ options: RSVP_STATUSES, default: "yes", filterable: true }),
-    plusN: createNumberField({ sortable: true }),
+    plusN: createNumberField({ sortable: true, integer: true }),
     // Free text from an anonymous submitter — no user FK, so userOwned can't
     // apply; declare it plaintext business input with an explicit reason.
     note: createLongTextField({ allowPlaintext: "anonymous-guest-input" }),

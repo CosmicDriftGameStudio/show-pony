@@ -20,7 +20,7 @@ export const eventEntity = createEntity({
     location: createTextField({ searchable: true }),
     // Host-authored public event copy — business data, not third-party PII.
     description: createLongTextField({ allowPlaintext: "is-business-data" }),
-    guestLimit: createNumberField({ sortable: true }),
+    guestLimit: createNumberField({ sortable: true, integer: true }),
   },
 });
 
