@@ -1,5 +1,5 @@
 import { enforceStockCap } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
-import { countWhere, type DbConnection, type WhereObject } from "@cosmicdrift/kumiko-framework/db";
+import { countWhere, type DbRunner, type WhereObject } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId, WriteHandlerDef } from "@cosmicdrift/kumiko-framework/engine";
 import {
   UnprocessableError,
@@ -19,7 +19,7 @@ export type StockCapSpec = {
 };
 
 export async function checkStockCap(
-  db: DbConnection,
+  db: DbRunner,
   tenantId: TenantId,
   spec: StockCapSpec,
 ): Promise<WriteFailure | null> {

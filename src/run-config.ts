@@ -7,6 +7,7 @@
 
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
+import { authFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
@@ -18,11 +19,15 @@ import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secre
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
+import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { appShellFeature } from "./features/app-shell/feature";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
-import { resolveSubdomainPageTenant } from "./tenant-routing";
+import {
+  createShowPonyTenantRoutingFeature,
+  resolveSubdomainPageTenant,
+} from "./tenant-routing";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -30,25 +35,40 @@ const adminShellFeature = createAdminShellFeature({
   includeTierAdmin: true,
 });
 
-export const APP_FEATURES = [
-  ...composePagesStack({ wrapLayout: renderLegalLayout }),
-  createManagedPagesFeature({
-    resolveApexTenant: resolveSubdomainPageTenant,
-    allowCustomCss: false,
-  }),
-  mailFoundationFeature,
-  mailTransportInMemoryFeature,
-  createRateLimitingFeature(),
-  createAuditFeature(),
-  createJobsFeature(),
-  createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
-  createComplianceProfilesFeature(),
-  createTenantLifecycleFeature(),
-  billingFoundationFeature,
-  createSecretsFeature(),
-  adminShellFeature,
-  appShellFeature,
-  showPonyFeature,
-] as const;
+export type AppFeaturesRouting = {
+  readonly baseDomain: string;
+};
+
+export function buildAppFeatures(
+  routing: AppFeaturesRouting = {
+    baseDomain: process.env.BASE_DOMAIN ?? "show-pony.localhost",
+  },
+): FeatureDefinition[] {
+  return [
+    authFoundationFeature,
+    createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
+    ...composePagesStack({ wrapLayout: renderLegalLayout }),
+    createManagedPagesFeature({
+      resolveApexTenant: resolveSubdomainPageTenant,
+      allowCustomCss: false,
+    }),
+    mailFoundationFeature,
+    mailTransportInMemoryFeature,
+    createRateLimitingFeature(),
+    createAuditFeature(),
+    createJobsFeature(),
+    createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
+    createComplianceProfilesFeature(),
+    createTenantLifecycleFeature(),
+    billingFoundationFeature,
+    createSecretsFeature(),
+    adminShellFeature,
+    appShellFeature,
+    showPonyFeature,
+  ];
+}
+
+/** Schema CLI + default compose — uses $BASE_DOMAIN or show-pony.localhost. */
+export const APP_FEATURES = buildAppFeatures();
 
 export const HAS_AUTH = true;
