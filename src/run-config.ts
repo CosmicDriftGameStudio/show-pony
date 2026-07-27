@@ -16,6 +16,7 @@ import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-featur
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
+import { createSessionsFeature } from "@cosmicdrift/kumiko-bundled-features/sessions";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
@@ -46,6 +47,7 @@ export function buildAppFeatures(
 ): FeatureDefinition[] {
   return [
     authFoundationFeature,
+    createSessionsFeature(),
     createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
     ...composePagesStack({ wrapLayout: renderLegalLayout }),
     createManagedPagesFeature({
