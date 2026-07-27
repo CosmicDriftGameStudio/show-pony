@@ -25,10 +25,7 @@ import { appShellFeature } from "./features/app-shell/feature";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
-import {
-  createShowPonyTenantRoutingFeature,
-  resolveSubdomainPageTenant,
-} from "./tenant-routing";
+import { createShowPonyTenantRoutingFeature, resolveSubdomainPageTenant } from "./tenant-routing";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({

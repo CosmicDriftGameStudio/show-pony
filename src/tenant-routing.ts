@@ -26,8 +26,8 @@ import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
 import {
   defineFeature,
   type FeatureDefinition,
-  type TenantId,
   isSystemTenant,
+  type TenantId,
 } from "@cosmicdrift/kumiko-framework/engine";
 
 // Strip the port: "acme.show-pony.localhost:4180" → "acme.show-pony.localhost".
