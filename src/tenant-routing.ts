@@ -4,14 +4,31 @@
 // `tenant.key`, so there's no extra profile schema. Apex / www / unknown all
 // resolve to null (no tenant).
 //
+// After #1374, production mounts createShowPonyTenantRoutingFeature (auth-
+// foundation providers). createShowPonyAnonymousAccess remains for isolated
+// test stacks that inject Resolved callbacks without mounting providers.
+//
 // tenantExists is the defense-in-depth check against a forged X-Tenant header:
 // only a real, enabled tenant row counts.
 
+import {
+  type AuthProviderBuildDeps,
+  EXT_TENANT_EXISTENCE,
+  EXT_TENANT_RESOLVER,
+  type TenantExistenceProvider,
+  type TenantExistsFn,
+  type TenantResolverFn,
+  type TenantResolverProvider,
+} from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import { tenantTable } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
 import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { isSystemTenant } from "@cosmicdrift/kumiko-framework/engine";
+import {
+  defineFeature,
+  type FeatureDefinition,
+  isSystemTenant,
+  type TenantId,
+} from "@cosmicdrift/kumiko-framework/engine";
 
 // Strip the port: "acme.show-pony.localhost:4180" → "acme.show-pony.localhost".
 export function hostnameOf(host: string): string {
@@ -105,4 +122,37 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
     // the subdomain (kumiko-platform#278/1 / #51).
     resolverTrust: "authoritative" as const,
   };
+}
+
+export type ShowPonyTenantRoutingFeatureConfig = {
+  readonly baseDomain: string;
+};
+
+/**
+ * Registers subdomain tenantResolver + tenantExists as auth-foundation
+ * providers (#1374). Mount alongside auth-foundation; boot merges them into
+ * anonymousAccess via resolveAnonymousAccessFromRegistry.
+ */
+export function createShowPonyTenantRoutingFeature(
+  config: ShowPonyTenantRoutingFeatureConfig,
+): FeatureDefinition {
+  const { baseDomain } = config;
+  return defineFeature("show-pony-tenant-routing", (r) => {
+    r.requires("auth-foundation");
+    const resolverPlugin: TenantResolverProvider = {
+      trust: "authoritative",
+      build: (deps: AuthProviderBuildDeps) => {
+        const built = createShowPonyAnonymousAccess({ db: deps.db, baseDomain });
+        return built.tenantResolver as TenantResolverFn;
+      },
+    };
+    const existencePlugin: TenantExistenceProvider = {
+      build: (deps: AuthProviderBuildDeps) => {
+        const built = createShowPonyAnonymousAccess({ db: deps.db, baseDomain });
+        return built.tenantExists as TenantExistsFn;
+      },
+    };
+    r.useExtension(EXT_TENANT_RESOLVER, "subdomain", resolverPlugin);
+    r.useExtension(EXT_TENANT_EXISTENCE, "db", existencePlugin);
+  });
 }

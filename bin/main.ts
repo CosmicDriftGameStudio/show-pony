@@ -23,12 +23,8 @@ import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/
 import { wireTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
-import { APP_FEATURES } from "../src/run-config";
-import {
-  bindSubdomainPageResolver,
-  createShowPonyAnonymousAccess,
-  hostnameOf,
-} from "../src/tenant-routing";
+import { buildAppFeatures } from "../src/run-config";
+import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
@@ -58,7 +54,7 @@ const stripeBilling = buildStripeBillingConfig({
 
 const handle = await runProdApp({
   features: [
-    ...APP_FEATURES,
+    ...buildAppFeatures({ baseDomain: BASE_DOMAIN }),
     ...(stripeBilling
       ? [
           createSubscriptionStripeFeature({
@@ -85,9 +81,10 @@ const handle = await runProdApp({
     textContent: createTextContentApi(db),
     ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
+  // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
   anonymousAccess: ({ db }) => {
     bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-    return createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN });
+    return {};
   },
   hostDispatch: ({ host, path }) => {
     const h = hostnameOf(host);
