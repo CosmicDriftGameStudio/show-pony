@@ -22,7 +22,11 @@ export const inviteBrandingScreen: ConfigEditScreenDefinition = {
   },
   fields: {
     title: createTextField({ maxLength: 200 }),
-    description: createTextField({ maxLength: 500, multiline: { rows: 3 } }),
+    description: createTextField({
+      maxLength: 500,
+      multiline: { rows: 3 },
+      allowPlaintext: "tenant invite-branding copy, business content not personal data",
+    }),
     accentColor: createTextField({ maxLength: 9 }),
     logoUrl: createTextField({ maxLength: 2000, format: "url" }),
     heroImageUrl: createTextField({ maxLength: 2000 }),
