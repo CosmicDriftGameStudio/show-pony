@@ -24,7 +24,7 @@ export async function sendRsvpConfirmation(
 ): Promise<void> {
   // skip: guest left email empty — nothing to send
   if (!payload.email) return;
-  const found = (await findEvent(ctx, (row) => row.id === payload.eventId))?.title;
+  const found = (await findEvent(ctx, (row) => row["id"] === payload.eventId))?.["title"];
   const title = typeof found === "string" ? found : "your event";
   const transport = await createTransportForTenant(ctx, tenantId, "showpony:write:rsvp:submit");
   await transport.send({

@@ -37,7 +37,7 @@ function required(name: string): string {
 
 const BASE_DOMAIN = required("BASE_DOMAIN");
 const APEX_ORIGIN = `https://${BASE_DOMAIN}`;
-const port = Number.parseInt(process.env.PORT ?? "3000", 10);
+const port = Number.parseInt(process.env["PORT"] ?? "3000", 10);
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -46,10 +46,10 @@ const configResolver = createConfigResolver({
 await renderAllMarketingPages(APEX_ORIGIN);
 
 const stripeBilling = buildStripeBillingConfig({
-  STRIPE_API_KEY: process.env.STRIPE_API_KEY,
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-  STRIPE_PRICE_STARTER: process.env.STRIPE_PRICE_STARTER,
-  STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
+  STRIPE_API_KEY: process.env["STRIPE_API_KEY"],
+  STRIPE_WEBHOOK_SECRET: process.env["STRIPE_WEBHOOK_SECRET"],
+  STRIPE_PRICE_STARTER: process.env["STRIPE_PRICE_STARTER"],
+  STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
 });
 
 const handle = await runProdApp({
