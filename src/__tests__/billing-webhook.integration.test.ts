@@ -111,7 +111,7 @@ async function createTenant(key: string): Promise<TenantId> {
     { key, name: key },
     sysadmin,
   ))!;
-  return data.id as TenantId;
+  return data["id"] as TenantId;
 }
 
 function buildStripeSubscriptionEvent(overrides: {

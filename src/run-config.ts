@@ -39,7 +39,7 @@ export type AppFeaturesRouting = {
 
 export function buildAppFeatures(
   routing: AppFeaturesRouting = {
-    baseDomain: process.env.BASE_DOMAIN ?? "show-pony.localhost",
+    baseDomain: process.env["BASE_DOMAIN"] ?? "show-pony.localhost",
   },
 ): FeatureDefinition[] {
   return [

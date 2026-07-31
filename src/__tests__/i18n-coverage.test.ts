@@ -63,6 +63,6 @@ test("every showpony nav label from feature registry is defined", () => {
 });
 
 test("app-shell workspace labels reach the browser bundle", () => {
-  expect(appShellTranslationsByLocale.de?.["app-shell:workspace.host"]).toBe("Events");
-  expect(appShellTranslationsByLocale.en?.["app-shell:workspace.platform"]).toBe("Platform");
+  expect(appShellTranslationsByLocale["de"]?.["app-shell:workspace.host"]).toBe("Events");
+  expect(appShellTranslationsByLocale["en"]?.["app-shell:workspace.platform"]).toBe("Platform");
 });

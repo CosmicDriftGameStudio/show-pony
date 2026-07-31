@@ -32,8 +32,8 @@ import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
-const BASE_DOMAIN = process.env.BASE_DOMAIN ?? "show-pony.localhost";
-const port = Number.parseInt(process.env.PORT ?? "4180", 10);
+const BASE_DOMAIN = process.env["BASE_DOMAIN"] ?? "show-pony.localhost";
+const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
 
 const configResolver = createConfigResolver({
@@ -43,15 +43,15 @@ const configResolver = createConfigResolver({
 await renderAllMarketingPages(DEV_ORIGIN);
 
 const stripeBilling = buildStripeBillingConfig({
-  STRIPE_API_KEY: process.env.STRIPE_API_KEY,
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-  STRIPE_PRICE_STARTER: process.env.STRIPE_PRICE_STARTER,
-  STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
+  STRIPE_API_KEY: process.env["STRIPE_API_KEY"],
+  STRIPE_WEBHOOK_SECRET: process.env["STRIPE_WEBHOOK_SECRET"],
+  STRIPE_PRICE_STARTER: process.env["STRIPE_PRICE_STARTER"],
+  STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
 });
 
 const searchAdapter = createMeilisearchAdapter({
-  url: process.env.MEILI_URL ?? "http://localhost:17700",
-  apiKey: process.env.MEILI_MASTER_KEY ?? "kumiko-dev-key",
+  url: process.env["MEILI_URL"] ?? "http://localhost:17700",
+  apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
 });
 
 const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
