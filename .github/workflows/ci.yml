@@ -88,6 +88,13 @@ jobs:
         env:
           KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guard-no-logic-in-views
+      - name: Complexity guard
+        # Baseline-Regression-Guard (kumiko-framework#1282): failt nur wenn ein
+        # File mehr Hotspots (Komplexitaet >= 15) hat als .kumiko-complexity-
+        # baseline.json einfriert.
+        env:
+          KUMIKO_GUARD_ROOTS: show-pony
+        run: bun kumiko-check-complexity
       - run: |
           ulimit -n 65536 || true
           bun --config=bunfig.ci.toml test --dots
