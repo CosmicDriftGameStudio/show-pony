@@ -18,7 +18,7 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
-import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
+import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
@@ -101,7 +101,7 @@ await runDevApp({
   extraContext: ({ registry, db }) => ({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    textContent: createTextContentApi(db),
+    templateResolver: createTemplateResolverApi(db),
     searchAdapter,
     ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
@@ -155,7 +155,7 @@ await runDevApp({
   ],
   extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
     wireDemoModeRoutes(app, port);
-    wireTermsRoutes(app, createTextContentApi(db));
+    wireTermsRoutes(app, createTemplateResolverApi(db));
     if (stripeBilling !== null) {
       wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
     }

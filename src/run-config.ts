@@ -17,6 +17,7 @@ import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { createSessionsFeature } from "@cosmicdrift/kumiko-bundled-features/sessions";
+import { createTemplateResolverFeature } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
@@ -46,6 +47,7 @@ export function buildAppFeatures(
     authFoundationFeature,
     createSessionsFeature(),
     createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
+    createTemplateResolverFeature(),
     ...composePagesStack({ wrapLayout: renderLegalLayout }),
     createManagedPagesFeature({
       resolveApexTenant: resolveSubdomainPageTenant,

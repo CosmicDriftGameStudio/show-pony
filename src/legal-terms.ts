@@ -1,6 +1,9 @@
 import { renderMarkdownToHtml } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { cachedSecurePageResponse } from "@cosmicdrift/kumiko-bundled-features/page-render";
-import type { TextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
+import {
+  TEXT_BLOCK_KIND,
+  type TemplateResolverApi,
+} from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { computeRevisionEtag } from "@cosmicdrift/kumiko-framework/api";
 import { SYSTEM_TENANT_ID } from "@cosmicdrift/kumiko-framework/engine";
 import type { Hono } from "hono";
@@ -11,15 +14,16 @@ const TERMS_ROUTES = [
   { path: "/legal/terms", lang: "en", titleFallback: "Terms of Service" },
 ] as const;
 
-export function wireTermsRoutes(app: Hono, textContent: TextContentApi): void {
+export function wireTermsRoutes(app: Hono, templateResolver: TemplateResolverApi): void {
   for (const route of TERMS_ROUTES) {
     app.get(route.path, async (c) => {
-      const block = await textContent.getBlock({
+      const block = await templateResolver.findExact({
         tenantId: SYSTEM_TENANT_ID,
         slug: "terms",
-        lang: route.lang,
+        kind: TEXT_BLOCK_KIND,
+        locale: route.lang,
       });
-      if (!block?.body) return c.notFound();
+      if (!block?.content) return c.notFound();
 
       const etag = computeRevisionEtag([
         SYSTEM_TENANT_ID,
@@ -38,7 +42,7 @@ export function wireTermsRoutes(app: Hono, textContent: TextContentApi): void {
 
       const html = renderLegalLayout({
         title: block.title || route.titleFallback,
-        bodyHtml: renderMarkdownToHtml(block.body),
+        bodyHtml: renderMarkdownToHtml(block.content),
         lang: route.lang,
       });
       return cachedSecurePageResponse(c.req.raw, {

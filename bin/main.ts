@@ -15,7 +15,7 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
-import { createTextContentApi } from "@cosmicdrift/kumiko-bundled-features/text-content";
+import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import { withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
@@ -78,7 +78,7 @@ const handle = await runProdApp({
   extraContext: ({ registry, db }) => ({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    textContent: createTextContentApi(db),
+    templateResolver: createTemplateResolverApi(db),
     ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
   // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
@@ -131,7 +131,7 @@ const handle = await runProdApp({
   ],
   extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
     wireDemoModeRoutes(app, port);
-    wireTermsRoutes(app, createTextContentApi(db));
+    wireTermsRoutes(app, createTemplateResolverApi(db));
     if (stripeBilling !== null) {
       wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
     }
