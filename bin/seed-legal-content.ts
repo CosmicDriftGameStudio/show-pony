@@ -1,7 +1,7 @@
 import {
   type LegalContentBlock,
   seedLegalContentFromJson,
-} from "@cosmicdrift/kumiko-bundled-features/text-content/seeding";
+} from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
 import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
 import legalContent from "../src/generated/legal-content.json";
 
