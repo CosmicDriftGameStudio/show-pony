@@ -21,7 +21,7 @@ export default defineConfig({
     baseURL: APEX_URL,
     locale: "en-US",
     trace: "retain-on-failure",
-    viewport: { width: 1280, height: 800 },
+    viewport: { width: 1920, height: 1080 },
     deviceScaleFactor: 2,
   },
   projects: [

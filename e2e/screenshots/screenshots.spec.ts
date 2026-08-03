@@ -18,8 +18,8 @@ const BASE_DIR =
   process.env.SCREENSHOT_DIR ?? resolve(import.meta.dirname, "../../docs/screenshots");
 
 const VIEWPORTS = {
-  desktop: { width: 1280, height: 900 },
-  tablet: { width: 834, height: 1112 },
+  desktop: { width: 1920, height: 1080 },
+  tablet: { width: 1112, height: 834 },
   mobile: { width: 390, height: 844 },
 } as const;
 type ViewportId = keyof typeof VIEWPORTS;
