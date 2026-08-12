@@ -7,6 +7,6 @@ export const eventBySlugQuery = defineQueryHandler({
   schema: z.object({ slug: z.string().min(1).max(120) }),
   access: { roles: [...access.anonymous] },
   handler: async (query, ctx) => {
-    return (await findEvent(ctx, (row) => row["slug"] === query.payload.slug)) ?? null;
+    return (await findEvent(ctx, (row) => row.slug === query.payload.slug)) ?? null;
   },
 });

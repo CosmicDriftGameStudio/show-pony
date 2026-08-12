@@ -26,11 +26,14 @@ export const eventEntity = createEntity({
 
 export const eventTable = buildEntityTable("event", eventEntity);
 
-function selectAllEvents(ctx: HandlerContext) {
-  return ctx.db.selectMany(eventTable);
-}
+// Only the columns findEvent's two callers read. selectMany still runs
+// SELECT * (this type doesn't strip response columns — kumiko's query
+// handlers don't strip output either), it just narrows what callers see.
+type EventRow = { id: string; slug: string; title: string };
 
-type EventRow = Awaited<ReturnType<typeof selectAllEvents>>[number];
+function selectAllEvents(ctx: HandlerContext) {
+  return ctx.db.selectMany<EventRow>(eventTable);
+}
 
 // ponytail: O(n) scan over the tenant's events — fine for a handful per
 // host; a slug/id-filter query is the scale-up. Shared by the two call

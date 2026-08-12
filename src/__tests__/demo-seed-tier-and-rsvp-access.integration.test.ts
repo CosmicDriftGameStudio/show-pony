@@ -1,5 +1,5 @@
 // Real Postgres + real dispatcher (setupTestStack + the app's actual
-// APP_FEATURES) — targets exactly the two paths the demo seed's
+// buildAppFeatures(...)) — targets exactly the two paths the demo seed's
 // (seeds/2026-06-28-demo-event-rsvps.ts) systemWriteAs calls needed
 // extraRoles for, after a prod reset-db surfaced both as real failures:
 //   - event:create is stock-capped by tier (free tier = 1 event); the
@@ -23,17 +23,18 @@ import { DEMO_TENANT_ID } from "../../seeds/_demo-event-db";
 import { eventTable } from "../features/show-pony/schema/event";
 import { rsvpTable } from "../features/show-pony/schema/rsvp";
 import { resolveTierCaps, tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { APP_FEATURES } from "../run-config";
+import { buildAppFeatures, resolveBaseDomainFromEnv } from "../run-config";
 
 let stack: TestStack;
 
 beforeAll(async () => {
-  // Mirrors bin/main.ts's real bootstrap: APP_FEATURES alone omits the
-  // bundled auth chain (config/user/tenant/auth-email-password) that
+  // Mirrors bin/main.ts's real bootstrap: buildAppFeatures(...) alone omits
+  // the bundled auth chain (config/user/tenant/auth-email-password) that
   // runProdApp adds via HAS_AUTH — composeFeatures is the single source of
   // truth for that composition.
+  const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
   stack = await setupTestStack({
-    features: composeFeatures(APP_FEATURES, { includeBundled: true }),
+    features: composeFeatures(appFeatures, { includeBundled: true }),
   });
   // setupTestStack auto-creates projection tables but not entity CRUD
   // tables — same recipe as billing-webhook.integration.test.ts.

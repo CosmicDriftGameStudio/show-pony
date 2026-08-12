@@ -4,9 +4,11 @@
 // `tenant.key`, so there's no extra profile schema. Apex / www / unknown all
 // resolve to null (no tenant).
 //
-// After #1374, production mounts createShowPonyTenantRoutingFeature (auth-
-// foundation providers). createShowPonyAnonymousAccess remains for isolated
-// test stacks that inject Resolved callbacks without mounting providers.
+// createShowPonyAnonymousAccess is the shared implementation:
+// createShowPonyTenantRoutingFeature (auth-foundation providers, production
+// since #1374) builds both its resolver and existence plugin on it, and
+// isolated test stacks that inject Resolved callbacks without mounting
+// providers call it directly.
 //
 // tenantExists is the defense-in-depth check against a forged X-Tenant header:
 // only a real, enabled tenant row counts.
@@ -72,13 +74,13 @@ export function createShowPonyTenantResolver(config: { db: DbConnection; baseDom
 
 /** Apex anonymous routes (legal pages) need SYSTEM tenant; subdomains keep host tenant. */
 // Module-global singleton, not per-stack state: acceptable because
-// APP_FEATURES/resolveApexTenant are wired once at static boot, never per
-// request, and this process only ever runs one app stack. Bind BEFORE the
-// first request that needs it (bindSubdomainPageResolver at boot) — a
-// second stack in the same process would silently share this db.
+// buildAppFeatures(...)/resolveApexTenant are wired once at static boot,
+// never per request, and this process only ever runs one app stack. Bind
+// BEFORE the first request that needs it (bindSubdomainPageResolver at
+// boot) — a second stack in the same process would silently share this db.
 let subdomainPageResolver: { db: DbConnection; baseDomain: string } | null = null;
 
-/** Wire db for managed-pages `resolveApexTenant` (boot hook — APP_FEATURES is static). */
+/** Wire db for managed-pages `resolveApexTenant` (boot hook — wired once at static boot). */
 export function bindSubdomainPageResolver(config: { db: DbConnection; baseDomain: string }): void {
   subdomainPageResolver = config;
 }

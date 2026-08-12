@@ -38,11 +38,12 @@ export type AppFeaturesRouting = {
   readonly baseDomain: string;
 };
 
-export function buildAppFeatures(
-  routing: AppFeaturesRouting = {
-    baseDomain: process.env["BASE_DOMAIN"] ?? "show-pony.localhost",
-  },
-): FeatureDefinition[] {
+/** $BASE_DOMAIN or show-pony.localhost — the one place that default lives. */
+export function resolveBaseDomainFromEnv(): string {
+  return process.env["BASE_DOMAIN"] ?? "show-pony.localhost";
+}
+
+export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition[] {
   return [
     authFoundationFeature,
     createSessionsFeature(),
@@ -68,8 +69,5 @@ export function buildAppFeatures(
     showPonyFeature,
   ];
 }
-
-/** Schema CLI + default compose — uses $BASE_DOMAIN or show-pony.localhost. */
-export const APP_FEATURES = buildAppFeatures();
 
 export const HAS_AUTH = true;
