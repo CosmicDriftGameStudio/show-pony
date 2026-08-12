@@ -12,7 +12,7 @@
 import { mkdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, type Page, test } from "@playwright/test";
-import { SCENARIOS } from "./scenarios";
+import { SCENARIOS, THEMES, type ThemeId } from "./scenarios";
 
 const BASE_DIR =
   process.env.SCREENSHOT_DIR ?? resolve(import.meta.dirname, "../../docs/screenshots");
@@ -23,9 +23,6 @@ const VIEWPORTS = {
   mobile: { width: 390, height: 844 },
 } as const;
 type ViewportId = keyof typeof VIEWPORTS;
-
-const THEMES = ["default-light", "default-dark"] as const;
-type ThemeId = (typeof THEMES)[number];
 
 async function applyTheme(page: Page, theme: ThemeId): Promise<void> {
   await page.evaluate((t) => {
@@ -62,7 +59,9 @@ for (const locale of LOCALES) {
       await s.flow(page);
       if (s.settleMs) await page.waitForTimeout(s.settleMs);
 
-      for (const theme of THEME_AXIS) {
+      const only = s.themes;
+      const themeAxis = only ? THEME_AXIS.filter((t) => only.includes(t)) : THEME_AXIS;
+      for (const theme of themeAxis) {
         await applyTheme(page, theme);
         for (const vp of VIEWPORT_AXIS) {
           await page.setViewportSize(VIEWPORTS[vp]);

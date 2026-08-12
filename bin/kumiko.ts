@@ -11,7 +11,7 @@
 
 import { runSchemaCli } from "@cosmicdrift/kumiko-framework/schema-cli";
 import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
-import { APP_FEATURES, HAS_AUTH } from "../src/run-config";
+import { buildAppFeatures, HAS_AUTH, resolveBaseDomainFromEnv } from "../src/run-config";
 
 const [, , cmd, ...rest] = Bun.argv;
 if (cmd !== "schema") {
@@ -19,6 +19,7 @@ if (cmd !== "schema") {
   process.exit(1);
 }
 
-const features = composeFeatures([...APP_FEATURES], { includeBundled: HAS_AUTH });
+const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
+const features = composeFeatures([...appFeatures], { includeBundled: HAS_AUTH });
 const out = { log: (l: string) => console.log(l), err: (l: string) => console.error(l) };
 process.exit(await runSchemaCli(rest, process.env["INIT_CWD"] ?? process.cwd(), out, { features }));

@@ -4,11 +4,16 @@
 import { expect, type Page } from "@playwright/test";
 import { ACME_SLUG, APEX_URL, DEMO_SLUG, acmePublicEventUrl, publicEventUrl } from "./constants";
 
+export const THEMES = ["default-light", "default-dark"] as const;
+export type ThemeId = (typeof THEMES)[number];
+
 export interface Scenario {
   readonly name: string;
   readonly description: string;
   readonly settleMs?: number;
   readonly clearAuth?: boolean;
+  /** Narrows the theme axis for pages that don't react to .dark — default is both. */
+  readonly themes?: readonly ThemeId[];
   readonly flow: (page: Page) => Promise<void>;
 }
 
@@ -29,6 +34,8 @@ export const SCENARIOS: readonly Scenario[] = [
     name: "apex-landing",
     description: "Marketing landing on apex / (English default)",
     clearAuth: true,
+    // Fixed dark brand chrome (marketing.ts), doesn't react to .dark.
+    themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/`);
       await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
@@ -40,6 +47,8 @@ export const SCENARIOS: readonly Scenario[] = [
     name: "apex-features",
     description: "Marketing features tour page",
     clearAuth: true,
+    // Fixed dark brand chrome (features-page.ts), doesn't react to .dark.
+    themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/features`);
       await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible({
@@ -52,6 +61,8 @@ export const SCENARIOS: readonly Scenario[] = [
     name: "apex-pricing",
     description: "Marketing pricing page",
     clearAuth: true,
+    // Fixed dark brand chrome (marketing.ts), doesn't react to .dark.
+    themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/pricing`);
       await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible({
@@ -64,6 +75,8 @@ export const SCENARIOS: readonly Scenario[] = [
     name: "legal-imprint",
     description: "Legal imprint in marketing chrome",
     clearAuth: true,
+    // legal-layout.ts's SHARED_CSS has no .dark path.
+    themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/legal/imprint`);
       await expect(page).toHaveTitle(/Imprint · Show Pony/i, { timeout: 15_000 });
