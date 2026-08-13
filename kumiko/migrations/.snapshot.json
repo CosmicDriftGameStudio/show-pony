@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-02T09:21:41.816Z",
+  "generatedAt": "2026-08-13T17:27:22.881Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -793,6 +793,11 @@
           "notNull": true
         },
         {
+          "name": "invited_by_bidx",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
           "name": "expires_at",
           "pgType": "timestamptz",
           "notNull": true
@@ -809,6 +814,12 @@
           "name": "read_tenant_invitations_email_bidx_idx",
           "columns": [
             "email_bidx"
+          ]
+        },
+        {
+          "name": "read_tenant_invitations_invited_by_bidx_idx",
+          "columns": [
+            "invited_by_bidx"
           ]
         },
         {

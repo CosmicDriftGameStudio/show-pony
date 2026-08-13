@@ -14,10 +14,10 @@ import {
 // not globally.
 export const eventEntity = createEntity({
   fields: {
-    title: createTextField({ required: true, sortable: true, searchable: true }),
-    slug: createTextField({ required: true, searchable: true }),
+    title: createTextField({ required: true, sortable: true }),
+    slug: createTextField({ required: true }),
     startsAt: createTimestampField({ required: true }),
-    location: createTextField({ searchable: true }),
+    location: createTextField({}),
     // Host-authored public event copy — business data, not third-party PII.
     description: createLongTextField({ allowPlaintext: "is-business-data" }),
     guestLimit: createNumberField({ sortable: true, integer: true, min: 0 }),

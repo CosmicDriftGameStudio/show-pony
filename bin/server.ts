@@ -20,7 +20,6 @@ import {
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
-import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { wireTermsRoutes } from "../src/legal-terms";
@@ -47,11 +46,6 @@ const stripeBilling = buildStripeBillingConfig({
   STRIPE_WEBHOOK_SECRET: process.env["STRIPE_WEBHOOK_SECRET"],
   STRIPE_PRICE_STARTER: process.env["STRIPE_PRICE_STARTER"],
   STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
-});
-
-const searchAdapter = createMeilisearchAdapter({
-  url: process.env["MEILI_URL"] ?? "http://localhost:17700",
-  apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
 });
 
 const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
@@ -102,7 +96,6 @@ await runDevApp({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     templateResolver: createTemplateResolverApi(db),
-    searchAdapter,
     ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
   auth: {
@@ -127,22 +120,6 @@ await runDevApp({
     },
   },
   seeds: [
-    async (stack) => {
-      const searchableFields = stack.registry.getSearchableFields("event");
-      // Meilisearch is optional local/CI infra (docker compose, not always
-      // running) — a dev/CI boot without it should degrade to an inert
-      // search box, not crash the whole server.
-      try {
-        for (const tenantId of [DEMO_TENANT.id, ACME_TENANT.id]) {
-          await searchAdapter.configure(tenantId, {
-            searchableFields,
-            rankingFields: searchableFields,
-          });
-        }
-      } catch (err) {
-        console.warn(`[search] Meilisearch unreachable, search index not configured: ${err}`);
-      }
-    },
     async (stack) => {
       await seedLegalContent(stack.db);
     },
