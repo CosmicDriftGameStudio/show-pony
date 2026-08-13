@@ -9,7 +9,6 @@ export const eventListScreen: EntityListScreenDefinition = {
   type: "entityList",
   entity: "event",
   columns: ["title", "slug", "startsAt", "location", "guestLimit"],
-  searchable: true,
   pageSize: 25,
   defaultSort: { field: "title", dir: "asc" },
   rowActions: [

@@ -16,21 +16,19 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 // tenant.
 export const rsvpEntity = createEntity({
   fields: {
-    eventId: createTextField({ required: true, searchable: true }),
-    // Guest-submitted personal data (collected anonymously). Searchable/sortable
+    eventId: createTextField({ required: true }),
+    // Guest-submitted personal data (collected anonymously). Sortable
     // guest-list lookup is a core feature here, which structurally conflicts with
     // `pii: true` (validatePiiAndRetention throws on ANY subject annotation +
-    // searchable/sortable, not just encrypted fields) — declared plaintext
-    // instead, same pattern as `note` below.
+    // sortable, not just encrypted fields) — declared plaintext instead,
+    // same pattern as `note` below.
     name: createTextField({
       required: true,
       sortable: true,
-      searchable: true,
-      allowPlaintext: "guest-list search/sort, no KMS provisioned",
+      allowPlaintext: "guest-list sort, no KMS provisioned",
     }),
     email: createTextField({
-      searchable: true,
-      allowPlaintext: "guest-list search, no KMS provisioned",
+      allowPlaintext: "guest-list, no KMS provisioned",
     }),
     status: createSelectField({ options: RSVP_STATUSES, default: "yes", filterable: true }),
     plusN: createNumberField({ sortable: true, integer: true }),
