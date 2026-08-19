@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-13T17:27:22.881Z",
+  "generatedAt": "2026-08-19T12:15:18.682Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -1303,6 +1303,21 @@
           "columns": [
             "email_bidx"
           ]
+        },
+        {
+          "name": "read_users_email_unique",
+          "columns": [
+            "email"
+          ],
+          "unique": true
+        },
+        {
+          "name": "read_users_email_unique_bidx",
+          "columns": [
+            "email_bidx"
+          ],
+          "unique": true,
+          "whereSql": "\"email_bidx\" IS NOT NULL"
         }
       ],
       "source": "managed",
