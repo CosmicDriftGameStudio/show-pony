@@ -18,23 +18,28 @@ export const rsvpEntity = createEntity({
   fields: {
     eventId: createTextField({ required: true }),
     // Guest-submitted personal data (collected anonymously). Sortable
-    // guest-list lookup is a core feature here, which structurally conflicts with
-    // `pii: true` (validatePiiAndRetention throws on ANY subject annotation +
-    // sortable, not just encrypted fields) — declared plaintext instead,
-    // same pattern as `note` below.
+    // guest-list lookup is a core feature here, which structurally conflicts
+    // with `personal: "self"` (validatePiiAndRetention throws on ANY
+    // personal annotation + sortable, not just encrypted fields) — declared
+    // `personal: false` instead, same pattern as `note` below.
     name: createTextField({
       required: true,
       sortable: true,
-      allowPlaintext: "guest-list sort, no KMS provisioned",
+      personal: false,
+      reason: "guest_list_sort_no_kms_provisioned",
     }),
     email: createTextField({
-      allowPlaintext: "guest-list, no KMS provisioned",
+      personal: false,
+      reason: "guest_list_no_kms_provisioned",
     }),
     status: createSelectField({ options: RSVP_STATUSES, default: "yes", filterable: true }),
     plusN: createNumberField({ sortable: true, integer: true }),
-    // Free text from an anonymous submitter — no user FK, so userOwned can't
-    // apply; declare it plaintext business input with an explicit reason.
-    note: createLongTextField({ allowPlaintext: "anonymous-guest-input" }),
+    // Free text from an anonymous submitter — no user FK, so `personal: { of }`
+    // can't apply; declare it non-personal business input with an explicit reason.
+    note: createLongTextField({
+      personal: false,
+      reason: "anonymous_guest_input",
+    }),
   },
 });
 
