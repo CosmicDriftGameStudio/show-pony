@@ -13,6 +13,7 @@ import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
 import { managedPagesClient } from "@cosmicdrift/kumiko-bundled-features/managed-pages/web";
 import { tenantClient } from "@cosmicdrift/kumiko-bundled-features/tenant/web";
 import { tierEngineClient } from "@cosmicdrift/kumiko-bundled-features/tier-engine/web";
+import { localeDeClient } from "@cosmicdrift/kumiko-locale-de/web";
 import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer-web";
 import { createKumikoApp } from "@cosmicdrift/kumiko-renderer-web";
 import { AppShell } from "./app/shell";
@@ -35,6 +36,7 @@ const marketingAuthShell: ClientFeatureDefinition = {
 createKumikoApp({
   shell: AppShell,
   clientFeatures: [
+    localeDeClient(),
     marketingAuthShell,
     emailPasswordClient({
       loginScreenProps: { subtitle: <DemoLoginHint /> },
