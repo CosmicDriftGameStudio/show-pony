@@ -9,6 +9,7 @@
         "@cosmicdrift/kumiko-dev-server": "^0.211.0",
         "@cosmicdrift/kumiko-framework": "^0.211.0",
         "@cosmicdrift/kumiko-headless": "^0.211.0",
+        "@cosmicdrift/kumiko-locale-de": "^0.211.0",
         "@cosmicdrift/kumiko-renderer": "^0.211.0",
         "@cosmicdrift/kumiko-renderer-web": "^0.211.0",
         "@cosmicdrift/kumiko-server-runtime": "^0.211.0",
@@ -35,6 +36,7 @@
     "@cosmicdrift/kumiko-dispatcher-live": "0.211.0",
     "@cosmicdrift/kumiko-framework": "0.211.0",
     "@cosmicdrift/kumiko-headless": "0.211.0",
+    "@cosmicdrift/kumiko-locale-de": "0.211.0",
     "@cosmicdrift/kumiko-renderer": "0.211.0",
     "@cosmicdrift/kumiko-renderer-web": "0.211.0",
     "@cosmicdrift/kumiko-server-runtime": "0.211.0",
@@ -72,6 +74,8 @@
     "@cosmicdrift/kumiko-framework": ["@cosmicdrift/kumiko-framework@0.211.0", "", { "dependencies": { "@cosmicdrift/kumiko-types": "0.211.0", "bullmq": "^5.76.7", "bun-types": "^1.3.13", "hono": "^4.13.1", "i18next": "^26.1.0", "ioredis": "^5.10.1", "jose": "^6.2.3", "meilisearch": "^0.58.0", "pino": "^10.3.1", "postgres": "^3.4.9", "temporal-polyfill": "^0.3.2", "ts-morph": "^28.0.0", "uuid": "^14.0.0", "zod": "^4.4.3" } }, "sha512-tNopRiZ9vCg9fG29gB2YCEvELLVC1xKUgbEnVEUG/h9wDolGtmzYchPrjJ41TBK+7CA9ycLfNSI2mMVcbiozNw=="],
 
     "@cosmicdrift/kumiko-headless": ["@cosmicdrift/kumiko-headless@0.211.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.211.0", "temporal-polyfill": "^0.3.2", "zod": "^4.4.3" } }, "sha512-ZbdhsQO7nJhUXRePW9SXuIKjlN58kyhT1z6QZjesCdehEITAFLxZ52u7bsJPDTmWDB1NZS6Z42AG6DurZxlp4A=="],
+
+    "@cosmicdrift/kumiko-locale-de": ["@cosmicdrift/kumiko-locale-de@0.211.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.211.0" } }, "sha512-4JjP3/hm4o1uvYnqws8gE701SOcbrniY4VxhFNNJA9JF5M6MjtpEZBzHa9n6igZfv4nI69bSraxuP8VWvrlsew=="],
 
     "@cosmicdrift/kumiko-renderer": ["@cosmicdrift/kumiko-renderer@0.211.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.211.0", "@cosmicdrift/kumiko-headless": "0.211.0", "react": "^19.2.6", "temporal-polyfill": "^0.3.2", "zod": "^4.4.3" } }, "sha512-fEICtGsXrd0/n8e/qGNzHd7+MFhr3CaasFt8M+cUu8sR4t2TGWtASIUMxZrGJyIDiF6e4AWHL911xPyPvqVGmQ=="],
 

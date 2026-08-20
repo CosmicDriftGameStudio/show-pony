@@ -6,6 +6,7 @@
 // Primitives + Dispatcher, no schema-inject) — same pattern as publicstatus's
 // public mount. RsvpForm needs the Primitives (Form/Input/Button) it provides.
 
+import { localeDeClient } from "@cosmicdrift/kumiko-locale-de/web";
 import { createStaticLocaleResolver } from "@cosmicdrift/kumiko-renderer";
 import { createPublicSurface } from "@cosmicdrift/kumiko-renderer-web";
 import { showPonyTranslationsByLocale } from "../features/show-pony/i18n";
@@ -21,6 +22,9 @@ export function mountPublic(): void {
     routes: [],
     fallback: <EventPage />,
     locale: createStaticLocaleResolver({ locale: publicLocale() }),
-    clientFeatures: [{ name: "show-pony-public", translations: showPonyTranslationsByLocale }],
+    clientFeatures: [
+      localeDeClient(),
+      { name: "show-pony-public", translations: showPonyTranslationsByLocale },
+    ],
   });
 }

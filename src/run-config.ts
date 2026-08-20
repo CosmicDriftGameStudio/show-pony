@@ -22,6 +22,7 @@ import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-featur
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
+import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
@@ -45,6 +46,7 @@ export function resolveBaseDomainFromEnv(): string {
 
 export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition[] {
   return [
+    localeDe(),
     authFoundationFeature,
     createSessionsFeature(),
     createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
