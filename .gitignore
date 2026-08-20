@@ -1,7 +1,8 @@
 node_modules/
 dist/
 dist-server/
-.kumiko/
+.kumiko/*
+!.kumiko/upgrade-state.json
 *.log
 .env
 .env.local

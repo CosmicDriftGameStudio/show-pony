@@ -95,6 +95,8 @@ jobs:
         env:
           KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-check-complexity
+      - name: Upgrade-State guard
+        run: bun kumiko-guard-upgrade-state
       - run: |
           ulimit -n 65536 || true
           bun --config=bunfig.ci.toml test --dots
