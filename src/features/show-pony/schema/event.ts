@@ -19,7 +19,10 @@ export const eventEntity = createEntity({
     startsAt: createTimestampField({ required: true }),
     location: createTextField({}),
     // Host-authored public event copy — business data, not third-party PII.
-    description: createLongTextField({ allowPlaintext: "is-business-data" }),
+    description: createLongTextField({
+      personal: false,
+      reason: "is_business_data",
+    }),
     guestLimit: createNumberField({ sortable: true, integer: true, min: 0 }),
   },
 });
