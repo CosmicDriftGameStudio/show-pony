@@ -1,6 +1,7 @@
 import { escapeHtml } from "@cosmicdrift/kumiko-headless";
 import {
   APEX_NAV_MENU_CSS,
+  APEX_NAV_TOGGLE_RESPONSIVE_CSS,
   type ApexFooter,
   type ApexHeader,
   renderApexHeader,
@@ -89,8 +90,17 @@ const FOOTER_CSS = `
   @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
 `;
 
+// APEX_NAV_TOGGLE_RESPONSIVE_CSS comes last: its `.nav ` prefix wins the
+// `.nav-toggle` cascade regardless of order, but its bare `.nav { position:
+// relative; }` (specificity 0,1,0) would lose to HEADER_CSS's own `.nav { ... }`
+// if it landed earlier.
 export const SHARED_CSS =
-  TOKENS_CSS + BASE_LAYOUT_CSS + APEX_NAV_MENU_CSS + HEADER_CSS + FOOTER_CSS;
+  TOKENS_CSS +
+  BASE_LAYOUT_CSS +
+  APEX_NAV_MENU_CSS +
+  HEADER_CSS +
+  FOOTER_CSS +
+  APEX_NAV_TOGGLE_RESPONSIVE_CSS;
 
 export const FEATURE_PAGE_CSS = `
   .feat-item { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;
