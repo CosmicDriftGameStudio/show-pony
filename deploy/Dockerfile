@@ -11,7 +11,7 @@
 #
 # Build context: repository root (standalone repo).
 
-ARG BUN_VERSION=1.3.14
+ARG BUN_VERSION=1.4.0
 ARG NPM_AUTH_TOKEN=
 ARG BUILD_VERSION=dev
 ARG BUILD_TIME=unknown
