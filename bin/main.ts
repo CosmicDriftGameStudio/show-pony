@@ -16,6 +16,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
+import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import { withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
@@ -52,6 +53,15 @@ const stripeBilling = buildStripeBillingConfig({
   STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
 });
 
+const kmsWiring = resolveKmsWiring(process.env, {
+  logPrefix: "[show-pony]",
+  plaintextReason: "show-pony demo app, no subject-keys KMS provisioned",
+});
+if ("allowPlaintextPii" in kmsWiring) {
+  // biome-ignore lint/suspicious/noConsole: intentional operator-visible plaintext-PII boot warning
+  console.warn(`[show-pony] PII IS STORED IN PLAINTEXT — ${kmsWiring.allowPlaintextPii}`);
+}
+
 const handle = await runProdApp({
   features: [
     ...buildAppFeatures({ baseDomain: BASE_DOMAIN }),
@@ -68,11 +78,10 @@ const handle = await runProdApp({
       : []),
   ],
   autoListen: false,
-  // read_users.email_bidx (added by migration 0002) stays NULL for
-  // pre-existing rows in plaintext mode — lookups/dedup run against the
-  // plaintext `email` column instead, so this is inert today. A future
-  // switch to KMS-backed encryption needs its own backfill for email_bidx.
-  allowPlaintextPii: "show-pony demo app, no KMS provisioned",
+  // Subject-keys KMS when PLATFORM_KEK / SUBJECT_KEYS_DATABASE_URL /
+  // KUMIKO_BLIND_INDEX_KEY are all set; otherwise plaintext with an explicit
+  // reason (demo / local). Partial trio is a boot error.
+  ...kmsWiring,
   staticDir: "./dist",
   seedsDir: "./seeds",
   extraContext: ({ registry, db }) => ({

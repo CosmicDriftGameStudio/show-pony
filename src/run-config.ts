@@ -10,6 +10,7 @@ import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
 import { authFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
+import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
@@ -65,6 +66,7 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createComplianceProfilesFeature(),
     createTenantLifecycleFeature(),
     billingFoundationFeature,
+    createCryptoShreddingFeature(),
     createSecretsFeature(),
     adminShellFeature,
     appShellFeature,
