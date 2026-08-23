@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-19T21:05:46.001Z",
+  "generatedAt": "2026-08-23T06:59:38.751Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -313,7 +313,17 @@
           "notNull": true
         },
         {
+          "name": "name_bidx",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
           "name": "email",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "email_bidx",
           "pgType": "text",
           "notNull": false
         },
@@ -340,9 +350,26 @@
           "columns": [
             "tenant_id"
           ]
+        },
+        {
+          "name": "read_rsvps_name_bidx_idx",
+          "columns": [
+            "name_bidx"
+          ]
+        },
+        {
+          "name": "read_rsvps_email_bidx_idx",
+          "columns": [
+            "email_bidx"
+          ]
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "piiSubjectFields": [
+        "name",
+        "email",
+        "note"
+      ]
     },
     {
       "tableName": "read_subscriptions",
