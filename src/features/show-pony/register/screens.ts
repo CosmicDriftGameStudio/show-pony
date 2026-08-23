@@ -38,7 +38,7 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   entity: "rsvp",
   columns: ["name", "status", "plusN", "email"],
   pageSize: 50,
-  defaultSort: { field: "name", dir: "asc" },
+  defaultSort: { field: "status", dir: "asc" },
 };
 
 import { inviteBrandingScreen } from "../screens/invite-branding-screen";

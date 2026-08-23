@@ -20,6 +20,7 @@ import {
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
+import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
 import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { wireTermsRoutes } from "../src/legal-terms";
@@ -55,7 +56,17 @@ async function serveFromDir(dir: string, file: string): Promise<Response | null>
   return (await f.exists()) ? new Response(f) : null;
 }
 
+const kmsWiring = resolveKmsWiring(process.env, {
+  logPrefix: "[show-pony]",
+  plaintextReason: "local dev without subject-keys KMS",
+});
+if ("allowPlaintextPii" in kmsWiring) {
+  // biome-ignore lint/suspicious/noConsole: intentional operator-visible plaintext-PII boot warning
+  console.warn(`[show-pony] PII IS STORED IN PLAINTEXT — ${kmsWiring.allowPlaintextPii}`);
+}
+
 await runDevApp({
+  ...("kms" in kmsWiring ? { kms: kmsWiring.kms, blindIndexKey: kmsWiring.blindIndexKey } : {}),
   features: [
     ...buildAppFeatures({ baseDomain: BASE_DOMAIN }),
     ...(stripeBilling

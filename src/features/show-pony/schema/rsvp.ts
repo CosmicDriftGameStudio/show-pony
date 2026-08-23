@@ -17,28 +17,34 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 export const rsvpEntity = createEntity({
   fields: {
     eventId: createTextField({ required: true }),
-    // Guest-submitted personal data (collected anonymously). Sortable
-    // guest-list lookup is a core feature here, which structurally conflicts
-    // with `personal: "self"` (validatePiiAndRetention throws on ANY
-    // personal annotation + sortable, not just encrypted fields) — declared
-    // `personal: false` instead, same pattern as `note` below.
+    // Guest PII — personal: "self" so subject-key KMS can encrypt at rest and
+    // crypto-shredding:write:forget-subject can erase the key. find fuzzy/exact
+    // is allowed with a subject annotation since fw#1610 (search decrypts into
+    // a derived Meili index that purge-subject clears on key erase). sortable
+    // stays forbidden on annotated fields — guest-list lookup is search-driven,
+    // not sort-paginated (same convention as solon E9 / show-pony#91).
     name: createTextField({
       required: true,
-      sortable: true,
-      personal: false,
-      reason: "guest_list_sort_no_kms_provisioned",
+      personal: "self",
+      find: "fuzzy",
     }),
     email: createTextField({
-      personal: false,
-      reason: "guest_list_no_kms_provisioned",
+      personal: "self",
+      find: "exact",
+      format: "email",
     }),
-    status: createSelectField({ options: RSVP_STATUSES, default: "yes", filterable: true }),
+    status: createSelectField({
+      options: RSVP_STATUSES,
+      default: "yes",
+      filterable: true,
+      sortable: true,
+    }),
     plusN: createNumberField({ sortable: true, integer: true }),
-    // Free text from an anonymous submitter — no user FK, so `personal: { of }`
-    // can't apply; declare it non-personal business input with an explicit reason.
+    // Free text from an anonymous guest — still personal data about that
+    // guest, subject = the RSVP row itself (personal: "self").
     note: createLongTextField({
-      personal: false,
-      reason: "anonymous_guest_input",
+      personal: "self",
+      find: "none",
     }),
   },
 });
