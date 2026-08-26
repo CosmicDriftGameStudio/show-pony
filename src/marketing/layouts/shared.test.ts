@@ -1,21 +1,14 @@
 import { describe, expect, test } from "bun:test";
+import { APEX_NAV_TOGGLE_RESPONSIVE_CSS } from "@cosmicdrift/kumiko-headless/apex";
 import { SHARED_CSS } from "./shared";
 
 describe("SHARED_CSS mobile nav-toggle", () => {
-  test("re-enables the .nav-toggle hamburger under the mobile breakpoint", () => {
-    expect(SHARED_CSS).toContain(".nav .nav-toggle { display: inline-flex; }");
-    expect(SHARED_CSS).toContain(".nav .nav-toggle__trigger { display: inline-flex; }");
+  test("includes the framework responsive nav-toggle bundle", () => {
+    expect(SHARED_CSS).toContain(APEX_NAV_TOGGLE_RESPONSIVE_CSS);
   });
 
-  test("declares .nav as a positioned ancestor for the open dropdown", () => {
-    expect(SHARED_CSS).toContain(".nav { position: relative; }");
-  });
-
-  test("the positioned-ancestor rule lands after HEADER_CSS's own .nav rule", () => {
-    const headerNavIndex = SHARED_CSS.indexOf(".nav { display: flex;");
-    const positionedIndex = SHARED_CSS.indexOf(".nav { position: relative; }");
-
-    expect(headerNavIndex).toBeGreaterThan(-1);
-    expect(positionedIndex).toBeGreaterThan(headerNavIndex);
+  test("styles nav-toggle triggers for the dark marketing header chrome", () => {
+    expect(SHARED_CSS).toContain(".nav-toggle__trigger { color: var(--on-dark-muted); }");
+    expect(SHARED_CSS).toContain(".nav-toggle__trigger:hover { color: var(--on-dark); }");
   });
 });
