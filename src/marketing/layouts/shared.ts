@@ -67,6 +67,8 @@ const HEADER_CSS = `
   .nav-links a:hover { color: var(--on-dark); }
   .nav-menu__trigger { color: var(--on-dark-muted); }
   .nav-menu__trigger:hover { color: var(--on-dark); }
+  .nav-toggle__trigger { color: var(--on-dark-muted); }
+  .nav-toggle__trigger:hover { color: var(--on-dark); }
   .nav-actions { display: flex; gap: 0.75rem; align-items: center; font-size: 0.9375rem; }
   .nav-actions > a:not(.btn) { color: var(--on-dark-muted); }
   .nav-actions > a:not(.btn):hover { color: var(--on-dark); }

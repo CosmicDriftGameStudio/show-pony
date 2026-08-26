@@ -1,36 +1,21 @@
-// bin/main.ts and bin/server.ts don't wire createShowPonyAnonymousAccess
-// directly (that factory is for isolated test stacks only, see
-// src/tenant-routing.ts). Production mounts createShowPonyTenantRoutingFeature
-// (#1374) and returns `{}` from `anonymousAccess`; the actual tenantResolver /
-// tenantExists functions are merged in afterwards by the framework's
-// resolveAnonymousAccessFromRegistry (auth-foundation EXT_TENANT_RESOLVER /
-// EXT_TENANT_EXISTENCE providers) — the same merge runProdApp/runDevApp
-// perform unconditionally at boot.
+// Production mounts createShowPonyTenantRoutingFeature (#1374) and returns `{}`
+// from anonymousAccess; tenantResolver / tenantExists are merged afterwards via
+// resolveAnonymousAccessFromRegistry (same as bin/main.ts / bin/server.ts).
 //
-// rsvp-anonymous.integration.test.ts covers the resolver/existence LOGIC
-// against the bare factory. This file instead proves the MERGE ITSELF: that
-// mounting the real feature + returning `{}` (the exact bin/main.ts /
-// bin/server.ts pattern) actually produces a working tenantResolver at
-// request time, AND that EXT_TENANT_EXISTENCE resolves to a real, DB-backed
-// check off the same registry — so a wrong extension key, an unlucky feature
-// order, or a renamed merge helper would fail this test instead of silently
-// dropping the existence guard in production.
+// rsvp-anonymous.integration.test.ts covers resolver/existence logic on the bare
+// factory. This file proves the merged registry providers deliver a working
+// tenantResolver at request time and a DB-backed EXT_TENANT_EXISTENCE check.
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import {
-  authFoundationFeature,
   resolveAnonymousAccessFromRegistry,
   resolveTenantExistence,
 } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import {
   configValuesTable,
   createConfigAccessorFactory,
-  createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
-import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
@@ -43,9 +28,10 @@ import {
   unsafeCreateEntityTable,
   unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../features/show-pony/feature";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
+import { eventEntity, rsvpEntity, rsvpTable } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyTenantRoutingFeature } from "../tenant-routing";
+import { buildAppFeatures } from "../run-config";
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -54,7 +40,7 @@ const configResolver = createConfigResolver({
 const BASE_DOMAIN = "show-pony-registry.test";
 const ACME = testTenantId(1);
 const GLOBEX = testTenantId(2);
-const EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
+let seededEventId = "00000000-0000-4000-8000-0000000000e1";
 
 let stack: TestStack;
 const acmeHost = { ...TestUsers.admin, tenantId: ACME };
@@ -75,18 +61,10 @@ function submit(
 
 beforeAll(async () => {
   stack = await setupTestStack({
-    features: [
-      authFoundationFeature,
-      createShowPonyTenantRoutingFeature({ baseDomain: BASE_DOMAIN }),
-      createConfigFeature(),
-      createManagedPagesFeature({ resolveApexTenant: async () => null }),
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
-      showPonyFeature,
-    ],
-    // Exact boot wiring from bin/main.ts / bin/server.ts: anonymousAccess
-    // returns `{}`, and the registry-mounted tenant-routing providers get
-    // merged in via enrichAnonymousAccess — never the direct factory.
+    features: composeFeatures(buildAppFeatures({ baseDomain: BASE_DOMAIN }), {
+      includeBundled: true,
+    }),
+    // bin/main.ts pattern: anonymousAccess returns `{}`; registry merge supplies resolver.
     anonymousAccess: () => ({}),
     enrichAnonymousAccess: (base, deps) => resolveAnonymousAccessFromRegistry(base, deps),
     extraContext: ({ registry }) => ({
@@ -104,6 +82,18 @@ beforeAll(async () => {
   await createEventsTable(stack.db);
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
   await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });
+
+  const created = await stack.http.writeOk<{ id: string }>(
+    "showpony:write:event:create",
+    {
+      title: "Registry routing test event",
+      slug: "registry-routing-test",
+      startsAt: "2026-09-12T19:00:00.000Z",
+      guestLimit: 50,
+    },
+    acmeHost,
+  );
+  seededEventId = created.id;
 });
 
 afterAll(async () => stack?.cleanup());
@@ -115,20 +105,23 @@ beforeEach(async () => {
 describe("registry-merged tenant routing (createShowPonyTenantRoutingFeature, #1374)", () => {
   test("subdomain resolves via the registry-merged resolver, not a bypassed no-op", async () => {
     const res = await submit(`acme.${BASE_DOMAIN}`, {
-      eventId: EVENT_ID,
+      eventId: seededEventId,
       name: "Alice",
       status: "yes",
     });
     expect(res.status).toBe(200);
 
     const acmeList = await stack.http.query("showpony:query:rsvp:list", {}, acmeHost);
-    const acmeBody = (await acmeList.json()) as { data: { rows: Array<{ name: string }> } };
+    const acmeBody = (await acmeList.json()) as {
+      data: { rows: Array<{ name: string; eventId: string }> };
+    };
     expect(acmeBody.data.rows.map((r) => r.name)).toEqual(["Alice"]);
+    expect(acmeBody.data.rows[0]?.eventId).toBe(seededEventId);
   });
 
   test("unknown subdomain → 400 tenant_required (registry resolver returned null, not silently open)", async () => {
     const res = await submit(`nope.${BASE_DOMAIN}`, {
-      eventId: EVENT_ID,
+      eventId: seededEventId,
       name: "Ghost",
       status: "yes",
     });
@@ -144,7 +137,7 @@ describe("registry-merged tenant routing (createShowPonyTenantRoutingFeature, #1
     // EXT_TENANT_EXISTENCE; that's covered separately below.
     const res = await submit(
       `acme.${BASE_DOMAIN}`,
-      { eventId: EVENT_ID, name: "Mallory", status: "yes" },
+      { eventId: seededEventId, name: "Mallory", status: "yes" },
       { "X-Tenant": GLOBEX },
     );
     expect(res.status).toBe(400);

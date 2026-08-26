@@ -63,7 +63,7 @@ const dpo: SessionUser = {
 
 let stack: TestStack;
 
-type RsvpRow = { id: string; name: string; email?: string | null };
+type RsvpRow = { id: string; name: string; email?: string | null; note?: string | null };
 
 function submit(payload: Record<string, unknown>) {
   return stack.http.raw(
@@ -80,11 +80,12 @@ async function listRows(): Promise<RsvpRow[]> {
   return body.data.rows;
 }
 
-async function submitGuest(name: string, email: string): Promise<string> {
+async function submitGuest(name: string, email: string, note: string): Promise<string> {
   const res = await submit({
     eventId: EVENT_ID,
     name,
     email,
+    note,
     status: "yes",
     plusN: 0,
   });
@@ -119,6 +120,17 @@ beforeAll(async () => {
   });
   await createEventsTable(stack.db);
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
+
+  await stack.http.writeOk(
+    "showpony:write:event:create",
+    {
+      title: "Crypto shredding test event",
+      slug: "crypto-shred-test",
+      startsAt: "2026-09-12T19:00:00.000Z",
+      guestLimit: 50,
+    },
+    host,
+  );
 });
 
 afterAll(async () => {
@@ -138,12 +150,13 @@ afterEach(() => {
 
 describe("crypto-shredding:forget-subject — operator erasure for RSVP guests", () => {
   test("forget renders name/email unreadable and leaves other guests untouched", async () => {
-    const targetId = await submitGuest("Tommy Pilot", "tommy@pilot.test");
-    const bystanderId = await submitGuest("Peter Guest", "peter@pilot.test");
+    const targetId = await submitGuest("Tommy Pilot", "tommy@pilot.test", "Vegetarian meal");
+    const bystanderId = await submitGuest("Peter Guest", "peter@pilot.test", "No allergies");
 
     const before = await listRows();
     expect(before.find((r) => r.id === targetId)?.name).toBe("Tommy Pilot");
     expect(before.find((r) => r.id === targetId)?.email).toBe("tommy@pilot.test");
+    expect(before.find((r) => r.id === targetId)?.note).toBe("Vegetarian meal");
 
     await stack.http.writeOk(
       FORGET,
@@ -157,12 +170,14 @@ describe("crypto-shredding:forget-subject — operator erasure for RSVP guests",
     const after = await listRows();
     expect(after.find((r) => r.id === targetId)?.name).toBe(PII_ERASED_SENTINEL);
     expect(after.find((r) => r.id === targetId)?.email).toBe(PII_ERASED_SENTINEL);
+    expect(after.find((r) => r.id === targetId)?.note).toBe(PII_ERASED_SENTINEL);
     expect(after.find((r) => r.id === bystanderId)?.name).toBe("Peter Guest");
     expect(after.find((r) => r.id === bystanderId)?.email).toBe("peter@pilot.test");
+    expect(after.find((r) => r.id === bystanderId)?.note).toBe("No allergies");
   });
 
   test("ciphertext column remains after forget — the key is erased, not the row", async () => {
-    const id = await submitGuest("Klara Keep", "klara@pilot.test");
+    const id = await submitGuest("Klara Keep", "klara@pilot.test", "Late arrival");
 
     await stack.http.writeOk(
       FORGET,
@@ -174,17 +189,18 @@ describe("crypto-shredding:forget-subject — operator erasure for RSVP guests",
     );
 
     const rows = await asRawClient(stack.db).unsafe<Record<string, unknown>>(
-      `SELECT name, email, status FROM "${rsvpTable.tableName}" WHERE id = $1`,
+      `SELECT name, email, note, status FROM "${rsvpTable.tableName}" WHERE id = $1`,
       [id],
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]?.["status"]).toBe("yes");
     expect(isPiiCiphertext(rows[0]?.["name"])).toBe(true);
     expect(isPiiCiphertext(rows[0]?.["email"])).toBe(true);
+    expect(isPiiCiphertext(rows[0]?.["note"])).toBe(true);
   });
 
   test("a tenant Admin without DPO role cannot shred an RSVP", async () => {
-    const id = await submitGuest("Keep Me", "keep@pilot.test");
+    const id = await submitGuest("Keep Me", "keep@pilot.test", "Do not erase");
 
     const err = await stack.http.writeErr(
       FORGET,
