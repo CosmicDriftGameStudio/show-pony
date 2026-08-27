@@ -40,7 +40,8 @@ const configResolver = createConfigResolver({
 const BASE_DOMAIN = "show-pony-registry.test";
 const ACME = testTenantId(1);
 const GLOBEX = testTenantId(2);
-let seededEventId = "00000000-0000-4000-8000-0000000000e1";
+// Empty until beforeAll assigns create id — leftover UUID silently passes z.uuid() (show-pony#134/3).
+let seededEventId = "";
 
 let stack: TestStack;
 const acmeHost = { ...TestUsers.admin, tenantId: ACME };
