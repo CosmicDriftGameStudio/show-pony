@@ -47,7 +47,8 @@ import { createShowPonyAnonymousAccess } from "../tenant-routing";
 const BIDX_KEY = Buffer.alloc(32, 9).toString("base64");
 const BASE_DOMAIN = "show-pony.test";
 const ACME = testTenantId(1);
-const EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
+// Empty until beforeAll seeds a real event — leftover UUID silently passes z.uuid() (show-pony#134/2).
+let eventId = "";
 const FORGET = "crypto-shredding:write:forget-subject";
 
 const configResolver = createConfigResolver({
@@ -82,7 +83,7 @@ async function listRows(): Promise<RsvpRow[]> {
 
 async function submitGuest(name: string, email: string, note: string): Promise<string> {
   const res = await submit({
-    eventId: EVENT_ID,
+    eventId,
     name,
     email,
     note,
@@ -121,7 +122,7 @@ beforeAll(async () => {
   await createEventsTable(stack.db);
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
 
-  await stack.http.writeOk(
+  const created = await stack.http.writeOk<{ id: string }>(
     "showpony:write:event:create",
     {
       title: "Crypto shredding test event",
@@ -131,6 +132,7 @@ beforeAll(async () => {
     },
     host,
   );
+  eventId = created.id;
 });
 
 afterAll(async () => {
