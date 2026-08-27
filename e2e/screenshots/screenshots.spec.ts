@@ -30,14 +30,19 @@ async function applyTheme(page: Page, theme: ThemeId): Promise<void> {
   }, theme);
 }
 
-// Env override narrows an axis (CSV) or falls back to the default. The cast only
-// carries the system boundary env-string → known union.
+// Env override narrows an axis (CSV) or falls back to the default.
+// Unknown tokens are dropped; an all-unknown filter fails loudly.
 function axis<T extends string>(env: string | undefined, all: readonly T[]): readonly T[] {
   const picked = env
     ?.split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  return picked && picked.length > 0 ? (picked as T[]) : all;
+  if (!picked || picked.length === 0) return all;
+  const matched = picked.filter((p): p is T => (all as readonly string[]).includes(p));
+  if (matched.length === 0) {
+    throw new Error(`axis(): env filter "${env}" matched none of [${all.join(", ")}]`);
+  }
+  return matched;
 }
 
 const LOCALES = axis(process.env.SCREENSHOT_LOCALES, ["en"]);
