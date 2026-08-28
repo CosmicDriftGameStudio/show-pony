@@ -27,7 +27,15 @@ import {
   PII_ERASED_SENTINEL,
 } from "@cosmicdrift/kumiko-framework/crypto";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
+import {
+  append,
+  backfillEventPiiEncryption,
+  createEventsTable,
+} from "@cosmicdrift/kumiko-framework/event-store";
+import {
+  listProjectionsWithState,
+  rebuildProjection,
+} from "@cosmicdrift/kumiko-framework/pipeline";
 import {
   setupTestStack,
   type TestStack,
@@ -216,5 +224,86 @@ describe("crypto-shredding:forget-subject — operator erasure for RSVP guests",
 
     const still = await listRows();
     expect(still.find((r) => r.id === id)?.name).toBe("Keep Me");
+  });
+});
+
+describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => {
+  // The personal:false -> "self" switch on rsvp.name/email/note (show-pony#130)
+  // only encrypts NEW writes. Simulates an RSVP submitted before that switch:
+  // its rsvp.created event carries plaintext name/email/note directly in
+  // kumiko_events, with no subject key ever minted. Without a backfill,
+  // forget-subject on it would report success without erasing anything —
+  // there is no key to erase. bin/ops/backfill-pii.ts runs
+  // backfillEventPiiEncryption to re-encrypt such events after the fact.
+  test("forget-subject erases a legacy plaintext RSVP after the PII backfill runs", async () => {
+    // Isolate the rsvp event stream from earlier tests in this file: a full
+    // projection rebuild below replays every rsvp.created event since
+    // genesis, and those events were encrypted under a KMS instance that no
+    // longer exists (beforeEach mints a fresh one per test).
+    await asRawClient(stack.db).unsafe(`DELETE FROM "kumiko_events" WHERE aggregate_type = $1`, [
+      "rsvp",
+    ]);
+
+    const legacyId = crypto.randomUUID();
+    await append(stack.db, {
+      aggregateId: legacyId,
+      aggregateType: "rsvp",
+      tenantId: ACME,
+      expectedVersion: 0,
+      type: "rsvp.created",
+      payload: {
+        eventId,
+        name: "Legacy Guest",
+        email: "legacy@old.test",
+        status: "yes",
+        plusN: 0,
+        note: "Pre-KMS plaintext note",
+      },
+      metadata: { userId: "system" },
+    });
+
+    const rsvpProjections = (
+      await listProjectionsWithState(stack.db, stack.registry, { includeImplicit: true })
+    ).filter((p) => p.sources.includes("rsvp"));
+
+    // Materialize the pre-fix state first: plaintext event -> plaintext row.
+    // This is what makes the test discriminate the real bug (forget-subject
+    // leaves a legacy row readable) rather than just "did rebuild run".
+    for (const projection of rsvpProjections) {
+      await rebuildProjection(projection.name, { db: stack.db, registry: stack.registry });
+    }
+    const legacyRawBefore = await asRawClient(stack.db).unsafe<Record<string, unknown>>(
+      `SELECT name FROM "${rsvpTable.tableName}" WHERE id = $1`,
+      [legacyId],
+    );
+    expect(isPiiCiphertext(legacyRawBefore[0]?.["name"])).toBe(false);
+    const preBackfill = await listRows();
+    expect(preBackfill.find((r) => r.id === legacyId)?.name).toBe("Legacy Guest");
+
+    const backfillResult = await backfillEventPiiEncryption(stack.db, stack.registry);
+    expect(backfillResult.failures).toEqual([]);
+    expect(backfillResult.encryptedFields).toBe(3);
+
+    for (const projection of rsvpProjections) {
+      await rebuildProjection(projection.name, { db: stack.db, registry: stack.registry });
+    }
+
+    const decrypted = await listRows();
+    expect(decrypted.find((r) => r.id === legacyId)?.name).toBe("Legacy Guest");
+    expect(decrypted.find((r) => r.id === legacyId)?.email).toBe("legacy@old.test");
+
+    await stack.http.writeOk(
+      FORGET,
+      {
+        subject: { kind: "user", userId: legacyId },
+        reason: "Erasure request on backfilled legacy row (test)",
+      },
+      dpo,
+    );
+
+    const erased = await listRows();
+    expect(erased.find((r) => r.id === legacyId)?.name).toBe(PII_ERASED_SENTINEL);
+    expect(erased.find((r) => r.id === legacyId)?.email).toBe(PII_ERASED_SENTINEL);
+    expect(erased.find((r) => r.id === legacyId)?.note).toBe(PII_ERASED_SENTINEL);
   });
 });

@@ -53,6 +53,12 @@ const stripeBilling = buildStripeBillingConfig({
   STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
 });
 
+// After the FIRST deploy that wires a real KMS here (kms/blindIndexKey below
+// switch from the plaintext branch to actual credentials), run
+// `bun bin/ops/backfill-pii.ts` once — pre-KMS RSVP guest events (name/email/
+// note) stay plaintext in the event log otherwise, and crypto-shredding:
+// write:forget-subject on one of them would report success without erasing
+// anything (show-pony#130).
 const kmsWiring = resolveKmsWiring(process.env, {
   logPrefix: "[show-pony]",
   plaintextReason: "show-pony demo app, no subject-keys KMS provisioned",
