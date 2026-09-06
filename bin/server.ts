@@ -30,6 +30,7 @@ import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures } from "../src/run-config";
 import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
+import { configureAllTenantSearchIndexes } from "./search-wiring";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -139,17 +140,12 @@ await runDevApp({
   },
   seeds: [
     async (stack) => {
-      const searchableFields = stack.registry.getSearchableFields("rsvp");
       // Meilisearch is optional local/CI infra (docker compose, not always
       // running) — a dev/CI boot without it should degrade to an inert
-      // search box, not crash the whole server.
+      // search box, not crash the whole server. Sweeps all tenants (not
+      // just DEMO/ACME) so any tenant seeded later stays covered too.
       try {
-        for (const tenantId of [DEMO_TENANT.id, ACME_TENANT.id]) {
-          await searchAdapter.configure(tenantId, {
-            searchableFields,
-            rankingFields: searchableFields,
-          });
-        }
+        await configureAllTenantSearchIndexes(stack.db, stack.registry, searchAdapter);
       } catch (err) {
         console.warn(`[search] Meilisearch unreachable, search index not configured: ${err}`);
       }

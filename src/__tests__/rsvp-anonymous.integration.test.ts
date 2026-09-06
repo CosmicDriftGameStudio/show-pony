@@ -49,6 +49,8 @@ const GLOBEX = testTenantId(2);
 const EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
 
 let stack: TestStack;
+let acmeEventId: string;
+let globexEventId: string;
 const acmeHost = { ...TestUsers.admin, tenantId: ACME };
 const globexHost = { ...TestUsers.admin, tenantId: GLOBEX, id: "globex-host-id" };
 
@@ -92,6 +94,33 @@ beforeAll(async () => {
   await createEventsTable(stack.db);
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
   await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });
+
+  // The rsvp:submit event-existence guard (kumiko-platform#609/1) rejects any
+  // eventId that doesn't resolve to a real, tenant-scoped event row — every
+  // test that expects a submit to actually reach the handler needs one.
+  const acmeEvent = await stack.http.writeOk<{ id: string }>(
+    "showpony:write:event:create",
+    {
+      title: "Rooftop Launch Party",
+      slug: "rooftop-launch-mail-test",
+      startsAt: "2026-09-12T19:00:00.000Z",
+      guestLimit: 50,
+    },
+    acmeHost,
+  );
+  acmeEventId = acmeEvent.id;
+
+  const globexEvent = await stack.http.writeOk<{ id: string }>(
+    "showpony:write:event:create",
+    {
+      title: "Globex Kickoff",
+      slug: "globex-kickoff",
+      startsAt: "2026-09-13T19:00:00.000Z",
+      guestLimit: 50,
+    },
+    globexHost,
+  );
+  globexEventId = globexEvent.id;
 });
 
 afterAll(async () => stack?.cleanup());
@@ -105,7 +134,7 @@ beforeEach(async () => {
 describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   test("RSVP lands on the host tenant resolved from the subdomain", async () => {
     const acme = await submit("acme.show-pony.test", {
-      eventId: EVENT_ID,
+      eventId: acmeEventId,
       name: "Alice",
       status: "yes",
       plusN: 1,
@@ -113,7 +142,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     expect(acme.status).toBe(200);
 
     const globex = await submit("globex.show-pony.test", {
-      eventId: EVENT_ID,
+      eventId: globexEventId,
       name: "Bob",
       status: "maybe",
     });
@@ -127,6 +156,36 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     const globexList = await stack.http.query("showpony:query:rsvp:list", {}, globexHost);
     const globexBody = (await globexList.json()) as { data: { rows: Array<{ name: string }> } };
     expect(globexBody.data.rows.map((r) => r.name)).toEqual(["Bob"]);
+  });
+
+  test("unknown but well-formed eventId → 404 not_found, no rsvp row is created (kumiko-platform#609/1)", async () => {
+    const res = await submit("acme.show-pony.test", {
+      eventId: "00000000-0000-4000-8000-0000000000ff",
+      name: "Ghost",
+      status: "yes",
+    });
+    expect(res.status).toBe(404);
+    const body = (await res.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("not_found");
+
+    const acmeList = await stack.http.query("showpony:query:rsvp:list", {}, acmeHost);
+    const acmeBody = (await acmeList.json()) as { data: { rows: Array<{ name: string }> } };
+    expect(acmeBody.data.rows.map((r) => r.name)).not.toContain("Ghost");
+  });
+
+  test("Globex's real eventId submitted on Acme's subdomain → 404 not_found, tenant-scoped guard excludes foreign tenants (kumiko-platform#609/1)", async () => {
+    const res = await submit("acme.show-pony.test", {
+      eventId: globexEventId,
+      name: "Mallory",
+      status: "yes",
+    });
+    expect(res.status).toBe(404);
+    const body = (await res.json()) as { error: { code: string } };
+    expect(body.error.code).toBe("not_found");
+
+    const acmeList = await stack.http.query("showpony:query:rsvp:list", {}, acmeHost);
+    const acmeBody = (await acmeList.json()) as { data: { rows: Array<{ name: string }> } };
+    expect(acmeBody.data.rows.map((r) => r.name)).not.toContain("Mallory");
   });
 
   test("unknown subdomain → 400 tenant_required (resolver returned null)", async () => {
@@ -223,25 +282,9 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
 });
 
 describe("guest confirmation mail (mail-foundation direct)", () => {
-  let seededEventId = EVENT_ID;
-
-  beforeAll(async () => {
-    const created = await stack.http.writeOk<{ id: string }>(
-      "showpony:write:event:create",
-      {
-        title: "Rooftop Launch Party",
-        slug: "rooftop-launch-mail-test",
-        startsAt: "2026-09-12T19:00:00.000Z",
-        guestLimit: 50,
-      },
-      acmeHost,
-    );
-    seededEventId = created.id;
-  });
-
   test("sends a confirmation to the host tenant's inbox when email is given", async () => {
     const res = await submit("acme.show-pony.test", {
-      eventId: seededEventId,
+      eventId: acmeEventId,
       name: "Alice",
       email: "alice@example.com",
       status: "yes",
@@ -260,7 +303,7 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
 
   test("escapes HTML in the guest name — no injection into the mail body", async () => {
     await submit("acme.show-pony.test", {
-      eventId: EVENT_ID,
+      eventId: acmeEventId,
       name: "<script>alert(1)</script>",
       email: "mallory@example.com",
       status: "yes",
@@ -272,7 +315,7 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
 
   test("no mail when the guest skips the email field", async () => {
     const res = await submit("acme.show-pony.test", {
-      eventId: EVENT_ID,
+      eventId: acmeEventId,
       name: "Bob",
       status: "maybe",
     });
