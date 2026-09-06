@@ -17,6 +17,7 @@ import {
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
+import type { Registry } from "@cosmicdrift/kumiko-framework/engine";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import { withDemoReadOnlyFetch } from "../src/demo-mode";
 import { wireDemoModeRoutes } from "../src/demo-mode-routes";
@@ -27,6 +28,7 @@ import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures } from "../src/run-config";
 import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
+import { configureAllTenantSearchIndexes, resolveSearchAdapter } from "./search-wiring";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig } from "./stripe-billing-env";
 
@@ -39,6 +41,13 @@ function required(name: string): string {
 const BASE_DOMAIN = required("BASE_DOMAIN");
 const APEX_ORIGIN = `https://${BASE_DOMAIN}`;
 const port = Number.parseInt(process.env["PORT"] ?? "3000", 10);
+const searchAdapter = resolveSearchAdapter({
+  MEILI_URL: process.env["MEILI_URL"],
+  MEILI_MASTER_KEY: process.env["MEILI_MASTER_KEY"],
+});
+// registry is only reachable via extraContext (ProdSeedFn gets {db} only) —
+// capture it here so the boot-time search-index seed below can use it.
+let boundRegistry: Registry | null = null;
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -90,12 +99,16 @@ const handle = await runProdApp({
   ...kmsWiring,
   staticDir: "./dist",
   seedsDir: "./seeds",
-  extraContext: ({ registry, db }) => ({
-    configResolver,
-    _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    templateResolver: createTemplateResolverApi(db),
-    ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
-  }),
+  extraContext: ({ registry, db }) => {
+    boundRegistry = registry;
+    return {
+      configResolver,
+      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      templateResolver: createTemplateResolverApi(db),
+      searchAdapter,
+      ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
+    };
+  },
   // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
   anonymousAccess: ({ db }) => {
     bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
@@ -134,6 +147,22 @@ const handle = await runProdApp({
     },
   },
   seeds: [
+    async ({ db }) => {
+      if (!boundRegistry)
+        throw new Error(
+          "[show-pony][search] boundRegistry not set — extraContext must run before seeds",
+        );
+      // Boot-time sweep over all tenants (not just the demo ones) so RSVP
+      // search stays wired after every deploy and after new tenant signups.
+      try {
+        await configureAllTenantSearchIndexes(db, boundRegistry, searchAdapter);
+      } catch (err) {
+        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, must not crash-loop the pod when Meilisearch is unreachable
+        console.warn(
+          `[show-pony][search] Meilisearch unreachable, search index not configured: ${err}`,
+        );
+      }
+    },
     async ({ db }) => {
       await seedLegalContent(db);
     },
