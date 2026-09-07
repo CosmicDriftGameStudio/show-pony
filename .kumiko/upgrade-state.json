@@ -1,11 +1,5 @@
 {
-  "version": "0.235.0",
-  "appliedAt": "2026-09-07T17:10:17.766237Z",
-  "codemods": [
-    {
-      "version": "0.235.0",
-      "codemod": "scripts/codemod/unprocessable-error-details-reason.ts",
-      "title": "UnprocessableOpts.details can no longer carry its own `reason` key (fw#2460)."
-    }
-  ]
+  "version": "0.235.4",
+  "appliedAt": "2026-09-07T22:01:14.474009632Z",
+  "codemods": []
 }
