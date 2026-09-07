@@ -34,7 +34,7 @@ export async function checkStockCap(
   return writeFailure(
     new UnprocessableError(spec.code, {
       i18nKey: spec.i18nKey,
-      details: { field: spec.field, reason: spec.code, current, limit },
+      details: { field: spec.field, current, limit },
     }),
   );
 }

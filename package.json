@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
-    "@cosmicdriftgamestudio/kumiko-guards": "^0.28.5",
+    "@cosmicdriftgamestudio/kumiko-guards": "^0.28.6",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
     "@types/react": "^19.2.18",
