@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-28T07:53:26.478Z",
+  "generatedAt": "2026-09-07T17:56:26.115Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -1251,7 +1251,7 @@
             "email_bidx"
           ],
           "unique": true,
-          "whereSql": "\"email_bidx\" IS NOT NULL"
+          "whereSql": "\"email_bidx\" IS NOT NULL AND \"is_deleted\" = false"
         }
       ],
       "source": "managed",
