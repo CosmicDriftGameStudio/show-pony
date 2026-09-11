@@ -154,7 +154,7 @@ export const SCENARIOS: readonly Scenario[] = [
       await page.fill("#login-email", "sysadmin@show-pony.local");
       await page.fill("#login-password", "changeme");
       await page.locator("#login-password").press("Enter");
-      await expect(page.getByTestId("platform-overview-screen")).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible({ timeout: 15_000 });
     },
     settleMs: 500,
   },
