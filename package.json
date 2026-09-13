@@ -36,7 +36,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.12",
+    "@biomejs/biome": "^2.5.13",
     "@cosmicdriftgamestudio/kumiko-guards": "^0.31.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
