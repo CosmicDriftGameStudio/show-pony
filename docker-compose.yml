@@ -21,7 +21,7 @@ services:
     ports:
       - "6379:6379"
   meilisearch:
-    image: getmeili/meilisearch:v1.12
+    image: getmeili/meilisearch:v1.53
     environment:
       MEILI_MASTER_KEY: kumiko-dev-key
       MEILI_ENV: development
