@@ -1,4 +1,3 @@
-import { countWhere } from "@cosmicdrift/kumiko-framework/db";
 import { defineQueryHandler } from "@cosmicdrift/kumiko-framework/engine";
 import { z } from "zod";
 import { eventTable } from "../schema/event";
@@ -25,9 +24,9 @@ export const usageQuery = defineQueryHandler({
   access: { roles: ["Admin"] },
   async handler(_event, ctx): Promise<UsageInfo> {
     const tenantId = ctx.user.tenantId;
-    const caps = await resolveTierCaps(ctx.db.raw, tenantId);
-    const events = await countWhere(ctx.db.raw, eventTable, { tenantId });
-    const guests = await countWhere(ctx.db.raw, rsvpTable, { tenantId });
+    const caps = await resolveTierCaps(ctx.db, tenantId);
+    const events = (await ctx.db.selectMany(eventTable, { tenantId })).length;
+    const guests = (await ctx.db.selectMany(rsvpTable, { tenantId })).length;
     return {
       events: { used: events, limit: capLimit(caps.maxEvents) },
       guests: { used: guests, limit: capLimit(caps.maxGuests) },

@@ -3,7 +3,6 @@ import {
   subscriptionsProjectionTable,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { SUBSCRIPTION_STRIPE_FEATURE } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
-import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
 import {
   defineQueryHandler,
   QnTypes,
@@ -36,7 +35,7 @@ export const billingInfoQuery = defineQueryHandler({
   schema: z.object({}),
   access: { roles: ["Admin"] },
   async handler(_event, ctx): Promise<BillingInfo> {
-    const tier = await resolveTier(ctx.db.raw, ctx.user.tenantId);
+    const tier = await resolveTier(ctx.db, ctx.user.tenantId);
     const prices = getBillingPrices(ctx);
     if (!prices) return { enabled: false, tier, subscription: null, prices: {} };
 
@@ -47,11 +46,11 @@ export const billingInfoQuery = defineQueryHandler({
       ? await ctx.secrets.has(SYSTEM_TENANT_ID, STRIPE_API_KEY_CONFIG_QN)
       : false;
 
-    const sub = await fetchOne<{ status?: unknown; tier?: unknown; providerName?: unknown }>(
-      ctx.db.raw,
-      subscriptionsProjectionTable,
-      { id: subscriptionAggregateId(ctx.user.tenantId) },
-    );
+    const sub = await ctx.db.fetchOne<{
+      status?: unknown;
+      tier?: unknown;
+      providerName?: unknown;
+    }>(subscriptionsProjectionTable, { id: subscriptionAggregateId(ctx.user.tenantId) });
     return {
       enabled: billingLive && apiKeySet,
       tier,

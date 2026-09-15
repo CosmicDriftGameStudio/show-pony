@@ -24,7 +24,16 @@ import { registerShowPonyNav } from "./register/nav";
 import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
 
-const hostAccess = { access: { openToAll: true } } as const;
+const hostAccess = {
+  access: {
+    openToAll: {
+      reason:
+        "any signed-in member of the tenant may list and view this tenant's RSVPs, including " +
+        "each guest's name/email/note — show-pony has no organizer-only role yet, every signed-in " +
+        "member acts as a host with full access to the guest list",
+    },
+  },
+} as const;
 
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 

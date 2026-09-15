@@ -8,7 +8,16 @@ import {
 import { withStockCap } from "../cap-guard";
 import { eventEntity, eventTable } from "../schema/event";
 
-const hostAccess = { access: { openToAll: true } } as const;
+const hostAccess = {
+  access: {
+    openToAll: {
+      reason:
+        "any signed-in member of the tenant may create, edit, delete and view this tenant's " +
+        "events — show-pony has no per-user event ownership or organizer role yet, every " +
+        "signed-in member acts as a host",
+    },
+  },
+} as const;
 
 export const eventCreateHandler = withStockCap(
   defineEntityCreateHandler("event", eventEntity, hostAccess),

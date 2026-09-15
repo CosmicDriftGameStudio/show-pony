@@ -28,7 +28,7 @@ export const rsvpSubmitHandler = defineWriteHandler({
     const found = await findEvent(ctx, (row) => row.id === event.payload.eventId);
     if (!found) return failNotFound("event", event.payload.eventId);
 
-    const capFailure = await checkStockCap(ctx.db.raw, event.user.tenantId, {
+    const capFailure = await checkStockCap(ctx.db, event.user.tenantId, {
       table: rsvpTable,
       limit: (caps) => caps.maxGuests,
       code: "guest_limit_reached",
