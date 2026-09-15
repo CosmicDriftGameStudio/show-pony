@@ -1,5 +1,5 @@
 import { tierAssignmentEntity } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
-import { buildEntityTable, type DbRunner, fetchOne } from "@cosmicdrift/kumiko-framework/db";
+import { buildEntityTable, type TenantDb } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   capsForTier,
@@ -11,12 +11,12 @@ import {
 
 export const tierAssignmentTable = buildEntityTable("tier-assignment", tierAssignmentEntity);
 
-export async function resolveTier(db: DbRunner, tenantId: TenantId): Promise<TierName> {
-  const row = await fetchOne<{ tier?: unknown }>(db, tierAssignmentTable, { tenantId });
+export async function resolveTier(db: TenantDb, tenantId: TenantId): Promise<TierName> {
+  const row = await db.fetchOne<{ tier?: unknown }>(tierAssignmentTable, { tenantId });
   const tier = row?.tier;
   return typeof tier === "string" && isTierName(tier) ? tier : DEFAULT_TIER;
 }
 
-export async function resolveTierCaps(db: DbRunner, tenantId: TenantId): Promise<ShowPonyCaps> {
+export async function resolveTierCaps(db: TenantDb, tenantId: TenantId): Promise<ShowPonyCaps> {
   return capsForTier(await resolveTier(db, tenantId));
 }

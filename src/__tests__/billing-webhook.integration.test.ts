@@ -15,7 +15,7 @@ import {
   TierEngineHandlers,
 } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
-import { countWhere } from "@cosmicdrift/kumiko-framework/db";
+import { countWhere, createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   createTestUser,
@@ -54,6 +54,10 @@ const features = composeFeatures(
 
 let stack: TestStack;
 let tierSyncFailureTenant: TenantId | null = null;
+
+function tierResolverDb(tenantId: TenantId) {
+  return createTenantDb(stack.db, tenantId, "system");
+}
 const PLATFORM_TENANT = "00000000-0000-4000-8000-000000000001";
 const sysadmin = createTestUser({
   id: "platform-sysadmin",
@@ -166,13 +170,13 @@ async function postSignedWebhook(payload: string, secret = TEST_SECRET): Promise
 describe("show-pony billing webhook → tier-sync", () => {
   test("subscription.created (starter) sets tier-assignment=starter", async () => {
     const tenantId = await createTenant("sp-billing-starter");
-    expect(await resolveTier(stack.db, tenantId)).toBe("free");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("free");
 
     const res = await postSignedWebhook(
       buildStripeSubscriptionEvent({ eventId: "evt_sp_created_1", tenantId }),
     );
     expect(res.status).toBe(200);
-    expect(await resolveTier(stack.db, tenantId)).toBe("starter");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("starter");
   });
 
   test("subscription canceled → tier falls back to free", async () => {
@@ -184,7 +188,7 @@ describe("show-pony billing webhook → tier-sync", () => {
         priceId: "price_pro_sp",
       }),
     );
-    expect(await resolveTier(stack.db, tenantId)).toBe("pro");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("pro");
 
     const canceled = await postSignedWebhook(
       buildStripeSubscriptionEvent({
@@ -196,7 +200,7 @@ describe("show-pony billing webhook → tier-sync", () => {
       }),
     );
     expect(canceled.status).toBe(200);
-    expect(await resolveTier(stack.db, tenantId)).toBe("free");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("free");
   });
 
   test("legacy tenant without tier row → create fallback", async () => {
@@ -211,7 +215,7 @@ describe("show-pony billing webhook → tier-sync", () => {
       }),
     );
     expect(res.status).toBe(200);
-    expect(await resolveTier(stack.db, tenantId)).toBe("pro");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("pro");
     expect(await countWhere(stack.db, tierAssignmentTable, { tenantId })).toBe(1);
   });
 
@@ -233,7 +237,7 @@ describe("show-pony billing webhook → tier-sync", () => {
     expect(firstBody.error.code).toBe("subscription_webhook_processing_failed");
     // The subscription write itself went through for real — only tier-sync
     // was injected to fail — so the projection already reflects "starter".
-    expect(await resolveTier(stack.db, tenantId)).toBe("free");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("free");
 
     // Stripe retries the exact same event (same id) after a 500.
     tierSyncFailureTenant = null;
@@ -241,6 +245,6 @@ describe("show-pony billing webhook → tier-sync", () => {
       buildStripeSubscriptionEvent({ eventId: "evt_sp_sync_fail_1", tenantId }),
     );
     expect(retried.status).toBe(200);
-    expect(await resolveTier(stack.db, tenantId)).toBe("starter");
+    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("starter");
   });
 });

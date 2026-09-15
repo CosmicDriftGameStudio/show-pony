@@ -1,5 +1,5 @@
 import { enforceStockCap } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
-import { countWhere, type DbRunner, type WhereObject } from "@cosmicdrift/kumiko-framework/db";
+import type { TenantDb, WhereObject } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId, WriteHandlerDef } from "@cosmicdrift/kumiko-framework/engine";
 import {
   UnprocessableError,
@@ -10,7 +10,7 @@ import type { ShowPonyCaps } from "./tier-map";
 import { resolveTierCaps } from "./tier-resolver";
 
 export type StockCapSpec = {
-  readonly table: Parameters<typeof countWhere>[1];
+  readonly table: Parameters<TenantDb["selectMany"]>[0];
   readonly limit: (caps: ShowPonyCaps) => number;
   readonly where?: WhereObject;
   readonly code: string;
@@ -19,12 +19,12 @@ export type StockCapSpec = {
 };
 
 export async function checkStockCap(
-  db: DbRunner,
+  db: TenantDb,
   tenantId: TenantId,
   spec: StockCapSpec,
 ): Promise<WriteFailure | null> {
   const caps = await resolveTierCaps(db, tenantId);
-  const current = await countWhere(db, spec.table, { tenantId, ...spec.where });
+  const current = (await db.selectMany(spec.table, { tenantId, ...spec.where })).length;
   const { state, limit } = enforceStockCap({
     current,
     limit: spec.limit(caps),
@@ -43,7 +43,7 @@ export function withStockCap(handler: WriteHandlerDef, spec: StockCapSpec): Writ
   return {
     ...handler,
     handler: async (event, ctx) => {
-      const failure = await checkStockCap(ctx.db.raw, event.user.tenantId, spec);
+      const failure = await checkStockCap(ctx.db, event.user.tenantId, spec);
       return failure ?? handler.handler(event, ctx);
     },
   };
