@@ -24,16 +24,11 @@ import { registerShowPonyNav } from "./register/nav";
 import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
 
-const hostAccess = {
-  access: {
-    openToAll: {
-      reason:
-        "any signed-in member of the tenant may list and view this tenant's RSVPs, including " +
-        "each guest's name/email/note — show-pony has no organizer-only role yet, every signed-in " +
-        "member acts as a host with full access to the guest list",
-    },
-  },
-} as const;
+// RSVP rows carry guest PII (name/email/note) — unlike event CRUD, this is
+// restricted to Admin rather than openToAll: show-pony has no dedicated
+// organizer role yet, and Admin is the same privileged role billing-info
+// and usage already gate on.
+const rsvpReadAccess = { access: { roles: ["Admin"] } } as const;
 
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
@@ -57,8 +52,8 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.entity("rsvp", rsvpEntity);
   r.writeHandler(rsvpSubmitHandler);
 
-  r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, hostAccess));
-  r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, hostAccess));
+  r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, rsvpReadAccess));
+  r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, rsvpReadAccess));
 
   r.queryHandler(billingInfoQuery);
   r.queryHandler(usageQuery);
