@@ -199,6 +199,7 @@ if (typeof Bun !== "undefined") {
 
   let shuttingDown = false;
   const shutdown = async (_signal: string) => {
+    // skip: shutdown already in progress — nothing left to do.
     if (shuttingDown) return;
     shuttingDown = true;
     try {
