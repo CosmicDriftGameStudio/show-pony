@@ -1,6 +1,6 @@
 {
   "kind": "app",
-  "sourceRoots": ["src", "bin"],
+  "sourceRoots": ["src", "bin", "seeds"],
   "testGlobs": ["src/**/*.{test,integration}.{ts,tsx}"],
-  "excludes": ["**/node_modules/**", "**/dist/**", "bin/main.ts"]
+  "excludes": ["**/node_modules/**", "**/dist/**"]
 }
