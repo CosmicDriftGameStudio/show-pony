@@ -87,6 +87,7 @@ describe("demo seed fix: set-tenant-tier grant + rsvp:submit extraRoles", () => 
       "showpony:write:event:create",
       eventPayload("tier-grant-event-one"),
       DEMO_TENANT_ID,
+      ["Admin"],
     );
     expect(first.isSuccess).toBe(true);
 
@@ -97,6 +98,7 @@ describe("demo seed fix: set-tenant-tier grant + rsvp:submit extraRoles", () => 
       "showpony:write:event:create",
       eventPayload("tier-grant-event-two"),
       DEMO_TENANT_ID,
+      ["Admin"],
     );
     expect(second.isSuccess).toBe(true);
   });
@@ -108,6 +110,7 @@ describe("demo seed fix: set-tenant-tier grant + rsvp:submit extraRoles", () => 
       "showpony:write:event:create",
       eventPayload("rsvp-access-target"),
       DEMO_TENANT_ID,
+      ["Admin"],
     );
     expect(event.isSuccess).toBe(true);
     if (!event.isSuccess) throw new Error(`event:create failed: ${event.error?.code}`);
