@@ -100,6 +100,10 @@ export default {
             changes: { description: ROOFTOP_DESC },
           },
           DEMO_TENANT_ID,
+          // event:update is Admin-only (kumiko-framework#2854 checklist item
+          // C) — the bare system actor needs the role explicitly, same as
+          // the SystemAdmin grant above and rsvp:submit's anonymous below.
+          ["Admin"],
         );
       } catch (err) {
         seedWarn("rooftop description patch", err);
@@ -119,6 +123,8 @@ export default {
           guestLimit: 80,
         },
         DEMO_TENANT_ID,
+        // event:create is Admin-only — see the update-branch comment above.
+        ["Admin"],
       );
       const createdId =
         created.isSuccess && typeof (created.data as { id?: unknown })?.id === "string"
@@ -145,6 +151,7 @@ export default {
             guestLimit: 40,
           },
           DEMO_TENANT_ID,
+          ["Admin"],
         );
       } catch (err) {
         seedWarn("warmup event", err);
@@ -179,6 +186,7 @@ export default {
             changes: { description: ACME_DESC },
           },
           ACME_TENANT_ID,
+          ["Admin"],
         );
       } catch (err) {
         seedWarn("acme description patch", err);
@@ -196,6 +204,7 @@ export default {
             guestLimit: 60,
           },
           ACME_TENANT_ID,
+          ["Admin"],
         );
       } catch (err) {
         seedWarn("acme event", err);
