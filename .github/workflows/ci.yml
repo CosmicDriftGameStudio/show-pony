@@ -53,18 +53,26 @@ jobs:
       # validateBoot rejects the composed features.
       - run: bun kumiko-schema validate
       - run: bun run lint
-      - name: HTML-Escape guard
+      - name: Public guards
         env:
           KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-html-escape
-      - name: No-Date-API guard
+        run: |
+          if [ -e node_modules/.bin/kumiko-guards ]; then
+            bun kumiko-guards guards
+          else
+            echo "::error::kumiko-guards (public) missing"
+            exit 1
+          fi
+      - name: Public checks
         env:
           KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-no-date-api
-      - name: Silent-Skip guard
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-silent-skip
+        run: |
+          if [ -e node_modules/.bin/kumiko-guards ]; then
+            bun kumiko-guards checks
+          else
+            echo "::error::kumiko-guards (public) missing"
+            exit 1
+          fi
       - name: Comment-Language guard
         # Baseline-Regression-Guard (infra#295): failt nur bei NEUEN
         # DE-Kommentaren, Altbestand via .kumiko-comment-lang-baseline.json
@@ -76,27 +84,6 @@ jobs:
         env:
           KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guard-ui
-      - name: Primitives-discipline guard
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-primitives-discipline
-      - name: Lib-test-coverage guard
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-lib-test-coverage
-      - name: No-logic-in-views guard
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-no-logic-in-views
-      - name: Complexity guard
-        # Baseline-Regression-Guard (kumiko-framework#1282): failt nur wenn ein
-        # File mehr Hotspots (Komplexitaet >= 15) hat als .kumiko-complexity-
-        # baseline.json einfriert.
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-check-complexity
-      - name: Upgrade-State guard
-        run: bun kumiko-guard-upgrade-state
       - run: |
           ulimit -n 65536 || true
           bun --config=bunfig.ci.toml test --dots
