@@ -32,6 +32,7 @@ export const inviteBrandingQuery = defineQueryHandler({
   name: "invite-branding",
   schema: z.object({}),
   access: { roles: INVITE_BRANDING_READ_ROLES },
+  rateLimit: { per: "ip", limit: 60, windowSeconds: 60 },
   handler: async (_query, ctx): Promise<InviteBranding> => {
     const base = await readManagedBranding(ctx.config);
     const [heroImageUrl, heroStyleRaw] = await Promise.all([
