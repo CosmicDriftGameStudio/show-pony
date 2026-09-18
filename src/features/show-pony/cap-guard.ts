@@ -1,50 +1,12 @@
-import { enforceStockCap } from "@cosmicdrift/kumiko-bundled-features/cap-counter";
-import type { TenantDb, WhereObject } from "@cosmicdrift/kumiko-framework/db";
-import type { TenantId, WriteHandlerDef } from "@cosmicdrift/kumiko-framework/engine";
 import {
-  UnprocessableError,
-  type WriteFailure,
-  writeFailure,
-} from "@cosmicdrift/kumiko-framework/errors";
+  type StockCapSpec as BundledStockCapSpec,
+  createStockCapGuard,
+} from "@cosmicdrift/kumiko-bundled-features/cap-counter";
 import type { ShowPonyCaps } from "./tier-map";
 import { resolveTierCaps } from "./tier-resolver";
 
-export type StockCapSpec = {
-  readonly table: Parameters<TenantDb["selectMany"]>[0];
-  readonly limit: (caps: ShowPonyCaps) => number;
-  readonly where?: WhereObject;
-  readonly code: string;
-  readonly i18nKey: string;
-  readonly field: string;
-};
+export type StockCapSpec = BundledStockCapSpec<ShowPonyCaps>;
 
-export async function checkStockCap(
-  db: TenantDb,
-  tenantId: TenantId,
-  spec: StockCapSpec,
-): Promise<WriteFailure | null> {
-  const caps = await resolveTierCaps(db, tenantId);
-  const current = (await db.selectMany(spec.table, { tenantId, ...spec.where })).length;
-  const { state, limit } = enforceStockCap({
-    current,
-    limit: spec.limit(caps),
-    profile: "hardSlot",
-  });
-  if (state !== "exceeded") return null;
-  return writeFailure(
-    new UnprocessableError(spec.code, {
-      i18nKey: spec.i18nKey,
-      details: { field: spec.field, current, limit },
-    }),
-  );
-}
-
-export function withStockCap(handler: WriteHandlerDef, spec: StockCapSpec): WriteHandlerDef {
-  return {
-    ...handler,
-    handler: async (event, ctx) => {
-      const failure = await checkStockCap(ctx.db, event.user.tenantId, spec);
-      return failure ?? handler.handler(event, ctx);
-    },
-  };
-}
+export const { checkStockCap, withStockCap } = createStockCapGuard<ShowPonyCaps>((db) =>
+  resolveTierCaps(db, db.tenantId),
+);
