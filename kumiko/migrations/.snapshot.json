@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-15T05:31:10.393Z",
+  "generatedAt": "2026-09-19T20:31:09.279Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -1470,6 +1470,45 @@
         "payload",
         "error"
       ]
+    },
+    {
+      "tableName": "store_tenant_job_failures",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "serial",
+          "notNull": true,
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "job_name",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "subject",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "message_key",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "failed_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        }
+      ],
+      "indexes": [],
+      "source": "unmanaged"
     },
     {
       "tableName": "store_user_sessions",
