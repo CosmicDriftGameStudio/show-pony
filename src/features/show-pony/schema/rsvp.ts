@@ -16,7 +16,11 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 // tenant.
 export const rsvpEntity = createEntity({
   fields: {
-    eventId: createTextField({ required: true }),
+    eventId: createTextField({
+      required: true,
+      personal: false,
+      reason: "technical_reference",
+    }),
     // Guest PII — personal: "self" so subject-key KMS can encrypt at rest and
     // crypto-shredding:write:forget-subject can erase the key. find fuzzy/exact
     // is allowed with a subject annotation since fw#1610 (search decrypts into
