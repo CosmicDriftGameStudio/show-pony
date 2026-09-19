@@ -14,11 +14,21 @@ import {
 // not globally.
 export const eventEntity = createEntity({
   fields: {
-    title: createTextField({ required: true, sortable: true }),
-    slug: createTextField({ required: true }),
+    title: createTextField({
+      required: true,
+      sortable: true,
+      personal: false,
+      reason: "is_business_data",
+    }),
+    slug: createTextField({
+      required: true,
+      personal: false,
+      reason: "technical_reference",
+    }),
     startsAt: createTimestampField({ required: true }),
-    location: createTextField({}),
-    // Host-authored public event copy — business data, not third-party PII.
+    location: createTextField({ personal: false, reason: "is_business_data" }),
+    // Host-authored public event copy, like title/slug/location above —
+    // event:by-slug serves it to anonymous visitors by design.
     description: createLongTextField({
       personal: false,
       reason: "is_business_data",

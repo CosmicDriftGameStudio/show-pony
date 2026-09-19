@@ -21,16 +21,33 @@ export const inviteBrandingScreen: ConfigEditScreenDefinition = {
     heroStyle: INVITE_BRANDING_QN.heroStyle,
   },
   fields: {
-    title: createTextField({ maxLength: 200 }),
+    title: createTextField({
+      maxLength: 200,
+      personal: false,
+      reason: "tenant_branding_copy",
+    }),
     description: createTextField({
       maxLength: 500,
       multiline: { rows: 3 },
       personal: false,
       reason: "tenant_branding_copy",
     }),
-    accentColor: createTextField({ maxLength: 9 }),
-    logoUrl: createTextField({ maxLength: 2000, format: "url" }),
-    heroImageUrl: createTextField({ maxLength: 2000 }),
+    accentColor: createTextField({
+      maxLength: 9,
+      personal: false,
+      reason: "tenant_branding_copy",
+    }),
+    logoUrl: createTextField({
+      maxLength: 2000,
+      format: "url",
+      personal: false,
+      reason: "tenant_branding_copy",
+    }),
+    heroImageUrl: createTextField({
+      maxLength: 2000,
+      personal: false,
+      reason: "tenant_branding_copy",
+    }),
     heroStyle: createSelectField({ options: HERO_STYLES }),
   },
   layout: {
