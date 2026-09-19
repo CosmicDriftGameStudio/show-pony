@@ -1,0 +1,10 @@
+{
+  "format": 1,
+  "generated": "2026-09-19",
+  "total": 8,
+  "perFile": {
+    "src/features/show-pony/schema/event.ts": 3,
+    "src/features/show-pony/schema/rsvp.ts": 1,
+    "src/features/show-pony/screens/invite-branding-screen.ts": 4
+  }
+}
