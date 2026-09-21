@@ -69,8 +69,37 @@ test("06-host-nav", async ({ browser }) => {
       await expect(page.getByText("Ava Chen").first()).toBeVisible({ timeout: 15_000 });
       await hold(14);
       await page.getByRole("link", { name: /^Events$|^Neues Event$/ }).first().click();
-      await expect(page.getByText("Winter Warmup Drinks").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
       await hold(12);
+    },
+    STORAGE_STATE,
+  );
+});
+
+test("06-create-event", async ({ browser }) => {
+  mkdirSync(LOOP_DIR, { recursive: true });
+  await recordGif(
+    browser,
+    resolve(LOOP_DIR, ".frames-06-create-event"),
+    resolve(LOOP_DIR, "06-create-event.gif"),
+    HOST_VIEWPORT,
+    async (page, { hold, type }) => {
+      await page.goto(`${APEX_URL}/host/event-edit`);
+      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible({
+        timeout: 15_000,
+      });
+      await hold(10);
+      await type(page.getByRole("textbox", { name: /Title/i }), "Summer Rooftop Meetup", 2);
+      await type(page.getByRole("textbox", { name: /Slug/i }), "summer-rooftop-meetup", 2);
+      await page.getByRole("textbox", { name: /Starts at/i }).fill("10/24/2026");
+      await page.getByRole("textbox", { name: "Time" }).fill("19:00");
+      await type(page.getByRole("textbox", { name: /Location/i }), "Sky Lounge", 2);
+      await hold(6);
+      await page.getByRole("textbox", { name: /Description/i }).fill("An evening under the stars.");
+      await page.getByRole("button", { name: /Create|Save|Speichern/i }).click();
+      await expect(page).toHaveURL(/\/host\/event-list/, { timeout: 15_000 });
+      await expect(page.getByText("Summer Rooftop Meetup").first()).toBeVisible({ timeout: 15_000 });
+      await hold(16);
     },
     STORAGE_STATE,
   );

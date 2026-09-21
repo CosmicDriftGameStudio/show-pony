@@ -2,7 +2,7 @@
 // captures give readable tutorial loops at a predictable duration.
 
 import { execSync } from "node:child_process";
-import { mkdirSync, readdirSync, unlinkSync } from "node:fs";
+import { mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Browser, Locator, Page } from "@playwright/test";
 
@@ -41,6 +41,9 @@ function framesToGif(frameDir: string, gifPath: string): void {
     `ffmpeg -y -framerate ${GIF_FPS} -i "${frameDir}/frame-%04d.png" -vf "${gifFilter()}" -loop 0 "${gifPath}"`,
     { stdio: "pipe" },
   );
+  if (!statSync(gifPath).isFile() || statSync(gifPath).size === 0) {
+    throw new Error(`loop recorder produced an empty GIF: ${gifPath}`);
+  }
 }
 
 function cleanDir(dir: string): void {

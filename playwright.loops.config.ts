@@ -1,6 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 import { APEX_URL, PORT } from "./e2e/screenshots/constants";
 
+// Loop setup also creates a fresh event, so its sysadmin seed grants the demo
+// tenant the starter cap. Screenshot generation keeps the ordinary free-tier
+// fixture unchanged.
+process.env.SHOWPONY_LOOP_MODE = "1";
+
 export default defineConfig({
   testDir: "./e2e/loops",
   fullyParallel: false,

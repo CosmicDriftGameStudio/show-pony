@@ -110,6 +110,15 @@ embeds, sync the tutorial mirror:
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run lint` | Biome |
 | `bun run screenshots` | regenerate the tutorial screenshots |
+| `bun run loops:check` | verify that `ffmpeg` is available |
+| `bun run loops` | regenerate the tutorial GIFs (writes to `LOOP_DIR`) |
+
+Loop output is intentionally not committed in this repository. To refresh the
+public tutorial assets, write directly into the docs checkout:
+
+```bash
+LOOP_DIR=../kumiko-platform/apps/docs/public/loops/show-pony bun run loops
+```
 
 ## License
 
