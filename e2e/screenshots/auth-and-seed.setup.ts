@@ -15,6 +15,7 @@ import {
   publicEventUrl,
   STORAGE_STATE,
 } from "./constants";
+import { DEMO_TENANT } from "../../bin/demo-tenants";
 
 const HOST = { email: "admin@show-pony.local", password: "changeme" };
 
@@ -78,12 +79,30 @@ async function switchTenant(page: import("@playwright/test").Page, targetLabel: 
   ).toBeVisible();
 }
 
+async function grantDemoTier(browser: import("@playwright/test").Browser): Promise<void> {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto(`${APEX_URL}/login`);
+  await page.fill("#login-email", "sysadmin@show-pony.local");
+  await page.fill("#login-password", "changeme");
+  await page.locator("#login-password").press("Enter");
+  await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible({ timeout: 15_000 });
+
+  const result = await authedWrite(page, "tier-engine:write:set-tenant-tier", {
+    tenantId: DEMO_TENANT.id,
+    tier: "starter",
+  });
+  expect(JSON.parse(result.body).isSuccess, result.body).toBe(true);
+  await context.close();
+}
+
 setup("login + seed demo event", async ({ page, browser }) => {
   await page.goto(`${APEX_URL}/login`);
   await page.fill("#login-email", HOST.email);
   await page.fill("#login-password", HOST.password);
   await page.locator("#login-password").press("Enter");
   await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+  if (process.env.SHOWPONY_LOOP_MODE === "1") await grantDemoTier(browser);
 
   const rooftopDesc = `✨ You're on the list for something special.
 
