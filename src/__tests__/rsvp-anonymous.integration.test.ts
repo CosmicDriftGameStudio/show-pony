@@ -95,7 +95,7 @@ beforeAll(async () => {
   await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
   await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });
 
-  // The rsvp:submit event-existence guard (kumiko-platform#609/1) rejects any
+  // The rsvp:submit event-existence guard rejects any
   // eventId that doesn't resolve to a real, tenant-scoped event row — every
   // test that expects a submit to actually reach the handler needs one.
   const acmeEvent = await stack.http.writeOk<{ id: string }>(
@@ -158,7 +158,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     expect(globexBody.data.rows.map((r) => r.name)).toEqual(["Bob"]);
   });
 
-  test("unknown but well-formed eventId → 404 not_found, no rsvp row is created (kumiko-platform#609/1)", async () => {
+  test("unknown but well-formed eventId → 404 not_found, no rsvp row is created", async () => {
     const res = await submit("acme.show-pony.test", {
       eventId: "00000000-0000-4000-8000-0000000000ff",
       name: "Ghost",
@@ -173,7 +173,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     expect(acmeBody.data.rows.map((r) => r.name)).not.toContain("Ghost");
   });
 
-  test("Globex's real eventId submitted on Acme's subdomain → 404 not_found, tenant-scoped guard excludes foreign tenants (kumiko-platform#609/1)", async () => {
+  test("Globex's real eventId submitted on Acme's subdomain → 404 not_found, tenant-scoped guard excludes foreign tenants", async () => {
     const res = await submit("acme.show-pony.test", {
       eventId: globexEventId,
       name: "Mallory",
@@ -216,7 +216,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   });
 
   test("forged X-Tenant = Globex's REAL tenant id on acme's subdomain → 400 tenant_mismatch, RSVP does NOT land in Globex (#51)", async () => {
-    // The actual kumiko-platform#278/1 / show-pony#51 scenario: a guest on
+    // A guest on
     // acme.show-pony.test claims a real, active, OTHER tenant's id via the
     // header — not a garbage id tenantExists would catch anyway. Before
     // resolverTrust: "authoritative" this landed the RSVP in Globex's
