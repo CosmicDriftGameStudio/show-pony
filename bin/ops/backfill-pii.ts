@@ -1,6 +1,7 @@
 // One-time PII event backfill (fw#799) — re-encrypts pre-KMS plaintext PII
 // in kumiko_events and rebuilds the projections (ciphertext + blind index).
-// Runbook: kumiko-platform/docs/runbooks/pii-event-backfill.md
+// Follow the deployment team's private PII-backfill runbook before running
+// this one-time operation.
 //
 // Required for RSVP guest data (show-pony#130): the switch from
 // `personal: false` to `personal: "self"` on rsvp.name/email/note only

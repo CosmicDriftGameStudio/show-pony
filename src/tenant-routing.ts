@@ -121,7 +121,7 @@ export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDo
     // A client-supplied X-Tenant header disagreeing with the subdomain (e.g.
     // a guest on acme.show-pony.<domain> claiming Globex's real tenant id)
     // is rejected with 400 tenant_mismatch instead of silently overriding
-    // the subdomain (kumiko-platform#278/1 / #51).
+    // the subdomain.
     resolverTrust: "authoritative" as const,
   };
 }
