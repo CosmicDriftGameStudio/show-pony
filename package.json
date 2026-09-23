@@ -19,9 +19,10 @@
     "test": "bun test --dots",
     "test:integration": "bun kumiko-testing integration",
     "screenshots": "bunx --bun playwright test --config=playwright.screenshots.config.ts",
+    "e2e": "bunx --bun playwright test",
     "loops:check": "bun scripts/check-loops.ts",
-    "loops": "bun run loops:check && bunx --bun playwright test --config=playwright.loops.config.ts",
-    "loops:dry-run": "bunx --bun playwright test --config=playwright.loops.config.ts --list"
+    "loops": "bun run loops:check && bun run e2e",
+    "loops:dry-run": "bunx --bun playwright test --list"
   },
   "dependencies": {
     "@cosmicdrift/kumiko-bundled-features": "^0.305.0",
