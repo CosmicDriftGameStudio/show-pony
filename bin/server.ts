@@ -23,6 +23,10 @@ import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
+import {
+  createE2eSeedRoutes,
+  isE2eSeedingEnabled,
+} from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import { buildDemoModeRoutes } from "../src/demo-mode-routes";
 import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { buildTermsRoutes } from "../src/legal-terms";
@@ -162,6 +166,8 @@ await runDevApp({
     },
   ],
   extraRoutes: [
+    // show-pony gates writes on its own "Admin" role; SEEDABLE_ROLES only covers TenantAdmin/Member.
+    ...(isE2eSeedingEnabled() ? createE2eSeedRoutes({ extraRoles: ["Admin"] }) : []),
     ...buildDemoModeRoutes(port),
     ...buildTermsRoutes(),
     ...(stripeBilling !== null ? [buildSubscriptionWebhookRoute()] : []),

@@ -21,19 +21,11 @@ import {
   mailTransportInMemoryFeature,
 } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
-import {
-  setupTestStack,
-  type TestStack,
-  TestUsers,
-  testTenantId,
-  unsafeCreateEntityTable,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../features/show-pony/feature";
+import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
@@ -44,15 +36,17 @@ const configResolver = createConfigResolver({
 });
 
 const BASE_DOMAIN = "show-pony.test";
-const ACME = testTenantId(1);
-const GLOBEX = testTenantId(2);
 const EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
 
 let stack: TestStack;
+let acmeId: string;
+let globexId: string;
+let acmeHostname: string;
+let globexHostname: string;
 let acmeEventId: string;
 let globexEventId: string;
-const acmeHost = { ...TestUsers.admin, tenantId: ACME };
-const globexHost = { ...TestUsers.admin, tenantId: GLOBEX, id: "globex-host-id" };
+let acmeHost: SessionUser;
+let globexHost: SessionUser;
 
 function submit(
   host: string,
@@ -68,32 +62,38 @@ function submit(
 }
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: [
+  stack = await setupAppTestStack(
+    [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       mailFoundationFeature,
       mailTransportInMemoryFeature,
       showPonyFeature,
     ],
-    // Exact boot wiring from bin/server.ts: the factory gets the stack db and
-    // builds the real DB resolver.
-    anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+    {
+      // Exact boot wiring from bin/server.ts: the factory gets the stack db
+      // and builds the real DB resolver.
+      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
-  await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });
+  // Subdomain routing resolves the tenant via a real DB lookup by key
+  // (tenant-routing.ts enabledTenantByKey) — needs persisted rows.
+  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  const globex = await seedTenant(stack, { name: "Globex", persist: true });
+  acmeId = acme.id;
+  globexId = globex.id;
+  acmeHostname = `${acme.key}.${BASE_DOMAIN}`;
+  globexHostname = `${globex.key}.${BASE_DOMAIN}`;
+  acmeHost = (await acme.addUser(["Admin"])).session;
+  globexHost = (await globex.addUser(["Admin"])).session;
 
   // The rsvp:submit event-existence guard rejects any
   // eventId that doesn't resolve to a real, tenant-scoped event row — every
@@ -127,13 +127,13 @@ afterAll(async () => stack?.cleanup());
 
 beforeEach(async () => {
   await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
-  clearInbox(ACME);
-  clearInbox(GLOBEX);
+  clearInbox(acmeId);
+  clearInbox(globexId);
 });
 
 describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   test("RSVP lands on the host tenant resolved from the subdomain", async () => {
-    const acme = await submit("acme.show-pony.test", {
+    const acme = await submit(acmeHostname, {
       eventId: acmeEventId,
       name: "Alice",
       status: "yes",
@@ -141,7 +141,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     });
     expect(acme.status).toBe(200);
 
-    const globex = await submit("globex.show-pony.test", {
+    const globex = await submit(globexHostname, {
       eventId: globexEventId,
       name: "Bob",
       status: "maybe",
@@ -159,7 +159,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   });
 
   test("unknown but well-formed eventId → 404 not_found, no rsvp row is created", async () => {
-    const res = await submit("acme.show-pony.test", {
+    const res = await submit(acmeHostname, {
       eventId: "00000000-0000-4000-8000-0000000000ff",
       name: "Ghost",
       status: "yes",
@@ -174,7 +174,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   });
 
   test("Globex's real eventId submitted on Acme's subdomain → 404 not_found, tenant-scoped guard excludes foreign tenants", async () => {
-    const res = await submit("acme.show-pony.test", {
+    const res = await submit(acmeHostname, {
       eventId: globexEventId,
       name: "Mallory",
       status: "yes",
@@ -206,7 +206,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     // rather than the old tenant_not_found (which only proved the *unknown*
     // id was rejected, never that a REAL other tenant's id would be too).
     const res = await submit(
-      "acme.show-pony.test",
+      acmeHostname,
       { eventId: EVENT_ID, name: "Mallory", status: "yes" },
       { "X-Tenant": "00000000-0000-4000-8000-deadbeefdead" },
     );
@@ -224,9 +224,9 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     // resolveTenant's precedence). Now the resolver (Acme, from the host)
     // is authoritative and a disagreeing client tenant is rejected outright.
     const res = await submit(
-      "acme.show-pony.test",
+      acmeHostname,
       { eventId: EVENT_ID, name: "Mallory", status: "yes" },
-      { "X-Tenant": GLOBEX },
+      { "X-Tenant": globexId },
     );
     expect(res.status).toBe(400);
     const body = (await res.json()) as { error: { code: string } };
@@ -244,7 +244,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
       "POST",
       "/api/write",
       { type: "showpony:write:event:create", payload: { title: "Party", slug: "party" } },
-      { Host: "acme.show-pony.test" },
+      { Host: acmeHostname },
     );
     expect(res.status).toBe(403);
   });
@@ -261,7 +261,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     const res = await submit(
       BASE_DOMAIN,
       { eventId: EVENT_ID, name: "Mallory", status: "yes" },
-      { "X-Tenant": ACME },
+      { "X-Tenant": acmeId },
     );
     expect(res.status).toBe(400);
     const body = (await res.json()) as { error: { code: string } };
@@ -283,7 +283,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
 
 describe("guest confirmation mail (mail-foundation direct)", () => {
   test("sends a confirmation to the host tenant's inbox when email is given", async () => {
-    const res = await submit("acme.show-pony.test", {
+    const res = await submit(acmeHostname, {
       eventId: acmeEventId,
       name: "Alice",
       email: "alice@example.com",
@@ -291,35 +291,35 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
     });
     expect(res.status).toBe(200);
 
-    const inbox = getInbox(ACME);
+    const inbox = getInbox(acmeId);
     expect(inbox).toHaveLength(1);
     expect(inbox[0]?.to).toBe("alice@example.com");
     // The real event title, not the "your event" fallback — proves the
     // event-title lookup in sendRsvpConfirmation actually matched a row.
     expect(inbox[0]?.subject).toContain("Rooftop Launch Party");
     // Lands in the right tenant buffer — Globex stays empty.
-    expect(getInbox(GLOBEX)).toHaveLength(0);
+    expect(getInbox(globexId)).toHaveLength(0);
   });
 
   test("escapes HTML in the guest name — no injection into the mail body", async () => {
-    await submit("acme.show-pony.test", {
+    await submit(acmeHostname, {
       eventId: acmeEventId,
       name: "<script>alert(1)</script>",
       email: "mallory@example.com",
       status: "yes",
     });
-    const mail = getInbox(ACME)[0] as { html: string } | undefined;
+    const mail = getInbox(acmeId)[0] as { html: string } | undefined;
     expect(mail?.html).toContain("&lt;script&gt;");
     expect(mail?.html).not.toContain("<script>");
   });
 
   test("no mail when the guest skips the email field", async () => {
-    const res = await submit("acme.show-pony.test", {
+    const res = await submit(acmeHostname, {
       eventId: acmeEventId,
       name: "Bob",
       status: "maybe",
     });
     expect(res.status).toBe(200);
-    expect(getInbox(ACME)).toHaveLength(0);
+    expect(getInbox(acmeId)).toHaveLength(0);
   });
 });

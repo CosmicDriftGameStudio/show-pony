@@ -14,12 +14,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import { createSeedMigrationContext } from "@cosmicdrift/kumiko-framework/es-ops";
-import {
-  setupTestStack,
-  type TestStack,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { DEMO_TENANT_ID } from "../../seeds/_demo-event-db";
 import { eventTable } from "../features/show-pony/schema/event";
 import { rsvpTable } from "../features/show-pony/schema/rsvp";
@@ -38,9 +34,7 @@ beforeAll(async () => {
   // runProdApp adds via HAS_AUTH — composeFeatures is the single source of
   // truth for that composition.
   const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
-  stack = await setupTestStack({
-    features: composeFeatures(appFeatures, { includeBundled: true }),
-  });
+  stack = await setupAppTestStack(appFeatures);
   // setupTestStack auto-creates projection tables but not entity CRUD
   // tables — same recipe as billing-webhook.integration.test.ts.
   await unsafePushTables(stack.db, {

@@ -15,50 +15,43 @@ import {
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
-import {
-  setupTestStack,
-  type TestStack,
-  TestUsers,
-  testTenantId,
-  unsafeCreateEntityTable,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, showPonyFeature } from "../features/show-pony/feature";
+import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
+import { type TestStack, TestUsers, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
 
-const ACME = testTenantId(1);
 let stack: TestStack;
 let eventId: string;
-const admin = { ...TestUsers.admin, tenantId: ACME };
-const member = { ...TestUsers.user, tenantId: ACME };
+let admin: SessionUser;
+let member: SessionUser;
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: [
+  stack = await setupAppTestStack(
+    [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       mailFoundationFeature,
       mailTransportInMemoryFeature,
       showPonyFeature,
     ],
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+    {
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
+  const acme = await seedTenant(stack, { name: "Acme" });
+  // seedTenant's admin carries ROLES.TenantAdmin, not show-pony's own
+  // "Admin" role that event handlers gate on — addUser mints that role.
+  admin = (await acme.addUser(["Admin"])).session;
+  member = { ...TestUsers.user, tenantId: acme.id };
 
   const event = await stack.http.writeOk<{ id: string }>(
     "showpony:write:event:create",

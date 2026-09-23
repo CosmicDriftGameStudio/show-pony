@@ -17,24 +17,15 @@ import {
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
+import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { rebuildProjection } from "@cosmicdrift/kumiko-framework/pipeline";
-import {
-  setupTestStack,
-  type TestStack,
-  TestUsers,
-  testTenantId,
-  unsafeCreateEntityTable,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, showPonyFeature } from "../features/show-pony/feature";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 
 let stack: TestStack;
-const TENANT_ID = testTenantId(1);
-const host = { ...TestUsers.admin, tenantId: TENANT_ID };
+let host: SessionUser;
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -42,25 +33,24 @@ const configResolver = createConfigResolver({
 const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => null });
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: [
+  stack = await setupAppTestStack(
+    [
       createConfigFeature(),
       managedPages,
       mailFoundationFeature,
       mailTransportInMemoryFeature,
       showPonyFeature,
     ],
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+    {
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: TENANT_ID, key: "rebuildcheck", name: "Rebuild Check" });
+  const rebuildcheck = await seedTenant(stack, { name: "Rebuild Check" });
+  host = (await rebuildcheck.addUser(["Admin"])).session;
 });
 
 afterAll(async () => stack?.cleanup());

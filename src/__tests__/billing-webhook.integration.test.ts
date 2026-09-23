@@ -19,12 +19,11 @@ import { countWhere, createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   createTestUser,
-  setupTestStack,
   type TestStack,
   testTenantId,
   unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
+import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import Stripe from "stripe";
 import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
@@ -36,21 +35,18 @@ const PRICE_TO_TIER = { price_starter_sp: "starter", price_pro_sp: "pro" };
 
 const stripeForFixtures = new Stripe(TEST_API_KEY);
 
-const features = composeFeatures(
-  [
-    createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
-    createComplianceProfilesFeature(),
-    createTenantLifecycleFeature(),
-    billingFoundationFeature,
-    createSecretsFeature(),
-    createSubscriptionStripeFeature({
-      webhookSecret: TEST_SECRET,
-      apiKey: TEST_API_KEY,
-      priceToTier: PRICE_TO_TIER,
-    }),
-  ],
-  { includeBundled: true },
-);
+const features = [
+  createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
+  createComplianceProfilesFeature(),
+  createTenantLifecycleFeature(),
+  billingFoundationFeature,
+  createSecretsFeature(),
+  createSubscriptionStripeFeature({
+    webhookSecret: TEST_SECRET,
+    apiKey: TEST_API_KEY,
+    priceToTier: PRICE_TO_TIER,
+  }),
+];
 
 let stack: TestStack;
 
@@ -69,7 +65,7 @@ beforeAll(async () => {
   // buildServer's own SystemAdmin dispatcher (SignatureExtraRouteDeps),
   // built at request time — extraRoutes are mounted through setupTestStack
   // the same way runProdApp/runDevApp mount them.
-  stack = await setupTestStack({ features, extraRoutes: [buildSubscriptionWebhookRoute()] });
+  stack = await setupAppTestStack(features, { extraRoutes: [buildSubscriptionWebhookRoute()] });
   await unsafePushTables(stack.db, {
     config_values: configValuesTable,
     users: userTable,
@@ -220,9 +216,12 @@ describe("tier-sync failure self-heals on Stripe retry", () => {
   let selfHealStack: TestStack;
 
   beforeAll(async () => {
-    selfHealStack = await setupTestStack({
-      features,
+    // registryTables: false — createTierEngineFeature registers tier_assignments
+    // as an r.entity(), so the default auto-create would defeat this test's
+    // premise (the table must be genuinely absent until the manual push below).
+    selfHealStack = await setupAppTestStack(features, {
       extraRoutes: [buildSubscriptionWebhookRoute()],
+      registryTables: false,
     });
     await unsafePushTables(selfHealStack.db, {
       config_values: configValuesTable,
