@@ -18,7 +18,7 @@ export const rsvpSubmitSchema = z.object({
 export const rsvpSubmitHandler = defineWriteHandler({
   name: "rsvp:submit",
   schema: rsvpSubmitSchema,
-  access: { roles: [...access.anonymous] },
+  access: { roles: [...access.anonymous], personalData: "public-intake" },
   rateLimit: { per: "ip+handler", limit: 20, windowSeconds: 60 },
   description:
     "Records a guest's reply to an event invite with name, attendance status (yes, no or maybe), number of additional guests and optional email and note; callable anonymously from the public invite page, rejected when the event does not belong to this tenant or the plan's guest limit is reached, and sends a best-effort confirmation mail when an email is given.",
