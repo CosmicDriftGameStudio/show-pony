@@ -20,11 +20,12 @@ import {
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
+import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
-import { wireDemoModeRoutes } from "../src/demo-mode-routes";
-import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
-import { wireTermsRoutes } from "../src/legal-terms";
+import { buildDemoModeRoutes } from "../src/demo-mode-routes";
+import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
+import { buildTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures } from "../src/run-config";
@@ -160,23 +161,21 @@ await runDevApp({
       });
     },
   ],
-  extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
-    wireDemoModeRoutes(app, port);
-    wireTermsRoutes(app, createTemplateResolverApi(db));
-    if (stripeBilling !== null) {
-      wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
-    }
-    app.get("/screenshots/:file", async (c) => {
-      const r = await serveFromDir("screenshots", c.req.param("file"));
-      return r ?? c.notFound();
-    });
-    app.get("/logos/:file", async (c) => {
-      const r = await serveFromDir("logos", c.req.param("file"));
-      return r ?? c.notFound();
-    });
-    app.get("/heroes/:file", async (c) => {
-      const r = await serveFromDir("heroes", c.req.param("file"));
-      return r ?? c.notFound();
-    });
-  },
+  extraRoutes: [
+    ...buildDemoModeRoutes(port),
+    ...buildTermsRoutes(),
+    ...(stripeBilling !== null ? [buildSubscriptionWebhookRoute()] : []),
+    ...(["screenshots", "logos", "heroes"] as const).map(
+      (dir): ExtraRouteDefinition => ({
+        method: "GET",
+        path: `/${dir}/:file`,
+        entry: "anonymous",
+        handler: async (c) => {
+          const file = c.req.param("file");
+          const r = file ? await serveFromDir(dir, file) : null;
+          return r ?? c.notFound();
+        },
+      }),
+    ),
+  ],
 });
