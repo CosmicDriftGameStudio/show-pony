@@ -52,8 +52,20 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.entity("rsvp", rsvpEntity);
   r.writeHandler(rsvpSubmitHandler);
 
-  r.queryHandler(defineEntityListHandler("rsvp", rsvpEntity, rsvpReadAccess));
-  r.queryHandler(defineEntityDetailHandler("rsvp", rsvpEntity, rsvpReadAccess));
+  r.queryHandler(
+    defineEntityListHandler("rsvp", rsvpEntity, {
+      ...rsvpReadAccess,
+      description:
+        "Lists the tenant's guest replies with name, email, attendance status (yes, no or maybe) and number of additional guests; Admin only, because the rows carry guest personal data.",
+    }),
+  );
+  r.queryHandler(
+    defineEntityDetailHandler("rsvp", rsvpEntity, {
+      ...rsvpReadAccess,
+      description:
+        "Reads one guest reply by id with the guest's name, email, note, attendance status (yes, no or maybe) and number of additional guests; Admin only, because these fields are guest personal data.",
+    }),
+  );
 
   r.queryHandler(billingInfoQuery);
   r.queryHandler(usageQuery);

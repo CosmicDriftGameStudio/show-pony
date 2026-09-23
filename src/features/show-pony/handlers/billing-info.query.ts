@@ -15,4 +15,6 @@ export const billingInfoQuery = defineQueryHandler({
     resolveTier,
     getBillingPrices,
   }),
+  description:
+    "Returns the tenant's current plan tier (free, starter, pro or studio), the subscription status and payment provider when a subscription exists, whether Stripe billing is live, and the configured price per tier; Admin only.",
 });

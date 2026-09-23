@@ -53,6 +53,8 @@ export function registerShowPonyScreens(r: FeatureRegistrar): void {
   r.screen({
     id: "billing",
     type: "custom",
+    description:
+      "Admin screen that shows the tenant's current plan, event and guest usage against the plan limits, and the Stripe checkout for changing the plan.",
     renderer: { react: { __component: "BillingScreen" } },
     access: { roles: ["Admin"] },
   });

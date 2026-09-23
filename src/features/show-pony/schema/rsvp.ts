@@ -15,6 +15,8 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 // coming / not coming / maybe. eventId references the event within the same
 // tenant.
 export const rsvpEntity = createEntity({
+  description:
+    "One guest reply to an event of the same tenant: the event's id, the guest's name, optional email and note, attendance status (yes, no or maybe) and the number of additional guests. Name, email and note are guest personal data.",
   fields: {
     eventId: createTextField({
       required: true,

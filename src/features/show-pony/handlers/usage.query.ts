@@ -22,6 +22,8 @@ export const usageQuery = defineQueryHandler({
   name: "usage",
   schema: z.object({}),
   access: { roles: ["Admin"] },
+  description:
+    "Counts the tenant's events and guest replies and returns them next to the event and guest limits of the current plan tier, where a null limit means unlimited; Admin only.",
   async handler(_event, ctx): Promise<UsageInfo> {
     const tenantId = ctx.user.tenantId;
     const caps = await resolveTierCaps(ctx.db, tenantId);
