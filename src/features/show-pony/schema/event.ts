@@ -13,6 +13,8 @@ import {
 // subdomain — so the slug only has to be collision-free within one tenant,
 // not globally.
 export const eventEntity = createEntity({
+  description:
+    "One event a tenant hosts: title, a slug that forms the public invite link within the tenant's subdomain, start time, optional location, description and guest limit. The host-authored fields are public invite-page copy, not personal data.",
   fields: {
     title: createTextField({
       required: true,

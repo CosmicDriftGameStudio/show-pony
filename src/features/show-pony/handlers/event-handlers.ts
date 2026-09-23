@@ -26,7 +26,11 @@ const hostReadAccess = {
 } as const;
 
 export const eventCreateHandler = withStockCap(
-  defineEntityCreateHandler("event", eventEntity, hostWriteAccess),
+  defineEntityCreateHandler("event", eventEntity, {
+    ...hostWriteAccess,
+    description:
+      "Creates an event for the tenant with title, public slug, start time and optional location, description and guest limit; Admin only, rejected with upgrade_required once the plan tier's event limit is reached.",
+  }),
   {
     table: eventTable,
     limit: (caps) => caps.maxEvents,
@@ -36,7 +40,22 @@ export const eventCreateHandler = withStockCap(
   },
 );
 
-export const eventUpdateHandler = defineEntityUpdateHandler("event", eventEntity, hostWriteAccess);
-export const eventDeleteHandler = defineEntityDeleteHandler("event", eventEntity, hostWriteAccess);
-export const eventListHandler = defineEntityListHandler("event", eventEntity, hostReadAccess);
-export const eventDetailHandler = defineEntityDetailHandler("event", eventEntity, hostReadAccess);
+export const eventUpdateHandler = defineEntityUpdateHandler("event", eventEntity, {
+  ...hostWriteAccess,
+  description:
+    "Changes fields of an existing event (title, slug, start time, location, description, guest limit) against its current version; Admin only.",
+});
+export const eventDeleteHandler = defineEntityDeleteHandler("event", eventEntity, {
+  ...hostWriteAccess,
+  description: "Deletes one event of the tenant by id; Admin only.",
+});
+export const eventListHandler = defineEntityListHandler("event", eventEntity, {
+  ...hostReadAccess,
+  description:
+    "Lists the tenant's events with title, slug, start time, location and guest limit; open to every signed-in member of the tenant.",
+});
+export const eventDetailHandler = defineEntityDetailHandler("event", eventEntity, {
+  ...hostReadAccess,
+  description:
+    "Reads one event of the tenant by id with title, slug, start time, location, description and guest limit; open to every signed-in member of the tenant.",
+});

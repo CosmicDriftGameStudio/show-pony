@@ -20,6 +20,8 @@ export const rsvpSubmitHandler = defineWriteHandler({
   schema: rsvpSubmitSchema,
   access: { roles: [...access.anonymous] },
   rateLimit: { per: "ip+handler", limit: 20, windowSeconds: 60 },
+  description:
+    "Records a guest's reply to an event invite with name, attendance status (yes, no or maybe), number of additional guests and optional email and note; callable anonymously from the public invite page, rejected when the event does not belong to this tenant or the plan's guest limit is reached, and sends a best-effort confirmation mail when an email is given.",
   handler: async (event, ctx) => {
     // Anonymous handler: eventId is only shape-checked (z.uuid()) by the
     // schema, so a forged/foreign UUID would otherwise pass through to

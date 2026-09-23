@@ -33,6 +33,8 @@ export const inviteBrandingQuery = defineQueryHandler({
   schema: z.object({}),
   access: { roles: INVITE_BRANDING_READ_ROLES },
   rateLimit: { per: "ip", limit: 60, windowSeconds: 60 },
+  description:
+    "Returns the tenant's invite-page branding (title, description, accent color, logo URL, hero image URL and hero style); readable anonymously because the public invite page renders it.",
   handler: async (_query, ctx): Promise<InviteBranding> => {
     const base = await readManagedBranding(ctx.config);
     const [heroImageUrl, heroStyleRaw] = await Promise.all([
