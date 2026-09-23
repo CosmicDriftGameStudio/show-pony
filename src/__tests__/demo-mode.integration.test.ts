@@ -26,12 +26,8 @@ import {
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { UserQueries, userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import {
-  setupTestStack,
-  type TestStack,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { withDemoReadOnlyFetch } from "../demo-mode";
 
 const BASE_DOMAIN = "show-pony.test";
@@ -45,21 +41,21 @@ type FetchHandler = (req: Request) => Response | Promise<Response>;
 let stack: TestStack;
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: composeFeatures([createComplianceProfilesFeature(), createTenantLifecycleFeature()], {
-      includeBundled: true,
-    }),
-    authConfig: {
-      membershipQuery: TenantQueries.memberships,
-      userQuery: UserQueries.findForAuth,
-      loginHandler: AuthHandlers.login,
-      loginErrorStatusMap: {
-        [AuthErrors.invalidCredentials]: 401,
-        [AuthErrors.noMembership]: 403,
+  stack = await setupAppTestStack(
+    [createComplianceProfilesFeature(), createTenantLifecycleFeature()],
+    {
+      authConfig: {
+        membershipQuery: TenantQueries.memberships,
+        userQuery: UserQueries.findForAuth,
+        loginHandler: AuthHandlers.login,
+        loginErrorStatusMap: {
+          [AuthErrors.invalidCredentials]: 401,
+          [AuthErrors.noMembership]: 403,
+        },
+        allowedOrigins: [APEX_ORIGIN],
       },
-      allowedOrigins: [APEX_ORIGIN],
     },
-  });
+  );
 
   await unsafePushTables(stack.db, {
     config_values: configValuesTable,

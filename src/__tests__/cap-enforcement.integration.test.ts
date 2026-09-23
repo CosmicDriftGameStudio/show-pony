@@ -17,26 +17,14 @@ import {
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
-import {
-  setupTestStack,
-  type TestStack,
-  TestUsers,
-  testTenantId,
-  unsafeCreateEntityTable,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, showPonyFeature } from "../features/show-pony/feature";
+import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { TIER_MAX_GUESTS } from "../marketing/pricing";
 
 let stack: TestStack;
-const TENANT_ID = testTenantId(1);
-const GUEST_CAP_TENANT_ID = testTenantId(2);
-const host = { ...TestUsers.admin, tenantId: TENANT_ID };
-const guestCapHost = { ...TestUsers.admin, tenantId: GUEST_CAP_TENANT_ID };
 
 // Same appOverride as bin/server.ts — mail-foundation needs a selected
 // provider or createTransportForTenant throws "no provider selected".
@@ -46,34 +34,35 @@ const configResolver = createConfigResolver({
 
 const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => null });
 
+let host: SessionUser;
+let guestCapHost: SessionUser;
+
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: [
+  stack = await setupAppTestStack(
+    [
       createConfigFeature(),
       managedPages,
       mailFoundationFeature,
       mailTransportInMemoryFeature,
       showPonyFeature,
     ],
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+    {
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, {
     tier_assignments: tierAssignmentTable,
     config_values: configValuesTable,
   });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: TENANT_ID, key: "capcheck", name: "Cap Check" });
-  await seedTenant(stack.db, {
-    id: GUEST_CAP_TENANT_ID,
-    key: "capcheck-guests",
-    name: "Guest Cap Check",
-  });
+  const capcheck = await seedTenant(stack, { name: "Cap Check" });
+  const guestCapTenant = await seedTenant(stack, { name: "Guest Cap Check" });
+  // seedTenant's admin carries ROLES.TenantAdmin, not show-pony's own
+  // "Admin" role that event/rsvp handlers gate on — addUser mints that role.
+  host = (await capcheck.addUser(["Admin"])).session;
+  guestCapHost = (await guestCapTenant.addUser(["Admin"])).session;
 });
 
 afterAll(async () => stack?.cleanup());

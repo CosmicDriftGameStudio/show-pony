@@ -13,18 +13,10 @@ import {
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
-import {
-  setupTestStack,
-  type TestStack,
-  TestUsers,
-  testTenantId,
-  unsafeCreateEntityTable,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
-import { eventEntity, rsvpEntity, showPonyFeature } from "../features/show-pony/feature";
+import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
+import { type TestStack, TestUsers, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
@@ -33,38 +25,41 @@ const configResolver = createConfigResolver({
 });
 
 const BASE_DOMAIN = "show-pony.test";
-const ACME = testTenantId(1);
 
 let stack: TestStack;
 let eventId: string;
 let rsvpId: string;
-const admin = { ...TestUsers.admin, tenantId: ACME };
-const member = { ...TestUsers.user, tenantId: ACME };
+let admin: SessionUser;
+let member: SessionUser;
+let acmeHostname: string;
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: [
+  stack = await setupAppTestStack(
+    [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       mailFoundationFeature,
       mailTransportInMemoryFeature,
       showPonyFeature,
     ],
-    anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+    {
+      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
+  // Subdomain routing resolves the tenant via a real DB lookup by key
+  // (tenant-routing.ts enabledTenantByKey) — needs a persisted row.
+  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  acmeHostname = `${acme.key}.${BASE_DOMAIN}`;
+  admin = (await acme.addUser(["Admin"])).session;
+  member = { ...TestUsers.user, tenantId: acme.id };
 
   const event = await stack.http.writeOk<{ id: string }>(
     "showpony:write:event:create",
@@ -88,7 +83,7 @@ beforeAll(async () => {
       type: "showpony:write:rsvp:submit",
       payload: { eventId, name: "Guest One", email: "guest-one@acme.test", status: "yes" },
     },
-    { Host: `acme.${BASE_DOMAIN}` },
+    { Host: acmeHostname },
   );
   const submitBody = (await submitRes.json()) as { data: { id: string } };
   rsvpId = submitBody.data.id;

@@ -16,8 +16,6 @@ import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-featur
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
 import {
   configureBlindIndexKey,
@@ -27,34 +25,23 @@ import {
   PII_ERASED_SENTINEL,
 } from "@cosmicdrift/kumiko-framework/crypto";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import {
-  append,
-  backfillEventPiiEncryption,
-  createEventsTable,
-} from "@cosmicdrift/kumiko-framework/event-store";
+import { append, backfillEventPiiEncryption } from "@cosmicdrift/kumiko-framework/event-store";
 import {
   listProjectionsWithState,
   rebuildProjection,
 } from "@cosmicdrift/kumiko-framework/pipeline";
-import {
-  setupTestStack,
-  type TestStack,
-  TestUsers,
-  testTenantId,
-  unsafeCreateEntityTable,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import {
   resetBlindIndexKeyForTests,
   resetPiiSubjectKmsForTests,
 } from "@cosmicdrift/kumiko-framework/testing";
-import { eventEntity, rsvpEntity, rsvpTable, showPonyFeature } from "../features/show-pony/feature";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
 const BIDX_KEY = Buffer.alloc(32, 9).toString("base64");
 const BASE_DOMAIN = "show-pony.test";
-const ACME = testTenantId(1);
 // Empty until beforeAll seeds a real event — leftover UUID silently passes z.uuid() (show-pony#134/2).
 let eventId = "";
 const FORGET = "crypto-shredding:write:forget-subject";
@@ -63,12 +50,10 @@ const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
 });
 
-const host: SessionUser = { ...TestUsers.admin, tenantId: ACME };
-const dpo: SessionUser = {
-  id: "dpo-1",
-  tenantId: ACME,
-  roles: ["DataProtectionOfficer"],
-};
+let acmeId: string;
+let acmeHostname: string;
+let host: SessionUser;
+let dpo: SessionUser;
 
 let stack: TestStack;
 
@@ -79,7 +64,7 @@ function submit(payload: Record<string, unknown>) {
     "POST",
     "/api/write",
     { type: "showpony:write:rsvp:submit", payload },
-    { Host: `acme.${BASE_DOMAIN}` },
+    { Host: acmeHostname },
   );
 }
 
@@ -105,8 +90,8 @@ async function submitGuest(name: string, email: string, note: string): Promise<s
 }
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: [
+  stack = await setupAppTestStack(
+    [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       mailFoundationFeature,
@@ -114,21 +99,25 @@ beforeAll(async () => {
       createCryptoShreddingFeature(),
       showPonyFeature,
     ],
-    anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
+    {
+      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
+  // Subdomain routing resolves the tenant via a real DB lookup by key
+  // (tenant-routing.ts enabledTenantByKey) — needs a persisted row.
+  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  acmeId = acme.id;
+  acmeHostname = `${acme.key}.${BASE_DOMAIN}`;
+  host = (await acme.addUser(["Admin"])).session;
+  dpo = { id: "dpo-1", tenantId: acme.id, roles: ["DataProtectionOfficer"] };
 
   const created = await stack.http.writeOk<{ id: string }>(
     "showpony:write:event:create",
@@ -236,19 +225,21 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
   // there is no key to erase. bin/ops/backfill-pii.ts runs
   // backfillEventPiiEncryption to re-encrypt such events after the fact.
   test("forget-subject erases a legacy plaintext RSVP after the PII backfill runs", async () => {
-    // Isolate the rsvp event stream from earlier tests in this file: a full
+    // Isolate the event store from earlier tests in this file: a full
     // projection rebuild below replays every rsvp.created event since
-    // genesis, and those events were encrypted under a KMS instance that no
-    // longer exists (beforeEach mints a fresh one per test).
-    await asRawClient(stack.db).unsafe(`DELETE FROM "kumiko_events" WHERE aggregate_type = $1`, [
-      "rsvp",
-    ]);
+    // genesis (encrypted under a KMS instance beforeEach already rotated
+    // away), and backfillEventPiiEncryption scans the WHOLE store with no
+    // aggregate/tenant filter — the persisted seedTenant/addUser calls in
+    // beforeAll wrote real user:create/update events with personal:"self"
+    // fields (email, displayName) that would otherwise inflate
+    // encryptedFields beyond the one legacy row this test targets.
+    await asRawClient(stack.db).unsafe(`DELETE FROM "kumiko_events"`);
 
     const legacyId = crypto.randomUUID();
     await append(stack.db, {
       aggregateId: legacyId,
       aggregateType: "rsvp",
-      tenantId: ACME,
+      tenantId: acmeId,
       expectedVersion: 0,
       type: "rsvp.created",
       payload: {

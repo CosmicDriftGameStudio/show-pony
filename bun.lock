@@ -20,6 +20,7 @@
       "devDependencies": {
         "@biomejs/biome": "^2.5.14",
         "@cosmicdrift/kumiko-guards": "^0.299.0",
+        "@cosmicdrift/kumiko-testing": "0.299.0",
         "@cosmicdriftgamestudio/kumiko-guards": "^0.39.1",
         "@playwright/test": "^1.63.0",
         "@tailwindcss/cli": "^4.3.3",
@@ -93,6 +94,8 @@
     "@cosmicdrift/kumiko-repo-manifest": ["@cosmicdrift/kumiko-repo-manifest@0.299.0", "", { "dependencies": { "zod": "^4.4.3" } }, "sha512-NTm2RQxWr7nTJs2NqwEicm3DfwzXNiS6XWhgS7gA4hYs5HyTD1jxE/3bjSqcPG+9BZfBdc49pjhIk+l3s0jNow=="],
 
     "@cosmicdrift/kumiko-server-runtime": ["@cosmicdrift/kumiko-server-runtime@0.299.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.299.0", "@cosmicdrift/kumiko-framework": "0.299.0", "@cosmicdrift/kumiko-headless": "0.299.0", "temporal-polyfill": "^0.3.2" } }, "sha512-IDIfcJIQiHOVSXn7QGNZEd/QHeNd8/QiT3jFUPuIXE+BdWj5puVqWjwXGC0fDjCBgr2w8l5dzUZfkHpkItwRMQ=="],
+
+    "@cosmicdrift/kumiko-testing": ["@cosmicdrift/kumiko-testing@0.299.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.299.0", "@cosmicdrift/kumiko-dev-server": "0.299.0", "@cosmicdrift/kumiko-framework": "0.299.0", "zod": "^4.4.3" }, "peerDependencies": { "@playwright/test": "^1.62.1" }, "optionalPeers": ["@playwright/test"], "bin": { "kumiko-testing": "bin/kumiko-testing.ts" } }, "sha512-L7E16R1zkb2C4AfZNuR9bTzQ6N2zi1q1veOxnFiYrt8kwEsvdICUev8wpHMaXaO83CWz42V+lWWqEGx1jz3pmg=="],
 
     "@cosmicdrift/kumiko-types": ["@cosmicdrift/kumiko-types@0.299.0", "", { "peerDependencies": { "hono": "^4.13.1", "postgres": "^3.4.9", "temporal-polyfill": "^0.3.2" } }, "sha512-XEPlsOG/FNu7wtzt0hr7W5TDpmXfrR9r1ItCE0e7+90AMWCp0/DQjTJjbmGxcSvY+Q48Z4Sv3eeeZEFXsTNEpw=="],
 

@@ -16,20 +16,15 @@ import {
   createConfigAccessorFactory,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { tenantEntity } from "@cosmicdrift/kumiko-bundled-features/tenant";
-import { seedTenant } from "@cosmicdrift/kumiko-bundled-features/tenant/seeding";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
-import { createEventsTable } from "@cosmicdrift/kumiko-framework/event-store";
+import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import {
-  setupTestStack,
   type TestStack,
-  TestUsers,
   testTenantId,
-  unsafeCreateEntityTable,
   unsafePushTables,
 } from "@cosmicdrift/kumiko-framework/stack";
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
-import { eventEntity, rsvpEntity, rsvpTable } from "../features/show-pony/feature";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { rsvpTable } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { buildAppFeatures } from "../run-config";
 
@@ -38,14 +33,15 @@ const configResolver = createConfigResolver({
 });
 
 const BASE_DOMAIN = "show-pony-registry.test";
-const ACME = testTenantId(1);
-const GLOBEX = testTenantId(2);
 // Empty until beforeAll assigns create id — leftover UUID silently passes z.uuid() (show-pony#134/3).
 let seededEventId = "";
 
 let stack: TestStack;
-const acmeHost = { ...TestUsers.admin, tenantId: ACME };
-const globexHost = { ...TestUsers.admin, tenantId: GLOBEX, id: "globex-host-id" };
+let acmeId: string;
+let globexId: string;
+let acmeHostname: string;
+let acmeHost: SessionUser;
+let globexHost: SessionUser;
 
 function submit(
   host: string,
@@ -61,10 +57,7 @@ function submit(
 }
 
 beforeAll(async () => {
-  stack = await setupTestStack({
-    features: composeFeatures(buildAppFeatures({ baseDomain: BASE_DOMAIN }), {
-      includeBundled: true,
-    }),
+  stack = await setupAppTestStack(buildAppFeatures({ baseDomain: BASE_DOMAIN }), {
     // bin/main.ts pattern: anonymousAccess returns `{}`; registry merge supplies resolver.
     anonymousAccess: () => ({}),
     enrichAnonymousAccess: (base, deps) => resolveAnonymousAccessFromRegistry(base, deps),
@@ -73,16 +66,19 @@ beforeAll(async () => {
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     }),
   });
-  await unsafeCreateEntityTable(stack.db, tenantEntity);
-  await unsafeCreateEntityTable(stack.db, eventEntity, "event");
-  await unsafeCreateEntityTable(stack.db, rsvpEntity, "rsvp");
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
-  await createEventsTable(stack.db);
-  await seedTenant(stack.db, { id: ACME, key: "acme", name: "Acme" });
-  await seedTenant(stack.db, { id: GLOBEX, key: "globex", name: "Globex" });
+  // Subdomain routing resolves the tenant via a real DB lookup by key, and
+  // the EXT_TENANT_EXISTENCE assertion below reads the real tenant row.
+  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  const globex = await seedTenant(stack, { name: "Globex", persist: true });
+  acmeId = acme.id;
+  globexId = globex.id;
+  acmeHostname = `${acme.key}.${BASE_DOMAIN}`;
+  acmeHost = (await acme.addUser(["Admin"])).session;
+  globexHost = (await globex.addUser(["Admin"])).session;
 
   const created = await stack.http.writeOk<{ id: string }>(
     "showpony:write:event:create",
@@ -105,7 +101,7 @@ beforeEach(async () => {
 
 describe("registry-merged tenant routing (createShowPonyTenantRoutingFeature, #1374)", () => {
   test("subdomain resolves via the registry-merged resolver, not a bypassed no-op", async () => {
-    const res = await submit(`acme.${BASE_DOMAIN}`, {
+    const res = await submit(acmeHostname, {
       eventId: seededEventId,
       name: "Alice",
       status: "yes",
@@ -137,9 +133,9 @@ describe("registry-merged tenant routing (createShowPonyTenantRoutingFeature, #1
     // runs — see rsvp-anonymous.integration.test.ts. It does NOT exercise
     // EXT_TENANT_EXISTENCE; that's covered separately below.
     const res = await submit(
-      `acme.${BASE_DOMAIN}`,
+      acmeHostname,
       { eventId: seededEventId, name: "Mallory", status: "yes" },
-      { "X-Tenant": GLOBEX },
+      { "X-Tenant": globexId },
     );
     expect(res.status).toBe(400);
     const body = (await res.json()) as { error: { code: string } };
@@ -159,7 +155,7 @@ describe("registry-merged tenant routing (createShowPonyTenantRoutingFeature, #1
     // seeded rows, not a stub that always returns true.
     const exists = await resolveTenantExistence({ db: stack.db, registry: stack.registry });
     expect(exists).not.toBeNull();
-    expect(await exists?.(ACME)).toBe(true);
+    expect(await exists?.(acmeId)).toBe(true);
     expect(await exists?.(testTenantId(999))).toBe(false);
   });
 });

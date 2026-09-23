@@ -31,6 +31,7 @@ async function holdFrames(page: Page, frameDir: string, startIdx: number, count:
     const path = resolve(frameDir, `frame-${String(idx).padStart(4, "0")}.png`);
     await page.screenshot({ path, animations: "disabled" });
     idx++;
+    // @timeout-exception: #224 GIF frame pacing (deliberate capture interval, not a flakiness wait)
     if (i < count - 1) await page.waitForTimeout(FRAME_MS);
   }
   return idx;
@@ -81,15 +82,17 @@ export async function recordGif(
   gifPath: string,
   viewport: { width: number; height: number },
   run: (page: Page, tools: LoopTools) => Promise<void>,
+  baseURL: string,
   storageState?: string,
 ): Promise<void> {
-  await recordMultiPartGif(browser, frameDir, gifPath, [{ viewport, storageState, run }]);
+  await recordMultiPartGif(browser, frameDir, gifPath, baseURL, [{ viewport, storageState, run }]);
 }
 
 export async function recordMultiPartGif(
   browser: Browser,
   frameDir: string,
   gifPath: string,
+  baseURL: string,
   parts: ReadonlyArray<{
     viewport: { width: number; height: number };
     storageState?: string;
@@ -100,6 +103,7 @@ export async function recordMultiPartGif(
   let frameIdx = 0;
   for (const part of parts) {
     const ctx = await browser.newContext({
+      baseURL,
       ...(part.storageState ? { storageState: part.storageState } : {}),
       viewport: part.viewport,
     });
