@@ -11,8 +11,9 @@
 
 import { mkdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
-import { expect, type Page, test } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { SCENARIOS, THEMES, type ThemeId } from "./scenarios";
+import { clearSession, expect, test } from "@cosmicdrift/kumiko-testing/e2e";
 
 const BASE_DIR =
   process.env.SCREENSHOT_DIR ?? resolve(import.meta.dirname, "../../docs/screenshots");
@@ -60,7 +61,7 @@ for (const locale of LOCALES) {
         localStorage.setItem("kumiko:locale", lng);
         localStorage.removeItem("kumiko:theme");
       }, locale);
-      if (s.clearAuth) await page.context().clearCookies();
+      if (s.clearAuth) await clearSession(page);
       await s.flow(page);
       if (s.settleMs) await page.waitForTimeout(s.settleMs);
 
