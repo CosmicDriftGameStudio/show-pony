@@ -13,6 +13,7 @@
   "scripts": {
     "dev": "PORT=4180 bun run kumiko-dev bin/server.ts",
     "build": "bun kumiko-build && bun scripts/copy-marketing-assets.ts",
+    "prepare": "husky",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "bun --config=bunfig.ci.toml test --dots",
@@ -38,12 +39,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
+    "@cosmicdrift/kumiko-guards": "^0.299.0",
     "@cosmicdriftgamestudio/kumiko-guards": "^0.39.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "bun-types": "^1.4.2",
+    "husky": "^9.1.7",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
   },

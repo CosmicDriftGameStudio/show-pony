@@ -51,6 +51,7 @@ export async function findEventBySlug(
 ): Promise<EventRow | null> {
   assertSqlSafe(tenantId, "tenantId");
   assertSqlSafe(slug, "slug");
+  // kumiko-lint-ignore raw-sql seeds ship without @cosmicdrift/* (see header); both values pass assertSqlSafe
   const result = await raw.unsafe(
     `SELECT id, version FROM read_events
      WHERE tenant_id = '${tenantId}' AND slug = '${slug}'
