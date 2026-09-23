@@ -16,13 +16,14 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
+import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import type { Registry } from "@cosmicdrift/kumiko-framework/engine";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import { withDemoReadOnlyFetch } from "../src/demo-mode";
-import { wireDemoModeRoutes } from "../src/demo-mode-routes";
-import { wireSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
-import { wireTermsRoutes } from "../src/legal-terms";
+import { buildDemoModeRoutes } from "../src/demo-mode-routes";
+import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
+import { buildTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures } from "../src/run-config";
@@ -75,6 +76,13 @@ const kmsWiring = resolveKmsWiring(process.env, {
 if ("allowPlaintextPii" in kmsWiring) {
   // biome-ignore lint/suspicious/noConsole: intentional operator-visible plaintext-PII boot warning
   console.warn(`[show-pony] PII IS STORED IN PLAINTEXT — ${kmsWiring.allowPlaintextPii}`);
+}
+
+const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
+async function serveHeroAsset(file: string): Promise<Response | null> {
+  if (!isAssetName(file)) return null;
+  const f = Bun.file(`./dist/heroes/${file}`);
+  return (await f.exists()) ? new Response(f) : null;
 }
 
 const handle = await runProdApp({
@@ -173,23 +181,21 @@ const handle = await runProdApp({
       });
     },
   ],
-  extraRoutes: (app, { db, registry, dispatchSystemWrite }) => {
-    wireDemoModeRoutes(app, port);
-    wireTermsRoutes(app, createTemplateResolverApi(db));
-    if (stripeBilling !== null) {
-      wireSubscriptionWebhookRoute(app, { db, registry, dispatchSystemWrite });
-    }
-    const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
-    const serveFromDir = async (dir: string, file: string): Promise<Response | null> => {
-      if (!isAssetName(file)) return null;
-      const f = Bun.file(`./dist/${dir}/${file}`);
-      return (await f.exists()) ? new Response(f) : null;
-    };
-    app.get("/heroes/:file", async (c) => {
-      const r = await serveFromDir("heroes", c.req.param("file"));
-      return r ?? c.notFound();
-    });
-  },
+  extraRoutes: [
+    ...buildDemoModeRoutes(port),
+    ...buildTermsRoutes(),
+    ...(stripeBilling !== null ? [buildSubscriptionWebhookRoute()] : []),
+    {
+      method: "GET",
+      path: "/heroes/:file",
+      entry: "anonymous",
+      handler: async (c) => {
+        const file = c.req.param("file");
+        const r = file ? await serveHeroAsset(file) : null;
+        return r ?? c.notFound();
+      },
+    } satisfies ExtraRouteDefinition,
+  ],
 });
 
 const fetch = withDemoReadOnlyFetch(handle.fetch);
