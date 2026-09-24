@@ -41,7 +41,7 @@
     "@biomejs/biome": "^2.5.14",
     "@cosmicdrift/kumiko-guards": "^0.307.0",
     "@cosmicdrift/kumiko-testing": "0.307.0",
-    "@cosmicdriftgamestudio/kumiko-guards": "^0.39.1",
+    "@cosmicdriftgamestudio/kumiko-guards": "^0.39.2",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
     "@types/react": "^19.2.18",
