@@ -1,10 +1,11 @@
 // One-off stack check: calendar link must sit below the hero and receive clicks.
-import { expect, test } from "@playwright/test";
 import { ACME_SLUG, DEMO_SLUG, acmePublicEventUrl, publicEventUrl } from "./constants";
+import { expect } from "@cosmicdrift/kumiko-testing/e2e";
+import { test } from "@cosmicdrift/kumiko-testing/e2e";
 
 async function assertCalendarNotUnderHero(page: import("@playwright/test").Page): Promise<void> {
   const calendar = page.getByRole("link", { name: /calendar/i });
-  await expect(calendar).toBeVisible({ timeout: 15_000 });
+  await expect(calendar).toBeVisible();
 
   const header = page.locator("header").first();
   await expect(header).toBeVisible();

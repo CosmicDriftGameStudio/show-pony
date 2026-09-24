@@ -6,7 +6,6 @@
 // switch via the top-bar TenantSwitcher — X-Tenant alone is not enough.
 
 import { mkdir } from "node:fs/promises";
-import { expect, test as setup } from "@playwright/test";
 import {
   ACME_SLUG,
   APEX_URL,
@@ -16,6 +15,7 @@ import {
   STORAGE_STATE,
 } from "./constants";
 import { DEMO_TENANT } from "../../bin/demo-tenants";
+import { E2E_TIMEOUT_MS, expect, test as setup } from "@cosmicdrift/kumiko-testing/e2e";
 
 const HOST = { email: "admin@show-pony.local", password: "changeme" };
 
@@ -73,7 +73,7 @@ async function switchTenant(page: import("@playwright/test").Page, targetLabel: 
   if ((await active.textContent())?.match(new RegExp(targetLabel, "i"))) return;
   await active.click();
   await page.getByRole("menuitemcheckbox", { name: new RegExp(targetLabel, "i") }).click();
-  await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/^Events$/).first()).toBeVisible();
   await expect(
     page.getByRole("button").filter({ hasText: new RegExp(targetLabel, "i") }),
   ).toBeVisible();
@@ -86,7 +86,7 @@ async function grantDemoTier(browser: import("@playwright/test").Browser): Promi
   await page.fill("#login-email", "sysadmin@show-pony.local");
   await page.fill("#login-password", "changeme");
   await page.locator("#login-password").press("Enter");
-  await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
 
   const result = await authedWrite(page, "tier-engine:write:set-tenant-tier", {
     tenantId: DEMO_TENANT.id,
@@ -101,7 +101,7 @@ setup("login + seed demo event", async ({ page, browser }) => {
   await page.fill("#login-email", HOST.email);
   await page.fill("#login-password", HOST.password);
   await page.locator("#login-password").press("Enter");
-  await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/^Events$/).first()).toBeVisible();
   if (process.env.SHOWPONY_LOOP_MODE === "1") await grantDemoTier(browser);
 
   const rooftopDesc = `✨ You're on the list for something special.
@@ -158,7 +158,7 @@ RSVP so we know how many chairs (and how much coffee) to order ☕️`;
   const verify = await browser.newContext();
   const verifyPage = await verify.newPage();
   await verifyPage.goto(acmePublicEventUrl(ACME_SLUG));
-  await expect(verifyPage.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible({ timeout: 15_000 });
+  await expect(verifyPage.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible();
   await verify.close();
 
   // Acme's projection being built doesn't guarantee the later-written Demo
@@ -167,9 +167,7 @@ RSVP so we know how many chairs (and how much coffee) to order ☕️`;
   const demoVerify = await browser.newContext();
   const demoVerifyPage = await demoVerify.newPage();
   await demoVerifyPage.goto(publicEventUrl(DEMO_SLUG));
-  await expect(demoVerifyPage.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible({
-    timeout: 15_000,
-  });
+  await expect(demoVerifyPage.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
   await demoVerify.close();
 
   const anon = await browser.newContext();
@@ -190,7 +188,7 @@ RSVP so we know how many chairs (and how much coffee) to order ☕️`;
   await anon.close();
 
   await page.goto(`${APEX_URL}/host/rsvp-list`);
-  await expect.poll(async () => page.getByText("Ava Chen").count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(1);
+  await expect.poll(async () => page.getByText("Ava Chen").count(), { timeout: E2E_TIMEOUT_MS.poll }).toBeGreaterThanOrEqual(1);
 
   await mkdir("e2e/screenshots/.auth", { recursive: true });
   await page.context().storageState({ path: STORAGE_STATE });

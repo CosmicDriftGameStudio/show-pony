@@ -25,7 +25,7 @@ test("02-theme-toggle", async ({ browser, seedTenant }, testInfo) => {
     async (page, { hold }) => {
       await tenant.loginAs(page, host);
       await page.goto(`${APEX_URL}/host/event-list`);
-      await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText(/^Events$/).first()).toBeVisible();
       await hold(10);
       await page.getByRole("button", { name: "Dunkler Modus" }).click();
       await hold(12);
@@ -59,7 +59,7 @@ test("03-login", async ({ browser, seedTenant }, testInfo) => {
       await type(page.locator("#login-password"), host.password, 1);
       await hold(4);
       await page.click('button[type="submit"]');
-      await expect(page.getByText(/^Events$/).first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText(/^Events$/).first()).toBeVisible();
       await hold(16);
     },
     APEX_URL,
@@ -85,13 +85,13 @@ test("06-host-nav", async ({ browser, seedTenant }, testInfo) => {
     async (page, { hold }) => {
       await tenant.loginAs(page, host);
       await page.goto(`${APEX_URL}/host/event-list`);
-      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
       await hold(10);
       await page.getByRole("link", { name: /^Guest list$|^Gästeliste$/ }).click();
-      await expect(page.getByText("Ava Chen").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Ava Chen").first()).toBeVisible();
       await hold(14);
       await page.getByRole("link", { name: /^Events$|^Neues Event$/ }).first().click();
-      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
       await hold(12);
     },
     APEX_URL,
@@ -112,9 +112,7 @@ test("06-create-event", async ({ browser, seedTenant }, testInfo) => {
     async (page, { hold, type }) => {
       await tenant.loginAs(page, host);
       await page.goto(`${APEX_URL}/host/event-edit`);
-      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible();
       await hold(10);
       await type(page.getByRole("textbox", { name: /Title/i }), "Summer Rooftop Meetup", 2);
       await type(page.getByRole("textbox", { name: /Slug/i }), "summer-rooftop-meetup", 2);
@@ -183,7 +181,7 @@ test("07-rsvp-roundtrip", async ({ browser, seedTenant }, testInfo) => {
         run: async (page, { hold }) => {
           await tenant.loginAs(page, host);
           await page.goto(`${APEX_URL}/host/rsvp-list`);
-          await expect(page.getByRole("cell", { name: "Alex" })).toBeVisible({ timeout: 15_000 });
+          await expect(page.getByRole("cell", { name: "Alex" })).toBeVisible();
           await hold(18);
         },
       },
@@ -236,20 +234,16 @@ test("12-marketing-journey", async ({ browser }, testInfo) => {
     HOST_VIEWPORT,
     async (page, { hold }) => {
       await page.goto(`${APEX_URL}/`);
-      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible();
       await hold(14);
       await page.getByRole("link", { name: /^Features$/i }).first().click();
-      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible();
       await hold(12);
       await page.getByRole("link", { name: /^Pricing$/i }).first().click();
-      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible();
       await hold(12);
       await page.getByRole("link", { name: /^Login$/i }).first().click();
-      await expect(page.locator("#login-email")).toBeVisible({ timeout: 15_000 });
+      await expect(page.locator("#login-email")).toBeVisible();
       await hold(16);
     },
     APEX_URL,
@@ -265,13 +259,11 @@ test("13-legal-page", async ({ browser }, testInfo) => {
     HOST_VIEWPORT,
     async (page, { hold }) => {
       await page.goto(`${APEX_URL}/`);
-      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible();
       await hold(8);
       await page.goto(`${APEX_URL}/legal/imprint`);
-      await expect(page).toHaveTitle(/Imprint · Show Pony/i, { timeout: 15_000 });
-      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page).toHaveTitle(/Imprint · Show Pony/i);
+      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible();
       await hold(18);
     },
     APEX_URL,

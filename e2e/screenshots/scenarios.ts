@@ -1,8 +1,9 @@
 // Screenshot scenarios for the tutorial. Each entry navigates via a flow
 // function (money-horse pattern) so screens can be filled before capture.
 
-import { expect, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 import { ACME_SLUG, APEX_URL, DEMO_SLUG, acmePublicEventUrl, publicEventUrl } from "./constants";
+import { expect } from "@cosmicdrift/kumiko-testing/e2e";
 
 export const THEMES = ["default-light", "default-dark"] as const;
 export type ThemeId = (typeof THEMES)[number];
@@ -38,7 +39,7 @@ export const SCENARIOS: readonly Scenario[] = [
     themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/`);
-      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible();
       await expect(page.getByRole("link", { name: /Login/i }).first()).toBeVisible();
     },
     settleMs: 400,
@@ -51,9 +52,7 @@ export const SCENARIOS: readonly Scenario[] = [
     themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/features`);
-      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible();
     },
     settleMs: 400,
   },
@@ -65,9 +64,7 @@ export const SCENARIOS: readonly Scenario[] = [
     themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/pricing`);
-      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible();
     },
     settleMs: 400,
   },
@@ -79,10 +76,8 @@ export const SCENARIOS: readonly Scenario[] = [
     themes: ["default-light"],
     flow: async (page) => {
       await page.goto(`${APEX_URL}/legal/imprint`);
-      await expect(page).toHaveTitle(/Imprint · Show Pony/i, { timeout: 15_000 });
-      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page).toHaveTitle(/Imprint · Show Pony/i);
+      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible();
     },
     settleMs: 400,
   },
@@ -91,7 +86,7 @@ export const SCENARIOS: readonly Scenario[] = [
     description: "Host dashboard — seeded Rooftop Launch on the demo tenant",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/host/event-list`);
-      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
     },
     settleMs: 400,
   },
@@ -109,11 +104,9 @@ export const SCENARIOS: readonly Scenario[] = [
     description: "Edit an existing event — title, slug, and description filled in",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/host/event-list`);
-      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
       await page.getByRole("row", { name: /Rooftop Launch Party/ }).click();
-      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible({
-        timeout: 10_000,
-      });
+      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible();
       await expect(page.getByRole("textbox", { name: /Title/i })).toHaveValue("Rooftop Launch Party");
       await expect(page.getByRole("textbox", { name: /Location/i })).toHaveValue("Sky Lounge, 24th floor");
     },
@@ -124,7 +117,7 @@ export const SCENARIOS: readonly Scenario[] = [
     description: "Guest list — anonymous RSVPs with status and plus-ones",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/host/rsvp-list`);
-      await expect(page.getByText("Ava Chen").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Ava Chen").first()).toBeVisible();
       await expect(page.getByText("Marcus Bell").first()).toBeVisible();
       await expect(page.getByText("Priya Raman").first()).toBeVisible();
     },
@@ -135,9 +128,7 @@ export const SCENARIOS: readonly Scenario[] = [
     description: "Invite branding settings — tenant-scoped hero + accent on public invites",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/host/invite-branding-settings`);
-      await expect(page.getByRole("heading", { name: /Invite branding/i })).toBeVisible({
-        timeout: 15_000,
-      });
+      await expect(page.getByRole("heading", { name: /Invite branding/i })).toBeVisible();
       await expect(page.getByRole("textbox", { name: /Brand name/i })).toHaveValue("Mira Events");
       await expect(page.getByRole("textbox", { name: /Hero image URL/i })).toHaveValue(
         "/heroes/demo-rooftop.webp",
@@ -154,7 +145,7 @@ export const SCENARIOS: readonly Scenario[] = [
       await page.fill("#login-email", "sysadmin@show-pony.local");
       await page.fill("#login-password", "changeme");
       await page.locator("#login-password").press("Enter");
-      await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
     },
     settleMs: 500,
   },
@@ -164,7 +155,7 @@ export const SCENARIOS: readonly Scenario[] = [
     clearAuth: true,
     flow: async (page) => {
       await page.goto(publicEventUrl(DEMO_SLUG));
-      await expect(page.getByText("Mira Events").first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Mira Events").first()).toBeVisible();
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
     },
@@ -176,8 +167,8 @@ export const SCENARIOS: readonly Scenario[] = [
     clearAuth: true,
     flow: async (page) => {
       await page.goto(acmePublicEventUrl(ACME_SLUG));
-      await expect(page.getByText("Acme Studios").first()).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("Acme Studios").first()).toBeVisible();
+      await expect(page.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible();
       await expect(page.getByText(/Acme HQ/i).first()).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
     },
@@ -189,7 +180,7 @@ export const SCENARIOS: readonly Scenario[] = [
     clearAuth: true,
     flow: async (page) => {
       await page.goto(publicEventUrl(DEMO_SLUG));
-      await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
       await page.getByRole("textbox", { name: "Name" }).fill("Jordan Lee");
       const yesButton = page.getByRole("button", { name: /I'm in|Ich komme/ });
       await yesButton.click();
