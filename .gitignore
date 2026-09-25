@@ -10,6 +10,7 @@ dist-server/
 test-results/
 playwright-report/
 docs/loops/
+.auth/
 
 
 
