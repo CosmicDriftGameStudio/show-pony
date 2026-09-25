@@ -7,7 +7,6 @@ import { PORT } from "./e2e/loops/env";
 export default defineAppE2eConfig({
   port: PORT,
   serverEntry: "bin/server.ts",
-  testDir: "./e2e/loops",
   locale: "en",
   env: { BASE_DOMAIN: "localhost" }, // hostDispatch only treats BASE_DOMAIN as the apex host
 });

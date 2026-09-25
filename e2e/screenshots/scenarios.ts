@@ -1,108 +1,102 @@
-// Screenshot scenarios for the tutorial. Each entry navigates via a flow
-// function (money-horse pattern) so screens can be filled before capture.
+// Screenshot scenarios for the tutorial. Each flow seeds its own tenant via
+// the `seedTenant` fixture (no shared login/seed state, safe under parallel
+// workers) and navigates before runMatrix captures it.
 
-import { type Page } from "@playwright/test";
-import { ACME_SLUG, APEX_URL, DEMO_SLUG, acmePublicEventUrl, publicEventUrl } from "./constants";
-import { expect } from "@cosmicdrift/kumiko-testing/e2e";
+import type { Page } from "@playwright/test";
+import { type E2eSeededTenant, expect, type Scenario } from "@cosmicdrift/kumiko-testing/e2e";
+import { APEX_URL, publicEventUrl } from "./constants";
+import {
+  seedAcmeBranding,
+  seedDemoBranding,
+  seedOffsiteEvent,
+  seedRooftopEvent,
+  seedRooftopGuests,
+} from "./seed";
 
-export const THEMES = ["default-light", "default-dark"] as const;
-export type ThemeId = (typeof THEMES)[number];
-
-export interface Scenario {
-  readonly name: string;
-  readonly description: string;
-  readonly settleMs?: number;
-  readonly clearAuth?: boolean;
-  /** Narrows the theme axis for pages that don't react to .dark — default is both. */
-  readonly themes?: readonly ThemeId[];
-  readonly flow: (page: Page) => Promise<void>;
+async function loginHost(page: Page, tenant: E2eSeededTenant): ReturnType<E2eSeededTenant["addUser"]> {
+  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  await tenant.loginAs(page, host);
+  return host;
 }
 
-export const SCENARIOS: readonly Scenario[] = [
+// Fixed dark brand chrome (marketing.ts / legal-layout.ts) — these four don't
+// react to .dark, so they're captured with THEMES = ["default-light"] only.
+export const FIXED_CHROME_SCENARIOS: readonly Scenario[] = [
+  {
+    name: "apex-landing",
+    description: "Marketing landing on apex / (English default)",
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/`);
+      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible();
+      await expect(page.getByRole("link", { name: /Login/i }).first()).toBeVisible();
+    },
+  },
+  {
+    name: "apex-features",
+    description: "Marketing features tour page",
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/features`);
+      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible();
+    },
+  },
+  {
+    name: "apex-pricing",
+    description: "Marketing pricing page",
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/pricing`);
+      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible();
+    },
+  },
+  {
+    name: "legal-imprint",
+    description: "Legal imprint in marketing chrome",
+    flow: async (page) => {
+      await page.goto(`${APEX_URL}/legal/imprint`);
+      await expect(page).toHaveTitle(/Imprint · Show Pony/i);
+      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible();
+    },
+  },
+];
+
+export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-login",
     description: "Host login in marketing chrome at /login — post-mount gate before chapter 12 landing",
-    clearAuth: true,
     flow: async (page) => {
       await page.goto(`${APEX_URL}/login`);
       await expect(page.getByRole("link", { name: "Show Pony" }).first()).toBeVisible();
       await expect(page.locator("#login-email")).toBeVisible();
       await expect(page.locator("#login-password")).toBeVisible();
     },
-    settleMs: 300,
-  },
-  {
-    name: "apex-landing",
-    description: "Marketing landing on apex / (English default)",
-    clearAuth: true,
-    // Fixed dark brand chrome (marketing.ts), doesn't react to .dark.
-    themes: ["default-light"],
-    flow: async (page) => {
-      await page.goto(`${APEX_URL}/`);
-      await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible();
-      await expect(page.getByRole("link", { name: /Login/i }).first()).toBeVisible();
-    },
-    settleMs: 400,
-  },
-  {
-    name: "apex-features",
-    description: "Marketing features tour page",
-    clearAuth: true,
-    // Fixed dark brand chrome (features-page.ts), doesn't react to .dark.
-    themes: ["default-light"],
-    flow: async (page) => {
-      await page.goto(`${APEX_URL}/features`);
-      await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible();
-    },
-    settleMs: 400,
-  },
-  {
-    name: "apex-pricing",
-    description: "Marketing pricing page",
-    clearAuth: true,
-    // Fixed dark brand chrome (marketing.ts), doesn't react to .dark.
-    themes: ["default-light"],
-    flow: async (page) => {
-      await page.goto(`${APEX_URL}/pricing`);
-      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible();
-    },
-    settleMs: 400,
-  },
-  {
-    name: "legal-imprint",
-    description: "Legal imprint in marketing chrome",
-    clearAuth: true,
-    // legal-layout.ts's SHARED_CSS has no .dark path.
-    themes: ["default-light"],
-    flow: async (page) => {
-      await page.goto(`${APEX_URL}/legal/imprint`);
-      await expect(page).toHaveTitle(/Imprint · Show Pony/i);
-      await expect(page.getByRole("heading", { name: /Provider|Imprint/i }).first()).toBeVisible();
-    },
-    settleMs: 400,
   },
   {
     name: "host-events",
     description: "Host dashboard — seeded Rooftop Launch on the demo tenant",
-    flow: async (page) => {
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      await seedRooftopEvent(tenant.apiAs(host));
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
     },
-    settleMs: 400,
   },
   {
     name: "host-event-form",
     description: "Empty event form — schema-driven sections and typed fields",
-    flow: async (page) => {
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      await loginHost(page, tenant);
       await page.goto(`${APEX_URL}/host/event-edit`);
       await expect(page.locator("form input").first()).toBeVisible();
     },
-    settleMs: 400,
   },
   {
     name: "host-event-edit",
     description: "Edit an existing event — title, slug, and description filled in",
-    flow: async (page) => {
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      await seedRooftopEvent(tenant.apiAs(host));
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
       await page.getByRole("row", { name: /Rooftop Launch Party/ }).click();
@@ -110,23 +104,28 @@ export const SCENARIOS: readonly Scenario[] = [
       await expect(page.getByRole("textbox", { name: /Title/i })).toHaveValue("Rooftop Launch Party");
       await expect(page.getByRole("textbox", { name: /Location/i })).toHaveValue("Sky Lounge, 24th floor");
     },
-    settleMs: 500,
   },
   {
     name: "host-guests",
     description: "Guest list — anonymous RSVPs with status and plus-ones",
-    flow: async (page) => {
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await seedRooftopGuests(tenant.key, event.id);
       await page.goto(`${APEX_URL}/host/rsvp-list`);
       await expect(page.getByText("Ava Chen").first()).toBeVisible();
       await expect(page.getByText("Marcus Bell").first()).toBeVisible();
       await expect(page.getByText("Priya Raman").first()).toBeVisible();
     },
-    settleMs: 400,
   },
   {
     name: "host-invite-branding",
     description: "Invite branding settings — tenant-scoped hero + accent on public invites",
-    flow: async (page) => {
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      await seedDemoBranding(tenant.apiAs(host));
       await page.goto(`${APEX_URL}/host/invite-branding-settings`);
       await expect(page.getByRole("heading", { name: /Invite branding/i })).toBeVisible();
       await expect(page.getByRole("textbox", { name: /Brand name/i })).toHaveValue("Mira Events");
@@ -134,12 +133,10 @@ export const SCENARIOS: readonly Scenario[] = [
         "/heroes/demo-rooftop.webp",
       );
     },
-    settleMs: 400,
   },
   {
     name: "platform-overview",
     description: "Platform workspace — sysadmin sees operator overview on the apex",
-    clearAuth: true,
     flow: async (page) => {
       await page.goto(`${APEX_URL}/login`);
       await page.fill("#login-email", "sysadmin@show-pony.local");
@@ -147,45 +144,49 @@ export const SCENARIOS: readonly Scenario[] = [
       await page.locator("#login-password").press("Enter");
       await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
     },
-    settleMs: 500,
   },
   {
     name: "public-event",
     description: "Public invite page — hero, event copy, and RSVP form",
-    clearAuth: true,
-    flow: async (page) => {
-      await page.goto(publicEventUrl(DEMO_SLUG));
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      await seedDemoBranding(tenant.apiAs(host));
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await page.goto(publicEventUrl(tenant.key, event.slug));
       await expect(page.getByText("Mira Events").first()).toBeVisible();
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
     },
-    settleMs: 500,
   },
   {
     name: "public-acme-event",
     description: "Acme tenant invite — separate subdomain, separate guest list",
-    clearAuth: true,
-    flow: async (page) => {
-      await page.goto(acmePublicEventUrl(ACME_SLUG));
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      await seedAcmeBranding(tenant.apiAs(host));
+      const event = await seedOffsiteEvent(tenant.apiAs(host));
+      await page.goto(publicEventUrl(tenant.key, event.slug));
       await expect(page.getByText("Acme Studios").first()).toBeVisible();
       await expect(page.getByRole("heading", { name: /Acme Offsite/i })).toBeVisible();
       await expect(page.getByText(/Acme HQ/i).first()).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Name" })).toBeVisible();
     },
-    settleMs: 500,
   },
   {
     name: "public-rsvp-draft",
     description: "Public RSVP — guest name typed, status selected, ready to send",
-    clearAuth: true,
-    flow: async (page) => {
-      await page.goto(publicEventUrl(DEMO_SLUG));
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await page.goto(publicEventUrl(tenant.key, event.slug));
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
       await page.getByRole("textbox", { name: "Name" }).fill("Jordan Lee");
       const yesButton = page.getByRole("button", { name: /I'm in|Ich komme/ });
       await yesButton.click();
       await expect(yesButton).toHaveAttribute("aria-pressed", "true");
     },
-    settleMs: 400,
   },
 ];

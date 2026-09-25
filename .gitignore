@@ -7,7 +7,6 @@ dist-server/
 .env
 .env.local
 .DS_Store
-e2e/screenshots/.auth/
 test-results/
 playwright-report/
 docs/loops/
