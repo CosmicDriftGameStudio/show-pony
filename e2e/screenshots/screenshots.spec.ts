@@ -1,84 +1,19 @@
-// Captures each scenario × theme × viewport in one run →
-// <dir>/<name>/<locale>/<theme>/<viewport>.png (override dir via SCREENSHOT_DIR).
-// That layout feeds the ScreenshotPreview switcher in the docs 1:1. Docs are
-// English, so locale stays "en" by default; the switcher toggles theme +
-// viewport only.
-//
-// Standalone repo (pinned published kumiko) → copies the matrix loop from the
-// convention (kumiko-platform/docs/reference/screenshot-runner.md) instead of
-// importing the samples-only helper. Theme = .dark class on <html> (renderer-web
-// reads it live, no reload); locale = kumiko:locale set before goto.
+// Captures each scenario x theme x viewport via the template's runMatrix,
+// which owns the settle wait, output layout (<dir>/<name>/<locale>/<theme>/<viewport>.png
+// — the layout docs/screenshots already uses) and the identical-across-themes
+// check. Two calls because four marketing/legal pages have fixed dark brand
+// chrome that never reacts to .dark — they only need the light capture.
+import { applyDefaultTheme, DEFAULT_THEMES, runMatrix } from "@cosmicdrift/kumiko-testing/e2e";
+import { FIXED_CHROME_SCENARIOS, THEMEABLE_SCENARIOS } from "./scenarios";
 
-import { mkdirSync, statSync } from "node:fs";
-import { resolve } from "node:path";
-import { type Page } from "@playwright/test";
-import { SCENARIOS, THEMES, type ThemeId } from "./scenarios";
-import { clearSession, expect, test } from "@cosmicdrift/kumiko-testing/e2e";
+runMatrix(THEMEABLE_SCENARIOS, {
+  themes: DEFAULT_THEMES,
+  applyTheme: applyDefaultTheme,
+  locales: ["en"],
+});
 
-const BASE_DIR =
-  process.env.SCREENSHOT_DIR ?? resolve(import.meta.dirname, "../../docs/screenshots");
-
-const VIEWPORTS = {
-  desktop: { width: 1920, height: 1080 },
-  tablet: { width: 1112, height: 834 },
-  mobile: { width: 390, height: 844 },
-} as const;
-type ViewportId = keyof typeof VIEWPORTS;
-
-async function applyTheme(page: Page, theme: ThemeId): Promise<void> {
-  await page.evaluate((t) => {
-    document.documentElement.classList.toggle("dark", t === "default-dark");
-  }, theme);
-}
-
-// Env override narrows an axis (CSV) or falls back to the default.
-// Unknown tokens are dropped; an all-unknown filter fails loudly.
-function axis<T extends string>(env: string | undefined, all: readonly T[]): readonly T[] {
-  const picked = env
-    ?.split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (!picked || picked.length === 0) return all;
-  const matched = picked.filter((p): p is T => (all as readonly string[]).includes(p));
-  if (matched.length === 0) {
-    throw new Error(`axis(): env filter "${env}" matched none of [${all.join(", ")}]`);
-  }
-  return matched;
-}
-
-const LOCALES = axis(process.env.SCREENSHOT_LOCALES, ["en"]);
-const THEME_AXIS = axis(process.env.SCREENSHOT_THEMES, THEMES);
-const VIEWPORT_AXIS = axis(process.env.SCREENSHOT_VIEWPORTS, Object.keys(VIEWPORTS) as ViewportId[]);
-
-test.describe.configure({ mode: "serial" });
-
-for (const locale of LOCALES) {
-  for (const s of SCENARIOS) {
-    test(`${locale} — ${s.name}`, async ({ page }) => {
-      // kumiko:locale drives the boot language (before goto); drop kumiko:theme
-      // so the mode is decided solely by applyTheme.
-      await page.addInitScript((lng) => {
-        localStorage.setItem("kumiko:locale", lng);
-        localStorage.removeItem("kumiko:theme");
-      }, locale);
-      if (s.clearAuth) await clearSession(page);
-      await s.flow(page);
-      if (s.settleMs) await page.waitForTimeout(s.settleMs);
-
-      const only = s.themes;
-      const themeAxis = only ? THEME_AXIS.filter((t) => only.includes(t)) : THEME_AXIS;
-      for (const theme of themeAxis) {
-        await applyTheme(page, theme);
-        for (const vp of VIEWPORT_AXIS) {
-          await page.setViewportSize(VIEWPORTS[vp]);
-          await page.waitForTimeout(150); // reflow after viewport change
-          const dir = `${BASE_DIR}/${s.name}/${locale}/${theme}`;
-          mkdirSync(dir, { recursive: true });
-          const path = `${dir}/${vp}.png`;
-          await page.screenshot({ path });
-          expect.soft(statSync(path).size).toBeGreaterThan(5 * 1024);
-        }
-      }
-    });
-  }
-}
+runMatrix(FIXED_CHROME_SCENARIOS, {
+  themes: ["default-light"],
+  applyTheme: applyDefaultTheme,
+  locales: ["en"],
+});
