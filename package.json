@@ -27,7 +27,7 @@
   "dependencies": {
     "@cosmicdrift/kumiko-bundled-features": "^0.308.0",
     "@cosmicdrift/kumiko-dev-server": "^0.308.0",
-    "@cosmicdrift/kumiko-server-runtime": "^0.307.0",
+    "@cosmicdrift/kumiko-server-runtime": "^0.308.0",
     "@cosmicdrift/kumiko-framework": "^0.308.0",
     "@cosmicdrift/kumiko-headless": "^0.308.0",
     "@cosmicdrift/kumiko-locale-de": "^0.308.0",
