@@ -14,7 +14,7 @@
     "dev": "PORT=4180 bun run kumiko-dev bin/server.ts",
     "build": "bun kumiko-build && bun scripts/copy-marketing-assets.ts",
     "prepare": "husky",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json",
     "lint": "biome check .",
     "test": "bun --config=bunfig.toml test --timeout=5000 --dots",
     "test:integration": "bun kumiko-testing integration --parallel 4",

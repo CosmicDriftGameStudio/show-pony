@@ -1,25 +1,31 @@
-# Local Postgres + Redis for `bun dev`. Start with `docker compose up -d`.
-# The defaults match .env.example, so a fresh clone runs with no edits.
+# Local Postgres + Redis for `bun dev` and `bun run test:integration`.
+# Ports/credentials match the framework standard from
+# packages/testing/src/preload/service-env-defaults.ts and ci.yml — high
+# ports avoid clashing with system Postgres/Redis installs, and a fresh
+# clone runs against CI's exact DATABASE_URL/TEST_DATABASE_URL with no
+# per-app overrides. Start with `docker compose up -d`.
 services:
   postgres:
     image: postgres:18.4-alpine
     environment:
-      POSTGRES_USER: showpony
-      POSTGRES_PASSWORD: showpony
-      POSTGRES_DB: show_pony_dev
+      POSTGRES_USER: kumiko
+      POSTGRES_PASSWORD: kumiko
+      POSTGRES_DB: kumiko_dev
     ports:
-      - "5432:5432"
+      - "15432:5432"
     volumes:
       - showpony-pg:/var/lib/postgresql
+      # Runs only on a fresh (empty) volume — see docker-compose down -v to recreate.
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U showpony -d show_pony_dev"]
+      test: ["CMD-SHELL", "pg_isready -U kumiko -d kumiko_dev"]
       interval: 3s
       timeout: 3s
       retries: 10
   redis:
     image: redis:8-alpine
     ports:
-      - "6379:6379"
+      - "16379:6379"
   meilisearch:
     image: getmeili/meilisearch:v1.53
     environment:

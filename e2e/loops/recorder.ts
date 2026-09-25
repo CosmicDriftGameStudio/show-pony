@@ -29,6 +29,7 @@ async function holdFrames(page: Page, frameDir: string, startIdx: number, count:
   let idx = startIdx;
   for (let i = 0; i < count; i++) {
     const path = resolve(frameDir, `frame-${String(idx).padStart(4, "0")}.png`);
+    // @template-drift-exception: #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
     await page.screenshot({ path, animations: "disabled" });
     idx++;
     // @timeout-exception: #224 GIF frame pacing (deliberate capture interval, not a flakiness wait)
