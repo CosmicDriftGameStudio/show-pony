@@ -1,7 +1,8 @@
 // Screenshot runner for tutorial images. Each scenario seeds its own tenant
 // via the `seedTenant` fixture — no shared setup project, no storage state.
-// PNGs -> docs/screenshots/ (override via SCREENSHOT_DIR). Regeneratable:
-// `bun run screenshots`. Images stay in sync with the code.
+// SCREENSHOT_DIR has no default on purpose (requireScreenshotDir) so a plain
+// run never overwrites the committed docs images. Regenerate with:
+//   SCREENSHOT_DIR=docs/screenshots bun run screenshots
 import { defineAppE2eConfig } from "@cosmicdrift/kumiko-testing/e2e";
 import { PORT } from "./e2e/screenshots/constants";
 

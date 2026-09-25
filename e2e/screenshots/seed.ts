@@ -1,7 +1,8 @@
-// Composable seed helpers shared by the screenshot scenarios and
-// e2e/verify-invite-stack.spec.ts. Each helper writes through a tenant-bound
-// BoundApi (tenant.apiAs(host)) rather than the UI, matching e2e/loops' seed
-// pattern — no shared login/seed state between scenarios or specs.
+// Composable seed helpers for the screenshot scenarios. Each helper writes
+// through a tenant-bound BoundApi (tenant.apiAs(host)) rather than the UI,
+// matching e2e/loops' seed pattern — no shared login/seed state between
+// scenarios. e2e/verify-invite-stack.spec.ts seeds independently on purpose
+// (see its own header comment) rather than importing from here.
 import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { E2eSeededTenant } from "@cosmicdrift/kumiko-testing/e2e";
 import { INVITE_BRANDING_QN } from "../../src/features/show-pony/invite-branding.shared";
