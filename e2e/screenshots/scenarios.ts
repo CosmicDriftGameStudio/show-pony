@@ -136,12 +136,15 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   },
   {
     name: "platform-overview",
+    // The screen only shows installation-wide tenant/user/failed-job counts,
+    // no per-tenant list, so this stays order-dependent under parallel seeding
+    // even though the sysadmin here is its own seeded user.
     description: "Platform workspace — sysadmin sees operator overview on the apex",
-    flow: async (page) => {
-      await page.goto(`${APEX_URL}/login`);
-      await page.fill("#login-email", "sysadmin@show-pony.local");
-      await page.fill("#login-password", "changeme");
-      await page.locator("#login-password").press("Enter");
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const sysadmin = await tenant.addUser(["SystemAdmin"]);
+      await tenant.loginAs(page, sysadmin);
+      await page.goto(`${APEX_URL}/platform/platform-overview`);
       await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
     },
   },
