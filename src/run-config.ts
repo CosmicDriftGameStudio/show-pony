@@ -8,7 +8,6 @@
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
 import { authFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
-import { billingFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
@@ -25,6 +24,7 @@ import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
+import { createShowPonyBillingFoundationFeature } from "./features/show-pony/billing/plan-catalog";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
@@ -38,6 +38,9 @@ const adminShellFeature = createAdminShellFeature({
 
 export type AppFeaturesRouting = {
   readonly baseDomain: string;
+  /** Absolute origin the billing-plans catalog redirects back to after
+   *  checkout/portal — defaults to `https://${baseDomain}` when omitted. */
+  readonly appBaseUrl?: string;
 };
 
 /** $BASE_DOMAIN or show-pony.localhost — the one place that default lives. */
@@ -65,7 +68,7 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
     createComplianceProfilesFeature(),
     createTenantLifecycleFeature(),
-    billingFoundationFeature,
+    createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
     createCryptoShreddingFeature(),
     createSecretsFeature(),
     adminShellFeature,

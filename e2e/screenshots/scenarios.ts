@@ -197,3 +197,62 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
     },
   },
 ];
+
+// German-only, default-light-only — the billing dashboard has no fixed
+// chrome to worry about, this just keeps the tutorial's German billing
+// screenshots to one deterministic capture each instead of doubling
+// through DEFAULT_THEMES/all locales like THEMEABLE_SCENARIOS.
+export const BILLING_SCENARIOS: readonly Scenario[] = [
+  {
+    name: "billing-no-subscription",
+    description: "Billing screen — no subscription yet, both plans open for checkout",
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await seedRooftopGuests(tenant.key, event.id);
+      await page.goto(`${APEX_URL}/host/billing`);
+      await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
+    },
+  },
+  {
+    name: "billing-active",
+    description: "Billing screen — active starter subscription, pro offered as a switch",
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await seedRooftopGuests(tenant.key, event.id);
+      await tenant.seed("billing-subscription", { tier: "starter", status: "active" });
+      await page.goto(`${APEX_URL}/host/billing`);
+      await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
+      await expect(page.getByTestId("billing-plan-card-starter")).toBeVisible();
+    },
+  },
+  {
+    name: "billing-canceled",
+    description: "Billing screen — subscription canceled, checkout re-opens for every plan",
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await seedRooftopGuests(tenant.key, event.id);
+      await tenant.seed("billing-subscription", { tier: "pro", status: "canceled" });
+      await page.goto(`${APEX_URL}/host/billing`);
+      await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
+    },
+  },
+  {
+    name: "billing-disabled",
+    description: "Billing screen — Stripe checkout disabled on this instance",
+    flow: async (page, { seedTenant }) => {
+      const tenant = await seedTenant();
+      const host = await loginHost(page, tenant);
+      const event = await seedRooftopEvent(tenant.apiAs(host));
+      await seedRooftopGuests(tenant.key, event.id);
+      await tenant.seed("billing-disabled");
+      await page.goto(`${APEX_URL}/host/billing`);
+      await expect(page.getByTestId("billing-plans-panel-disabled")).toBeVisible();
+    },
+  },
+];

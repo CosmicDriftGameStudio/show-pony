@@ -1,8 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import {
-  billingFoundationFeature,
-  SubscriptionFoundationQueries,
-} from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { SubscriptionFoundationQueries } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { configValuesTable } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
@@ -25,6 +22,7 @@ import {
 } from "@cosmicdrift/kumiko-framework/stack";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import Stripe from "stripe";
+import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
 import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
 import { resolveTier, tierAssignmentTable } from "../features/show-pony/tier-resolver";
@@ -39,7 +37,7 @@ const features = [
   createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
   createComplianceProfilesFeature(),
   createTenantLifecycleFeature(),
-  billingFoundationFeature,
+  createShowPonyBillingFoundationFeature("https://show-pony.test"),
   createSecretsFeature(),
   createSubscriptionStripeFeature({
     webhookSecret: TEST_SECRET,

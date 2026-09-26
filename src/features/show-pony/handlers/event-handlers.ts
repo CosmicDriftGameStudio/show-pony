@@ -11,7 +11,7 @@ import { eventEntity, eventTable } from "../schema/event";
 // Events carry no guest PII (description is explicitly personal: false), so
 // the risk here is destruction, not confidentiality — any tenant member
 // editing or deleting another member's event. Writes are Admin-only, the
-// same role rsvp/billing-info/usage already gate on; reads stay open since
+// same role rsvp/billing/usage already gate on; reads stay open since
 // they're harmless and needed to use the app.
 const hostWriteAccess = { access: { roles: ["Admin"] } } as const;
 const hostReadAccess = {
