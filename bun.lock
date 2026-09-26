@@ -21,7 +21,7 @@
         "@biomejs/biome": "^2.5.14",
         "@cosmicdrift/kumiko-guards": "^0.314.0",
         "@cosmicdrift/kumiko-testing": "0.314.0",
-        "@cosmicdriftgamestudio/kumiko-guards": "^0.39.2",
+        "@cosmicdriftgamestudio/kumiko-guards": "^0.39.3",
         "@playwright/test": "^1.63.0",
         "@tailwindcss/cli": "^4.3.3",
         "@types/react": "^19.2.18",
@@ -99,7 +99,7 @@
 
     "@cosmicdrift/kumiko-types": ["@cosmicdrift/kumiko-types@0.314.0", "", { "peerDependencies": { "hono": "^4.13.1", "postgres": "npm:@bender0oo0/postgres@3.4.9-kumiko.1", "temporal-polyfill": "^0.3.2" } }, "sha512-8y9rvRgm8fkrzsVjNRfOmtIzHHNrMHWNQ9nYCT62Af4k8bkpeAdoFZfWDisB3SDUtE4Zwxsicv0tvwIIf/3UmQ=="],
 
-    "@cosmicdriftgamestudio/kumiko-guards": ["@cosmicdriftgamestudio/kumiko-guards@0.39.2", "https://npm.pkg.github.com/download/@cosmicdriftgamestudio/kumiko-guards/0.39.2/d6fc9e5978148b0440d3aa2eec8d9c8abc388703", { "dependencies": { "@cosmicdrift/kumiko-cli": "0.285.0", "@cosmicdrift/kumiko-guards": "0.299.0", "ts-morph": "^28.0.0" }, "bin": { "kumiko-check-credential-expiry": "check-credential-expiry.ts", "kumiko-check-licenses": "check-licenses.ts", "kumiko-check-outdated": "check-outdated.ts", "kumiko-check-renovate-presets": "check-renovate-presets.ts", "kumiko-check-runtime-isolation": "check-runtime-isolation.ts", "kumiko-check-security": "check-security.ts", "kumiko-check-subpath-exports": "check-subpath-exports.ts", "kumiko-docs-status-index": "docs-status-index.ts", "kumiko-guard-agent-manifest": "guard-agent-manifest.ts", "kumiko-guard-app-dockerfile": "guard-app-dockerfile.ts", "kumiko-guard-comment-lang": "guard-comment-lang.ts", "kumiko-guard-doc-status": "guard-doc-status.ts", "kumiko-guard-docs-plain-words": "guard-docs-plain-words.ts", "kumiko-guard-feature-changelog": "guard-feature-changelog.ts", "kumiko-guard-legal-template-drift": "guard-legal-template-drift.ts", "kumiko-guard-no-major-gt-zero": "guard-no-major-gt-zero.ts", "kumiko-guard-public-exports-changelog": "guard-public-exports-changelog.ts", "kumiko-guard-rebuild-marker-apply": "guard-rebuild-marker-apply.ts", "kumiko-guard-semantic-duplicates": "guard-semantic-duplicates.ts", "kumiko-guard-ui": "run-ui-guards.ts", "kumiko-guard-workflow-structure": "guard-workflow-structure.ts", "kumiko-guards-run": "run-guards.ts" } }, "sha512-sURuyqUa9ci76N74j6XdWlR4bjyl/yb1xO3RTNVV0fl7q4H8Z7TOhc2StJnckdx20c6J+vkSEpDNTQhSwR/mlQ=="],
+    "@cosmicdriftgamestudio/kumiko-guards": ["@cosmicdriftgamestudio/kumiko-guards@0.39.3", "https://npm.pkg.github.com/download/@cosmicdriftgamestudio/kumiko-guards/0.39.3/79faca09c2a9633a41ae154ea57d87052032b6e8", { "dependencies": { "@cosmicdrift/kumiko-cli": "0.285.0", "@cosmicdrift/kumiko-guards": "0.311.0", "ts-morph": "^28.0.0" }, "bin": { "kumiko-check-credential-expiry": "check-credential-expiry.ts", "kumiko-check-licenses": "check-licenses.ts", "kumiko-check-outdated": "check-outdated.ts", "kumiko-check-renovate-presets": "check-renovate-presets.ts", "kumiko-check-runtime-isolation": "check-runtime-isolation.ts", "kumiko-check-security": "check-security.ts", "kumiko-check-subpath-exports": "check-subpath-exports.ts", "kumiko-docs-status-index": "docs-status-index.ts", "kumiko-guard-agent-manifest": "guard-agent-manifest.ts", "kumiko-guard-app-dockerfile": "guard-app-dockerfile.ts", "kumiko-guard-comment-lang": "guard-comment-lang.ts", "kumiko-guard-doc-status": "guard-doc-status.ts", "kumiko-guard-docs-plain-words": "guard-docs-plain-words.ts", "kumiko-guard-feature-changelog": "guard-feature-changelog.ts", "kumiko-guard-legal-template-drift": "guard-legal-template-drift.ts", "kumiko-guard-no-major-gt-zero": "guard-no-major-gt-zero.ts", "kumiko-guard-public-exports-changelog": "guard-public-exports-changelog.ts", "kumiko-guard-rebuild-marker-apply": "guard-rebuild-marker-apply.ts", "kumiko-guard-semantic-duplicates": "guard-semantic-duplicates.ts", "kumiko-guard-ui": "run-ui-guards.ts", "kumiko-guard-workflow-structure": "guard-workflow-structure.ts", "kumiko-guards-run": "run-guards.ts" } }, "sha512-tEYNkM8s6LviBNZv37q2IoHNMRp5hPvq+SHAAqFUxvpP16MluCDrISKheTdAExbM1VMuOeKW+9NlmX87uWJXtg=="],
 
     "@date-fns/tz": ["@date-fns/tz@1.5.0", "", {}, "sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg=="],
 
@@ -941,7 +941,7 @@
 
     "@cosmicdrift/kumiko-cli/@cosmicdrift/kumiko-repo-manifest": ["@cosmicdrift/kumiko-repo-manifest@0.285.0", "", { "dependencies": { "zod": "^4.4.3" } }, "sha512-mh5L9UMqBETJ9lrKfMDbeHEFKF904TozT5qTNSuoU2ovSFxFvZ03FwmV9G9/3G8WNS+FUCbwf8IfTfKaKGQe3w=="],
 
-    "@cosmicdriftgamestudio/kumiko-guards/@cosmicdrift/kumiko-guards": ["@cosmicdrift/kumiko-guards@0.299.0", "", { "dependencies": { "@cosmicdrift/kumiko-repo-manifest": "0.299.0", "ts-morph": "^28.0.0" }, "bin": { "kumiko-guards": "src/cli.ts", "kumiko-pre-push": "src/pre-push.sh" } }, "sha512-t4xcC/Hdf7MtNiPmh4CHYgAjzZjwHRsBu/VZaAfTgoFGucCnrAkEMwUtpjAbHX05aDs9MMF4/MPhga3zHLA57A=="],
+    "@cosmicdriftgamestudio/kumiko-guards/@cosmicdrift/kumiko-guards": ["@cosmicdrift/kumiko-guards@0.311.0", "", { "dependencies": { "@cosmicdrift/kumiko-repo-manifest": "0.311.0", "ts-morph": "^28.0.0" }, "bin": { "kumiko-guards": "src/cli.ts", "kumiko-pre-push": "src/pre-push.sh" } }, "sha512-qdQ7qyRmA67bV9iUHaWZ9aQsYs7bq2gQiT0qcikZBDEU+xuQ7n4lN7d7gXJsu/mqk8FqCMKdTGjj3rLZiyXpOg=="],
 
     "@tailwindcss/oxide-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.11.3", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.3", "tslib": "^2.4.0" }, "bundled": true }, "sha512-zLpS5asjEb7lq8jYLq37N6XKaE41DIexlY1rF/z4/tIl3wo13Sqm28fRyfIsKZD+NZ8mM5RoKkpW/rBcuoSZSg=="],
 
@@ -981,6 +981,6 @@
 
     "tinyglobby/picomatch": ["picomatch@4.0.7", "", {}, "sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA=="],
 
-    "@cosmicdriftgamestudio/kumiko-guards/@cosmicdrift/kumiko-guards/@cosmicdrift/kumiko-repo-manifest": ["@cosmicdrift/kumiko-repo-manifest@0.299.0", "", { "dependencies": { "zod": "^4.4.3" } }, "sha512-NTm2RQxWr7nTJs2NqwEicm3DfwzXNiS6XWhgS7gA4hYs5HyTD1jxE/3bjSqcPG+9BZfBdc49pjhIk+l3s0jNow=="],
+    "@cosmicdriftgamestudio/kumiko-guards/@cosmicdrift/kumiko-guards/@cosmicdrift/kumiko-repo-manifest": ["@cosmicdrift/kumiko-repo-manifest@0.311.0", "", { "dependencies": { "zod": "^4.4.3" } }, "sha512-ZjRW8Zl0+RNNY0ZihbmpYO39NXF3ae7JlB0FMIwEiTBLKeUUcQTMcnLel0SQDdobOqOyOByrAazqc7A+LTeBWQ=="],
   }
 }
