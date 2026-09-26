@@ -140,9 +140,13 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
     // no per-tenant list, so this stays order-dependent under parallel seeding
     // even though the sysadmin here is its own seeded user.
     description: "Platform workspace — sysadmin sees operator overview on the apex",
-    flow: async (page, { seedTenant }) => {
+    flow: async (page, { seedTenant, presentIdentities }) => {
       const tenant = await seedTenant();
       const sysadmin = await tenant.addUser(["SystemAdmin"]);
+      // seedUser has no identity override and doesn't return the seed used
+      // for its generated "Seed <id>" display name, so only the email side
+      // of the account widget can be normalized here.
+      presentIdentities([{ from: sysadmin.email, to: "sysadmin@show-pony.example" }]);
       await tenant.loginAs(page, sysadmin);
       await page.goto(`${APEX_URL}/platform/platform-overview`);
       await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
