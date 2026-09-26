@@ -6,7 +6,6 @@ import {
   defineEntityListHandler,
   defineFeature,
 } from "@cosmicdrift/kumiko-framework/engine";
-import { billingInfoQuery } from "./handlers/billing-info.query";
 import { eventBySlugQuery } from "./handlers/event-by-slug.query";
 import {
   eventCreateHandler,
@@ -26,8 +25,8 @@ import { eventEntity, rsvpEntity } from "./schema";
 
 // RSVP rows carry guest PII (name/email/note) — unlike event CRUD, this is
 // restricted to Admin rather than openToAll: show-pony has no dedicated
-// organizer role yet, and Admin is the same privileged role billing-info
-// and usage already gate on.
+// organizer role yet, and Admin is the same privileged role billing and
+// usage already gate on.
 const rsvpReadAccess = { access: { roles: ["Admin"] } } as const;
 
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
@@ -67,7 +66,6 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
     }),
   );
 
-  r.queryHandler(billingInfoQuery);
   r.queryHandler(usageQuery);
 
   registerShowPonyScreens(r);

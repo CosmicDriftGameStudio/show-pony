@@ -1,5 +1,7 @@
+import { billingPlansPanel } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import type { FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 import type {
+  DashboardScreenDefinition,
   EntityEditScreenDefinition,
   EntityListScreenDefinition,
 } from "@cosmicdrift/kumiko-framework/ui-types";
@@ -43,19 +45,20 @@ export const rsvpListScreen: EntityListScreenDefinition = {
 
 import { inviteBrandingScreen } from "../screens/invite-branding-screen";
 
+export const billingScreen: DashboardScreenDefinition = {
+  id: "billing",
+  type: "dashboard",
+  panels: [
+    billingPlansPanel(),
+    { kind: "custom", id: "usage", component: { react: { __component: "ShowPonyUsagePanel" } } },
+  ],
+  access: { roles: ["Admin"] },
+};
+
 export function registerShowPonyScreens(r: FeatureRegistrar): void {
   r.screen(eventListScreen);
   r.screen(eventEditScreen);
   r.screen(rsvpListScreen);
   r.screen(inviteBrandingScreen);
-
-  // kumiko-lint-ignore app-feature-structure Stripe checkout + usage dashboard, kein deklarativer Typ
-  r.screen({
-    id: "billing",
-    type: "custom",
-    description:
-      "Admin screen that shows the tenant's current plan, event and guest usage against the plan limits, and the Stripe checkout for changing the plan.",
-    renderer: { react: { __component: "BillingScreen" } },
-    access: { roles: ["Admin"] },
-  });
+  r.screen(billingScreen);
 }

@@ -35,9 +35,10 @@ import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures } from "../src/run-config";
 import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
+import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { configureAllTenantSearchIndexes } from "./search-wiring";
 import { seedLegalContent } from "./seed-legal-content";
-import { buildStripeBillingConfig } from "./stripe-billing-env";
+import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
 
 const BASE_DOMAIN = process.env["BASE_DOMAIN"] ?? "show-pony.localhost";
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
@@ -80,9 +81,12 @@ if ("allowPlaintextPii" in kmsWiring) {
 await runDevApp({
   ...("kms" in kmsWiring ? { kms: kmsWiring.kms, blindIndexKey: kmsWiring.blindIndexKey } : {}),
   features: [
-    ...buildAppFeatures({ baseDomain: BASE_DOMAIN }),
-    ...(stripeBilling
-      ? [
+    ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: DEV_ORIGIN }),
+    // E2E screenshot runs stub Stripe out (no real Stripe network access) —
+    // bin/main.ts never imports this stub, so prod always gets the real plugin.
+    ...(isE2eSeedingEnabled()
+      ? [createE2eBillingStubFeature()]
+      : [
           createSubscriptionStripeFeature({
             ...(stripeBilling.webhookSecret !== undefined && {
               webhookSecret: stripeBilling.webhookSecret,
@@ -90,8 +94,7 @@ await runDevApp({
             ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
             priceToTier: stripeBilling.priceToTier,
           }),
-        ]
-      : []),
+        ]),
   ],
   port,
   clientEntries: [
@@ -120,7 +123,6 @@ await runDevApp({
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     templateResolver: createTemplateResolverApi(db),
     searchAdapter,
-    ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
   }),
   auth: {
     admin: {
@@ -167,10 +169,14 @@ await runDevApp({
   ],
   extraRoutes: [
     // show-pony gates writes on its own "Admin" role; SEEDABLE_ROLES only covers TenantAdmin/Member.
-    ...(isE2eSeedingEnabled() ? createE2eSeedRoutes({ extraRoles: ["Admin"] }) : []),
+    ...(isE2eSeedingEnabled()
+      ? createE2eSeedRoutes({ extraRoles: ["Admin"], extraSeeders: e2eBillingExtraSeeders })
+      : []),
     ...buildDemoModeRoutes(port),
     ...buildTermsRoutes(),
-    ...(stripeBilling !== null ? [buildSubscriptionWebhookRoute()] : []),
+    ...(!isE2eSeedingEnabled() && hasConfiguredPrices(stripeBilling)
+      ? [buildSubscriptionWebhookRoute()]
+      : []),
     ...(["screenshots", "logos", "heroes"] as const).map(
       (dir): ExtraRouteDefinition => ({
         method: "GET",

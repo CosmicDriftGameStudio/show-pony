@@ -140,39 +140,20 @@ export const showPonyTranslations = {
   "showpony:caps.unlimited": { de: "(unbegrenzt)", en: "(unlimited)" },
   "showpony:caps.upgradeHint": { de: "Tarif upgraden", en: "Upgrade plan" },
 
-  "showpony:billing.title": { de: "Tarif & Abrechnung", en: "Plan & billing" },
-  "showpony:billing.currentTier": { de: "Aktueller Tarif", en: "Current plan" },
-  "showpony:billing.notConfigured": {
-    de: "Stripe-Checkout ist auf dieser Instanz nicht live (billingLive aus oder keine API-Keys).",
-    en: "Stripe checkout is not live on this instance (billingLive off or no API keys).",
+  "showpony:billing.tier.free": { de: "Free", en: "Free" },
+  "showpony:billing.tier.starter": { de: "Starter", en: "Starter" },
+  "showpony:billing.tier.pro": { de: "Pro", en: "Pro" },
+  "showpony:billing.tier.studio": { de: "Studio", en: "Studio" },
+  "showpony:billing.benefit.events": { de: "{count} Events", en: "{count} events" },
+  "showpony:billing.benefit.eventsUnlimited": {
+    de: "Unbegrenzte Events",
+    en: "Unlimited events",
   },
-  "showpony:billing.upgradeTo": { de: "Wechseln zu", en: "Switch to" },
-  "showpony:billing.perMonth": { de: "€ / Monat", en: "€ / month" },
-  "showpony:billing.unlimited": { de: "Unbegrenzt", en: "Unlimited" },
-  "showpony:billing.benefit.events": { de: "Events", en: "events" },
-  "showpony:billing.benefit.guests": { de: "RSVPs gesamt", en: "total RSVPs" },
-  "showpony:billing.managePortal": { de: "Abrechnung verwalten", en: "Manage billing" },
-  "showpony:billing.portalHint": {
-    de: "Rechnungen und Zahlungsmittel verwaltest du im Stripe-Portal.",
-    en: "Manage invoices and payment methods in the Stripe portal.",
+  "showpony:billing.benefit.guests": { de: "{count} RSVPs gesamt", en: "{count} total RSVPs" },
+  "showpony:billing.benefit.guestsUnlimited": {
+    de: "Unbegrenzte RSVPs",
+    en: "Unlimited RSVPs",
   },
-  "showpony:billing.redirecting": {
-    de: "Weiterleitung zu Stripe …",
-    en: "Redirecting to Stripe …",
-  },
-  "showpony:billing.error": { de: "Checkout fehlgeschlagen", en: "Checkout failed" },
-  "showpony:billing.status.active": { de: "aktiv", en: "active" },
-  "showpony:billing.status.trialing": { de: "Testphase", en: "trial" },
-  "showpony:billing.status.past_due": { de: "Zahlung überfällig", en: "past due" },
-  "showpony:billing.status.canceled": { de: "gekündigt", en: "canceled" },
-  "showpony:billing.status.incomplete": { de: "unvollständig", en: "incomplete" },
-  "showpony:billing.status.incomplete_expired": {
-    de: "abgelaufen",
-    en: "expired",
-  },
-  "showpony:billing.status.unpaid": { de: "unbezahlt", en: "unpaid" },
-  "showpony:billing.status.paused": { de: "pausiert", en: "paused" },
-  "showpony:billing.switchInPortal": { de: "Im Portal wechseln zu", en: "Switch in portal to" },
 
   "showpony:errors.eventLimitReached": {
     de: "Event-Limit erreicht — Tarif upgraden.",

@@ -31,7 +31,7 @@ import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { configureAllTenantSearchIndexes, resolveSearchAdapter } from "./search-wiring";
 import { seedLegalContent } from "./seed-legal-content";
-import { buildStripeBillingConfig } from "./stripe-billing-env";
+import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -87,18 +87,14 @@ async function serveHeroAsset(file: string): Promise<Response | null> {
 
 const handle = await runProdApp({
   features: [
-    ...buildAppFeatures({ baseDomain: BASE_DOMAIN }),
-    ...(stripeBilling
-      ? [
-          createSubscriptionStripeFeature({
-            ...(stripeBilling.webhookSecret !== undefined && {
-              webhookSecret: stripeBilling.webhookSecret,
-            }),
-            ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
-            priceToTier: stripeBilling.priceToTier,
-          }),
-        ]
-      : []),
+    ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: APEX_ORIGIN }),
+    createSubscriptionStripeFeature({
+      ...(stripeBilling.webhookSecret !== undefined && {
+        webhookSecret: stripeBilling.webhookSecret,
+      }),
+      ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
+      priceToTier: stripeBilling.priceToTier,
+    }),
   ],
   autoListen: false,
   // Subject-keys KMS when PLATFORM_KEK / SUBJECT_KEYS_DATABASE_URL /
@@ -114,7 +110,6 @@ const handle = await runProdApp({
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
       templateResolver: createTemplateResolverApi(db),
       searchAdapter,
-      ...(stripeBilling !== null && { billingPrices: stripeBilling.prices }),
     };
   },
   // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
@@ -184,7 +179,7 @@ const handle = await runProdApp({
   extraRoutes: [
     ...buildDemoModeRoutes(port),
     ...buildTermsRoutes(),
-    ...(stripeBilling !== null ? [buildSubscriptionWebhookRoute()] : []),
+    ...(hasConfiguredPrices(stripeBilling) ? [buildSubscriptionWebhookRoute()] : []),
     {
       method: "GET",
       path: "/heroes/:file",

@@ -8,6 +8,7 @@ import {
   AuthShellProvider,
   emailPasswordClient,
 } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
+import { billingFoundationClient } from "@cosmicdrift/kumiko-bundled-features/billing-foundation/web";
 import { configClient } from "@cosmicdrift/kumiko-bundled-features/config/web";
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
 import { managedPagesClient } from "@cosmicdrift/kumiko-bundled-features/managed-pages/web";
@@ -59,6 +60,7 @@ createKumikoApp({
     }),
     adminShellClient(),
     appShellClient,
+    billingFoundationClient(),
     tenantClient(),
     tierEngineClient(),
     auditClient(),
