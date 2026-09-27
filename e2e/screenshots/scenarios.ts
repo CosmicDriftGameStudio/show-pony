@@ -213,6 +213,9 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await seedRooftopGuests(tenant.key, event.id);
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
+      // Free tier's 1-event cap — the single seeded event already sits at
+      // the limit, so the upgrade hint is visible below the usage counter.
+      await expect(page.getByTestId("cap-counter-events-upgrade")).toBeVisible();
     },
   },
   {
@@ -231,15 +234,17 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
   },
   {
     name: "billing-canceled",
-    description: "Billing screen — subscription canceled, checkout re-opens for every plan",
+    description:
+      "Billing screen — subscription with a scheduled cancellation, cancel-scheduled banner visible",
     flow: async (page, { seedTenant }) => {
       const tenant = await seedTenant();
       const host = await loginHost(page, tenant);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await seedRooftopGuests(tenant.key, event.id);
-      await tenant.seed("billing-subscription", { tier: "pro", status: "canceled" });
+      await tenant.seed("billing-subscription", { tier: "pro", status: "cancelScheduled" });
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
+      await expect(page.getByTestId("billing-plans-panel-cancel-scheduled")).toBeVisible();
     },
   },
   {
@@ -253,6 +258,8 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await tenant.seed("billing-disabled");
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel-disabled")).toBeVisible();
+      await expect(page.getByTestId("cap-counter-events")).toBeVisible();
+      await expect(page.getByTestId("cap-counter-events-upgrade")).toHaveCount(0);
     },
   },
 ];

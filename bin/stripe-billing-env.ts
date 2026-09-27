@@ -1,6 +1,7 @@
 // Stripe billing config from env — shared by bin/main.ts and bin/server.ts.
-// createSubscriptionStripeFeature always mounts (billingLive gates checkout
-// at runtime); priceToTier may be empty when no STRIPE_PRICE_* env is set.
+// createSubscriptionStripeFeature only mounts when hasConfiguredPrices is
+// true; without any configured price, billing-plans resolves enabled:false
+// and the checkout/switch/portal handlers reject with feature_disabled.
 
 import type { TierName } from "../src/features/show-pony/tier-map";
 

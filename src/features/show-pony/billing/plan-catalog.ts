@@ -16,6 +16,8 @@ export type PaidTier = "starter" | "pro";
 
 export const PAID_TIERS: readonly PaidTier[] = ["starter", "pro"];
 
+export const BILLING_PAGE_PATH = "/host/billing";
+
 export function eventsBenefit(count: number): BillingPlanBenefit {
   return Number.isFinite(count)
     ? { labelKey: "showpony:billing.benefit.events", params: { count } }
@@ -38,8 +40,9 @@ export const showPonyBillingCatalog: BillingPlanCatalog<PaidTier> = {
   resolveCurrentTier: resolveTier,
   viewRoles: ["Admin"],
   purchaseRoles: ["Admin"],
-  successPath: "/host/billing",
-  cancelPath: "/host/billing",
+  successPath: BILLING_PAGE_PATH,
+  cancelPath: BILLING_PAGE_PATH,
+  returnPath: BILLING_PAGE_PATH,
 };
 
 export function createShowPonyBillingFoundationFeature(baseUrl: string): FeatureDefinition {

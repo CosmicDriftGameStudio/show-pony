@@ -88,13 +88,17 @@ async function serveHeroAsset(file: string): Promise<Response | null> {
 const handle = await runProdApp({
   features: [
     ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: APEX_ORIGIN }),
-    createSubscriptionStripeFeature({
-      ...(stripeBilling.webhookSecret !== undefined && {
-        webhookSecret: stripeBilling.webhookSecret,
-      }),
-      ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
-      priceToTier: stripeBilling.priceToTier,
-    }),
+    ...(hasConfiguredPrices(stripeBilling)
+      ? [
+          createSubscriptionStripeFeature({
+            ...(stripeBilling.webhookSecret !== undefined && {
+              webhookSecret: stripeBilling.webhookSecret,
+            }),
+            ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
+            priceToTier: stripeBilling.priceToTier,
+          }),
+        ]
+      : []),
   ],
   autoListen: false,
   // Subject-keys KMS when PLATFORM_KEK / SUBJECT_KEYS_DATABASE_URL /

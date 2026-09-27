@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-19T20:31:09.279Z",
+  "generatedAt": "2026-09-27T05:02:00.345Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -510,6 +510,11 @@
           "name": "current_period_end",
           "pgType": "timestamptz",
           "notNull": true
+        },
+        {
+          "name": "cancel_at",
+          "pgType": "timestamptz",
+          "notNull": false
         }
       ],
       "indexes": [
