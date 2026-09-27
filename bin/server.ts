@@ -86,15 +86,17 @@ await runDevApp({
     // bin/main.ts never imports this stub, so prod always gets the real plugin.
     ...(isE2eSeedingEnabled()
       ? [createE2eBillingStubFeature()]
-      : [
-          createSubscriptionStripeFeature({
-            ...(stripeBilling.webhookSecret !== undefined && {
-              webhookSecret: stripeBilling.webhookSecret,
+      : hasConfiguredPrices(stripeBilling)
+        ? [
+            createSubscriptionStripeFeature({
+              ...(stripeBilling.webhookSecret !== undefined && {
+                webhookSecret: stripeBilling.webhookSecret,
+              }),
+              ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
+              priceToTier: stripeBilling.priceToTier,
             }),
-            ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
-            priceToTier: stripeBilling.priceToTier,
-          }),
-        ]),
+          ]
+        : []),
   ],
   port,
   clientEntries: [

@@ -4,10 +4,15 @@
 // single-provider resolution stays unchanged. Only bin/server.ts imports
 // this; bin/main.ts (prod) never does.
 
-import type {
-  ProviderPrice,
-  SubscriptionProviderPlugin,
+import {
+  type ProviderPrice,
+  type SubscriptionEventType,
+  SubscriptionEventTypes,
+  SubscriptionFoundationHandlers,
+  type SubscriptionProviderPlugin,
+  SubscriptionStatuses,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { TierEngineHandlers } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { defineFeature, type FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import type { E2eExtraSeeder } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import * as z from "zod";
@@ -58,17 +63,23 @@ export function createE2eBillingStubFeature(): FeatureDefinition {
   });
 }
 
+// "cancelScheduled" is a pending cancellation, not a terminal one — the
+// subscription stays active (and the tenant keeps its paid tier) until the
+// current period actually ends, so this seeds a "subscription.updated"
+// event with a future cancelAt instead of "subscription.canceled".
+const CANCEL_AT_ISO = "2026-12-01T00:00:00Z";
+
 const billingSubscriptionSeedSchema = z.object({
   tier: z.enum(["starter", "pro"]),
-  status: z.enum(["active", "canceled"]),
+  status: z.enum(["active", "cancelScheduled"]),
 });
 
 function subscriptionEventPayload(options: {
   readonly tenantId: string;
   readonly providerEventId: string;
-  readonly type: "subscription.created" | "subscription.canceled";
-  readonly status: "active" | "canceled";
+  readonly type: SubscriptionEventType;
   readonly tier: "starter" | "pro";
+  readonly cancelAtIso?: string | null;
 }) {
   return {
     providerEventId: options.providerEventId,
@@ -76,9 +87,10 @@ function subscriptionEventPayload(options: {
     type: options.type,
     providerCustomerId: `cus_e2e_${options.tenantId}`,
     providerSubscriptionId: `sub_e2e_${options.tenantId}`,
-    status: options.status,
+    status: SubscriptionStatuses.active,
     tier: options.tier,
-    currentPeriodEndIso: "2026-12-01T00:00:00Z",
+    currentPeriodEndIso: CANCEL_AT_ISO,
+    ...(options.cancelAtIso !== undefined && { cancelAtIso: options.cancelAtIso }),
     rawPayload: "{}",
   };
 }
@@ -87,34 +99,34 @@ function subscriptionEventPayload(options: {
 // process-event write-handler (bypassing the webhook route the stub has no
 // signature for), then syncs show-pony's own tier-assignment the same way
 // the real webhook route's tier-sync step would — process-event alone never
-// touches tier-engine.
+// touches tier-engine. Neither seedable status ever falls back to "free":
+// "active" and "cancelScheduled" both keep a live, non-terminal subscription.
 const billingSubscriptionSeeder: E2eExtraSeeder = async (ctx, tenantId, body) => {
   const parsed = billingSubscriptionSeedSchema.parse(body);
   await ctx.write(
-    "billing-foundation:write:process-event",
+    SubscriptionFoundationHandlers.processEvent,
     subscriptionEventPayload({
       tenantId,
       providerEventId: `e2e_${tenantId}_created`,
-      type: "subscription.created",
-      status: "active",
+      type: SubscriptionEventTypes.created,
       tier: parsed.tier,
     }),
   );
-  if (parsed.status === "canceled") {
+  if (parsed.status === "cancelScheduled") {
     await ctx.write(
-      "billing-foundation:write:process-event",
+      SubscriptionFoundationHandlers.processEvent,
       subscriptionEventPayload({
         tenantId,
-        providerEventId: `e2e_${tenantId}_canceled`,
-        type: "subscription.canceled",
-        status: "canceled",
+        providerEventId: `e2e_${tenantId}_cancel_scheduled`,
+        type: SubscriptionEventTypes.updated,
         tier: parsed.tier,
+        cancelAtIso: CANCEL_AT_ISO,
       }),
     );
   }
-  await ctx.write("tier-engine:write:set-tenant-tier", {
+  await ctx.write(TierEngineHandlers.setTenantTier, {
     tenantId,
-    tier: parsed.status === "canceled" ? "free" : parsed.tier,
+    tier: parsed.tier,
   });
   return null;
 };
