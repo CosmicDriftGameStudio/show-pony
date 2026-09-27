@@ -401,7 +401,7 @@ describe("subscription cancellation", () => {
 describe("subscription — pending cancellation", () => {
   test("a subscription.updated with a future cancelAt keeps the paid tier and stays non-terminal", async () => {
     const tenantId = await createTenant("sp-bp-g1");
-    await postWebhook(
+    const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
         tenantId,
@@ -410,6 +410,7 @@ describe("subscription — pending cancellation", () => {
         priceId: "price_pro_sp",
       }),
     );
+    expect(created.status).toBe(200);
 
     const updated = await postWebhook(
       subscriptionEvent({
@@ -462,7 +463,7 @@ describe("billing-plans — free tier defaults", () => {
 describe("create-portal-session", () => {
   test("a pure Admin (no TenantAdmin) with an active subscription opens the portal at the catalog's returnPath", async () => {
     const tenantId = await createTenant("sp-bp-i1");
-    await postWebhook(
+    const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
         tenantId,
@@ -471,6 +472,7 @@ describe("create-portal-session", () => {
         priceId: "price_starter_sp",
       }),
     );
+    expect(created.status).toBe(200);
 
     const result = await stack.http.writeOk<{ url: string }>(
       SubscriptionFoundationHandlers.createPortalSession,
@@ -484,7 +486,7 @@ describe("create-portal-session", () => {
 
   test("an extra field is rejected by the strict {} schema", async () => {
     const tenantId = await createTenant("sp-bp-i2");
-    await postWebhook(
+    const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
         tenantId,
@@ -493,6 +495,7 @@ describe("create-portal-session", () => {
         priceId: "price_starter_sp",
       }),
     );
+    expect(created.status).toBe(200);
 
     const error = await stack.http.writeErr(
       SubscriptionFoundationHandlers.createPortalSession,

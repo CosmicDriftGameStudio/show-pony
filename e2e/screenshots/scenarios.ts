@@ -245,6 +245,9 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
       await expect(page.getByTestId("billing-plans-panel-cancel-scheduled")).toBeVisible();
+      await expect(
+        page.getByTestId("billing-plan-card-pro").getByRole("button", { name: "Abo reaktivieren" }),
+      ).toBeVisible();
     },
   },
   {
