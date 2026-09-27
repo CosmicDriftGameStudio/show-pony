@@ -6,7 +6,9 @@
 // Required env: DATABASE_URL, REDIS_URL, JWT_SECRET, BASE_DOMAIN,
 //   DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD (the names the Pulumi createKumikoApp
 //   deploy helper injects). Optional: PORT (default 3000), BUILD_VERSION,
-//   DEMO_READ_ONLY=true (live cloud demo — blocks /api/write, shows login hints).
+//   DEMO_READ_ONLY=true (live cloud demo — blocks /api/write, shows login hints),
+//   KUMIKO_TRUSTED_PROXY_HOPS (1 behind the k3s ingress-nginx; unset means every
+//   guest shares one rate-limit bucket for rsvp:submit and event-by-slug).
 //   BASE_DOMAIN is the host's surface, e.g. show-pony.kumiko.rocks — guest
 //   pages live on <key>.<BASE_DOMAIN>.
 
@@ -126,9 +128,9 @@ const handle = await runProdApp({
     if (h === BASE_DOMAIN || h === `www.${BASE_DOMAIN}`) {
       const dispatched = dispatchShowPonyApexStatic(path);
       if (dispatched !== null) return dispatched;
-      return { kind: "html", file: "admin.html", injectSchema: true };
+      return { kind: "html", file: "admin.html" };
     }
-    return { kind: "html", file: "index.html", injectSchema: false };
+    return { kind: "html", file: "index.html" };
   },
   auth: {
     cookieDomain: BASE_DOMAIN,

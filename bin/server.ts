@@ -110,9 +110,9 @@ await runDevApp({
     if (host === BASE_DOMAIN || host === `www.${BASE_DOMAIN}`) {
       const dispatched = dispatchShowPonyApexStaticDev(path);
       if (dispatched !== null) return dispatched;
-      return { kind: "html", entryName: "admin", injectSchema: true };
+      return { kind: "html", entryName: "admin" };
     }
-    return { kind: "html", entryName: "public", injectSchema: false };
+    return { kind: "html", entryName: "public" };
   },
   watchDirs: ["./src", "./bin"],
   // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).

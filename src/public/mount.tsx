@@ -3,7 +3,7 @@
 // the event page (slug from the URL). No react-router needed.
 //
 // createPublicSurface = the framework's schema-less anonymous mount (Locale +
-// Primitives + Dispatcher, no schema-inject) — same pattern as publicstatus's
+// Primitives + Dispatcher) — same pattern as publicstatus's
 // public mount. RsvpForm needs the Primitives (Form/Input/Button) it provides.
 
 import { localeDeClient } from "@cosmicdrift/kumiko-locale-de/web";
