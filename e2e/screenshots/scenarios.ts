@@ -136,9 +136,9 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   },
   {
     name: "platform-overview",
-    // The screen only shows installation-wide tenant/user/failed-job counts,
-    // no per-tenant list, so this stays order-dependent under parallel seeding
-    // even though the sysadmin here is its own seeded user.
+    // By-id lookup, not `list`+`search` (async index, can miss a fresh
+    // tenant) or a plain `list` (capped at 200 rows) — both flake under
+    // parallel seeding; this stays deterministic for the sysadmin's own tenant.
     description: "Platform workspace — sysadmin sees operator overview on the apex",
     flow: async (page, { seedTenant, presentIdentities }) => {
       const tenant = await seedTenant();
@@ -147,6 +147,14 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
       // for its generated "Seed <id>" display name, so only the email side
       // of the account widget can be normalized here.
       presentIdentities([{ from: sysadmin.email, to: "sysadmin@show-pony.example" }]);
+      const seededTenant = await tenant
+        .apiAs(sysadmin)
+        .queryOk<{ id: string; key: string; name: string }>("tenant:query:tenant:detail", {
+          id: tenant.id,
+        });
+      expect(seededTenant.id).toBe(tenant.id);
+      expect(seededTenant.key).toBe(tenant.key);
+      expect(seededTenant.name).toBe(tenant.name);
       await tenant.loginAs(page, sysadmin);
       await page.goto(`${APEX_URL}/platform/platform-overview`);
       await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
