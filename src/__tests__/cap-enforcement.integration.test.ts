@@ -47,6 +47,9 @@ beforeAll(async () => {
       showPonyFeature,
     ],
     {
+      // Mirrors prod (one ingress hop) so each guest below gets its own
+      // rsvp:submit ip+handler bucket via X-Forwarded-For.
+      trustedProxyHops: 1,
       extraContext: ({ registry }) => ({
         configResolver,
         _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -107,11 +110,14 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     if (maxGuests === null) throw new Error("free tier has no guest cap — test premise broken");
 
     for (let i = 0; i < maxGuests; i++) {
-      await stack.http.writeOk(
+      const res = await stack.http.writeWithHeaders(
         "showpony:write:rsvp:submit",
         { eventId: event.id, name: `Guest ${i}`, status: "yes" },
         { ...guestCapHost, roles: ["anonymous"] },
+        { "x-forwarded-for": `203.0.113.${i}` },
       );
+      expect(res.status).toBe(200);
+      expect(await res.json()).toMatchObject({ isSuccess: true });
     }
 
     const err = await stack.http.writeErr(
