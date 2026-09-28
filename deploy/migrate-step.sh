@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# show-pony pre-deploy migrate step.
+#
+# Called by the deploy workflow between `compose up -d db redis` and
+# `compose up -d app` via SSH (see `.github/workflows/deploy.yml` or
+# equivalent). Lives on the server under `/srv/show-pony/migrate-step.sh`,
+# called via `bash migrate-step.sh`.
+#
+# Task: apply checked-in SQL migrations + auto-rebuild for projection-schema
+# changes BEFORE the app container starts — runProdApp's boot gate would
+# otherwise abort with SchemaDriftError.
+#
+# Network discovery: the _stack network is named `<dirname>_stack`
+# (compose convention). We discover it via `docker network ls` instead
+# of hard-coding.
+
+set -euo pipefail
+
+# `|| true` keeps `set -e`/`pipefail` from aborting the script when `grep`
+# finds no match (exit 1) — the empty-check below owns that case and prints
+# the actionable hint instead of a bare pipefail abort.
+STACK_NETWORK=$(docker network ls --format "{{.Name}}" | grep -E "_stack$" | head -1 || true)
+if [ -z "$STACK_NETWORK" ]; then
+  echo "No _stack network found — compose project not running?" >&2
+  exit 1
+fi
+
+# Import .env as bash env. `set -a` marks subsequent variable assignments
+# as auto-export. Bash's built-in parser respects quotes/escapes like
+# compose does, without depending on compose-profile features.
+set -a
+. ./.env
+set +a
+
+# DATABASE_URL assumes: db user = appName, db name = appName, host "db"
+# (compose-service-name), port 5432. Adjust to your stack if different.
+# Image tag pinned to :latest — swap to :${BUILD_SHA} for atomic deploys.
+#
+# Compose DATABASE_URL into the shell env and pass it to the container by
+# NAME (`-e DATABASE_URL`, no value) so the expanded password never appears
+# in `docker run`'s argv — otherwise it would be visible in `ps auxe` for
+# the duration of the migrate run.
+export DATABASE_URL="postgresql://show-pony:${DB_PASSWORD}@db:5432/show-pony"
+docker run --rm \
+  --network "$STACK_NETWORK" \
+  -e DATABASE_URL \
+  ghcr.io/cosmicdriftgamestudio/show-pony:latest \
+  bun /app/kumiko.js schema apply

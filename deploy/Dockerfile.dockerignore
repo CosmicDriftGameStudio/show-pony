@@ -1,6 +1,9 @@
-# Per-Dockerfile .dockerignore (Buildkit loads this for deploy/Dockerfile).
-# Build context is the show-pony repo root — keep it lean: the build stage
-# COPY . . then rebuilds dist/ + dist-server/ fresh.
+# Per-Dockerfile .dockerignore — Buildkit reads this when the
+# Dockerfile lives next to it (`deploy/Dockerfile` + `deploy/Dockerfile.dockerignore`).
+#
+# Keeps the build context lean: source-only excludes (tests, env files,
+# VCS metadata) plus the workspace-internal artefacts that the build
+# stage regenerates from scratch.
 
 # VCS + editor
 .git
@@ -9,7 +12,7 @@
 .vscode
 .idea
 
-# Local env + secrets
+# Local env + secrets — must NEVER leak into a layer
 .env
 .env.local
 .env.*.local
@@ -17,22 +20,23 @@
 *.pem
 *.key
 
-# Build output — rebuilt in the build stage; never ship the local dev build
-node_modules
-**/node_modules
-dist
-dist-server
-**/dist
-**/*.tsbuildinfo
-
-# Tests + e2e (out of the production image)
+# Tests + coverage (not in production image)
 **/__tests__
 **/*.test.ts
 **/*.integration.ts
-e2e
-test-results
-playwright.screenshots.config.ts
 coverage
+**/*.tsbuildinfo
 
-# Docs + screenshots (not in the image)
+# Docs (not in image)
 docs
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+
+# Workspace-internal — `dist/` is build output; runtime stage copies
+# fresh dist/ from the build stage. Local dist/ (from a dev build)
+# stays out.
+node_modules
+.yarn
+**/node_modules
+**/dist
