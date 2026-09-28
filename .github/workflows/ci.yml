@@ -49,34 +49,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
         run: bun install --frozen-lockfile
       - run: bun run typecheck
-      # Static gate: fails if entity defs are ahead of kumiko/migrations or
-      # validateBoot rejects the composed features.
-      - run: bun kumiko-schema validate
       - run: bun run lint
-      - name: Public guards
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: |
-          if [ -e node_modules/.bin/kumiko-guards ]; then
-            bun kumiko-guards guards
-          else
-            echo "::error::kumiko-guards (public) missing"
-            exit 1
-          fi
-      - name: Public checks
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
-        run: |
-          if [ -e node_modules/.bin/kumiko-guards ]; then
-            bun kumiko-guards checks
-          else
-            echo "::error::kumiko-guards (public) missing"
-            exit 1
-          fi
+      # Static gate derived from kumiko.json: schema drift, validateBoot over the
+      # composed features, public AST guards and repo checks.
+      - run: bun kumiko check
       - name: Comment-Language guard
-        # Baseline-Regression-Guard (infra#295): failt nur bei NEUEN
-        # DE-Kommentaren, Altbestand via .kumiko-comment-lang-baseline.json
-        # eingefroren.
+        # Baseline regression guard: fails only on NEW German comments; existing
+        # ones are frozen in .kumiko-comment-lang-baseline.json.
         env:
           KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guard-comment-lang
