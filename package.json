@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
+    "@cosmicdrift/kumiko-cli": "^0.323.0",
     "@cosmicdrift/kumiko-guards": "^0.323.0",
     "@cosmicdrift/kumiko-testing": "0.323.0",
     "@cosmicdriftgamestudio/kumiko-guards": "^0.39.4",
