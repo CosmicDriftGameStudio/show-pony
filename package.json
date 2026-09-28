@@ -70,5 +70,19 @@
     "brace-expansion": "^5.0.12",
     "html-to-text": "10.0.1",
     "ip-address": "^10.7.0"
+  },
+  "kumiko": {
+    "clientEntries": [
+      {
+        "name": "admin",
+        "sourceFile": "./src/client-admin.tsx",
+        "htmlPath": "./public/admin.html"
+      },
+      {
+        "name": "public",
+        "sourceFile": "./src/client-public.tsx",
+        "htmlPath": "./public/index.html"
+      }
+    ]
   }
 }
