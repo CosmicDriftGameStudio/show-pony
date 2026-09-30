@@ -22,7 +22,6 @@ import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
-import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import {
   createE2eSeedRoutes,
   isE2eSeedingEnabled,
@@ -36,7 +35,7 @@ import { buildAppFeatures } from "../src/run-config";
 import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
-import { configureAllTenantSearchIndexes } from "./search-wiring";
+import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
 
@@ -57,9 +56,12 @@ const stripeBilling = buildStripeBillingConfig({
   STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
 });
 
-const searchAdapter = createMeilisearchAdapter({
+const searchWiring = createMeilisearchWiring({
   url: process.env["MEILI_URL"] ?? "http://localhost:17700",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
+  // The dev Meilisearch on 17700 is shared with other apps using the default
+  // kumiko_ prefix; the boot rebuild drops every index under this prefix.
+  indexPrefix: "showpony_dev_",
 });
 
 const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
@@ -124,7 +126,7 @@ await runDevApp({
     configResolver,
     _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     templateResolver: createTemplateResolverApi(db),
-    searchAdapter,
+    searchAdapter: searchWiring.adapter,
   }),
   auth: {
     admin: {
@@ -154,9 +156,9 @@ await runDevApp({
       // search box, not crash the whole server. Sweeps all tenants (not
       // just DEMO/ACME) so any tenant seeded later stays covered too.
       try {
-        await configureAllTenantSearchIndexes(stack.db, stack.registry, searchAdapter);
+        await rebuildAllTenantSearchIndexes(stack.db, stack.registry, searchWiring);
       } catch (err) {
-        console.warn(`[search] Meilisearch unreachable, search index not configured: ${err}`);
+        console.warn(`[search] Meilisearch unreachable, search index not rebuilt: ${err}`);
       }
     },
     async (stack) => {

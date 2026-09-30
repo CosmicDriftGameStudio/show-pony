@@ -31,7 +31,7 @@ import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures } from "../src/run-config";
 import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
-import { configureAllTenantSearchIndexes, resolveSearchAdapter } from "./search-wiring";
+import { rebuildAllTenantSearchIndexes, resolveSearchAdapter } from "./search-wiring";
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
 
@@ -44,7 +44,7 @@ function required(name: string): string {
 const BASE_DOMAIN = required("BASE_DOMAIN");
 const APEX_ORIGIN = `https://${BASE_DOMAIN}`;
 const port = Number.parseInt(process.env["PORT"] ?? "3000", 10);
-const searchAdapter = resolveSearchAdapter({
+const searchWiring = resolveSearchAdapter({
   MEILI_URL: process.env["MEILI_URL"],
   MEILI_MASTER_KEY: process.env["MEILI_MASTER_KEY"],
 });
@@ -115,7 +115,7 @@ const handle = await runProdApp({
       configResolver,
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
       templateResolver: createTemplateResolverApi(db),
-      searchAdapter,
+      searchAdapter: searchWiring.adapter,
     };
   },
   // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
@@ -161,14 +161,16 @@ const handle = await runProdApp({
         throw new Error(
           "[show-pony][search] boundRegistry not set — extraContext must run before seeds",
         );
-      // Boot-time sweep over all tenants (not just the demo ones) so RSVP
-      // search stays wired after every deploy and after new tenant signups.
+      // Rebuilt on every boot: resetDbOnDeploy wipes the DB but not the
+      // Meilisearch volume, which would keep documents of vanished rows/tenants.
       try {
-        await configureAllTenantSearchIndexes(db, boundRegistry, searchAdapter);
+        const summary = await rebuildAllTenantSearchIndexes(db, boundRegistry, searchWiring);
+        // biome-ignore lint/suspicious/noConsole: operator-visible boot summary
+        console.info(`[show-pony][search] index rebuilt: ${JSON.stringify(summary)}`);
       } catch (err) {
         // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, must not crash-loop the pod when Meilisearch is unreachable
         console.warn(
-          `[show-pony][search] Meilisearch unreachable, search index not configured: ${err}`,
+          `[show-pony][search] Meilisearch unreachable, search index not rebuilt: ${err}`,
         );
       }
     },

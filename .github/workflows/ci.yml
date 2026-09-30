@@ -91,10 +91,10 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Start services
         run: |
-          docker rm -f sp-ci-pg sp-ci-redis 2>/dev/null || true
+          docker rm -f sp-ci-pg sp-ci-redis sp-ci-meili 2>/dev/null || true
           # Docker Hub pulls from GitHub-hosted runners time out intermittently —
           # pull with retries before running, so a transient hiccup doesn't fail CI.
-          for img in postgres:18.4-alpine redis:8-alpine; do
+          for img in postgres:18.4-alpine redis:8-alpine getmeili/meilisearch:v1.53; do
             for attempt in 1 2 3 4 5; do
               docker pull "$img" && break || { echo "pull $img failed (attempt $attempt), retrying"; sleep 10; }
             done
@@ -105,12 +105,23 @@ jobs:
             --health-interval=2s --health-timeout=3s --health-retries=30 \
             postgres:18.4-alpine
           docker run -d --name sp-ci-redis -p 16379:6379 redis:8-alpine
+          docker run -d --name sp-ci-meili -p 17700:7700 \
+            -e MEILI_MASTER_KEY=kumiko-dev-key -e MEILI_ENV=development \
+            getmeili/meilisearch:v1.53
           for i in $(seq 1 60); do
             [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg 2>/dev/null)" = healthy ] && break
             sleep 2
           done
           if [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg)" != healthy ]; then
             docker logs sp-ci-pg
+            exit 1
+          fi
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:17700/health >/dev/null && break
+            sleep 2
+          done
+          if ! curl -sf http://localhost:17700/health >/dev/null; then
+            docker logs sp-ci-meili
             exit 1
           fi
           docker exec sp-ci-pg psql -U kumiko -d kumiko_dev -c "CREATE DATABASE kumiko_test;" || true
@@ -125,7 +136,7 @@ jobs:
         run: bun run test:integration
       - name: Stop services
         if: always()
-        run: docker rm -f sp-ci-pg sp-ci-redis || true
+        run: docker rm -f sp-ci-pg sp-ci-redis sp-ci-meili || true
 
   # Build + push the arm64 image to GHCR on merge to main. Native arm64 on a
   # GitHub-hosted runner (cluster nodes are arm64) — no QEMU, no self-hosted
