@@ -4,12 +4,14 @@ import type { SearchAdapter, SearchAdapterConfig } from "@cosmicdrift/kumiko-fra
 import {
   collectSearchableFieldNames,
   configureAllTenantSearchIndexes,
+  dropMeilisearchIndexesWithPrefix,
+  MEILI_INDEX_PREFIX,
   resolveSearchAdapter,
 } from "../../bin/search-wiring";
 
 describe("resolveSearchAdapter", () => {
   test("both env vars unset → in-memory adapter that actually indexes and finds documents", async () => {
-    const adapter = resolveSearchAdapter({});
+    const { adapter } = resolveSearchAdapter({});
     await adapter.index("tenant-a" as never, {
       entityType: "rsvp",
       entityId: "rsvp-1" as never,
@@ -21,9 +23,14 @@ describe("resolveSearchAdapter", () => {
   });
 
   test("both env vars set → a real Meilisearch adapter, not the in-memory fallback", async () => {
-    const adapter = resolveSearchAdapter({
+    const { adapter, meilisearch } = resolveSearchAdapter({
       MEILI_URL: "http://127.0.0.1:1",
       MEILI_MASTER_KEY: "k",
+    });
+    expect(meilisearch).toEqual({
+      url: "http://127.0.0.1:1",
+      apiKey: "k",
+      indexPrefix: MEILI_INDEX_PREFIX,
     });
     await expect(
       adapter.index("tenant-a" as never, {
@@ -36,7 +43,7 @@ describe("resolveSearchAdapter", () => {
   });
 
   test("blank env vars (whitespace-only) → in-memory adapter that actually indexes and finds documents", async () => {
-    const adapter = resolveSearchAdapter({ MEILI_URL: "   ", MEILI_MASTER_KEY: "   " });
+    const { adapter } = resolveSearchAdapter({ MEILI_URL: "   ", MEILI_MASTER_KEY: "   " });
     await adapter.index("tenant-a" as never, {
       entityType: "rsvp",
       entityId: "rsvp-1" as never,
@@ -45,6 +52,10 @@ describe("resolveSearchAdapter", () => {
     });
     const results = await adapter.search("tenant-a" as never, "Lovelace");
     expect(results).toEqual([{ entityType: "rsvp", entityId: "rsvp-1" }]);
+  });
+
+  test("in-memory fallback carries no Meilisearch connection to clear", () => {
+    expect(resolveSearchAdapter({}).meilisearch).toBeUndefined();
   });
 
   test("only MEILI_URL set → throws naming both env vars", () => {
@@ -119,5 +130,13 @@ describe("configureAllTenantSearchIndexes", () => {
     await expect(
       configureAllTenantSearchIndexes(fakeDb, registry, hangingAdapter, 50),
     ).rejects.toThrow(/t-1/);
+  });
+});
+
+describe("dropMeilisearchIndexesWithPrefix", () => {
+  test("refuses an empty prefix so a whole Meilisearch instance is never wiped", async () => {
+    await expect(
+      dropMeilisearchIndexesWithPrefix({ url: "http://127.0.0.1:1", apiKey: "k", indexPrefix: "" }),
+    ).rejects.toThrow(/empty prefix/);
   });
 });

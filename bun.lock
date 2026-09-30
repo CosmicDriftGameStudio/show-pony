@@ -13,6 +13,7 @@
         "@cosmicdrift/kumiko-renderer": "^0.326.1",
         "@cosmicdrift/kumiko-renderer-web": "^0.326.1",
         "@cosmicdrift/kumiko-server-runtime": "^0.326.1",
+        "meilisearch": "^0.58.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
         "zod": "^4.4.3",
