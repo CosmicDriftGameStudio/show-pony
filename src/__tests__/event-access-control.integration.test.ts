@@ -1,6 +1,5 @@
-// event:create/update/delete are admin-role writes (kumiko-framework#2854
-// checklist item C follow-up to #195/#197's rsvp access-control change) —
-// events carry no guest PII, so the risk is destruction (any tenant member
+// event:create/update/delete are admin-role writes — events carry no guest
+// PII, so the risk is destruction (any tenant member
 // editing/deleting another member's event), not confidentiality. Reads
 // (event:list/event:detail) stay openToAll. Proves the boundary with real
 // HTTP calls: a plain "User" member of the tenant is denied on writes but

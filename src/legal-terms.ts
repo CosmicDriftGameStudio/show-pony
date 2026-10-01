@@ -17,7 +17,8 @@ const TERMS_ROUTES = [
 ] as const;
 
 // by-slug declares updatedAt: Date but reads a column the table does not have
-// (it is modifiedAt), so it arrives undefined at runtime.
+// (it is modifiedAt), so it arrives undefined at runtime; the etag therefore
+// also hashes title and content so a content change invalidates client caches.
 const termsBlockSchema = z
   .object({
     title: z.string().nullable(),
@@ -47,6 +48,8 @@ export function buildTermsRoutes(): readonly ExtraRouteDefinition[] {
           "terms",
           route.lang,
           String(block.updatedAt),
+          block.title ?? "",
+          block.content,
         ]);
         const pageHeaders = { "content-type": "text/html; charset=utf-8" } as const;
         const notModified = cachedSecurePageResponse(c.req.raw, {

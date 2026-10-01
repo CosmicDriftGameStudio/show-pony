@@ -8,6 +8,7 @@ import { resolve } from "node:path";
 import { expect, test } from "@cosmicdrift/kumiko-testing/e2e";
 import { seedLoopEvent, seedLoopGuest } from "../seeds/loops";
 import { APEX_URL, publicEventUrl, publicOrigin } from "./env";
+import { waitForWrite } from "./wait-for-write";
 import { HOST_VIEWPORT, PUBLIC_VIEWPORT, recordGif, recordMultiPartGif } from "./recorder";
 
 const LOOP_DIR =
@@ -125,12 +126,7 @@ test("06-create-event", async ({ browser, seedTenant }, testInfo) => {
       // timeout — the default 5s expect timeout then only covers the
       // client-side redirect/render after a response we already know succeeded.
       const [createRes] = await Promise.all([
-        page.waitForResponse(
-          (res) =>
-            res.url().includes("/api/write") &&
-            (res.request().postDataJSON() as { type?: string })?.type ===
-              "showpony:write:event:create",
-        ),
+        waitForWrite(page, "showpony:write:event:create"),
         page.getByRole("button", { name: /Create|Save|Speichern/i }).click(),
       ]);
       expect(createRes.ok()).toBe(true);
@@ -163,12 +159,7 @@ test("07-rsvp-roundtrip", async ({ browser, seedTenant }, testInfo) => {
           await hold(6);
           // Sync on the real rsvp:submit response instead of a padded timeout.
           const [rsvpRes] = await Promise.all([
-            page.waitForResponse(
-              (res) =>
-                res.url().includes("/api/write") &&
-                (res.request().postDataJSON() as { type?: string })?.type ===
-                  "showpony:write:rsvp:submit",
-            ),
+            waitForWrite(page, "showpony:write:rsvp:submit"),
             page.getByRole("button", { name: "Send RSVP" }).click(),
           ]);
           expect(rsvpRes.ok()).toBe(true);
@@ -209,12 +200,7 @@ test("09-public-form", async ({ browser, seedTenant }, testInfo) => {
       await hold(8);
       // Sync on the real rsvp:submit response instead of a padded timeout.
       const [rsvpRes] = await Promise.all([
-        page.waitForResponse(
-          (res) =>
-            res.url().includes("/api/write") &&
-            (res.request().postDataJSON() as { type?: string })?.type ===
-              "showpony:write:rsvp:submit",
-        ),
+        waitForWrite(page, "showpony:write:rsvp:submit"),
         page.getByRole("button", { name: "Send RSVP" }).click(),
       ]);
       expect(rsvpRes.ok()).toBe(true);

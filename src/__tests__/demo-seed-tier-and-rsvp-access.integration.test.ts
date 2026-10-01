@@ -17,8 +17,6 @@ import { createSeedMigrationContext } from "@cosmicdrift/kumiko-framework/es-ops
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { DEMO_TENANT_ID } from "../../seeds/_demo-event-db";
-import { eventTable } from "../features/show-pony/schema/event";
-import { rsvpTable } from "../features/show-pony/schema/rsvp";
 import { resolveTierCaps, tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../run-config";
 
@@ -29,19 +27,11 @@ function tierResolverDb() {
 }
 
 beforeAll(async () => {
-  // Mirrors bin/main.ts's real bootstrap: buildAppFeatures(...) alone omits
-  // the bundled auth chain (config/user/tenant/auth-email-password) that
-  // runProdApp adds via HAS_AUTH — composeFeatures is the single source of
-  // truth for that composition.
+  // setupAppTestStack adds the bundled features and creates the registry's
+  // entity tables; tier_assignments is a plain table outside the registry.
   const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
   stack = await setupAppTestStack(appFeatures);
-  // setupTestStack auto-creates projection tables but not entity CRUD
-  // tables — same recipe as billing-webhook.integration.test.ts.
-  await unsafePushTables(stack.db, {
-    tier_assignments: tierAssignmentTable,
-    events: eventTable,
-    rsvps: rsvpTable,
-  });
+  await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
 });
 
 afterAll(async () => {

@@ -100,9 +100,9 @@ export default {
             changes: { description: ROOFTOP_DESC },
           },
           DEMO_TENANT_ID,
-          // event:update is Admin-only (kumiko-framework#2854 checklist item
-          // C) — the bare system actor needs the role explicitly, same as
-          // the SystemAdmin grant above and rsvp:submit's anonymous below.
+          // event:update is Admin-only — the bare system actor needs the role
+          // explicitly, same as the SystemAdmin grant above and rsvp:submit's
+          // anonymous below.
           ["Admin"],
         );
       } catch (err) {
