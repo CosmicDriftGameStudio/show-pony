@@ -8,5 +8,8 @@ export default defineAppE2eConfig({
   port: PORT,
   serverEntry: "bin/server.ts",
   locale: "en",
+  // Explicit allowlist: with SCREENSHOT_DIR exported the screenshot-spec ignore is lifted,
+  // and the default testDir would otherwise also collect e2e/screenshots/*.spec.ts.
+  testMatch: ["loops/**/*.spec.ts", "verify-invite-stack.spec.ts"],
   env: { BASE_DOMAIN: "localhost" }, // hostDispatch only treats BASE_DOMAIN as the apex host
 });
