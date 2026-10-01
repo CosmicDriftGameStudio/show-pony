@@ -8,6 +8,7 @@ import type {
 import { computeRevisionEtag } from "@cosmicdrift/kumiko-framework/api";
 import { SYSTEM_TENANT_ID } from "@cosmicdrift/kumiko-framework/engine";
 import type { Context } from "hono";
+import * as z from "zod";
 import { renderLegalLayout } from "./legal-layout";
 
 const TERMS_ROUTES = [
@@ -15,14 +16,15 @@ const TERMS_ROUTES = [
   { path: "/legal/terms", lang: "en", titleFallback: "Terms of Service" },
 ] as const;
 
-// by-slug pins kind to text-block itself (see template-resolver's
-// by-slug.query.ts), so it returns the same shape findExact used to build
-// from a raw row — title/content/updatedAt are all we need here.
-type TermsBlock = {
-  readonly title: string | null;
-  readonly content: string;
-  readonly updatedAt: Date;
-} | null;
+// by-slug declares updatedAt: Date but reads a column the table does not have
+// (it is modifiedAt), so it arrives undefined at runtime.
+const termsBlockSchema = z
+  .object({
+    title: z.string().nullable(),
+    content: z.string().nullable(),
+    updatedAt: z.date().optional(),
+  })
+  .nullable();
 
 export function buildTermsRoutes(): readonly ExtraRouteDefinition[] {
   return TERMS_ROUTES.map(
@@ -31,11 +33,13 @@ export function buildTermsRoutes(): readonly ExtraRouteDefinition[] {
       path: route.path,
       entry: "anonymous",
       handler: async (c: Context, deps: AnonymousExtraRouteDeps) => {
-        const block = (await deps.systemQuery(
-          TemplateResolverQueries.bySlug,
-          { slug: "terms", locale: route.lang },
-          SYSTEM_TENANT_ID,
-        )) as TermsBlock;
+        const block = termsBlockSchema.parse(
+          await deps.systemQuery(
+            TemplateResolverQueries.bySlug,
+            { slug: "terms", locale: route.lang },
+            SYSTEM_TENANT_ID,
+          ),
+        );
         if (!block?.content) return c.notFound();
 
         const etag = computeRevisionEtag([
