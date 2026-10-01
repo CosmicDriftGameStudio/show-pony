@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-27T05:02:00.345Z",
+  "generatedAt": "2026-10-01T11:03:49.812Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -1468,6 +1468,12 @@
           "columns": [
             "tenant_id"
           ]
+        },
+        {
+          "name": "store_job_runs_started_at_idx",
+          "columns": [
+            "started_at"
+          ]
         }
       ],
       "source": "unmanaged",
@@ -1598,6 +1604,13 @@
           "name": "store_user_sessions_tenant_id_idx",
           "columns": [
             "tenant_id"
+          ]
+        },
+        {
+          "name": "store_user_sessions_tenant_id_last_seen_at_idx",
+          "columns": [
+            "tenant_id",
+            "last_seen_at"
           ]
         }
       ],

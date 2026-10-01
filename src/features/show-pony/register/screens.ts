@@ -22,6 +22,7 @@ export const eventEditScreen: EntityEditScreenDefinition = {
   id: "event-edit",
   type: "entityEdit",
   entity: "event",
+  recordTitleField: "title",
   layout: {
     sections: [
       {

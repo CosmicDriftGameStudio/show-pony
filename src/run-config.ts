@@ -14,6 +14,13 @@ import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import {
+  createMetricsFeature,
+  createSystemMetricsFeature,
+  DEFAULT_METRICS,
+  deliveriesByChannelMetric,
+  failedDeliveriesMetric,
+} from "@cosmicdrift/kumiko-bundled-features/metrics";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { createSessionsFeature } from "@cosmicdrift/kumiko-bundled-features/sessions";
@@ -30,10 +37,16 @@ import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
 import { createShowPonyTenantRoutingFeature, resolveSubdomainPageTenant } from "./tenant-routing";
 
+// show-pony mounts no delivery feature, so the delivery metrics would fail boot validation.
+const APP_METRICS = DEFAULT_METRICS.filter(
+  (metric) => metric !== deliveriesByChannelMetric && metric !== failedDeliveriesMetric,
+);
+
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
   registerWorkspaces: false,
   includeTierAdmin: true,
+  metrics: APP_METRICS,
 });
 
 export type AppFeaturesRouting = {
@@ -71,6 +84,8 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
     createCryptoShreddingFeature(),
     createSecretsFeature(),
+    createMetricsFeature({ metrics: APP_METRICS }),
+    createSystemMetricsFeature({ metrics: APP_METRICS }),
     adminShellFeature,
     appShellFeature,
     showPonyFeature,

@@ -4,6 +4,7 @@
 preload = [
   "@cosmicdrift/kumiko-testing/preload/temporal",
   "@cosmicdrift/kumiko-testing/preload/scrub-env",
+  "@cosmicdrift/kumiko-testing/preload/schema-env-defaults",
 ]
 pathIgnorePatterns = [
   "**/*.integration.test.ts",
