@@ -1,9 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import type { Registry } from "@cosmicdrift/kumiko-framework/engine";
-import type { SearchAdapter, SearchAdapterConfig } from "@cosmicdrift/kumiko-framework/search";
 import {
   collectSearchableFieldNames,
-  configureAllTenantSearchIndexes,
   dropMeilisearchIndexesWithPrefix,
   MEILI_INDEX_PREFIX,
   resolveSearchAdapter,
@@ -83,53 +81,6 @@ describe("collectSearchableFieldNames", () => {
       event: ["title", "name"],
     });
     expect([...collectSearchableFieldNames(registry)].sort()).toEqual(["email", "name", "title"]);
-  });
-});
-
-describe("configureAllTenantSearchIndexes", () => {
-  test("configures every enabled tenant with the searchable-field union, returns the tenant count", async () => {
-    const tenantRows = [{ id: "t-1" }, { id: "t-2" }, { id: "t-3" }];
-    const fakeDb = { unsafe: async () => tenantRows } as unknown as Parameters<
-      typeof configureAllTenantSearchIndexes
-    >[0];
-    const registry = fakeRegistry({ rsvp: ["name", "email"] });
-    const calls: Array<{ tenantId: string; config: SearchAdapterConfig }> = [];
-    const fakeAdapter: SearchAdapter = {
-      configure: async (tenantId, config) => {
-        calls.push({ tenantId: tenantId as unknown as string, config });
-      },
-      index: async () => undefined,
-      search: async () => [],
-      remove: async () => undefined,
-    };
-
-    const count = await configureAllTenantSearchIndexes(fakeDb, registry, fakeAdapter);
-
-    expect(count).toBe(3);
-    expect(calls).toHaveLength(3);
-    expect(calls.map((c) => c.tenantId)).toEqual(["t-1", "t-2", "t-3"]);
-    for (const call of calls) {
-      expect(call.config.searchableFields.slice().sort()).toEqual(["email", "name"]);
-      expect(call.config.rankingFields?.slice().sort()).toEqual(["email", "name"]);
-    }
-  });
-
-  test("rejects with the tenant id when a configure() call hangs", async () => {
-    const tenantRows = [{ id: "t-1" }];
-    const fakeDb = { unsafe: async () => tenantRows } as unknown as Parameters<
-      typeof configureAllTenantSearchIndexes
-    >[0];
-    const registry = fakeRegistry({ rsvp: ["name"] });
-    const hangingAdapter: SearchAdapter = {
-      configure: () => new Promise(() => {}),
-      index: async () => undefined,
-      search: async () => [],
-      remove: async () => undefined,
-    };
-
-    await expect(
-      configureAllTenantSearchIndexes(fakeDb, registry, hangingAdapter, 50),
-    ).rejects.toThrow(/t-1/);
   });
 });
 
