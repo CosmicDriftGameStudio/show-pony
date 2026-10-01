@@ -43,16 +43,15 @@ async function assertCalendarNotUnderHero(page: Page): Promise<void> {
 
   const calBox = await calendar.boundingBox();
   const heroBox = await header.boundingBox();
-  expect(calBox, "calendar bounding box").toBeTruthy();
-  expect(heroBox, "hero bounding box").toBeTruthy();
+  if (!calBox || !heroBox) throw new Error("calendar/hero bounding box missing");
 
   // Calendar must start below the header (no vertical overlap).
-  expect(calBox!.y).toBeGreaterThanOrEqual(heroBox!.y + heroBox!.height - 2);
+  expect(calBox.y).toBeGreaterThanOrEqual(heroBox.y + heroBox.height - 2);
 
   // Real hit-testing: the link must be the top element at its own center,
   // not visually covered by the hero/gradient/overlay stack.
-  const centerX = calBox!.x + calBox!.width / 2;
-  const centerY = calBox!.y + calBox!.height / 2;
+  const centerX = calBox.x + calBox.width / 2;
+  const centerY = calBox.y + calBox.height / 2;
   const isTopElement = await page.evaluate(
     ({ x, y }) => document.elementFromPoint(x, y)?.closest("a") !== null,
     { x: centerX, y: centerY },
