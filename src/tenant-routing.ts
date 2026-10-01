@@ -38,6 +38,20 @@ export function hostnameOf(host: string): string {
   return i === -1 ? host : host.slice(0, i);
 }
 
+type HeaderReader = { req: { header: (n: string) => string | undefined } };
+
+function isHeaderReader(c: unknown): c is HeaderReader {
+  return (
+    typeof c === "object" &&
+    c !== null &&
+    "req" in c &&
+    typeof c.req === "object" &&
+    c.req !== null &&
+    "header" in c.req &&
+    typeof c.req.header === "function"
+  );
+}
+
 type TenantRow = { id: TenantId; isEnabled: boolean };
 
 async function enabledTenantByKey(db: DbConnection, key: string): Promise<TenantId | null> {
@@ -53,9 +67,8 @@ async function isTenantEnabled(db: DbConnection, id: TenantId): Promise<boolean>
 export function createShowPonyTenantResolver(config: { db: DbConnection; baseDomain: string }) {
   const { db, baseDomain } = config;
   return {
-    tenantResolver: async (c: {
-      req: { header: (n: string) => string | undefined };
-    }): Promise<TenantId | null> => {
+    tenantResolver: async (c: unknown): Promise<TenantId | null> => {
+      if (!isHeaderReader(c)) return null;
       const host = hostnameOf(c.req.header("Host") ?? "");
       // Apex / www: the host's own login, not a guest surface — no tenant.
       if (host === baseDomain || host === `www.${baseDomain}`) return null;
@@ -97,13 +110,16 @@ export async function resolveSubdomainPageTenant(host: string): Promise<TenantId
   return null;
 }
 
-export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDomain: string }) {
+export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDomain: string }): {
+  tenantResolver: TenantResolverFn;
+  tenantExists: TenantExistsFn;
+  resolverTrust: "authoritative";
+} {
   const subdomain = createShowPonyTenantResolver(config);
   const { baseDomain } = config;
   return {
-    tenantResolver: async (c: {
-      req: { header: (n: string) => string | undefined };
-    }): Promise<TenantId | null> => {
+    tenantResolver: async (c: unknown): Promise<TenantId | null> => {
+      if (!isHeaderReader(c)) return null;
       const host = hostnameOf(c.req.header("Host") ?? "");
       // Apex has no anonymous tenant: legal/marketing pages are pre-rendered
       // static HTML (renderAllMarketingPages) and branding reads go through
@@ -145,13 +161,13 @@ export function createShowPonyTenantRoutingFeature(
       trust: "authoritative",
       build: (deps: AuthProviderBuildDeps) => {
         const built = createShowPonyAnonymousAccess({ db: deps.db, baseDomain });
-        return built.tenantResolver as TenantResolverFn;
+        return built.tenantResolver;
       },
     };
     const existencePlugin: TenantExistenceProvider = {
       build: (deps: AuthProviderBuildDeps) => {
         const built = createShowPonyAnonymousAccess({ db: deps.db, baseDomain });
-        return built.tenantExists as TenantExistsFn;
+        return built.tenantExists;
       },
     };
     r.useExtension(EXT_TENANT_RESOLVER, "subdomain", resolverPlugin);

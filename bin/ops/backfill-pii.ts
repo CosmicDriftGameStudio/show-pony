@@ -15,7 +15,11 @@
 //   DATABASE_URL=... SUBJECT_KEYS_DATABASE_URL=... PLATFORM_KEK=... \
 //   KUMIKO_BLIND_INDEX_KEY=... bun bin/ops/backfill-pii.ts --dry-run
 //
-// Flags: --dry-run (scan+count only), --skip-rebuild (backfill only).
+// Flags:
+//   --dry-run                        scan+count only
+//   --skip-rebuild                   backfill only, no projection rebuild
+//   --resolve-owner-from-projection  resolve a missing event owner from the projection row
+//   --erase-unresolvable-subjects    irreversibly deletes subjects whose owner cannot be resolved
 
 import {
   buildPgKmsOptions,
@@ -38,6 +42,8 @@ await ensureTemporalPolyfill();
 
 const dryRun = process.argv.includes("--dry-run");
 const skipRebuild = process.argv.includes("--skip-rebuild");
+const resolveOwnerFromProjection = process.argv.includes("--resolve-owner-from-projection");
+const eraseUnresolvableSubjects = process.argv.includes("--erase-unresolvable-subjects");
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
@@ -68,7 +74,11 @@ const registry = createRegistry(composeFeatures([...appFeatures], { includeBundl
 const { db, close } = createDbConnection(databaseUrl, { maxConnections: 4 });
 let failed = false;
 try {
-  const result = await backfillEventPiiEncryption(db, registry, { dryRun });
+  const result = await backfillEventPiiEncryption(db, registry, {
+    dryRun,
+    resolveOwnerFromProjection,
+    eraseUnresolvableSubjects,
+  });
   // biome-ignore lint/suspicious/noConsole: ops-script stdout is the report
   console.log(`[backfill-pii]${dryRun ? " DRY-RUN" : ""}`, JSON.stringify(result, null, 2));
   if (result.failures.length > 0) {

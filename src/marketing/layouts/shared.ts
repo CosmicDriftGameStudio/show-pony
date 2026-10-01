@@ -68,7 +68,7 @@ const HEADER_CSS = `
   .nav-menu__trigger { color: var(--on-dark-muted); }
   .nav-menu__trigger:hover { color: var(--on-dark); }
   .nav-toggle__trigger { color: var(--on-dark-muted); }
-  .nav-toggle__trigger:hover { color: var(--on-dark); }
+  .nav-toggle__trigger:hover { color: var(--on-dark); background: rgba(255,255,255,0.08); }
   .nav-actions { display: flex; gap: 0.75rem; align-items: center; font-size: 0.9375rem; }
   .nav-actions > a:not(.btn) { color: var(--on-dark-muted); }
   .nav-actions > a:not(.btn):hover { color: var(--on-dark); }
@@ -92,10 +92,7 @@ const FOOTER_CSS = `
   @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
 `;
 
-// APEX_NAV_TOGGLE_RESPONSIVE_CSS comes last: its `.nav ` prefix wins the
-// `.nav-toggle` cascade regardless of order, but its bare `.nav { position:
-// relative; }` (specificity 0,1,0) would lose to HEADER_CSS's own `.nav { ... }`
-// if it landed earlier.
+// APEX_NAV_TOGGLE_RESPONSIVE_CSS comes last so its rules win the cascade over HEADER_CSS.
 export const SHARED_CSS =
   TOKENS_CSS +
   BASE_LAYOUT_CSS +

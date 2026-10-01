@@ -31,7 +31,7 @@ import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing
 import { buildTermsRoutes } from "../src/legal-terms";
 import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
-import { buildAppFeatures } from "../src/run-config";
+import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
 import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
@@ -39,7 +39,7 @@ import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search
 import { seedLegalContent } from "./seed-legal-content";
 import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
 
-const BASE_DOMAIN = process.env["BASE_DOMAIN"] ?? "show-pony.localhost";
+const BASE_DOMAIN = resolveBaseDomainFromEnv();
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
 

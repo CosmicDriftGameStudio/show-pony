@@ -1,5 +1,7 @@
 // Live-demo mode: cloud instance is browse-only; local dev stays writable.
 
+import { resolveBaseDomainFromEnv } from "./run-config";
+
 export type DemoAccountRole = "host" | "sysadmin";
 
 export type DemoAccount = {
@@ -24,7 +26,7 @@ export function demoModePayload(
   env: Record<string, string | undefined> = process.env,
   defaultPort: number,
 ): DemoModePayload {
-  const baseDomain = env["BASE_DOMAIN"] ?? "show-pony.localhost";
+  const baseDomain = resolveBaseDomainFromEnv(env);
   const hostLoginUrl = baseDomain.includes("localhost")
     ? `http://${baseDomain}:${env["PORT"] ?? String(defaultPort)}`
     : `https://${baseDomain}`;
