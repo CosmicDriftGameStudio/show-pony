@@ -25,7 +25,7 @@ import {
   PII_ERASED_SENTINEL,
 } from "@cosmicdrift/kumiko-framework/crypto";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { append, backfillEventPiiEncryption } from "@cosmicdrift/kumiko-framework/event-store";
+import { append, backfillEventPiiEncryptionBatch } from "@cosmicdrift/kumiko-framework/event-store";
 import {
   listProjectionsWithState,
   rebuildProjection,
@@ -225,15 +225,15 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
   // there is no key to erase. bin/ops/backfill-pii.ts runs
   // backfillEventPiiEncryption to re-encrypt such events after the fact.
   test("forget-subject erases a legacy plaintext RSVP after the PII backfill runs", async () => {
-    // Isolate the event store from earlier tests in this file: a full
-    // projection rebuild below replays every rsvp.created event since
-    // genesis (encrypted under a KMS instance beforeEach already rotated
-    // away), and backfillEventPiiEncryption scans the WHOLE store with no
-    // aggregate/tenant filter — the persisted seedTenant/addUser calls in
-    // beforeAll wrote real user:create/update events with personal:"self"
-    // fields (email, displayName) that would otherwise inflate
-    // encryptedFields beyond the one legacy row this test targets.
-    await asRawClient(stack.db).unsafe(`DELETE FROM "kumiko_events"`);
+    // A full projection rebuild below replays every rsvp.created event since
+    // genesis (encrypted under a KMS instance beforeEach already rotated away),
+    // so earlier tests' rsvp events must go. Other aggregates (user:create from
+    // beforeAll) stay; the backfill is bounded to events after the legacy append.
+    await asRawClient(stack.db).unsafe(`DELETE FROM "kumiko_events" WHERE aggregate_type = 'rsvp'`);
+    const maxIdRows = await asRawClient(stack.db).unsafe<{ maxId: string | null }>(
+      `SELECT max("id")::text AS "maxId" FROM "kumiko_events"`,
+    );
+    const afterEventId = maxIdRows[0]?.maxId ?? "0";
 
     const legacyId = crypto.randomUUID();
     await append(stack.db, {
@@ -271,7 +271,10 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
     const preBackfill = await listRows();
     expect(preBackfill.find((r) => r.id === legacyId)?.name).toBe("Legacy Guest");
 
-    const backfillResult = await backfillEventPiiEncryption(stack.db, stack.registry);
+    const backfillResult = await backfillEventPiiEncryptionBatch(stack.db, stack.registry, {
+      afterEventId,
+    });
+    expect(backfillResult.scannedAll).toBe(true);
     expect(backfillResult.failures).toEqual([]);
     expect(backfillResult.encryptedFields).toBe(3);
 
