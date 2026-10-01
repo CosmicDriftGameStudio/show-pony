@@ -43,7 +43,8 @@ function framesToGif(frameDir: string, gifPath: string): void {
     `ffmpeg -y -framerate ${GIF_FPS} -i "${frameDir}/frame-%04d.png" -vf "${gifFilter()}" -loop 0 "${gifPath}"`,
     { stdio: "pipe" },
   );
-  if (!statSync(gifPath).isFile() || statSync(gifPath).size === 0) {
+  const gifStat = statSync(gifPath, { throwIfNoEntry: false });
+  if (!gifStat?.isFile() || gifStat.size === 0) {
     throw new Error(`loop recorder produced an empty GIF: ${gifPath}`);
   }
 }
@@ -84,9 +85,8 @@ export async function recordGif(
   viewport: { width: number; height: number },
   run: (page: Page, tools: LoopTools) => Promise<void>,
   baseURL: string,
-  storageState?: string,
 ): Promise<void> {
-  await recordMultiPartGif(browser, frameDir, gifPath, baseURL, [{ viewport, storageState, run }]);
+  await recordMultiPartGif(browser, frameDir, gifPath, baseURL, [{ viewport, run }]);
 }
 
 export async function recordMultiPartGif(
@@ -96,7 +96,6 @@ export async function recordMultiPartGif(
   baseURL: string,
   parts: ReadonlyArray<{
     viewport: { width: number; height: number };
-    storageState?: string;
     run: (page: Page, tools: LoopTools) => Promise<void>;
   }>,
 ): Promise<void> {
@@ -105,7 +104,6 @@ export async function recordMultiPartGif(
   for (const part of parts) {
     const ctx = await browser.newContext({
       baseURL,
-      ...(part.storageState ? { storageState: part.storageState } : {}),
       viewport: part.viewport,
     });
     const page = await ctx.newPage();

@@ -1,17 +1,10 @@
-// Stripe-Webhook-Route + Tier-Sync. Delegates to createSubscriptionTierSync() —
-// the adapter is 1:1 identical to publicstatus's except for the TierName
-// union/default.
-// onSyncError: "fail-webhook" preserves the existing behavior: a sync
-// failure fails the webhook response, Stripe retries the idempotent
-// process-event write, and the tier sync gets a second attempt.
-//
-// extraRoutes are built before buildServer exists (no db/registry yet), so
-// the sync has no db/registry/dispatchSystemWrite/tierAssignmentTable at
-// construction time anymore — it reads and writes exclusively through
-// dispatchSystemQuery/dispatchSystemWrite from the route's own
-// SignatureExtraRouteDeps at request time. createWebhookRoute() already
-// defaults to the exact "/webhooks/subscription/:providerName" path this
-// route has always used.
+// Stripe webhook route + tier sync (createSubscriptionTierSync).
+// The route is built before buildServer exists, so the sync has no
+// db/registry at construction time; it reads and writes exclusively through
+// the dispatchers of the route's SignatureExtraRouteDeps at request time.
+// onSyncError "fail-webhook": a sync failure fails the webhook response,
+// Stripe retries the idempotent process-event write, and the tier sync gets a
+// second attempt.
 
 import { createSubscriptionTierSync } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";

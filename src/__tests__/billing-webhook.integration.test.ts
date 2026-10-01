@@ -59,10 +59,10 @@ const sysadmin = createTestUser({
 });
 
 beforeAll(async () => {
-  // The route's dispatchSystemWrite/dispatchSystemQuery now come from
-  // buildServer's own SystemAdmin dispatcher (SignatureExtraRouteDeps),
-  // built at request time — extraRoutes are mounted through setupTestStack
-  // the same way runProdApp/runDevApp mount them.
+  // The route's dispatchSystemWrite/dispatchSystemQuery come from
+  // buildServer's own SystemAdmin dispatcher (SignatureExtraRouteDeps), built
+  // at request time; setupAppTestStack mounts extraRoutes the same way
+  // runProdApp/runDevApp do.
   stack = await setupAppTestStack(features, { extraRoutes: [buildSubscriptionWebhookRoute()] });
   await unsafePushTables(stack.db, {
     config_values: configValuesTable,
@@ -200,9 +200,8 @@ describe("show-pony billing webhook → tier-sync", () => {
 
 // =============================================================================
 // onSyncError: "fail-webhook" self-heal (show-pony's prod default, see
-// webhook-route.ts). No dispatchSystemWrite mock survives the extraRoutes
-// rewrite — the route's dispatcher is built by buildServer at request time,
-// not test-injectable. A REAL, deterministic failure: a dedicated stack
+// webhook-route.ts). The route's dispatcher is built by buildServer at
+// request time, so it cannot be mocked. A REAL, deterministic failure: a dedicated stack
 // mounts the webhook route with tier_assignments deliberately left out of
 // unsafePushTables, so the tier-sync step's own query/write throws a real
 // "relation does not exist" error. Pushing the table afterwards and

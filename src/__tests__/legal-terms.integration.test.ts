@@ -40,6 +40,18 @@ describe("GET /legal/terms", () => {
     expect(second.status).toBe(304);
   });
 
+  test("serves 200 with new content when If-None-Match carries a stale etag", async () => {
+    const staleEtag = (await get("/legal/terms")).headers.get("etag");
+    expect(staleEtag).toBeTruthy();
+    await seedLegalContentFromJson(stack.db, [
+      { slug: "terms", locale: "en", title: "Terms Title EN", content: "Revised terms text." },
+    ]);
+    const res = await get("/legal/terms", { "If-None-Match": staleEtag as string });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain("Revised terms text.");
+    expect(res.headers.get("etag")).not.toBe(staleEtag);
+  });
+
   test("returns 404 for a locale without a seeded block", async () => {
     const res = await get("/legal/nutzungsbedingungen");
     expect(res.status).toBe(404);
