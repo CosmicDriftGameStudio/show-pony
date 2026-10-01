@@ -28,6 +28,12 @@
   --color-primary: #a78bfa;
   --color-primary-foreground: #140a24;
   --color-ring: #8b5cf6;
+  --color-foreground-secondary: #d8ccff;
+  --color-foreground-disabled: #7a6a9a;
+  --color-border-strong: #5b4785;
+  --color-border-row: #2d1b4e;
+  --color-status-neutral: #c4b5fd;
+  --color-status-neutral-surface: #261740;
 
   --color-sidebar: #1a1030;
   --color-sidebar-foreground: #e9e0ff;
@@ -37,6 +43,8 @@
   --color-sidebar-accent-foreground: #f5f0ff;
   --color-sidebar-border: #3d2a5c;
   --color-sidebar-ring: #8b5cf6;
+  --color-sidebar-muted: #b5a6e0;
+  --color-sidebar-input: #261740;
 }
 
 /* Renderer-Web wins on :root:not(.dark) / .dark specificity — match its layer. */
@@ -61,6 +69,12 @@
     --color-primary: #7c3aed;
     --color-primary-foreground: #ffffff;
     --color-ring: #8b5cf6;
+    --color-foreground-secondary: #4c3d6b;
+    --color-foreground-disabled: #9d8fbf;
+    --color-border-strong: #c4b5fd;
+    --color-border-row: #ede9fe;
+    --color-status-neutral: #4c3d6b;
+    --color-status-neutral-surface: #f0edfa;
 
     --color-sidebar: #f3f0ff;
     --color-sidebar-foreground: #4c3d6b;
@@ -70,6 +84,8 @@
     --color-sidebar-accent-foreground: #1e1033;
     --color-sidebar-border: #ddd6fe;
     --color-sidebar-ring: #8b5cf6;
+    --color-sidebar-muted: #6b5b8a;
+    --color-sidebar-input: #ffffff;
   }
 
   .dark {
@@ -92,6 +108,12 @@
     --color-primary: #a78bfa;
     --color-primary-foreground: #140a24;
     --color-ring: #8b5cf6;
+    --color-foreground-secondary: #d8ccff;
+    --color-foreground-disabled: #7a6a9a;
+    --color-border-strong: #5b4785;
+    --color-border-row: #2d1b4e;
+    --color-status-neutral: #c4b5fd;
+    --color-status-neutral-surface: #261740;
 
     --color-sidebar: #1a1030;
     --color-sidebar-foreground: #e9e0ff;
@@ -101,6 +123,8 @@
     --color-sidebar-accent-foreground: #f5f0ff;
     --color-sidebar-border: #3d2a5c;
     --color-sidebar-ring: #8b5cf6;
+    --color-sidebar-muted: #b5a6e0;
+    --color-sidebar-input: #261740;
   }
 
   /* Guest invite page — warmer lavender canvas, same violet CTAs. */
