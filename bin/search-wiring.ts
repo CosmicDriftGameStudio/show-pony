@@ -97,8 +97,24 @@ export async function configureAllTenantSearchIndexes(
   searchAdapter: SearchAdapter,
   timeoutMs: number = CONFIGURE_TIMEOUT_MS,
 ): Promise<number> {
+  const tenants = await loadEnabledTenants(db);
+  await configureTenantSearchIndexes(tenants, registry, searchAdapter, timeoutMs);
+  return tenants.length;
+}
+
+type EnabledTenant = { id: TenantId };
+
+function loadEnabledTenants(db: DbConnection): Promise<readonly EnabledTenant[]> {
+  return selectMany<EnabledTenant>(db, tenantTable, { isEnabled: true });
+}
+
+async function configureTenantSearchIndexes(
+  tenants: readonly EnabledTenant[],
+  registry: Registry,
+  searchAdapter: SearchAdapter,
+  timeoutMs: number,
+): Promise<void> {
   const fields = collectSearchableFieldNames(registry);
-  const tenants = await selectMany<{ id: TenantId }>(db, tenantTable, { isEnabled: true });
   for (const tenant of tenants) {
     await withTimeout(
       searchAdapter.configure(tenant.id, { searchableFields: fields, rankingFields: fields }),
@@ -106,7 +122,6 @@ export async function configureAllTenantSearchIndexes(
       timeoutMs,
     );
   }
-  return tenants.length;
 }
 
 export async function dropMeilisearchIndexesWithPrefix(
@@ -139,6 +154,7 @@ export type SearchRebuildSummary = {
   readonly tenants: number;
   readonly indexedRows: number;
   readonly droppedIndexes: number;
+  readonly failedReindexes: number;
 };
 
 // resetDbOnDeploy wipes the DB but not the persistent Meilisearch volume, so
@@ -158,10 +174,11 @@ export async function rebuildAllTenantSearchIndexes(
         timeoutMs,
       )
     : 0;
-  const tenantCount = await configureAllTenantSearchIndexes(db, registry, wiring.adapter);
-  const tenants = await selectMany<{ id: TenantId }>(db, tenantTable, { isEnabled: true });
+  const tenants = await loadEnabledTenants(db);
+  await configureTenantSearchIndexes(tenants, registry, wiring.adapter, CONFIGURE_TIMEOUT_MS);
 
   let indexedRows = 0;
+  let failedReindexes = 0;
   for (const [entityName, entity] of registry.getAllEntities()) {
     const isSearchIndexed =
       registry.getSearchableFields(entityName).length > 0 ||
@@ -169,19 +186,28 @@ export async function rebuildAllTenantSearchIndexes(
     if (!isSearchIndexed) continue;
     const tenantIds = entity.systemStream === true ? [SYSTEM_TENANT_ID] : tenants.map((t) => t.id);
     for (const tenantId of tenantIds) {
-      const result = await withTimeout(
-        reindexEntity(db, registry, wiring.adapter, entityName, tenantId),
-        `reindex of ${entityName} for tenant ${tenantId}`,
-        timeoutMs,
-      );
-      indexedRows += result.indexedRows;
-      if (result.failures.length > 0) {
-        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, partial reindex must not crash-loop the pod
+      try {
+        const result = await withTimeout(
+          reindexEntity(db, registry, wiring.adapter, entityName, tenantId),
+          `reindex of ${entityName} for tenant ${tenantId}`,
+          timeoutMs,
+        );
+        indexedRows += result.indexedRows;
+        if (result.failures.length > 0) {
+          // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, partial reindex must not crash-loop the pod
+          console.warn(
+            `[show-pony][search] reindex of ${entityName} for tenant ${tenantId}: ${result.failures.length} failed rows, first: ${result.failures[0]?.reason}`,
+          );
+        }
+      } catch (err) {
+        // One broken or stalled tenant index must not leave the remaining tenants unindexed.
+        failedReindexes += 1;
+        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, one failed reindex must not abort the sweep
         console.warn(
-          `[show-pony][search] reindex of ${entityName} for tenant ${tenantId}: ${result.failures.length} failed rows, first: ${result.failures[0]?.reason}`,
+          `[show-pony][search] reindex of ${entityName} for tenant ${tenantId} failed: ${err}`,
         );
       }
     }
   }
-  return { tenants: tenantCount, indexedRows, droppedIndexes };
+  return { tenants: tenants.length, indexedRows, droppedIndexes, failedReindexes };
 }

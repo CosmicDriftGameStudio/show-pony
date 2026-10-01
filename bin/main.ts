@@ -168,10 +168,8 @@ const handle = await runProdApp({
         // biome-ignore lint/suspicious/noConsole: operator-visible boot summary
         console.info(`[show-pony][search] index rebuilt: ${JSON.stringify(summary)}`);
       } catch (err) {
-        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, must not crash-loop the pod when Meilisearch is unreachable
-        console.warn(
-          `[show-pony][search] Meilisearch unreachable, search index not rebuilt: ${err}`,
-        );
+        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, must not crash-loop the pod when the rebuild fails
+        console.warn(`[show-pony][search] search index rebuild failed: ${err}`);
       }
     },
     async ({ db }) => {

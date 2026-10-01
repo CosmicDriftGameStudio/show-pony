@@ -152,13 +152,13 @@ await runDevApp({
   seeds: [
     async (stack) => {
       // Meilisearch is optional local/CI infra (docker compose, not always
-      // running) — a dev/CI boot without it should degrade to an inert
-      // search box, not crash the whole server. Sweeps all tenants (not
-      // just DEMO/ACME) so any tenant seeded later stays covered too.
+      // running) — a boot without it must not crash the server. The adapter
+      // stays wired, so search requests fail at runtime until Meilisearch is
+      // reachable. Sweeps all tenants (not just DEMO/ACME).
       try {
         await rebuildAllTenantSearchIndexes(stack.db, stack.registry, searchWiring);
       } catch (err) {
-        console.warn(`[search] Meilisearch unreachable, search index not rebuilt: ${err}`);
+        console.warn(`[search] search index rebuild failed: ${err}`);
       }
     },
     async (stack) => {

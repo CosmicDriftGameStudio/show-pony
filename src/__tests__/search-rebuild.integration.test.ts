@@ -22,6 +22,7 @@ import {
   dropMeilisearchIndexesWithPrefix,
   type MeilisearchConnection,
   rebuildAllTenantSearchIndexes,
+  type SearchWiring,
 } from "../../bin/search-wiring";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
@@ -31,6 +32,7 @@ const BASE_DOMAIN = "show-pony.test";
 const GUEST_ONE = "Zephyrine Quoxley";
 const GUEST_TWO = "Bartholomew Grumpkin";
 const STALE_GUEST = "Ghostwriter Vanished";
+const OTHER_TENANT_GUEST = "Cornelius Fandango";
 
 const configResolver = createConfigResolver({
   appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
@@ -47,6 +49,7 @@ const meili = new Meilisearch({ host: connection.url, apiKey: connection.apiKey 
 
 let stack: TestStack;
 let tenantId: TenantId;
+let otherTenantId: TenantId;
 let staleRsvpId: EntityId;
 const foreignTenantId = crypto.randomUUID() as TenantId;
 
@@ -74,8 +77,8 @@ async function seedStaleDocuments(): Promise<void> {
   });
 }
 
-async function findIds(query: string): Promise<string[]> {
-  const hits = await wiring.adapter.search(tenantId, query);
+async function findIds(query: string, forTenant: TenantId = tenantId): Promise<string[]> {
+  const hits = await wiring.adapter.search(forTenant, query);
   return hits.map((h) => String(h.entityId));
 }
 
@@ -103,20 +106,31 @@ beforeAll(async () => {
   const tenant = await seedTenant(stack, { name: "Rebuild Host", persist: true });
   tenantId = tenant.id as TenantId;
   staleRsvpId = crypto.randomUUID() as EntityId;
+  await seedEventWithGuests(tenant, "rebuild-party", [GUEST_ONE, GUEST_TWO]);
+
+  const otherTenant = await seedTenant(stack, { name: "Rebuild Other Host", persist: true });
+  otherTenantId = otherTenant.id as TenantId;
+  await seedEventWithGuests(otherTenant, "other-party", [OTHER_TENANT_GUEST]);
+});
+
+async function seedEventWithGuests(
+  tenant: Awaited<ReturnType<typeof seedTenant>>,
+  slug: string,
+  guestNames: readonly string[],
+): Promise<void> {
   const host: SessionUser = (await tenant.addUser(["Admin"])).session;
   const hostname = `${tenant.key}.${BASE_DOMAIN}`;
-
   const event = await stack.http.writeOk<{ id: string }>(
     "showpony:write:event:create",
     {
-      title: "Rebuild Party",
-      slug: "rebuild-party",
+      title: `Party ${slug}`,
+      slug,
       startsAt: "2026-09-12T19:00:00.000Z",
       guestLimit: 50,
     },
     host,
   );
-  for (const name of [GUEST_ONE, GUEST_TWO]) {
+  for (const name of guestNames) {
     const res = await stack.http.raw(
       "POST",
       "/api/write",
@@ -128,7 +142,7 @@ beforeAll(async () => {
     );
     expect(res.status).toBe(200);
   }
-});
+}
 
 afterAll(async () => {
   await dropMeilisearchIndexesWithPrefix(connection);
@@ -159,5 +173,39 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
     expect(await findIds(GUEST_TWO)).toHaveLength(1);
     expect(await findIds(STALE_GUEST)).toEqual([]);
     expect(await indexUidsWithPrefix()).toEqual(uidsAfterFirst);
+  });
+
+  test("a stalled reindex for one tenant is counted and does not stop the other tenants", async () => {
+    const stallingWiring: SearchWiring = {
+      ...wiring,
+      adapter: {
+        configure: (id, config) => wiring.adapter.configure(id, config),
+        index: (id, doc) =>
+          id === tenantId ? new Promise(() => {}) : wiring.adapter.index(id, doc),
+        indexBatch: wiring.adapter.indexBatch
+          ? (id, docs) =>
+              id === tenantId
+                ? new Promise(() => {})
+                : (wiring.adapter.indexBatch as NonNullable<typeof wiring.adapter.indexBatch>)(
+                    id,
+                    docs,
+                  )
+          : undefined,
+        search: (id, query, options) => wiring.adapter.search(id, query, options),
+        remove: (id, entityType, entityId) => wiring.adapter.remove(id, entityType, entityId),
+      },
+    };
+
+    const summary = await rebuildAllTenantSearchIndexes(
+      stack.db,
+      stack.registry,
+      stallingWiring,
+      3_000,
+    );
+
+    // The stalled tenant has two search-indexed entities: its own tenant row and rsvp.
+    expect(summary.failedReindexes).toBe(2);
+    expect(await findIds(OTHER_TENANT_GUEST, otherTenantId)).toHaveLength(1);
+    expect(await findIds(GUEST_ONE)).toEqual([]);
   });
 });
