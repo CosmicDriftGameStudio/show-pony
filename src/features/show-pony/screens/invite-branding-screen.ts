@@ -1,12 +1,11 @@
 import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import {
+  access,
   type ConfigEditScreenDefinition,
   createSelectField,
   createTextField,
 } from "@cosmicdrift/kumiko-framework/engine";
 import { HERO_STYLES, INVITE_BRANDING_QN } from "../invite-branding";
-
-const ADMIN_ROLES = ["TenantAdmin", "Admin", "SystemAdmin"] as const;
 
 export const inviteBrandingScreen: ConfigEditScreenDefinition = {
   id: "invite-branding-settings",
@@ -72,5 +71,5 @@ export const inviteBrandingScreen: ConfigEditScreenDefinition = {
       },
     ],
   },
-  access: { roles: ADMIN_ROLES },
+  access: { roles: access.admin },
 };

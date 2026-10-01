@@ -2,6 +2,7 @@
 
 import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import {
+  access,
   defineEntityDetailHandler,
   defineEntityListHandler,
   defineFeature,
@@ -24,10 +25,10 @@ import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
 
 // RSVP rows carry guest PII (name/email/note) — unlike event CRUD, this is
-// restricted to Admin rather than openToAll: show-pony has no dedicated
-// organizer role yet, and Admin is the same privileged role billing and
-// usage already gate on.
-const rsvpReadAccess = { access: { roles: ["Admin"] } } as const;
+// restricted to the admin roles (TenantAdmin/Admin/SystemAdmin) rather than
+// openToAll: show-pony has no dedicated organizer role yet, and role checks
+// have no hierarchy, so every admin role is listed explicitly.
+const rsvpReadAccess = { access: { roles: access.admin } } as const;
 
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
