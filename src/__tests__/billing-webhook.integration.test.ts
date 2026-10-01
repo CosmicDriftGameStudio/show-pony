@@ -144,13 +144,13 @@ async function postSignedWebhook(payload: string, secret = TEST_SECRET): Promise
 describe("show-pony billing webhook → tier-sync", () => {
   test("subscription.created (starter) sets tier-assignment=starter", async () => {
     const tenantId = await createTenant("sp-billing-starter");
-    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("free");
+    expect(await resolveTier(tierResolverDb(tenantId))).toBe("free");
 
     const res = await postSignedWebhook(
       buildStripeSubscriptionEvent({ eventId: "evt_sp_created_1", tenantId }),
     );
     expect(res.status).toBe(200);
-    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("starter");
+    expect(await resolveTier(tierResolverDb(tenantId))).toBe("starter");
   });
 
   test("subscription canceled → tier falls back to free", async () => {
@@ -162,7 +162,7 @@ describe("show-pony billing webhook → tier-sync", () => {
         priceId: "price_pro_sp",
       }),
     );
-    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("pro");
+    expect(await resolveTier(tierResolverDb(tenantId))).toBe("pro");
 
     const canceled = await postSignedWebhook(
       buildStripeSubscriptionEvent({
@@ -174,7 +174,7 @@ describe("show-pony billing webhook → tier-sync", () => {
       }),
     );
     expect(canceled.status).toBe(200);
-    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("free");
+    expect(await resolveTier(tierResolverDb(tenantId))).toBe("free");
   });
 
   test("legacy tenant without tier row → create fallback", async () => {
@@ -193,7 +193,7 @@ describe("show-pony billing webhook → tier-sync", () => {
       }),
     );
     expect(res.status).toBe(200);
-    expect(await resolveTier(tierResolverDb(tenantId), tenantId)).toBe("pro");
+    expect(await resolveTier(tierResolverDb(tenantId))).toBe("pro");
     expect(await countWhere(stack.db, tierAssignmentTable, { tenantId })).toBe(1);
   });
 });
@@ -254,14 +254,10 @@ describe("tier-sync failure self-heals on Stripe retry", () => {
     // process-event's idempotent write (no-op) and gets a second, this
     // time successful, shot at the tier-sync step.
     await unsafePushTables(selfHealStack.db, { tier_assignments: tierAssignmentTable });
-    expect(await resolveTier(createTenantDb(selfHealStack.db, tenantId, "system"), tenantId)).toBe(
-      "free",
-    );
+    expect(await resolveTier(createTenantDb(selfHealStack.db, tenantId, "system"))).toBe("free");
 
     const retried = await postSignedWebhookTo(selfHealStack, eventPayload);
     expect(retried.status).toBe(200);
-    expect(await resolveTier(createTenantDb(selfHealStack.db, tenantId, "system"), tenantId)).toBe(
-      "starter",
-    );
+    expect(await resolveTier(createTenantDb(selfHealStack.db, tenantId, "system"))).toBe("starter");
   });
 });

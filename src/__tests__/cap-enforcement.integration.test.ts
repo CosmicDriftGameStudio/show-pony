@@ -79,6 +79,13 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     );
     expect(first.id).toBeTruthy();
 
+    const usage = await stack.http.queryOk<{
+      events: { used: number; limit: number | null };
+      guests: { used: number; limit: number | null };
+    }>("showpony:query:usage", {}, host);
+    expect(usage.events.used).toBe(1);
+    expect(usage.guests.used).toBe(0);
+
     const err = await stack.http.writeErr(
       "showpony:write:event:create",
       {

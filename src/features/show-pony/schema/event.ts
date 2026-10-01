@@ -41,24 +41,14 @@ export const eventEntity = createEntity({
 
 export const eventTable = buildEntityTable("event", eventEntity);
 
-// Only the columns findEvent's callers read. selectMany still runs
-// SELECT * (this type doesn't strip response columns — kumiko's query
-// handlers don't strip output either), it just narrows what callers see.
-type EventRow = { id: string; slug: string; title: string };
+// Only the columns the callers read. fetchOne still runs SELECT * (kumiko's
+// query handlers don't strip output either), it just narrows what callers see.
+export type EventRow = { id: string; slug: string; title: string };
 
-function selectAllEvents(ctx: HandlerContext) {
-  return ctx.db.selectMany<EventRow>(eventTable);
+export function findEventById(ctx: HandlerContext, id: string): Promise<EventRow | undefined> {
+  return ctx.db.fetchOne<EventRow>(eventTable, { id });
 }
 
-// ponytail: O(n) scan over the tenant's events — fine for a handful per
-// host; a slug/id-filter query is the scale-up. Shared by the three call
-// sites that need "find one event by a predicate" (event:by-slug,
-// rsvp-confirmation-mail, rsvp:submit) so they don't duplicate the
-// scan-then-find.
-export async function findEvent(
-  ctx: HandlerContext,
-  predicate: (row: EventRow) => boolean,
-): Promise<EventRow | undefined> {
-  const events = await selectAllEvents(ctx);
-  return events.find(predicate);
+export function findEventBySlug(ctx: HandlerContext, slug: string): Promise<EventRow | undefined> {
+  return ctx.db.fetchOne<EventRow>(eventTable, { slug });
 }

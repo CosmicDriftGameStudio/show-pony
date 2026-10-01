@@ -63,7 +63,7 @@ describe("demo seed fix: set-tenant-tier grant + rsvp:submit extraRoles", () => 
   test("SystemAdmin-gated set-tenant-tier grant lifts the free-tier 1-event cap", async () => {
     const ctx = createSeedMigrationContext({ dispatcher: stack.dispatcher, dbRunner: stack.db });
 
-    const before = await resolveTierCaps(tierResolverDb(), DEMO_TENANT_ID);
+    const before = await resolveTierCaps(tierResolverDb());
     expect(before.maxEvents).toBe(1);
 
     const grant = await ctx.systemWriteAs(
@@ -74,7 +74,7 @@ describe("demo seed fix: set-tenant-tier grant + rsvp:submit extraRoles", () => 
     );
     expect(grant.isSuccess).toBe(true);
 
-    const after = await resolveTierCaps(tierResolverDb(), DEMO_TENANT_ID);
+    const after = await resolveTierCaps(tierResolverDb());
     expect(after.maxEvents).toBeGreaterThan(1);
 
     const first = await ctx.systemWriteAs(

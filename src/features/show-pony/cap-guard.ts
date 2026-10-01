@@ -8,5 +8,5 @@ import { resolveTierCaps } from "./tier-resolver";
 export type StockCapSpec = BundledStockCapSpec<ShowPonyCaps>;
 
 export const { checkStockCap, withStockCap } = createStockCapGuard<ShowPonyCaps>((db) =>
-  resolveTierCaps(db, db.tenantId),
+  resolveTierCaps(db),
 );

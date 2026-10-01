@@ -3,7 +3,7 @@ import type { HandlerContext, TenantId } from "@cosmicdrift/kumiko-framework/eng
 import { escapeHtml } from "@cosmicdrift/kumiko-headless";
 import type { z } from "zod";
 import type { rsvpSubmitSchema } from "../handlers/rsvp-submit.write";
-import { findEvent } from "../schema/event";
+import type { EventRow } from "../schema/event";
 import type { RsvpStatus } from "../schema/rsvp";
 
 const RSVP_STATUS_LABELS: Record<RsvpStatus, string> = {
@@ -21,11 +21,11 @@ export async function sendRsvpConfirmation(
   ctx: HandlerContext,
   tenantId: TenantId,
   payload: z.infer<typeof rsvpSubmitSchema>,
+  eventRow: EventRow,
 ): Promise<void> {
   // skip: guest left email empty — nothing to send
   if (!payload.email) return;
-  const found = await findEvent(ctx, (row) => row.id === payload.eventId);
-  const title = found?.title ?? "your event";
+  const { title } = eventRow;
   const transport = await createTransportForTenant(ctx, tenantId, "showpony:write:rsvp:submit");
   await transport.send({
     to: payload.email,
