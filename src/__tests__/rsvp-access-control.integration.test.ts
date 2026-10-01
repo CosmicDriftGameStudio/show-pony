@@ -32,6 +32,7 @@ let rsvpId: string;
 let admin: SessionUser;
 let member: SessionUser;
 let acmeHostname: string;
+let acme: Awaited<ReturnType<typeof seedTenant>>;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
@@ -56,7 +57,7 @@ beforeAll(async () => {
   });
   // Subdomain routing resolves the tenant via a real DB lookup by key
   // (tenant-routing.ts enabledTenantByKey) — needs a persisted row.
-  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  acme = await seedTenant(stack, { name: "Acme", persist: true });
   acmeHostname = `${acme.key}.${BASE_DOMAIN}`;
   admin = (await acme.addUser(["Admin"])).session;
   member = { ...TestUsers.user, tenantId: acme.id };
@@ -91,7 +92,7 @@ beforeAll(async () => {
 
 afterAll(async () => stack?.cleanup());
 
-describe("rsvp:list / rsvp:detail — Admin-only reads", () => {
+describe("rsvp:list / rsvp:detail — admin-role reads", () => {
   test("a plain tenant member is denied on both list and detail", async () => {
     const listRes = await stack.http.query("showpony:query:rsvp:list", {}, member);
     expect(listRes.status).toBe(403);
@@ -102,6 +103,12 @@ describe("rsvp:list / rsvp:detail — Admin-only reads", () => {
     expect(detailRes.status).toBe(403);
     const detailBody = (await detailRes.json()) as { error: { code: string } };
     expect(detailBody.error.code).toBe("access_denied");
+  });
+
+  test("a TenantAdmin-only user can list RSVPs", async () => {
+    const tenantAdmin = (await acme.addUser(["TenantAdmin"])).session;
+    const listRes = await stack.http.query("showpony:query:rsvp:list", {}, tenantAdmin);
+    expect(listRes.status).toBe(200);
   });
 
   test("Admin can list and view RSVP detail, including the guest's email", async () => {

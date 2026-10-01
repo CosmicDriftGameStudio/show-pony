@@ -1,4 +1,4 @@
-// event:create/update/delete are Admin-only writes (kumiko-framework#2854
+// event:create/update/delete are admin-role writes (kumiko-framework#2854
 // checklist item C follow-up to #195/#197's rsvp access-control change) —
 // events carry no guest PII, so the risk is destruction (any tenant member
 // editing/deleting another member's event), not confidentiality. Reads
@@ -29,6 +29,7 @@ let stack: TestStack;
 let eventId: string;
 let admin: SessionUser;
 let member: SessionUser;
+let acme: Awaited<ReturnType<typeof seedTenant>>;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
@@ -47,9 +48,7 @@ beforeAll(async () => {
     },
   );
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
-  const acme = await seedTenant(stack, { name: "Acme" });
-  // seedTenant's admin carries ROLES.TenantAdmin, not show-pony's own
-  // "Admin" role that event handlers gate on — addUser mints that role.
+  acme = await seedTenant(stack, { name: "Acme" });
   admin = (await acme.addUser(["Admin"])).session;
   member = { ...TestUsers.user, tenantId: acme.id };
 
@@ -68,7 +67,7 @@ beforeAll(async () => {
 
 afterAll(async () => stack?.cleanup());
 
-describe("event:create/update/delete — Admin-only writes, reads stay open", () => {
+describe("event:create/update/delete — admin-role writes, reads stay open", () => {
   test("a plain tenant member is denied on create/update/delete", async () => {
     const createErr = await stack.http.writeErr(
       "showpony:write:event:create",
@@ -114,6 +113,16 @@ describe("event:create/update/delete — Admin-only writes, reads stay open", ()
       member,
     );
     expect(detail.title).toBe("Access-control test event");
+  });
+
+  test("a TenantAdmin-only user can update an event", async () => {
+    const tenantAdmin = (await acme.addUser(["TenantAdmin"])).session;
+    const updated = await stack.http.writeOk<{ id: string; data: { title: string } }>(
+      "showpony:write:event:update",
+      { id: eventId, version: 1, changes: { title: "Access-control test event" } },
+      tenantAdmin,
+    );
+    expect(updated.id).toBe(eventId);
   });
 
   test("Admin can create, update and delete an event", async () => {
