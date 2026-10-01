@@ -3,7 +3,7 @@ import { failNotFound } from "@cosmicdrift/kumiko-framework/errors";
 import { z } from "zod";
 import { checkStockCap } from "../cap-guard";
 import { sendRsvpConfirmation } from "../lib/rsvp-confirmation-mail";
-import { findEvent } from "../schema/event";
+import { findEventById } from "../schema/event";
 import { RSVP_STATUSES, rsvpExecutor, rsvpTable } from "../schema/rsvp";
 
 export const rsvpSubmitSchema = z.object({
@@ -27,7 +27,7 @@ export const rsvpSubmitHandler = defineWriteHandler({
     // schema, so a forged/foreign UUID would otherwise pass through to
     // capacity checks and confirmation mail; ctx.db is tenant-scoped so
     // this also rejects a real event id from another tenant.
-    const found = await findEvent(ctx, (row) => row.id === event.payload.eventId);
+    const found = await findEventById(ctx, event.payload.eventId);
     if (!found) return failNotFound("event", event.payload.eventId);
 
     const capFailure = await checkStockCap(ctx.db, {
@@ -41,7 +41,9 @@ export const rsvpSubmitHandler = defineWriteHandler({
 
     const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
     // The mail is best-effort — a transport error must not fail the RSVP.
-    await sendRsvpConfirmation(ctx, event.user.tenantId, event.payload).catch(() => undefined);
+    await sendRsvpConfirmation(ctx, event.user.tenantId, event.payload, found).catch(
+      () => undefined,
+    );
     return result;
   },
 });

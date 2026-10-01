@@ -37,7 +37,7 @@ export const showPonyBillingCatalog: BillingPlanCatalog<PaidTier> = {
     const caps = capsForTier(tier);
     return [eventsBenefit(caps.maxEvents), guestsBenefit(caps.maxGuests)];
   },
-  resolveCurrentTier: resolveTier,
+  resolveCurrentTier: (db) => resolveTier(db),
   viewRoles: ["Admin"],
   purchaseRoles: ["Admin"],
   successPath: BILLING_PAGE_PATH,

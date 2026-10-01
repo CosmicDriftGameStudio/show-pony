@@ -1,5 +1,5 @@
 import { billingPlansPanel } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
-import type { FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
+import { access, type FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 import type {
   DashboardScreenDefinition,
   EntityEditScreenDefinition,
@@ -23,6 +23,7 @@ export const eventEditScreen: EntityEditScreenDefinition = {
   type: "entityEdit",
   entity: "event",
   recordTitleField: "title",
+  access: { roles: access.admin },
   layout: {
     sections: [
       {
@@ -42,6 +43,7 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   columns: ["name", "status", "plusN", "email"],
   pageSize: 50,
   defaultSort: { field: "status", dir: "asc" },
+  access: { roles: access.admin },
 };
 
 import { inviteBrandingScreen } from "../screens/invite-branding-screen";

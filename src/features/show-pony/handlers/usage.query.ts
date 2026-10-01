@@ -25,10 +25,9 @@ export const usageQuery = defineQueryHandler({
   description:
     "Counts the tenant's events and guest replies and returns them next to the event and guest limits of the current plan tier, where a null limit means unlimited; Admin only.",
   async handler(_event, ctx): Promise<UsageInfo> {
-    const tenantId = ctx.user.tenantId;
-    const caps = await resolveTierCaps(ctx.db, tenantId);
-    const events = (await ctx.db.selectMany(eventTable, { tenantId })).length;
-    const guests = (await ctx.db.selectMany(rsvpTable, { tenantId })).length;
+    const caps = await resolveTierCaps(ctx.db);
+    const events = await ctx.db.count(eventTable);
+    const guests = await ctx.db.count(rsvpTable);
     return {
       events: { used: events, limit: capLimit(caps.maxEvents) },
       guests: { used: guests, limit: capLimit(caps.maxGuests) },

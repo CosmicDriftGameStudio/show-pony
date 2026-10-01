@@ -152,3 +152,28 @@ describe("event:create/update/delete — admin-role writes, reads stay open", ()
     await stack.http.writeOk("showpony:write:event:delete", { id: created.id }, admin);
   });
 });
+
+describe("admin-only screens are hidden from plain members", () => {
+  type SchemaBody = { features: Array<{ featureName: string; screens: Array<{ id: string }> }> };
+
+  async function showPonyScreenIds(user: SessionUser): Promise<string[]> {
+    const token = await stack.jwt.sign(user);
+    const res = await stack.app.request("/api/schema", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as SchemaBody;
+    return body.features.find((f) => f.featureName === "showpony")?.screens.map((s) => s.id) ?? [];
+  }
+
+  test("User role does not get event-edit and rsvp-list, Admin does", async () => {
+    const memberScreens = await showPonyScreenIds(member);
+    expect(memberScreens).toContain("event-list");
+    expect(memberScreens).not.toContain("event-edit");
+    expect(memberScreens).not.toContain("rsvp-list");
+
+    const adminScreens = await showPonyScreenIds(admin);
+    expect(adminScreens).toContain("event-edit");
+    expect(adminScreens).toContain("rsvp-list");
+  });
+});
