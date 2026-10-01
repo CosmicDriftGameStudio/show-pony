@@ -15,6 +15,8 @@ describe("SHARED_CSS mobile nav-toggle", () => {
 
   test("styles nav-toggle triggers for the dark marketing header chrome", () => {
     expect(SHARED_CSS).toContain(".nav-toggle__trigger { color: var(--on-dark-muted); }");
-    expect(SHARED_CSS).toContain(".nav-toggle__trigger:hover { color: var(--on-dark); }");
+    expect(SHARED_CSS).toContain(
+      ".nav-toggle__trigger:hover { color: var(--on-dark); background: rgba(255,255,255,0.08); }",
+    );
   });
 });
