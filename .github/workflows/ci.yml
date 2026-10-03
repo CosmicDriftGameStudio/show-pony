@@ -5,9 +5,8 @@
 # must not use the self-hosted cdgs-runner. So this workflow is self-contained
 # and runs entirely on GitHub-hosted runners.
 #
-# It builds and pushes the image; prod rollout is triggered via
-# repository_dispatch → infra public-app-rollout (public repos cannot call
-# private reusable workflows).
+# It builds and pushes the image only. Prod rollout is manual: `cdgs release`
+# in the infra repo dispatches infra public-app-rollout (app + git_sha).
 
 name: CI
 
@@ -176,28 +175,3 @@ jobs:
           build-args: |
             BUILD_VERSION=${{ github.sha }}
             NPM_AUTH_TOKEN=${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
-
-  # Pull :latest + recycle pods on cdgs-runner (same patch as money-horse deploy).
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Trigger cluster rollout
-        uses: peter-evans/repository-dispatch@v4
-        with:
-          token: ${{ secrets.INFRA_DISPATCH_TOKEN || secrets.GH_PACKAGES_PAT }}
-          repository: cosmicdriftgamestudio/infra
-          event-type: deploy-show-pony
-          client-payload: |
-            {
-              "sha": "${{ github.sha }}",
-              "ref": "${{ github.ref }}",
-              "repository": "${{ github.repository }}"
-            }
-
-
-
-
-
