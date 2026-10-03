@@ -1,5 +1,91 @@
 {
-  "version": "0.334.0",
-  "appliedAt": "2026-10-03T04:31:59.346886356Z",
-  "codemods": []
+  "version": "0.336.1",
+  "appliedAt": "2026-10-03T06:39:59.092107469Z",
+  "codemods": [],
+  "pendingManual": [
+    {
+      "version": "0.336.0",
+      "title": "LiveEvent data has no payload, it carries eventType"
+    },
+    {
+      "version": "0.336.0",
+      "title": "/api/sse sends change signals without field values; anonymous connections only for declared entities"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Job runner keeps retry budget on sequential lock conflicts, names the error without a db, fails loudly on bad tenantVisibleFailure subjects, stamps the raw feature name; jobs list filters multi-status"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Provider name \"unknown\" is reserved for upcast legacy events"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Cap helpers validate periodStartIso and amount, surface failed soft-warn writes; German column labels"
+    },
+    {
+      "version": "0.335.0",
+      "title": "createSecretsFeature rejects access and roles together"
+    },
+    {
+      "version": "0.335.0",
+      "title": "TemplateResource and text-block/collection query outputs expose modifiedAt instead of updatedAt"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Channel plugin guard validates mode and render"
+    },
+    {
+      "version": "0.335.0",
+      "title": "config:write:set masks the echoed value for encrypted-at-rest keys; validation errors no longer include the value"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Mollie one-off prices no longer need an interval; a subscription price without one is rejected"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Unregistered catalog.providerName fails unconfigured; switch-plan checks provider mismatch before lookup"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Manifest rejects unknown denyQns, drops navs under hidden parents; doc lint flags blank and exposed-undescribed handlers"
+    },
+    {
+      "version": "0.335.0",
+      "title": "InfinityList live defaults to false"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Wizard editing an existing record shows data-based done state and allows jumping to any step; delete record actions leave the screen"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Boot rejects multiple principalStatus providers, updateMany rejects unknown columns again"
+    },
+    {
+      "version": "0.335.0",
+      "title": "AgentReasons.permissionDenied removed"
+    },
+    {
+      "version": "0.335.0",
+      "title": "FileRef type drops the unreachable isDeleted field"
+    },
+    {
+      "version": "0.335.0",
+      "title": "File content check covers csv alias, local list scoped to prefix, provider contract checked, locale tags canonicalized"
+    },
+    {
+      "version": "0.335.0",
+      "title": "Global-table tenant writes reject loudly, restore maps unique violations, managed unique-index changes recreate"
+    },
+    {
+      "version": "0.335.0",
+      "title": "i18n key guard covers multiSelect option labels and writeForm section descriptions"
+    },
+    {
+      "version": "0.335.0",
+      "title": "totalsMatch rejects a payload that carries only one side of the pair"
+    }
+  ]
 }
