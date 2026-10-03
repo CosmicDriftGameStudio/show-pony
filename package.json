@@ -46,7 +46,7 @@
     "@cosmicdrift/kumiko-cli": "^0.334.0",
     "@cosmicdrift/kumiko-guards": "^0.334.0",
     "@cosmicdrift/kumiko-testing": "0.334.0",
-    "@cosmicdriftgamestudio/kumiko-guards": "^0.41.0",
+    "@cosmicdriftgamestudio/kumiko-guards": "^0.41.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
     "@types/react": "^19.2.18",
