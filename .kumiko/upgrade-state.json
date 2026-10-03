@@ -1,23 +1,35 @@
 {
-  "version": "0.337.1",
-  "appliedAt": "2026-10-03T06:41:55.245172Z",
+  "version": "0.338.0",
+  "appliedAt": "2026-10-03T19:09:00.286735127Z",
   "codemods": [],
   "pendingManual": [
     {
-      "version": "0.337.0",
-      "title": "secrets:set and secrets:delete accept only keys declared via r.secret; r.secret takes writeRoles"
+      "version": "0.338.0",
+      "title": "ownership.write applies to assign-tag, remove-tag and add-note"
     },
     {
-      "version": "0.337.0",
-      "title": "Anonymous callers on protected handlers get 401 unauthenticated, and a stale auth cookie no longer blocks public handlers"
+      "version": "0.338.0",
+      "title": "caps:usage and my-caps default to admin roles; widen with usageVisibleTo"
     },
     {
-      "version": "0.337.0",
-      "title": "buildServer refuses partially wired session callbacks"
+      "version": "0.338.0",
+      "title": "SubscriptionProviderPlugin.cancelSubscription takes { providerSubscriptionId, when }"
     },
     {
-      "version": "0.337.0",
-      "title": "DataTableRowGrouping.headerLabel may return undefined"
+      "version": "0.338.0",
+      "title": "Remove rawPayload from provider events and event headers"
+    },
+    {
+      "version": "0.338.0",
+      "title": "manifest patterns reject symlinks escaping the repo root behind wildcard segments"
+    },
+    {
+      "version": "0.338.0",
+      "title": "searchable text fields must not declare a restricted access.read"
+    },
+    {
+      "version": "0.338.0",
+      "title": "signature routes with a :param segment or wildcard must not match framework paths"
     }
   ]
 }
