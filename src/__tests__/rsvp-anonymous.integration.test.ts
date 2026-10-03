@@ -246,7 +246,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
       { type: "showpony:write:event:create", payload: { title: "Party", slug: "party" } },
       { Host: acmeHostname },
     );
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   test("apex host + X-Tenant → 400 tenant_required (apex resolves to no tenant)", async () => {
