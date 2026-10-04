@@ -10,20 +10,10 @@
 # changes BEFORE the app container starts — runProdApp's boot gate would
 # otherwise abort with SchemaDriftError.
 #
-# Network discovery: the _stack network is named `<dirname>_stack`
-# (compose convention). We discover it via `docker network ls` instead
-# of hard-coding.
+# Network: the exact `<dirname>_stack` name of the compose project this
+# script runs in — never another project's network on a shared host.
 
 set -euo pipefail
-
-# `|| true` keeps `set -e`/`pipefail` from aborting the script when `grep`
-# finds no match (exit 1) — the empty-check below owns that case and prints
-# the actionable hint instead of a bare pipefail abort.
-STACK_NETWORK=$(docker network ls --format "{{.Name}}" | grep -E "_stack$" | head -1 || true)
-if [ -z "$STACK_NETWORK" ]; then
-  echo "No _stack network found — compose project not running?" >&2
-  exit 1
-fi
 
 # Import .env as bash env. `set -a` marks subsequent variable assignments
 # as auto-export. Bash's built-in parser respects quotes/escapes like
@@ -31,6 +21,30 @@ fi
 set -a
 . ./.env
 set +a
+
+# After the .env import, so a COMPOSE_PROJECT_NAME set there picks the network.
+# Compose lowercases the project name and drops characters outside [a-z0-9_-].
+COMPOSE_PROJECT="$(printf '%s' "${COMPOSE_PROJECT_NAME:-$(basename "$PWD")}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9_-')"
+STACK_NETWORK="${COMPOSE_PROJECT}_stack"
+if ! docker network inspect "$STACK_NETWORK" >/dev/null 2>&1; then
+  echo "Stack network '$STACK_NETWORK' not found (derived from COMPOSE_PROJECT_NAME or the directory name '$(basename "$PWD")') — compose project not running?" >&2
+  exit 1
+fi
+
+# Percent-encode so '@', ':', '/', '#', '%' in the password cannot change how
+# the URL is parsed. LC_ALL=C makes the loop walk bytes, not characters;
+# bash sign-extends bytes >= 0x80 in "'$c", hence the & 255.
+urlencode() {
+  local LC_ALL=C s="$1" out="" c i byte
+  for ((i = 0; i < ${#s}; i++)); do
+    c="${s:i:1}"
+    case "$c" in
+      [A-Za-z0-9._~-]) out+="$c" ;;
+      *) printf -v byte '%d' "'$c"; printf -v c '%%%02X' $((byte & 255)); out+="$c" ;;
+    esac
+  done
+  printf '%s' "$out"
+}
 
 # DATABASE_URL assumes: db user = appName, db name = appName, host "db"
 # (compose-service-name), port 5432. Adjust to your stack if different.
@@ -40,7 +54,7 @@ set +a
 # NAME (`-e DATABASE_URL`, no value) so the expanded password never appears
 # in `docker run`'s argv — otherwise it would be visible in `ps auxe` for
 # the duration of the migrate run.
-export DATABASE_URL="postgresql://show-pony:${DB_PASSWORD}@db:5432/show-pony"
+export DATABASE_URL="postgresql://show-pony:$(urlencode "$DB_PASSWORD")@db:5432/show-pony"
 docker run --rm \
   --network "$STACK_NETWORK" \
   -e DATABASE_URL \
