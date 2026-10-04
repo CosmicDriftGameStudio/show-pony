@@ -1,11 +1,494 @@
 {
-  "version": "0.348.0",
-  "appliedAt": "2026-10-04T09:09:01.359011Z",
+  "version": "0.349.0",
+  "appliedAt": "2026-10-04T20:42:24.568246Z",
   "codemods": [],
   "pendingManual": [
     {
+      "id": "0.344.0:824fec2b",
       "version": "0.344.0",
       "title": "Consumer-protection gaps - per-locale legal links, gate order, confirmation mail, exports"
+    }
+  ],
+  "resolvedManual": [
+    {
+      "id": "0.346.0:693f3da9",
+      "version": "0.346.0",
+      "title": "r.step.webhook.send drops the unused retry option",
+      "resolution": "not-applicable",
+      "reason": "No r.step.webhook.send call in src, bin or seeds (grep webhook.send: no hits).",
+      "resolvedAt": "2026-10-04T20:51:46.540813Z"
+    },
+    {
+      "id": "0.343.0:f45dba04",
+      "version": "0.343.0",
+      "title": "Delivery errors are fixed codes instead of raw messages",
+      "resolution": "not-applicable",
+      "reason": "No custom delivery channel; channel delivery is bundled (grep NotifyDelivery|DeliveryErrorCode: no hits).",
+      "resolvedAt": "2026-10-04T20:51:46.767085Z"
+    },
+    {
+      "id": "0.343.0:2ceb3869",
+      "version": "0.343.0",
+      "title": "App error reasons only carry a docsUrl when errorDocs covers them",
+      "resolution": "not-applicable",
+      "reason": "No KumikoError.docsUrl reads and no client reading docsUrl (grep docsUrl|errorDocs: no hits).",
+      "resolvedAt": "2026-10-04T20:51:46.994498Z"
+    },
+    {
+      "id": "0.342.0:503ac8e9",
+      "version": "0.342.0",
+      "title": "Key Manager slots are required, LEGACY_SLOTS default removed",
+      "resolution": "migrated",
+      "reason": "bin/kumiko.ts passes kmsSlots: [] to runSchemaCli (no Key Manager ciphertexts); bin/main.ts uses the sync resolveKmsWiring, not the async variants.",
+      "resolvedAt": "2026-10-04T20:51:47.21659Z"
+    },
+    {
+      "id": "0.342.0:204b0307",
+      "version": "0.342.0",
+      "title": "kumiko check requires uiRoots for kind \"app\"",
+      "resolution": "migrated",
+      "reason": "kumiko.json declares uiRoots for kind \"app\" (src/app, src/public, src/marketing, src/features/*/web).",
+      "resolvedAt": "2026-10-04T20:51:47.43513Z"
+    },
+    {
+      "id": "0.341.0:7c8fc2d6",
+      "version": "0.341.0",
+      "title": "Telegram apiBaseUrl must match allowedHosts and use https",
+      "resolution": "not-applicable",
+      "reason": "Telegram channel not mounted, no apiBaseUrl (grep telegram|apiBaseUrl: no hits).",
+      "resolvedAt": "2026-10-04T20:51:47.656819Z"
+    },
+    {
+      "id": "0.341.0:50326613",
+      "version": "0.341.0",
+      "title": "ctx.secrets.set validates against the declared valueSchema",
+      "resolution": "not-applicable",
+      "reason": "No programmatic ctx.secrets.set and no createSecretsContext call (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:47.88277Z"
+    },
+    {
+      "id": "0.341.0:93b0c060",
+      "version": "0.341.0",
+      "title": "Invitations can carry a global role (SystemAdmin), granted only on accept",
+      "resolution": "migrated",
+      "reason": "read_tenant_invitations.global_roles added by kumiko/migrations/0028_framework-0-343-bump.sql; schema validate reports no drift.",
+      "resolvedAt": "2026-10-04T20:51:48.117997Z"
+    },
+    {
+      "id": "0.341.0:567c4462",
+      "version": "0.341.0",
+      "title": "Chat channels deliver in production boot, ctx.notify returns a NotifyResult",
+      "resolution": "not-applicable",
+      "reason": "No NotifyFn mocks and no ctx.notify result reads (grep NotifyFn|ctx.notify: no hits).",
+      "resolvedAt": "2026-10-04T20:51:48.347394Z"
+    },
+    {
+      "id": "0.341.0:0c60c13a",
+      "version": "0.341.0",
+      "title": "MFA required policy is writable by the system only",
+      "resolution": "not-applicable",
+      "reason": "show-pony never writes auth-mfa:config:required (grep auth-mfa:config: no hits).",
+      "resolvedAt": "2026-10-04T20:51:48.574673Z"
+    },
+    {
+      "id": "0.341.0:349824bc",
+      "version": "0.341.0",
+      "title": "Repo-local direct-fs exceptions with a frozen reason, bundled read-only assets",
+      "resolution": "migrated",
+      "reason": ".kumiko-direct-fs-baseline.json carries the frozen reason for src/marketing/render-landing.ts writing the marketing pages into dist/.",
+      "resolvedAt": "2026-10-04T20:51:48.797676Z"
+    },
+    {
+      "id": "0.341.0:91efd53a",
+      "version": "0.341.0",
+      "title": "Deploy migrate-step.sh always uses the exact stack network",
+      "resolution": "migrated",
+      "reason": "package.json sets no kumiko.deploy.stackNetwork; deploy/migrate-step.sh regenerated with kumiko-init-deploy (exact <project>_stack network via COMPOSE_PROJECT_NAME or dir name).",
+      "resolvedAt": "2026-10-04T20:51:49.021938Z"
+    },
+    {
+      "id": "0.339.0:d5deb133",
+      "version": "0.339.0",
+      "title": "workflow-run stream stores a reference to the trigger event instead of its payload",
+      "resolution": "not-applicable",
+      "reason": "Workflow engine not mounted (no workflow_run tables in kumiko/migrations), no triggerPayload reads.",
+      "resolvedAt": "2026-10-04T20:51:49.248975Z"
+    },
+    {
+      "id": "0.339.0:083e9bd8",
+      "version": "0.339.0",
+      "title": "fetchForWriting handles reject appends after a concurrent write",
+      "resolution": "not-applicable",
+      "reason": "No test fires concurrent writes on one aggregate; no fetchForWriting reject handling in app code.",
+      "resolvedAt": "2026-10-04T20:51:49.521249Z"
+    },
+    {
+      "id": "0.339.0:997d8049",
+      "version": "0.339.0",
+      "title": "ctx.db.unsafeRaw() takes no reason; the audit uses the declared escapeHatch reason",
+      "resolution": "not-applicable",
+      "reason": "No ctx.db.unsafeRaw call in src, bin or seeds (grep unsafeRaw: no hits).",
+      "resolvedAt": "2026-10-04T20:51:49.92183Z"
+    },
+    {
+      "id": "0.338.0:a66e5de3",
+      "version": "0.338.0",
+      "title": "ownership.write applies to assign-tag, remove-tag and add-note",
+      "resolution": "not-applicable",
+      "reason": "No ownership.write on any mount (grep ownership: only a comment in event-handlers.ts).",
+      "resolvedAt": "2026-10-04T20:51:50.145083Z"
+    },
+    {
+      "id": "0.338.0:679d6615",
+      "version": "0.338.0",
+      "title": "caps:usage and my-caps default to admin roles; widen with usageVisibleTo",
+      "resolution": "not-applicable",
+      "reason": "No usageVisibleTo and no cap-overview/my-caps mount (grep usageVisibleTo|my-caps: no hits).",
+      "resolvedAt": "2026-10-04T20:51:50.364412Z"
+    },
+    {
+      "id": "0.338.0:9b661c17",
+      "version": "0.338.0",
+      "title": "SubscriptionProviderPlugin.cancelSubscription takes { providerSubscriptionId, when }",
+      "resolution": "not-applicable",
+      "reason": "The custom SubscriptionProviderPlugins (bin/e2e-billing-stub.ts, billing-plans test mock) implement no cancelSubscription.",
+      "resolvedAt": "2026-10-04T20:51:50.58472Z"
+    },
+    {
+      "id": "0.338.0:b812aea2",
+      "version": "0.338.0",
+      "title": "Remove rawPayload from provider events and event headers",
+      "resolution": "migrated",
+      "reason": "Removed the stale rawPayload field from the process-event payload in bin/e2e-billing-stub.ts; no other rawPayload reads (grep rawPayload: no hits).",
+      "resolvedAt": "2026-10-04T20:51:50.809096Z"
+    },
+    {
+      "id": "0.338.0:3ba877dd",
+      "version": "0.338.0",
+      "title": "searchable text fields must not declare a restricted access.read",
+      "resolution": "not-applicable",
+      "reason": "The only find:fuzzy field (rsvp name, schema/rsvp.ts) declares no restricted access.read.",
+      "resolvedAt": "2026-10-04T20:51:51.025007Z"
+    },
+    {
+      "id": "0.338.0:bd17ad01",
+      "version": "0.338.0",
+      "title": "signature routes with a :param segment or wildcard must not match framework paths",
+      "resolution": "not-applicable",
+      "reason": "The only signature route is /webhooks/subscription/:providerName, which has a static prefix.",
+      "resolvedAt": "2026-10-04T20:51:51.244747Z"
+    },
+    {
+      "id": "0.338.0:3bbdf38d",
+      "version": "0.338.0",
+      "title": "manifest patterns reject symlinks escaping the repo root behind wildcard segments",
+      "resolution": "not-applicable",
+      "reason": "kumiko.json patterns (src, bin, seeds) contain no symlinks leaving the repo.",
+      "resolvedAt": "2026-10-04T20:51:51.4617Z"
+    },
+    {
+      "id": "0.337.0:c3d7fc09",
+      "version": "0.337.0",
+      "title": "secrets:set and secrets:delete accept only keys declared via r.secret; r.secret takes writeRoles",
+      "resolution": "not-applicable",
+      "reason": "No secrets:set/secrets:delete calls and no undeclared secret keys (grep secrets:set|r.secret: no hits).",
+      "resolvedAt": "2026-10-04T20:51:51.677271Z"
+    },
+    {
+      "id": "0.337.0:5d0da551",
+      "version": "0.337.0",
+      "title": "Anonymous callers on protected handlers get 401 unauthenticated, and a stale auth cookie no longer blocks public handlers",
+      "resolution": "migrated",
+      "reason": "becf43a switched rsvp-anonymous.integration.test.ts to expect 401 for anonymous callers on protected handlers.",
+      "resolvedAt": "2026-10-04T20:51:51.893707Z"
+    },
+    {
+      "id": "0.337.0:86c430b7",
+      "version": "0.337.0",
+      "title": "buildServer refuses partially wired session callbacks",
+      "resolution": "not-applicable",
+      "reason": "show-pony boots through runProdApp/runDevApp and never calls buildServer directly.",
+      "resolvedAt": "2026-10-04T20:51:52.115796Z"
+    },
+    {
+      "id": "0.337.0:fc95fba0",
+      "version": "0.337.0",
+      "title": "DataTableRowGrouping.headerLabel may return undefined",
+      "resolution": "not-applicable",
+      "reason": "No custom DataTable primitive with rowGrouping (grep rowGrouping: no hits).",
+      "resolvedAt": "2026-10-04T20:51:52.332582Z"
+    },
+    {
+      "id": "0.336.0:8215be93",
+      "version": "0.336.0",
+      "title": "/api/sse sends change signals without field values; anonymous connections only for declared entities",
+      "resolution": "not-applicable",
+      "reason": "No SSE frame payload reads and no own createSseRoute; runProdApp wires the route.",
+      "resolvedAt": "2026-10-04T20:51:52.56872Z"
+    },
+    {
+      "id": "0.336.0:b30a04c3",
+      "version": "0.336.0",
+      "title": "LiveEvent data has no payload, it carries eventType",
+      "resolution": "not-applicable",
+      "reason": "No LiveEvent data.payload reads (grep LiveEvent|data.payload: no hits).",
+      "resolvedAt": "2026-10-04T20:51:52.805883Z"
+    },
+    {
+      "id": "0.335.0:32d03259",
+      "version": "0.335.0",
+      "title": "Manifest rejects unknown denyQns, drops navs under hidden parents; doc lint flags blank and exposed-undescribed handlers",
+      "resolution": "not-applicable",
+      "reason": "No denyQns or buildAgentManifest (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:53.03753Z"
+    },
+    {
+      "id": "0.335.0:f84ff1ea",
+      "version": "0.335.0",
+      "title": "config:write:set masks the echoed value for encrypted-at-rest keys; validation errors no longer include the value",
+      "resolution": "not-applicable",
+      "reason": "No caller reads data.value from config:write:set for encrypted or secrets-backed keys.",
+      "resolvedAt": "2026-10-04T20:51:53.267478Z"
+    },
+    {
+      "id": "0.335.0:6fa86456",
+      "version": "0.335.0",
+      "title": "createSecretsFeature rejects access and roles together",
+      "resolution": "not-applicable",
+      "reason": "createSecretsFeature() is called without access or roles (run-config.ts, billing tests).",
+      "resolvedAt": "2026-10-04T20:51:53.487909Z"
+    },
+    {
+      "id": "0.335.0:fb5c6ae7",
+      "version": "0.335.0",
+      "title": "Mollie one-off prices no longer need an interval; a subscription price without one is rejected",
+      "resolution": "not-applicable",
+      "reason": "Mollie provider not mounted; only Stripe (grep -i mollie: no hits).",
+      "resolvedAt": "2026-10-04T20:51:53.713426Z"
+    },
+    {
+      "id": "0.335.0:93254276",
+      "version": "0.335.0",
+      "title": "Provider name \"unknown\" is reserved for upcast legacy events",
+      "resolution": "not-applicable",
+      "reason": "No document-ingest or custom file provider registered.",
+      "resolvedAt": "2026-10-04T20:51:53.947674Z"
+    },
+    {
+      "id": "0.335.0:a7683f67",
+      "version": "0.335.0",
+      "title": "Cap helpers validate periodStartIso and amount, surface failed soft-warn writes; German column labels",
+      "resolution": "not-applicable",
+      "reason": "show-pony never calls bookCapUsage or markCapSoftWarned directly.",
+      "resolvedAt": "2026-10-04T20:51:54.175347Z"
+    },
+    {
+      "id": "0.335.0:369d3138",
+      "version": "0.335.0",
+      "title": "TemplateResource and text-block/collection query outputs expose modifiedAt instead of updatedAt",
+      "resolution": "migrated",
+      "reason": "src/legal-terms.ts no longer reads the never-populated updatedAt from template-resolver by-slug; the terms etag hashes slug, locale, title and content.",
+      "resolvedAt": "2026-10-04T20:51:54.403612Z"
+    },
+    {
+      "id": "0.335.0:591eabce",
+      "version": "0.335.0",
+      "title": "Channel plugin guard validates mode and render",
+      "resolution": "not-applicable",
+      "reason": "No custom delivery channel plugin; channel-email is bundled.",
+      "resolvedAt": "2026-10-04T20:51:54.641534Z"
+    },
+    {
+      "id": "0.335.0:1b64622b",
+      "version": "0.335.0",
+      "title": "Unregistered catalog.providerName fails unconfigured; switch-plan checks provider mismatch before lookup",
+      "resolution": "not-applicable",
+      "reason": "No catalog.providerName set on billing-foundation (billing/plan-catalog.ts).",
+      "resolvedAt": "2026-10-04T20:51:54.89504Z"
+    },
+    {
+      "id": "0.335.0:9076a21a",
+      "version": "0.335.0",
+      "title": "Job runner keeps retry budget on sequential lock conflicts, names the error without a db, fails loudly on bad tenantVisibleFailure subjects, stamps the raw feature name; jobs list filters multi-status",
+      "resolution": "not-applicable",
+      "reason": "No custom Registry, no jobs:query:list call, no audit filter on metadata.feature.",
+      "resolvedAt": "2026-10-04T20:51:55.128621Z"
+    },
+    {
+      "id": "0.335.0:83277ed0",
+      "version": "0.335.0",
+      "title": "Boot rejects multiple principalStatus providers, updateMany rejects unknown columns again",
+      "resolution": "not-applicable",
+      "reason": "No updateMany call and no principalStatus provider in src, bin or seeds (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:55.625411Z"
+    },
+    {
+      "id": "0.335.0:7b3353f5",
+      "version": "0.335.0",
+      "title": "AgentReasons.permissionDenied removed",
+      "resolution": "not-applicable",
+      "reason": "No AgentReasons.permissionDenied reference (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:55.857364Z"
+    },
+    {
+      "id": "0.335.0:e8e7411e",
+      "version": "0.335.0",
+      "title": "FileRef type drops the unreachable isDeleted field",
+      "resolution": "not-applicable",
+      "reason": "No custom file access guard reading fileRef.isDeleted.",
+      "resolvedAt": "2026-10-04T20:51:56.093768Z"
+    },
+    {
+      "id": "0.335.0:6d02d387",
+      "version": "0.335.0",
+      "title": "File content check covers csv alias, local list scoped to prefix, provider contract checked, locale tags canonicalized",
+      "resolution": "not-applicable",
+      "reason": "No file provider mounted (grep file provider wiring in run-config.ts/bin: no hits).",
+      "resolvedAt": "2026-10-04T20:51:56.322685Z"
+    },
+    {
+      "id": "0.335.0:60b93b72",
+      "version": "0.335.0",
+      "title": "Global-table tenant writes reject loudly, restore maps unique violations, managed unique-index changes recreate",
+      "resolution": "not-applicable",
+      "reason": "No tenant-mode updateMany/deleteMany in src, bin or seeds (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:56.561083Z"
+    },
+    {
+      "id": "0.335.0:0ca59582",
+      "version": "0.335.0",
+      "title": "i18n key guard covers multiSelect option labels and writeForm section descriptions",
+      "resolution": "not-applicable",
+      "reason": "No multiSelect filters or projectionDetail writeForm sections in show-pony code.",
+      "resolvedAt": "2026-10-04T20:51:56.915674Z"
+    },
+    {
+      "id": "0.335.0:3b682428",
+      "version": "0.335.0",
+      "title": "totalsMatch rejects a payload that carries only one side of the pair",
+      "resolution": "not-applicable",
+      "reason": "No totalsMatch fields in show-pony entities.",
+      "resolvedAt": "2026-10-04T20:51:57.15279Z"
+    },
+    {
+      "id": "0.335.0:74377744",
+      "version": "0.335.0",
+      "title": "InfinityList live defaults to false",
+      "resolution": "not-applicable",
+      "reason": "No InfinityList usage (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:57.381722Z"
+    },
+    {
+      "id": "0.335.0:41d58a42",
+      "version": "0.335.0",
+      "title": "Wizard editing an existing record shows data-based done state and allows jumping to any step; delete record actions leave the screen",
+      "resolution": "not-applicable",
+      "reason": "No wizard steps, entityEdit or projectionDetail delete actions in show-pony code.",
+      "resolvedAt": "2026-10-04T20:51:57.605926Z"
+    },
+    {
+      "id": "0.274.0:95b93a19",
+      "version": "0.274.0",
+      "title": "A searchable reference field targeting an encrypted/PII labelField now fails boot unless that label is itself searchable.",
+      "resolution": "not-applicable",
+      "reason": "No reference fields in show-pony entities (rsvp.eventId is a plain text field), so no searchable reference label.",
+      "resolvedAt": "2026-10-04T20:51:57.830798Z"
+    },
+    {
+      "id": "0.272.0:f14f9eec",
+      "version": "0.272.0",
+      "title": "r.step.read.findOne/read.findMany now tenant-filter by default; cross-tenant reads need unsafeAllTenants + escapeHatch (fw#2914).",
+      "resolution": "not-applicable",
+      "reason": "No r.step.read.findOne/findMany calls (grep r.step.read: no hits).",
+      "resolvedAt": "2026-10-04T20:51:58.060049Z"
+    },
+    {
+      "id": "0.272.0:fefb8e6b",
+      "version": "0.272.0",
+      "title": "ctx.queryAsMember runs the queried handler inside a Postgres READ ONLY transaction — ctx.db and ctx.db.unsafeRaw writes fail (fw#2902).",
+      "resolution": "not-applicable",
+      "reason": "No ctx.queryAsMember calls (grep: no hits).",
+      "resolvedAt": "2026-10-04T20:51:58.292891Z"
+    },
+    {
+      "id": "0.271.0:b53bb4a8",
+      "version": "0.271.0",
+      "title": "ctx.queryProjection(..., { unsafeAllTenants: true }) needs r.systemScope() or escapeHatch; EntityTableMeta projection tables are now tenant-filtered (fw#2913).",
+      "resolution": "not-applicable",
+      "reason": "No ctx.queryProjection with unsafeAllTenants (grep queryProjection|unsafeAllTenants: no hits).",
+      "resolvedAt": "2026-10-04T20:51:58.513681Z"
+    },
+    {
+      "id": "0.271.0:b98bbf4e",
+      "version": "0.271.0",
+      "title": "systemScope handlers default to a per-tenant+handler rate limit; nested-write refuses a foreign-tenant/foreign-owner parent row (fw#2861).",
+      "resolution": "not-applicable",
+      "reason": "app-shell declares r.systemScope() but registers no handlers; no nestedWrite relations (grep nestedWrite: no hits).",
+      "resolvedAt": "2026-10-04T20:51:58.737337Z"
+    },
+    {
+      "id": "0.271.0:f55db4eb",
+      "version": "0.271.0",
+      "title": "Boot validator requires every screen to be reachable from the app's nav tree.",
+      "resolution": "migrated",
+      "reason": "All show-pony screens are reachable from register/nav.ts; schema validate runs validateBoot without errors.",
+      "resolvedAt": "2026-10-04T20:51:58.956049Z"
+    },
+    {
+      "id": "0.269.0:1edca1a6",
+      "version": "0.269.0",
+      "title": "ctx.queryAs/ctx.writeAs to any identity other than the caller itself need r.systemScope() or escapeHatch (fw#2876).",
+      "resolution": "not-applicable",
+      "reason": "No ctx.queryAs/ctx.writeAs calls (grep queryAs|writeAs: no hits).",
+      "resolvedAt": "2026-10-04T20:51:59.244123Z"
+    },
+    {
+      "id": "0.266.0:d86920b4",
+      "version": "0.266.0",
+      "title": "`publicIntake` is removed; an openToAll write handler declares unbound personal data with `openToAll: { reason, personalData: \"tenant-members\" }`.",
+      "resolution": "migrated",
+      "reason": "rsvp-submit.write.ts declares personalData: \"public-intake\" on its access instead of publicIntake (0d20d8d); boot check passes.",
+      "resolvedAt": "2026-10-04T20:51:59.479341Z"
+    },
+    {
+      "id": "0.266.0:934cd899",
+      "version": "0.266.0",
+      "title": "The openToAll personal-data boot check now finds personal-data fields nested anywhere in a write handler's input schema.",
+      "resolution": "migrated",
+      "reason": "0d20d8d migrated the openToAll handlers; the personal-data boot check passes in schema validate.",
+      "resolvedAt": "2026-10-04T20:51:59.701811Z"
+    },
+    {
+      "id": "0.263.0:f84c1299",
+      "version": "0.263.0",
+      "title": "ctx.queryAs/ctx.writeAs with a SYSTEM identity only from r.systemScope(), jobs, or a handler/hook declaring escapeHatch (fw#2859).",
+      "resolution": "not-applicable",
+      "reason": "No ctx.queryAs/ctx.writeAs with a SYSTEM identity (grep queryAs|writeAs: no hits).",
+      "resolvedAt": "2026-10-04T20:51:59.927397Z"
+    },
+    {
+      "id": "0.263.0:59f4363b",
+      "version": "0.263.0",
+      "title": "Forms are prefilled from URL query parameters only for fields a declarative `navigate` action declares as `params` (fw#2852).",
+      "resolution": "not-applicable",
+      "reason": "No navigate action relies on URL query prefill; the only navigate action (event edit) passes no params.",
+      "resolvedAt": "2026-10-04T20:52:00.155951Z"
+    },
+    {
+      "id": "0.261.0:3b242c77",
+      "version": "0.261.0",
+      "title": "access is required on handler definitions; openToAll accepts { reason } (+ publicIntake) (fw#2855).",
+      "resolution": "migrated",
+      "reason": "0d20d8d gave every handler access and moved openToAll to { reason }; boot enforces it.",
+      "resolvedAt": "2026-10-04T20:52:00.408175Z"
+    },
+    {
+      "id": "0.259.0:ef606ee8",
+      "version": "0.259.0",
+      "title": "sessions:query:user-session:mine returns the paged envelope { rows, nextCursor }; new self-service my-sessions screen (fw#2844).",
+      "resolution": "not-applicable",
+      "reason": "show-pony never calls sessions:query:user-session:mine; the bundled sessions screen handles the paged envelope.",
+      "resolvedAt": "2026-10-04T20:52:00.649949Z"
     }
   ]
 }

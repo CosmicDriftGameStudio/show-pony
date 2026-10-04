@@ -16,14 +16,10 @@ const TERMS_ROUTES = [
   { path: "/legal/terms", lang: "en", titleFallback: "Terms of Service" },
 ] as const;
 
-// by-slug declares updatedAt: Date but reads a column the table does not have
-// (it is modifiedAt), so it arrives undefined at runtime; the etag therefore
-// also hashes title and content so a content change invalidates client caches.
 const termsBlockSchema = z
   .object({
     title: z.string().nullable(),
     content: z.string().nullable(),
-    updatedAt: z.date().optional(),
   })
   .nullable();
 
@@ -47,7 +43,6 @@ export function buildTermsRoutes(): readonly ExtraRouteDefinition[] {
           SYSTEM_TENANT_ID,
           "terms",
           route.lang,
-          String(block.updatedAt),
           block.title ?? "",
           block.content,
         ]);

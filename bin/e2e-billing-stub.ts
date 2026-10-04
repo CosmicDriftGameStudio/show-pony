@@ -91,7 +91,6 @@ function subscriptionEventPayload(options: {
     tier: options.tier,
     currentPeriodEndIso: CANCEL_AT_ISO,
     ...(options.cancelAtIso !== undefined && { cancelAtIso: options.cancelAtIso }),
-    rawPayload: "{}",
   };
 }
 
