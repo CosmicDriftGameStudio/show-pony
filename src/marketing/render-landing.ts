@@ -1,3 +1,4 @@
+// kumiko-lint-ignore direct-fs writes the rendered marketing pages into dist/ at boot
 import { mkdir, writeFile } from "node:fs/promises";
 import { renderFeaturesPage } from "./layouts/features-page";
 import { renderMarketingLayout, renderPricingPage } from "./layouts/marketing";

@@ -1,6 +1,7 @@
 {
   "kind": "app",
   "sourceRoots": ["src", "bin", "seeds"],
+  "uiRoots": ["src/app", "src/public", "src/marketing", "src/features/*/web"],
   "testGlobs": ["src/**/*.{test,integration}.{ts,tsx}"],
   "excludes": ["**/node_modules/**", "**/dist/**"]
 }
