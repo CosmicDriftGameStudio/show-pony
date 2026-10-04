@@ -1,23 +1,5 @@
 {
   "version": "0.337.1",
-  "appliedAt": "2026-10-03T06:41:55.245172Z",
-  "codemods": [],
-  "pendingManual": [
-    {
-      "version": "0.337.0",
-      "title": "secrets:set and secrets:delete accept only keys declared via r.secret; r.secret takes writeRoles"
-    },
-    {
-      "version": "0.337.0",
-      "title": "Anonymous callers on protected handlers get 401 unauthenticated, and a stale auth cookie no longer blocks public handlers"
-    },
-    {
-      "version": "0.337.0",
-      "title": "buildServer refuses partially wired session callbacks"
-    },
-    {
-      "version": "0.337.0",
-      "title": "DataTableRowGrouping.headerLabel may return undefined"
-    }
-  ]
+  "appliedAt": "2026-10-04T05:02:37.84689794Z",
+  "codemods": []
 }
