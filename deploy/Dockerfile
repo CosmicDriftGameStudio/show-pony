@@ -12,11 +12,6 @@
 # Build context: repository root (monorepo is used in the build stage).
 
 ARG BUN_VERSION=1.4.0
-# Registry auth for @cosmicdriftgamestudio: CI passes the token as
-# NPM_AUTH_TOKEN via --build-arg. Multi-stage ARG scoping needs the
-# re-declaration inside the stage that uses it; this top-level ARG only
-# makes it settable via `docker build`.
-ARG NPM_AUTH_TOKEN=
 # Build identity — passed in by the CI workflow via --build-arg. Defaults
 # for local container builds.
 ARG BUILD_VERSION=dev
@@ -25,13 +20,9 @@ ARG BUILD_TIME=unknown
 # ----- build: produces dist/ + dist-server/ ---------------------------------
 FROM oven/bun:${BUN_VERSION}-alpine AS build
 WORKDIR /app
-# bunfig.toml/.npmrc resolve the @cosmicdriftgamestudio scope via $GITHUB_TOKEN.
-ARG NPM_AUTH_TOKEN
-ENV GITHUB_TOKEN=${NPM_AUTH_TOKEN}
-
 # Manifests first for Docker layer cache — bun install only invalidates on
 # dependency change, not on every source edit.
-COPY package.json bun.lock bunfig.toml .npmrc ./
+COPY package.json bun.lock bunfig.toml ./
 RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build

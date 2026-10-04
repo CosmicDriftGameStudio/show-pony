@@ -31,7 +31,6 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
-      packages: read
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -42,11 +41,7 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-${{ runner.os }}-
-      - name: Install
-        env:
-          # Public repo: default GITHUB_TOKEN cannot read restricted org packages.
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
-        run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
       - run: bun run typecheck
       - run: bun run lint
       # Static gate derived from kumiko.json: schema drift, validateBoot over the
@@ -57,11 +52,11 @@ jobs:
         # ones are frozen in .kumiko-comment-lang-baseline.json.
         env:
           KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-comment-lang
+        run: bun kumiko-guards comment-lang
       - name: UI guards
         env:
           KUMIKO_GUARD_ROOTS: show-pony
-        run: bun kumiko-guard-ui
+        run: bun kumiko-guards ui
       - run: |
           ulimit -n 65536 || true
           bun run test
@@ -73,7 +68,6 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-      packages: read
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -84,10 +78,7 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
           restore-keys: bun-${{ runner.os }}-
-      - name: Install
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}
-        run: bun install --frozen-lockfile
+      - run: bun install --frozen-lockfile
       - name: Start services
         run: |
           docker rm -f sp-ci-pg sp-ci-redis sp-ci-meili 2>/dev/null || true
@@ -174,4 +165,3 @@ jobs:
           platforms: linux/arm64
           build-args: |
             BUILD_VERSION=${{ github.sha }}
-            NPM_AUTH_TOKEN=${{ secrets.GH_PACKAGES_PAT || secrets.NPM_TOKEN || secrets.GITHUB_TOKEN }}

@@ -1,4 +1,4 @@
-// Feature list for `kumiko agent lint` and `kumiko-guard-agent-manifest`.
+// Feature list for `kumiko agent lint` and the agent-manifest guard.
 //
 // Reuses kumiko/schema.ts's FEATURES so the linted list is the same
 // composeFeatures(APP_FEATURES) the runtime and the migration generator see —
