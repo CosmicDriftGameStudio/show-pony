@@ -42,7 +42,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.14",
+    "@biomejs/biome": "^2.5.15",
     "@cosmicdrift/kumiko-cli": "^0.349.0",
     "@cosmicdrift/kumiko-guards": "^0.349.0",
     "@cosmicdrift/kumiko-testing": "0.349.0",
