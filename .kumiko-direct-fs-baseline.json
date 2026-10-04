@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "generated": "2026-10-04",
+  "total": 1,
+  "perFile": {
+    "src/marketing/render-landing.ts::writes the rendered marketing pages into dist/ at boot": 1
+  }
+}

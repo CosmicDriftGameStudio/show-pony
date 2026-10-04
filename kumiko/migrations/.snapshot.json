@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-01T11:03:49.812Z",
+  "generatedAt": "2026-10-04T08:57:12.973Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -776,6 +776,12 @@
           "name": "role",
           "pgType": "text",
           "notNull": true
+        },
+        {
+          "name": "global_roles",
+          "pgType": "jsonb",
+          "notNull": true,
+          "defaultSql": "'[]'::jsonb"
         },
         {
           "name": "status",

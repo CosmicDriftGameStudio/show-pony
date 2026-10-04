@@ -188,7 +188,6 @@ function subscriptionEvent(overrides: {
     tier,
     currentPeriodEnd: "2026-12-01T00:00:00Z",
     ...(overrides.cancelAt !== undefined && { cancelAt: overrides.cancelAt }),
-    rawPayload: "{}",
   };
 }
 

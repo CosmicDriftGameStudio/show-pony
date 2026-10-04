@@ -1,5 +1,91 @@
 {
-  "version": "0.337.1",
-  "appliedAt": "2026-10-04T05:02:37.84689794Z",
-  "codemods": []
+  "version": "0.343.0",
+  "appliedAt": "2026-10-04T08:56:37.144626Z",
+  "codemods": [],
+  "pendingManual": [
+    {
+      "version": "0.343.0",
+      "title": "Delivery errors are fixed codes instead of raw messages"
+    },
+    {
+      "version": "0.343.0",
+      "title": "App error reasons only carry a docsUrl when errorDocs covers them"
+    },
+    {
+      "version": "0.342.0",
+      "title": "Key Manager slots are required, LEGACY_SLOTS default removed"
+    },
+    {
+      "version": "0.342.0",
+      "title": "kumiko check requires uiRoots for kind \"app\""
+    },
+    {
+      "version": "0.341.0",
+      "title": "Telegram apiBaseUrl must match allowedHosts and use https"
+    },
+    {
+      "version": "0.341.0",
+      "title": "ctx.secrets.set validates against the declared valueSchema"
+    },
+    {
+      "version": "0.341.0",
+      "title": "Invitations can carry a global role (SystemAdmin), granted only on accept"
+    },
+    {
+      "version": "0.341.0",
+      "title": "Chat channels deliver in production boot, ctx.notify returns a NotifyResult"
+    },
+    {
+      "version": "0.341.0",
+      "title": "MFA required policy is writable by the system only"
+    },
+    {
+      "version": "0.341.0",
+      "title": "Repo-local direct-fs exceptions with a frozen reason, bundled read-only assets"
+    },
+    {
+      "version": "0.341.0",
+      "title": "Deploy migrate-step.sh always uses the exact stack network"
+    },
+    {
+      "version": "0.339.0",
+      "title": "workflow-run stream stores a reference to the trigger event instead of its payload"
+    },
+    {
+      "version": "0.339.0",
+      "title": "fetchForWriting handles reject appends after a concurrent write"
+    },
+    {
+      "version": "0.339.0",
+      "title": "ctx.db.unsafeRaw() takes no reason; the audit uses the declared escapeHatch reason"
+    },
+    {
+      "version": "0.338.0",
+      "title": "ownership.write applies to assign-tag, remove-tag and add-note"
+    },
+    {
+      "version": "0.338.0",
+      "title": "caps:usage and my-caps default to admin roles; widen with usageVisibleTo"
+    },
+    {
+      "version": "0.338.0",
+      "title": "SubscriptionProviderPlugin.cancelSubscription takes { providerSubscriptionId, when }"
+    },
+    {
+      "version": "0.338.0",
+      "title": "Remove rawPayload from provider events and event headers"
+    },
+    {
+      "version": "0.338.0",
+      "title": "searchable text fields must not declare a restricted access.read"
+    },
+    {
+      "version": "0.338.0",
+      "title": "signature routes with a :param segment or wildcard must not match framework paths"
+    },
+    {
+      "version": "0.338.0",
+      "title": "manifest patterns reject symlinks escaping the repo root behind wildcard segments"
+    }
+  ]
 }
