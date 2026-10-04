@@ -22,4 +22,10 @@ if (cmd !== "schema") {
 const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
 const features = composeFeatures([...appFeatures], { includeBundled: HAS_AUTH });
 const out = { log: (l: string) => console.log(l), err: (l: string) => console.error(l) };
-process.exit(await runSchemaCli(rest, process.env["INIT_CWD"] ?? process.cwd(), out, { features }));
+process.exit(
+  await runSchemaCli(rest, process.env["INIT_CWD"] ?? process.cwd(), out, {
+    features,
+    // No Key Manager slots wired: PLATFORM_KEK etc. are read as plain env.
+    kmsSlots: [],
+  }),
+);
