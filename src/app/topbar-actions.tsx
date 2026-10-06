@@ -8,7 +8,7 @@ export function AppTopbarActions(): ReactNode {
   return (
     <div className="flex items-center gap-2">
       <TenantSwitcher />
-      <ThemeToggle />
+      <ThemeToggle testId="theme-toggle" />
     </div>
   );
 }

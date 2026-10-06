@@ -5,6 +5,7 @@ import { execSync } from "node:child_process";
 import { mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Browser, Locator, Page } from "@playwright/test";
+import type { PresentIdentity } from "@cosmicdrift/kumiko-testing/e2e";
 
 // Match screenshot runner desktop size — 960×600 felt like a tiny crop with sidebar.
 export const HOST_VIEWPORT = { width: 1280, height: 800 };
@@ -25,12 +26,73 @@ function gifFilter(): string {
   );
 }
 
-async function holdFrames(page: Page, frameDir: string, startIdx: number, count: number): Promise<number> {
+declare global {
+  interface Window {
+    __loopPresentRestore?: Array<() => void>;
+  }
+}
+
+// Runs in the browser, so it may not reference module scope. Mirrors the
+// screenshot runner's presentIdentities, which kumiko-testing does not export
+// for frame sequences: text and field values are swapped only for the capture
+// and restored right after, so the flow keeps typing and submitting real values.
+function presentIdentitiesInDocument(mappings: readonly PresentIdentity[]): void {
+  const restorers: Array<() => void> = [];
+  window.__loopPresentRestore = restorers;
+  const present = (text: string): string =>
+    mappings.reduce((current, { from, to }) => current.replaceAll(from, to), text);
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+    const textNode = node;
+    const original = textNode.nodeValue ?? "";
+    const presented = present(original);
+    if (presented !== original) {
+      textNode.nodeValue = presented;
+      restorers.push(() => {
+        textNode.nodeValue = original;
+      });
+    }
+  }
+  for (const field of document.querySelectorAll("input, textarea")) {
+    if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+      const original = field.value;
+      const presented = present(original);
+      if (presented !== original) {
+        field.value = presented;
+        restorers.push(() => {
+          field.value = original;
+        });
+      }
+    }
+  }
+}
+
+function restoreIdentitiesInDocument(): void {
+  for (const restore of (window.__loopPresentRestore ?? []).reverse()) restore();
+  window.__loopPresentRestore = [];
+}
+
+async function captureFrame(page: Page, path: string, identities: readonly PresentIdentity[]): Promise<void> {
+  if (identities.length > 0) await page.evaluate(presentIdentitiesInDocument, identities);
+  try {
+    // @template-drift-exception: #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
+    await page.screenshot({ path, animations: "disabled" });
+  } finally {
+    if (identities.length > 0) await page.evaluate(restoreIdentitiesInDocument);
+  }
+}
+
+async function holdFrames(
+  page: Page,
+  frameDir: string,
+  startIdx: number,
+  count: number,
+  identities: readonly PresentIdentity[],
+): Promise<number> {
   let idx = startIdx;
   for (let i = 0; i < count; i++) {
     const path = resolve(frameDir, `frame-${String(idx).padStart(4, "0")}.png`);
-    // @template-drift-exception: #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
-    await page.screenshot({ path, animations: "disabled" });
+    await captureFrame(page, path, identities);
     idx++;
     // @timeout-exception: #224 GIF frame pacing (deliberate capture interval, not a flakiness wait)
     if (i < count - 1) await page.waitForTimeout(FRAME_MS);
@@ -59,20 +121,28 @@ function cleanDir(dir: string): void {
 async function preparePage(page: Page): Promise<void> {
   await page.addInitScript(() => {
     localStorage.setItem("kumiko:locale", "en");
-    localStorage.removeItem("kumiko:theme");
+    // An explicit "light" instead of the app default: the toggle cycles
+    // light -> dark -> auto, so 02-theme-toggle needs a known starting step.
+    localStorage.setItem("kumiko:theme", "light");
   });
 }
 
-function makeTools(page: Page, frameDir: string, getIdx: () => number, setIdx: (n: number) => void): LoopTools {
+function makeTools(
+  page: Page,
+  frameDir: string,
+  identities: readonly PresentIdentity[],
+  getIdx: () => number,
+  setIdx: (n: number) => void,
+): LoopTools {
   const hold = async (count = 8): Promise<void> => {
-    setIdx(await holdFrames(page, frameDir, getIdx(), count));
+    setIdx(await holdFrames(page, frameDir, getIdx(), count, identities));
   };
   const type = async (target: Locator, text: string, framesPerChar = 3): Promise<void> => {
     await target.click();
     await hold(2);
     for (const char of text) {
       await page.keyboard.type(char);
-      setIdx(await holdFrames(page, frameDir, getIdx(), framesPerChar));
+      setIdx(await holdFrames(page, frameDir, getIdx(), framesPerChar, identities));
     }
   };
   return { hold, type };
@@ -85,8 +155,9 @@ export async function recordGif(
   viewport: { width: number; height: number },
   run: (page: Page, tools: LoopTools) => Promise<void>,
   baseURL: string,
+  identities: readonly PresentIdentity[] = [],
 ): Promise<void> {
-  await recordMultiPartGif(browser, frameDir, gifPath, baseURL, [{ viewport, run }]);
+  await recordMultiPartGif(browser, frameDir, gifPath, baseURL, [{ viewport, run }], identities);
 }
 
 export async function recordMultiPartGif(
@@ -98,6 +169,7 @@ export async function recordMultiPartGif(
     viewport: { width: number; height: number };
     run: (page: Page, tools: LoopTools) => Promise<void>;
   }>,
+  identities: readonly PresentIdentity[] = [],
 ): Promise<void> {
   cleanDir(frameDir);
   let frameIdx = 0;
@@ -111,6 +183,7 @@ export async function recordMultiPartGif(
     const tools = makeTools(
       page,
       frameDir,
+      identities,
       () => frameIdx,
       (n) => {
         frameIdx = n;
