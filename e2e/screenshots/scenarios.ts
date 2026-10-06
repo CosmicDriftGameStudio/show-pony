@@ -3,7 +3,8 @@
 // workers) and navigates before runMatrix captures it.
 
 import type { Page } from "@playwright/test";
-import { type E2eSeededTenant, expect, type Scenario } from "@cosmicdrift/kumiko-testing/e2e";
+import { expect, type Scenario, type ScenarioFixtures } from "@cosmicdrift/kumiko-testing/e2e";
+import { DEMO_TENANT_NAME, type DemoHostTenant, seedDemoHostTenant } from "../seeds/demo-host";
 import { APEX_URL, publicEventUrl } from "./constants";
 import {
   seedAcmeBranding,
@@ -13,10 +14,11 @@ import {
   seedRooftopGuests,
 } from "./seed";
 
-async function loginHost(page: Page, tenant: E2eSeededTenant): ReturnType<E2eSeededTenant["addUser"]> {
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
-  await tenant.loginAs(page, host);
-  return host;
+async function loginDemoHost(page: Page, fixtures: ScenarioFixtures): Promise<DemoHostTenant> {
+  const demo = await seedDemoHostTenant(fixtures.seedTenant);
+  fixtures.presentIdentities(demo.identities);
+  await demo.tenant.loginAs(page, demo.host);
+  return demo;
 }
 
 // Fixed dark brand chrome (marketing.ts / legal-layout.ts) — these four don't
@@ -72,9 +74,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-events",
     description: "Host dashboard — seeded Rooftop Launch on the demo tenant",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       await seedRooftopEvent(tenant.apiAs(host));
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
@@ -83,9 +84,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-event-form",
     description: "Empty event form — schema-driven sections and typed fields",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      await loginDemoHost(page, fixtures);
       await page.goto(`${APEX_URL}/host/event-edit`);
       await expect(page.locator("form input").first()).toBeVisible();
     },
@@ -93,9 +93,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-event-edit",
     description: "Edit an existing event — title, slug, and description filled in",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       await seedRooftopEvent(tenant.apiAs(host));
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
@@ -108,9 +107,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-guests",
     description: "Guest list — anonymous RSVPs with status and plus-ones",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await seedRooftopGuests(tenant.key, event.id);
       await page.goto(`${APEX_URL}/host/rsvp-list`);
@@ -122,9 +120,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-invite-branding",
     description: "Invite branding settings — tenant-scoped hero + accent on public invites",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       await seedDemoBranding(tenant.apiAs(host));
       await page.goto(`${APEX_URL}/host/invite-branding-settings`);
       await expect(page.getByRole("heading", { name: /Invite branding/i })).toBeVisible();
@@ -138,19 +135,19 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
     name: "platform-overview",
     description: "Platform workspace — sysadmin sees operator overview on the apex",
     // KPI values are installation-wide counts (they change with every parallel
-    // seed or earlier run) and the sidebar's generated "Seed <id>" display name
-    // cannot be mapped through presentIdentities, so both are hidden for the
-    // capture only. The email is still normalized via presentIdentities below.
+    // seed or earlier run), so they are hidden for the capture only.
     captureStyle: `
-      [data-testid^="dashboard-panel-kpi-"] .tabular-nums,
-      [data-sidebar="menu-button"][data-size="lg"] .grid > span:first-child {
+      [data-testid^="dashboard-panel-kpi-"] .tabular-nums {
         visibility: hidden;
       }
     `,
     flow: async (page, { seedTenant, presentIdentities }) => {
-      const tenant = await seedTenant();
-      const sysadmin = await tenant.addUser(["SystemAdmin"]);
-      presentIdentities([{ from: sysadmin.email, to: "sysadmin@show-pony.example" }]);
+      const tenant = await seedTenant({ name: DEMO_TENANT_NAME });
+      const sysadmin = await tenant.addUser(["SystemAdmin"], {
+        displayName: "Platform Operator",
+        email: "sysadmin-{tenantId}@show-pony.example",
+      });
+      presentIdentities([{ from: sysadmin.email, to: "sysadmin@show-pony.local" }]);
       await tenant.loginAs(page, sysadmin);
       await page.goto(`${APEX_URL}/platform/platform-overview`);
       await expect(page.getByTestId("dashboard-platform-overview")).toBeVisible();
@@ -159,9 +156,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "public-event",
     description: "Public invite page — hero, event copy, and RSVP form",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       await seedDemoBranding(tenant.apiAs(host));
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await page.goto(publicEventUrl(tenant.key, event.slug));
@@ -173,9 +169,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "public-acme-event",
     description: "Acme tenant invite — separate subdomain, separate guest list",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       await seedAcmeBranding(tenant.apiAs(host));
       const event = await seedOffsiteEvent(tenant.apiAs(host));
       await page.goto(publicEventUrl(tenant.key, event.slug));
@@ -188,9 +183,8 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "public-rsvp-draft",
     description: "Public RSVP — guest name typed, status selected, ready to send",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await page.goto(publicEventUrl(tenant.key, event.slug));
       await expect(page.getByRole("heading", { name: /Rooftop Launch/i })).toBeVisible();
@@ -210,9 +204,8 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
   {
     name: "billing-no-subscription",
     description: "Billing screen — no subscription yet, both plans open for checkout",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await seedRooftopGuests(tenant.key, event.id);
       await page.goto(`${APEX_URL}/host/billing`);
@@ -225,9 +218,8 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
   {
     name: "billing-active",
     description: "Billing screen — active starter subscription, pro offered as a switch",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await seedRooftopGuests(tenant.key, event.id);
       await tenant.seed("billing-subscription", { tier: "starter", status: "active" });
@@ -240,9 +232,8 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
     name: "billing-canceled",
     description:
       "Billing screen — subscription with a scheduled cancellation, cancel-scheduled banner visible",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await seedRooftopGuests(tenant.key, event.id);
       await tenant.seed("billing-subscription", { tier: "pro", status: "cancelScheduled" });
@@ -257,9 +248,8 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
   {
     name: "billing-disabled",
     description: "Billing screen — Stripe checkout disabled on this instance",
-    flow: async (page, { seedTenant }) => {
-      const tenant = await seedTenant();
-      const host = await loginHost(page, tenant);
+    flow: async (page, fixtures) => {
+      const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
       await seedRooftopGuests(tenant.key, event.id);
       await tenant.seed("billing-disabled");

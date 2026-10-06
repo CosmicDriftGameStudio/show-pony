@@ -6,6 +6,7 @@
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test } from "@cosmicdrift/kumiko-testing/e2e";
+import { DEMO_HOST_PRESENTED_EMAIL, seedDemoHostTenant } from "../seeds/demo-host";
 import { seedLoopEvent, seedLoopGuest } from "../seeds/loops";
 import { APEX_URL, publicEventUrl, publicOrigin } from "./env";
 import { waitForWrite } from "./wait-for-write";
@@ -16,8 +17,7 @@ const LOOP_DIR =
 
 test("02-theme-toggle", async ({ browser, seedTenant }, testInfo) => {
   mkdirSync(LOOP_DIR, { recursive: true });
-  const tenant = await seedTenant();
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  const { tenant, host, identities } = await seedDemoHostTenant(seedTenant);
   await recordGif(
     browser,
     testInfo.outputPath("frames"),
@@ -28,21 +28,25 @@ test("02-theme-toggle", async ({ browser, seedTenant }, testInfo) => {
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText(/^Events$/).first()).toBeVisible();
       await hold(10);
-      await page.getByRole("button", { name: "Dunkler Modus" }).click();
+      const themeToggle = page.getByTestId("theme-toggle");
+      const root = page.locator("html");
+      await themeToggle.click();
+      await expect(root).toHaveClass(/\bdark\b/);
       await hold(12);
-      await page.getByRole("button", { name: "Heller Modus" }).click();
+      // light -> dark -> auto: the second step lands on auto, which follows
+      // the browser's light color scheme.
+      await themeToggle.click();
+      await expect(root).not.toHaveClass(/\bdark\b/);
       await hold(10);
     },
     APEX_URL,
+    identities,
   );
 });
 
 test("03-login", async ({ browser, seedTenant }, testInfo) => {
   mkdirSync(LOOP_DIR, { recursive: true });
-  const tenant = await seedTenant();
-  // Navigates into the authenticated shell after logging in, so the tenant
-  // still needs a show-pony "Admin" member, not just the framework's TenantAdmin.
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  const { host, identities } = await seedDemoHostTenant(seedTenant);
   await recordGif(
     browser,
     testInfo.outputPath("frames"),
@@ -52,11 +56,14 @@ test("03-login", async ({ browser, seedTenant }, testInfo) => {
       await page.goto(`${APEX_URL}/login`);
       await expect(page.locator("#login-email")).toBeVisible();
       await hold(12);
-      // seedTenant's generated credentials (user-<uuid>@example.test / pw-<uuid>)
-      // are ~3x longer than the old hardcoded ones — 1 frame/char instead of
-      // 2-3 keeps this well inside the fixed 30s test budget.
-      await type(page.locator("#login-email"), host.email, 1);
+      // The seeded email carries the tenant id (global uniqueness), so the
+      // loop types the presented address and swaps in the real one before
+      // the next frame; captureFrame presents it again in the field.
+      await type(page.locator("#login-email"), DEMO_HOST_PRESENTED_EMAIL, 2);
+      await page.locator("#login-email").fill(host.email);
       await hold(4);
+      // The generated password (pw-<uuid>) is long: 1 frame/char keeps this
+      // well inside the fixed 30s test budget.
       await type(page.locator("#login-password"), host.password, 1);
       await hold(4);
       await page.click('button[type="submit"]');
@@ -64,13 +71,13 @@ test("03-login", async ({ browser, seedTenant }, testInfo) => {
       await hold(16);
     },
     APEX_URL,
+    identities,
   );
 });
 
 test("06-host-nav", async ({ browser, seedTenant }, testInfo) => {
   mkdirSync(LOOP_DIR, { recursive: true });
-  const tenant = await seedTenant();
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  const { tenant, host, identities } = await seedDemoHostTenant(seedTenant);
   const { id: eventId } = await seedLoopEvent(tenant.apiAs(host));
   await seedLoopGuest(publicOrigin(tenant.key), {
     eventId,
@@ -96,15 +103,15 @@ test("06-host-nav", async ({ browser, seedTenant }, testInfo) => {
       await hold(12);
     },
     APEX_URL,
+    identities,
   );
 });
 
 test("06-create-event", async ({ browser, seedTenant }, testInfo) => {
   mkdirSync(LOOP_DIR, { recursive: true });
-  const tenant = await seedTenant();
   // Free tier caps maxEvents at 1 — no pre-seeded event, so the one created
   // live during the recording stays under the cap.
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  const { tenant, host, identities } = await seedDemoHostTenant(seedTenant);
   await recordGif(
     browser,
     testInfo.outputPath("frames"),
@@ -135,13 +142,13 @@ test("06-create-event", async ({ browser, seedTenant }, testInfo) => {
       await hold(16);
     },
     APEX_URL,
+    identities,
   );
 });
 
 test("07-rsvp-roundtrip", async ({ browser, seedTenant }, testInfo) => {
   mkdirSync(LOOP_DIR, { recursive: true });
-  const tenant = await seedTenant();
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  const { tenant, host, identities } = await seedDemoHostTenant(seedTenant);
   const { slug } = await seedLoopEvent(tenant.apiAs(host));
   await recordMultiPartGif(
     browser,
@@ -177,13 +184,13 @@ test("07-rsvp-roundtrip", async ({ browser, seedTenant }, testInfo) => {
         },
       },
     ],
+    identities,
   );
 });
 
 test("09-public-form", async ({ browser, seedTenant }, testInfo) => {
   mkdirSync(LOOP_DIR, { recursive: true });
-  const tenant = await seedTenant();
-  const host = await tenant.addUser(["Admin", "TenantAdmin"]);
+  const { tenant, host, identities } = await seedDemoHostTenant(seedTenant);
   const { slug } = await seedLoopEvent(tenant.apiAs(host));
   await recordGif(
     browser,
@@ -208,6 +215,7 @@ test("09-public-form", async ({ browser, seedTenant }, testInfo) => {
       await hold(14);
     },
     APEX_URL,
+    identities,
   );
 });
 
