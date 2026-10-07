@@ -119,10 +119,18 @@ describe("event:create/update/delete — admin-role writes, reads stay open", ()
     const originalTitle = "Access-control test event";
     const renamedTitle = "Renamed by TenantAdmin";
 
-    // The event is still at stream version 1: the member's update above was denied.
+    const currentVersion = async (): Promise<number> =>
+      (
+        await stack.http.queryOk<{ version: number }>(
+          "showpony:query:event:detail",
+          { id: eventId },
+          tenantAdmin,
+        )
+      ).version;
+
     const updated = await stack.http.writeOk<{ id: string; data: { title: string } }>(
       "showpony:write:event:update",
-      { id: eventId, version: 1, changes: { title: renamedTitle } },
+      { id: eventId, version: await currentVersion(), changes: { title: renamedTitle } },
       tenantAdmin,
     );
     expect(updated.id).toBe(eventId);
@@ -131,7 +139,7 @@ describe("event:create/update/delete — admin-role writes, reads stay open", ()
     // Later tests in this file read the original title.
     await stack.http.writeOk(
       "showpony:write:event:update",
-      { id: eventId, version: 2, changes: { title: originalTitle } },
+      { id: eventId, version: await currentVersion(), changes: { title: originalTitle } },
       tenantAdmin,
     );
   });
