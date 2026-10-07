@@ -19,6 +19,7 @@ export const eventEntity = createEntity({
     title: createTextField({
       required: true,
       sortable: true,
+      searchable: true,
       personal: false,
       reason: "is_business_data",
     }),
@@ -28,7 +29,7 @@ export const eventEntity = createEntity({
       reason: "technical_reference",
     }),
     startsAt: createTimestampField({ required: true }),
-    location: createTextField({ personal: false, reason: "is_business_data" }),
+    location: createTextField({ searchable: true, personal: false, reason: "is_business_data" }),
     // Host-authored public event copy, like title/slug/location above —
     // event:by-slug serves it to anonymous visitors by design.
     description: createLongTextField({

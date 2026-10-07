@@ -203,9 +203,34 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
       3_000,
     );
 
-    // The stalled tenant has two search-indexed entities: its own tenant row and rsvp.
-    expect(summary.failedReindexes).toBe(2);
+    // The stalled tenant has three search-indexed entities: its own tenant row, event and rsvp.
+    expect(summary.failedReindexes).toBe(3);
     expect(await findIds(OTHER_TENANT_GUEST, otherTenantId)).toHaveLength(1);
     expect(await findIds(GUEST_ONE)).toEqual([]);
+  });
+
+  test("a failing configure for one tenant is counted, skips its reindex and does not stop the other tenants", async () => {
+    const failingConfigureWiring: SearchWiring = {
+      ...wiring,
+      adapter: {
+        ...wiring.adapter,
+        configure: (id, config) =>
+          id === tenantId
+            ? Promise.reject(new Error("meilisearch settings task failed"))
+            : wiring.adapter.configure(id, config),
+      },
+    };
+
+    const summary = await rebuildAllTenantSearchIndexes(
+      stack.db,
+      stack.registry,
+      failingConfigureWiring,
+    );
+
+    expect(summary.failedConfigures).toBe(1);
+    expect(summary.failedReindexes).toBe(0);
+    expect(await findIds(OTHER_TENANT_GUEST, otherTenantId)).toHaveLength(1);
+    // No index is created for the unconfigured tenant: it would default to searchableAttributes ["*"].
+    expect((await indexUidsWithPrefix()).some((uid) => uid.endsWith(tenantId))).toBe(false);
   });
 });

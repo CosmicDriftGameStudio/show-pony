@@ -87,6 +87,39 @@ function recordingAdapter(configureImpl?: SearchAdapter["configure"]) {
   return { adapter, calls };
 }
 
+describe("event list search", () => {
+  test("an event is found by a title fragment and by its location, not by an unrelated query", async () => {
+    const tenant = await seedTenant(stack, { name: "Event Search Host", persist: true });
+    const host = (await tenant.addUser(["Admin"])).session;
+    const created = await stack.http.writeOk<{ id: string }>(
+      "showpony:write:event:create",
+      {
+        title: "Zephyrine Rooftop Gathering",
+        slug: "zephyrine-rooftop",
+        location: "Wolkenkratzer Dachterrasse",
+        startsAt: "2026-09-12T19:00:00.000Z",
+        guestLimit: 20,
+      },
+      host,
+    );
+
+    await stack.eventDispatcher?.runOnce();
+
+    const searchIds = async (search: string): Promise<string[]> => {
+      const list = await stack.http.queryOk<{ rows: ReadonlyArray<{ id: string }> }>(
+        "showpony:query:event:list",
+        { search },
+        host,
+      );
+      return list.rows.map((r) => r.id);
+    };
+
+    expect(await searchIds("Rooftop")).toEqual([created.id]);
+    expect(await searchIds("Wolkenkratzer")).toEqual([created.id]);
+    expect(await searchIds("Nonexistentword")).toEqual([]);
+  });
+});
+
 describe("configureAllTenantSearchIndexes (real DB)", () => {
   test("configures only enabled tenants with the searchable-field union, returns the tenant count", async () => {
     const { adapter, calls } = recordingAdapter();
