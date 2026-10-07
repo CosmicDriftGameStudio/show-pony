@@ -108,6 +108,19 @@ function loadEnabledTenants(db: DbConnection): Promise<readonly EnabledTenant[]>
   return selectMany<EnabledTenant>(db, tenantTable, { isEnabled: true });
 }
 
+function configureTenantSearchIndex(
+  tenantId: TenantId,
+  fields: readonly string[],
+  searchAdapter: SearchAdapter,
+  timeoutMs: number,
+): Promise<void> {
+  return withTimeout(
+    searchAdapter.configure(tenantId, { searchableFields: fields, rankingFields: fields }),
+    `configure for tenant ${tenantId}`,
+    timeoutMs,
+  );
+}
+
 async function configureTenantSearchIndexes(
   tenants: readonly EnabledTenant[],
   registry: Registry,
@@ -116,12 +129,32 @@ async function configureTenantSearchIndexes(
 ): Promise<void> {
   const fields = collectSearchableFieldNames(registry);
   for (const tenant of tenants) {
-    await withTimeout(
-      searchAdapter.configure(tenant.id, { searchableFields: fields, rankingFields: fields }),
-      `configure for tenant ${tenant.id}`,
-      timeoutMs,
-    );
+    await configureTenantSearchIndex(tenant.id, fields, searchAdapter, timeoutMs);
   }
+}
+
+// Reindexing an unconfigured index would fall back to searchableAttributes ["*"],
+// so tenants whose configure failed are reported and skipped, not fatal.
+async function configureTenantSearchIndexesTolerant(
+  tenants: readonly EnabledTenant[],
+  registry: Registry,
+  searchAdapter: SearchAdapter,
+  timeoutMs: number,
+): Promise<{ configuredTenantIds: readonly TenantId[]; failedConfigures: number }> {
+  const fields = collectSearchableFieldNames(registry);
+  const configuredTenantIds: TenantId[] = [];
+  let failedConfigures = 0;
+  for (const tenant of tenants) {
+    try {
+      await configureTenantSearchIndex(tenant.id, fields, searchAdapter, timeoutMs);
+      configuredTenantIds.push(tenant.id);
+    } catch (err) {
+      failedConfigures += 1;
+      // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, one failed configure must not abort the sweep
+      console.warn(`[show-pony][search] configure for tenant ${tenant.id} failed: ${err}`);
+    }
+  }
+  return { configuredTenantIds, failedConfigures };
 }
 
 export async function dropMeilisearchIndexesWithPrefix(
@@ -176,24 +209,12 @@ export async function rebuildAllTenantSearchIndexes(
       )
     : 0;
   const tenants = await loadEnabledTenants(db);
-  const fields = collectSearchableFieldNames(registry);
-  const configuredTenantIds = new Set<TenantId>();
-  let failedConfigures = 0;
-  for (const tenant of tenants) {
-    try {
-      await withTimeout(
-        wiring.adapter.configure(tenant.id, { searchableFields: fields, rankingFields: fields }),
-        `configure for tenant ${tenant.id}`,
-        CONFIGURE_TIMEOUT_MS,
-      );
-      configuredTenantIds.add(tenant.id);
-    } catch (err) {
-      // Reindexing an unconfigured index would fall back to searchableAttributes ["*"].
-      failedConfigures += 1;
-      // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, one failed configure must not abort the sweep
-      console.warn(`[show-pony][search] configure for tenant ${tenant.id} failed: ${err}`);
-    }
-  }
+  const { configuredTenantIds, failedConfigures } = await configureTenantSearchIndexesTolerant(
+    tenants,
+    registry,
+    wiring.adapter,
+    CONFIGURE_TIMEOUT_MS,
+  );
 
   let indexedRows = 0;
   let failedReindexes = 0;
@@ -202,7 +223,7 @@ export async function rebuildAllTenantSearchIndexes(
       registry.getSearchableFields(entityName).length > 0 ||
       registry.getSearchPayloadExtensions(entityName).length > 0;
     if (!isSearchIndexed) continue;
-    const tenantIds = entity.systemStream === true ? [SYSTEM_TENANT_ID] : [...configuredTenantIds];
+    const tenantIds = entity.systemStream === true ? [SYSTEM_TENANT_ID] : configuredTenantIds;
     for (const tenantId of tenantIds) {
       try {
         const result = await withTimeout(
