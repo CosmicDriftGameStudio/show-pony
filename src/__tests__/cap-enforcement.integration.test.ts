@@ -62,8 +62,6 @@ beforeAll(async () => {
   });
   const capcheck = await seedTenant(stack, { name: "Cap Check" });
   const guestCapTenant = await seedTenant(stack, { name: "Guest Cap Check" });
-  // seedTenant's admin carries ROLES.TenantAdmin, not show-pony's own
-  // "Admin" role that event/rsvp handlers gate on — addUser mints that role.
   host = (await capcheck.addUser(["Admin"])).session;
   guestCapHost = (await guestCapTenant.addUser(["Admin"])).session;
 });

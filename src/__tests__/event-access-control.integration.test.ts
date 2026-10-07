@@ -116,12 +116,24 @@ describe("event:create/update/delete — admin-role writes, reads stay open", ()
 
   test("a TenantAdmin-only user can update an event", async () => {
     const tenantAdmin = (await acme.addUser(["TenantAdmin"])).session;
+    const originalTitle = "Access-control test event";
+    const renamedTitle = "Renamed by TenantAdmin";
+
+    // The event is still at stream version 1: the member's update above was denied.
     const updated = await stack.http.writeOk<{ id: string; data: { title: string } }>(
       "showpony:write:event:update",
-      { id: eventId, version: 1, changes: { title: "Access-control test event" } },
+      { id: eventId, version: 1, changes: { title: renamedTitle } },
       tenantAdmin,
     );
     expect(updated.id).toBe(eventId);
+    expect(updated.data.title).toBe(renamedTitle);
+
+    // Later tests in this file read the original title.
+    await stack.http.writeOk(
+      "showpony:write:event:update",
+      { id: eventId, version: 2, changes: { title: originalTitle } },
+      tenantAdmin,
+    );
   });
 
   test("Admin can create, update and delete an event", async () => {

@@ -155,6 +155,7 @@ export type SearchRebuildSummary = {
   readonly indexedRows: number;
   readonly droppedIndexes: number;
   readonly failedReindexes: number;
+  readonly failedConfigures: number;
 };
 
 // resetDbOnDeploy wipes the DB but not the persistent Meilisearch volume, so
@@ -175,7 +176,24 @@ export async function rebuildAllTenantSearchIndexes(
       )
     : 0;
   const tenants = await loadEnabledTenants(db);
-  await configureTenantSearchIndexes(tenants, registry, wiring.adapter, CONFIGURE_TIMEOUT_MS);
+  const fields = collectSearchableFieldNames(registry);
+  const configuredTenantIds = new Set<TenantId>();
+  let failedConfigures = 0;
+  for (const tenant of tenants) {
+    try {
+      await withTimeout(
+        wiring.adapter.configure(tenant.id, { searchableFields: fields, rankingFields: fields }),
+        `configure for tenant ${tenant.id}`,
+        CONFIGURE_TIMEOUT_MS,
+      );
+      configuredTenantIds.add(tenant.id);
+    } catch (err) {
+      // Reindexing an unconfigured index would fall back to searchableAttributes ["*"].
+      failedConfigures += 1;
+      // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, one failed configure must not abort the sweep
+      console.warn(`[show-pony][search] configure for tenant ${tenant.id} failed: ${err}`);
+    }
+  }
 
   let indexedRows = 0;
   let failedReindexes = 0;
@@ -184,7 +202,7 @@ export async function rebuildAllTenantSearchIndexes(
       registry.getSearchableFields(entityName).length > 0 ||
       registry.getSearchPayloadExtensions(entityName).length > 0;
     if (!isSearchIndexed) continue;
-    const tenantIds = entity.systemStream === true ? [SYSTEM_TENANT_ID] : tenants.map((t) => t.id);
+    const tenantIds = entity.systemStream === true ? [SYSTEM_TENANT_ID] : [...configuredTenantIds];
     for (const tenantId of tenantIds) {
       try {
         const result = await withTimeout(
@@ -209,5 +227,11 @@ export async function rebuildAllTenantSearchIndexes(
       }
     }
   }
-  return { tenants: tenants.length, indexedRows, droppedIndexes, failedReindexes };
+  return {
+    tenants: tenants.length,
+    indexedRows,
+    droppedIndexes,
+    failedReindexes,
+    failedConfigures,
+  };
 }
