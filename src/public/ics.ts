@@ -2,7 +2,7 @@
 // data URI. No server endpoint, no signing: an .ics is plain text and
 // the browser downloads it directly.
 
-import "temporal-polyfill/global";
+import { Temporal } from "@cosmicdrift/kumiko-types/temporal";
 
 import type { PublicEvent } from "./api";
 

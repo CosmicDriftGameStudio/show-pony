@@ -1,14 +1,7 @@
 {
-  "version": "0.351.0",
-  "appliedAt": "2026-10-05T16:59:33.922006721Z",
+  "version": "0.352.0",
+  "appliedAt": "2026-10-08T09:48:03.55715Z",
   "codemods": [],
-  "pendingManual": [
-    {
-      "id": "0.344.0:824fec2b",
-      "version": "0.344.0",
-      "title": "Consumer-protection gaps - per-locale legal links, gate order, confirmation mail, exports"
-    }
-  ],
   "resolvedManual": [
     {
       "id": "0.346.0:693f3da9",
@@ -489,6 +482,46 @@
       "resolution": "not-applicable",
       "reason": "show-pony never calls sessions:query:user-session:mine; the bundled sessions screen handles the paged envelope.",
       "resolvedAt": "2026-10-04T20:52:00.649949Z"
+    },
+    {
+      "id": "0.344.0:824fec2b",
+      "version": "0.344.0",
+      "title": "Consumer-protection gaps - per-locale legal links, gate order, confirmation mail, exports",
+      "resolution": "not-applicable",
+      "reason": "Server mounts no createBillingFoundationFeature consumerProtection; only billingFoundationClient is used (grep src/bin).",
+      "resolvedAt": "2026-10-08T09:48:29.702664Z"
+    },
+    {
+      "id": "0.352.0:99753012",
+      "version": "0.352.0",
+      "title": "Calendar cap reservations are stored in the new store_cap_reservations table",
+      "resolution": "not-applicable",
+      "reason": "kumiko-schema generate reports no schema changes; no store_cap_reservations table needed.",
+      "resolvedAt": "2026-10-08T09:48:30.336511Z"
+    },
+    {
+      "id": "0.352.0:fa864a97",
+      "version": "0.352.0",
+      "title": "Delivery attempt log stores masked recipient addresses; attempts older than 90 days are pruned",
+      "resolution": "not-applicable",
+      "reason": "No createDeliveryFeature mounted and no code reads the delivery attempt log (grep src/bin).",
+      "resolvedAt": "2026-10-08T09:48:30.679299Z"
+    },
+    {
+      "id": "0.352.0:2abbcda3",
+      "version": "0.352.0",
+      "title": "Apps must import Temporal from @cosmicdrift/kumiko-types/temporal instead of temporal-polyfill (affects every app since 0.351.0)",
+      "resolution": "migrated",
+      "reason": "src/public/ics.ts now imports Temporal from @cosmicdrift/kumiko-types/temporal instead of temporal-polyfill/global; kumiko-types added as direct dependency.",
+      "resolvedAt": "2026-10-08T09:48:31.018367Z"
+    },
+    {
+      "id": "0.352.0:ae5415b2",
+      "version": "0.352.0",
+      "title": "upgrade-state guard fails on open manual upgrade steps",
+      "resolution": "migrated",
+      "reason": "Open manual steps resolved; upgrade-state guard passes.",
+      "resolvedAt": "2026-10-08T09:48:31.287363Z"
     }
   ]
 }
