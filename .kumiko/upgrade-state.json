@@ -1,6 +1,6 @@
 {
-  "version": "0.352.0",
-  "appliedAt": "2026-10-08T09:48:03.55715Z",
+  "version": "0.353.0",
+  "appliedAt": "2026-10-09T13:28:03.894072Z",
   "codemods": [],
   "resolvedManual": [
     {
@@ -522,6 +522,14 @@
       "resolution": "migrated",
       "reason": "Open manual steps resolved; upgrade-state guard passes.",
       "resolvedAt": "2026-10-08T09:48:31.287363Z"
+    },
+    {
+      "id": "0.353.0:96780499",
+      "version": "0.353.0",
+      "title": "Tenant names are encrypted under the tenant record and crypto-shredded when the tenant is destroyed",
+      "resolution": "not-applicable",
+      "reason": "No raw read of read_tenants.name in src, bin, seeds or e2e (tenant-routing reads only id/key/isEnabled); name shown via framework tenant queries.",
+      "resolvedAt": "2026-10-09T13:28:23.538294Z"
     }
   ]
 }
