@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-04T08:57:12.973Z",
+  "generatedAt": "2026-10-11T21:36:50.153Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -326,7 +326,7 @@
           ]
         }
       ],
-      "source": "unmanaged"
+      "source": "managed"
     },
     {
       "tableName": "read_rsvps",
@@ -525,7 +525,7 @@
           ]
         }
       ],
-      "source": "unmanaged"
+      "source": "managed"
     },
     {
       "tableName": "read_template_resources",
@@ -797,6 +797,11 @@
         {
           "name": "invited_by_bidx",
           "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "membership_version",
+          "pgType": "integer",
           "notNull": false
         },
         {
@@ -1106,7 +1111,10 @@
           "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "piiSubjectFields": [
+        "name"
+      ]
     },
     {
       "tableName": "read_tier_assignments",
@@ -1524,7 +1532,121 @@
           "defaultSql": "now()"
         }
       ],
-      "indexes": [],
+      "indexes": [
+        {
+          "name": "store_tenant_job_failures_tenant_job_subject_uidx",
+          "columns": [
+            "tenant_id",
+            "job_name",
+            "subject"
+          ],
+          "unique": true,
+          "whereSql": "subject IS NOT NULL"
+        },
+        {
+          "name": "store_tenant_job_failures_tenant_job_null_subject_uidx",
+          "columns": [
+            "tenant_id",
+            "job_name"
+          ],
+          "unique": true,
+          "whereSql": "subject IS NULL"
+        },
+        {
+          "name": "store_tenant_job_failures_tenant_failed_at_idx",
+          "columns": [
+            "tenant_id",
+            "failed_at"
+          ]
+        },
+        {
+          "name": "store_tenant_job_failures_failed_at_idx",
+          "columns": [
+            "failed_at"
+          ]
+        }
+      ],
+      "source": "unmanaged"
+    },
+    {
+      "tableName": "store_tenant_job_runs",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "serial",
+          "notNull": true,
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "job_name",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "subject",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "bull_job_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "status",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "queued_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "started_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "finished_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "updated_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "store_tenant_job_runs_bull_job_id_unique",
+          "columns": [
+            "bull_job_id"
+          ],
+          "unique": true
+        },
+        {
+          "name": "store_tenant_job_runs_tenant_job_subject_idx",
+          "columns": [
+            "tenant_id",
+            "job_name",
+            "subject"
+          ]
+        },
+        {
+          "name": "store_tenant_job_runs_updated_at_idx",
+          "columns": [
+            "updated_at"
+          ]
+        }
+      ],
       "source": "unmanaged"
     },
     {

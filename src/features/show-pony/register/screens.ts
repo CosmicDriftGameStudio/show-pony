@@ -10,7 +10,7 @@ export const eventListScreen: EntityListScreenDefinition = {
   id: "event-list",
   type: "entityList",
   entity: "event",
-  columns: ["title", "slug", "startsAt", "location", "guestLimit"],
+  columns: ["title", "slug", "startsAt", "location", { field: "guestLimit", hideOnNarrow: true }],
   pageSize: 25,
   defaultSort: { field: "title", dir: "asc" },
   rowActions: [

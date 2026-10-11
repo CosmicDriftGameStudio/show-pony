@@ -1,6 +1,6 @@
 {
-  "version": "0.353.0",
-  "appliedAt": "2026-10-09T13:28:03.894072Z",
+  "version": "0.359.0",
+  "appliedAt": "2026-10-11T21:34:44.10132Z",
   "codemods": [],
   "resolvedManual": [
     {
@@ -530,6 +530,278 @@
       "resolution": "not-applicable",
       "reason": "No raw read of read_tenants.name in src, bin, seeds or e2e (tenant-routing reads only id/key/isEnabled); name shown via framework tenant queries.",
       "resolvedAt": "2026-10-09T13:28:23.538294Z"
+    },
+    {
+      "id": "0.357.0:c8d37f92",
+      "version": "0.357.0",
+      "title": "List card meta values wrap instead of being clipped; more than 3 meta columns fail boot",
+      "resolution": "migrated",
+      "reason": "event-list had 4 meta columns; guestLimit is hideOnNarrow: true now (table keeps it). card-meta-overflow.test.ts asserts collectCardMetaOverflow over buildAppFeatures is empty.",
+      "resolvedAt": "2026-10-11T21:38:37.902915Z"
+    },
+    {
+      "id": "0.354.0:7a0884db",
+      "version": "0.354.0",
+      "title": "Invitations pin the invitee's membership version; superseded accept no longer relies on timestamps",
+      "resolution": "migrated",
+      "reason": "Migration 0029_framework-0-359-bump adds read_tenant_invitations.membership_version (kumiko-schema generate).",
+      "resolvedAt": "2026-10-11T21:38:39.186645Z"
+    },
+    {
+      "id": "0.354.0:4b2f49ba",
+      "version": "0.354.0",
+      "title": "jobs: store_tenant_job_failures holds at most one row per (tenant, job, subject)",
+      "resolution": "migrated",
+      "reason": "Migration 0029 hand-edited per jobs changelog: DELETE keeps newest row per key, both partial unique indexes, DROP INDEX IF EXISTS of the old idx. Dedupe checked against a local DB with duplicate rows.",
+      "resolvedAt": "2026-10-11T21:38:40.428103Z"
+    },
+    {
+      "id": "0.358.0:bef6b043",
+      "version": "0.358.0",
+      "title": "Entity PII fields need whenAbsent: \"tenant\" when the owner field is nullable",
+      "resolution": "not-applicable",
+      "reason": "No personal: { of } field in src, bin or seeds; PII fields use personal: \"self\" or false.",
+      "resolvedAt": "2026-10-11T21:38:41.686Z"
+    },
+    {
+      "id": "0.357.0:0498a83f",
+      "version": "0.357.0",
+      "title": "Section actions render in the title row instead of a footer; WriteFormSection submit moves below its fields",
+      "resolution": "not-applicable",
+      "reason": "No section actions or WriteFormSection in app screens (grep actions:|WriteFormSection: only the marketing header nav).",
+      "resolvedAt": "2026-10-11T21:38:43.59821Z"
+    },
+    {
+      "id": "0.356.0:f03e9454",
+      "version": "0.356.0",
+      "title": "Job ctx.queryAs is gated like ctx.writeAs",
+      "resolution": "not-applicable",
+      "reason": "App defines no jobs and no ctx.queryAs call (grep r.job(|queryAs in src, bin, seeds: no hits).",
+      "resolvedAt": "2026-10-11T21:38:45.912732Z"
+    },
+    {
+      "id": "0.355.0:0c34c8b5",
+      "version": "0.355.0",
+      "title": "Identity and tenant switches are explicitly gated; escape-hatch audit is durable",
+      "resolution": "not-applicable",
+      "reason": "No writeAs, tenantIdOverride, crossTenantOverrideDenied or createEscapeHatchReporter in app code; shutdown goes through runProdApp handle.stop().",
+      "resolvedAt": "2026-10-11T21:38:47.591976Z"
+    },
+    {
+      "id": "0.355.0:60dfd131",
+      "version": "0.355.0",
+      "title": "Security guards ignore kumiko.json excludes beyond node_modules and dist; kind framework is reserved for kumiko-framework",
+      "resolution": "not-applicable",
+      "reason": "kumiko.json is kind app with excludes node_modules and dist only.",
+      "resolvedAt": "2026-10-11T21:38:48.841236Z"
+    },
+    {
+      "id": "0.355.0:a8af3a29",
+      "version": "0.355.0",
+      "title": "test-timeouts guard flags timeout arguments on test(), it() and describe()",
+      "resolution": "not-applicable",
+      "reason": "test-timeouts guard passes over all 39 test files in bun kumiko check.",
+      "resolvedAt": "2026-10-11T21:38:49.243687Z"
+    },
+    {
+      "id": "0.354.0:3fc2372f",
+      "version": "0.354.0",
+      "title": "Row-bound grants (deletion token, tenant handover) refuse a colon in anchor or subject",
+      "resolution": "not-applicable",
+      "reason": "App issues no deletion-token or tenant-handover grants (grep handover|deletionToken: no hits).",
+      "resolvedAt": "2026-10-11T21:38:49.777405Z"
+    },
+    {
+      "id": "0.354.0:bcf31c1e",
+      "version": "0.354.0",
+      "title": "createTenantFeature fails the boot when a declared assignable app role is missing from its assignableAppRoles option",
+      "resolution": "not-applicable",
+      "reason": "App does not call createTenantFeature or declare assignableRole; boot validation over the composed features passes.",
+      "resolvedAt": "2026-10-11T21:38:51.1623Z"
+    },
+    {
+      "id": "0.354.0:320e8e30",
+      "version": "0.354.0",
+      "title": "Schedule sourceRef is unique per tenant (partial unique index read_ledger_schedules_tenant_id_source_ref_uidx)",
+      "resolution": "not-applicable",
+      "reason": "Ledger feature not mounted.",
+      "resolvedAt": "2026-10-11T21:38:51.701931Z"
+    },
+    {
+      "id": "0.354.0:04a23d8d",
+      "version": "0.354.0",
+      "title": "A ledger schedule needs subjectType and subjectId together or neither",
+      "resolution": "not-applicable",
+      "reason": "Ledger feature not mounted.",
+      "resolvedAt": "2026-10-11T21:38:52.236141Z"
+    },
+    {
+      "id": "0.354.0:ec5e1e42",
+      "version": "0.354.0",
+      "title": "notes-history adds a composite index on (tenantId, entityType, entityId) for note entries, so the schema-drift check fails until the app regenerates",
+      "resolution": "not-applicable",
+      "reason": "notes-history not mounted; schema drift check is clean after migration 0029.",
+      "resolvedAt": "2026-10-11T21:38:52.860423Z"
+    },
+    {
+      "id": "0.354.0:2b5cff6a",
+      "version": "0.354.0",
+      "title": "POST /resubscribe requires the undo token from the POST /unsubscribe response",
+      "resolution": "not-applicable",
+      "reason": "No client calls /unsubscribe or /resubscribe (grep: no hits).",
+      "resolvedAt": "2026-10-11T21:38:54.307479Z"
+    },
+    {
+      "id": "0.354.0:5d60e46c",
+      "version": "0.354.0",
+      "title": "FileHandle.derive throws for suffixes outside <name>-<16 hex>",
+      "resolution": "not-applicable",
+      "reason": "No FileHandle or file storage usage in src, bin or seeds.",
+      "resolvedAt": "2026-10-11T21:38:55.656733Z"
+    },
+    {
+      "id": "0.354.0:99baf410",
+      "version": "0.354.0",
+      "title": "A tenant-bound FileContext.list throws for prefixes outside the tenant's key space",
+      "resolution": "not-applicable",
+      "reason": "No FileContext usage in src, bin or seeds.",
+      "resolvedAt": "2026-10-11T21:38:56.271124Z"
+    },
+    {
+      "id": "0.354.0:33eb7a55",
+      "version": "0.354.0",
+      "title": "A tenant-bound FileContext.ref throws for keys outside the tenant's key space",
+      "resolution": "not-applicable",
+      "reason": "No FileContext usage in src, bin or seeds.",
+      "resolvedAt": "2026-10-11T21:38:56.813855Z"
+    },
+    {
+      "id": "0.354.0:0d53814a",
+      "version": "0.354.0",
+      "title": "auth-mfa declares the master-key env slots, so composeEnvSchema requires KUMIKO_SECRETS_MASTER_KEY_V1 when auth-mfa is mounted",
+      "resolution": "not-applicable",
+      "reason": "auth-mfa is not mounted.",
+      "resolvedAt": "2026-10-11T21:38:57.353808Z"
+    },
+    {
+      "id": "0.354.0:2ea3e6cd",
+      "version": "0.354.0",
+      "title": "BillingInfo.prices and getBillingPrices are keyed by the tier union",
+      "resolution": "not-applicable",
+      "reason": "App defines no getBillingPrices or BillingInfo.prices (grep: no hits); typecheck passes.",
+      "resolvedAt": "2026-10-11T21:38:58.200239Z"
+    },
+    {
+      "id": "0.354.0:7565e735",
+      "version": "0.354.0",
+      "title": "enrichWithReferences and enrichRowWithReferences require a viewer { user, parentVisibility }",
+      "resolution": "not-applicable",
+      "reason": "No enrichWithReferences or enrichRowWithReferences call.",
+      "resolvedAt": "2026-10-11T21:39:00.325795Z"
+    },
+    {
+      "id": "0.354.0:59011b92",
+      "version": "0.354.0",
+      "title": "crossTenant removed from entity convention handlers; write handlers with escapeHatch need SystemAdmin-only access",
+      "resolution": "not-applicable",
+      "reason": "No crossTenant or escapeHatch in app handlers.",
+      "resolvedAt": "2026-10-11T21:39:02.213358Z"
+    },
+    {
+      "id": "0.354.0:b9062eaa",
+      "version": "0.354.0",
+      "title": "Field-level access.read with a where-rule now fails the boot (also on embedded sub-fields)",
+      "resolution": "not-applicable",
+      "reason": "No field-level access.read in app schema; boot validation passes.",
+      "resolvedAt": "2026-10-11T21:39:03.868026Z"
+    },
+    {
+      "id": "0.354.0:062e77ca",
+      "version": "0.354.0",
+      "title": "requestContext.run and runAsDirectCallEntry removed from the public /api barrel; requestContext there is read-only",
+      "resolution": "not-applicable",
+      "reason": "No requestContext or runAsDirectCallEntry import.",
+      "resolvedAt": "2026-10-11T21:39:07.695Z"
+    },
+    {
+      "id": "0.354.0:1bbc2669",
+      "version": "0.354.0",
+      "title": "TenantDestroyHookResult: done:false now requires processed",
+      "resolution": "not-applicable",
+      "reason": "App registers no tenant destroy hook.",
+      "resolvedAt": "2026-10-11T21:39:09.167801Z"
+    },
+    {
+      "id": "0.354.0:ef806d37",
+      "version": "0.354.0",
+      "title": "db.global(table) writes on executor-managed entity tables are rejected",
+      "resolution": "not-applicable",
+      "reason": "No db.global writes in app code.",
+      "resolvedAt": "2026-10-11T21:39:10.341591Z"
+    },
+    {
+      "id": "0.354.0:c3935ac5",
+      "version": "0.354.0",
+      "title": "defineFeature throws when dedupeOptions holds a nested object",
+      "resolution": "not-applicable",
+      "reason": "No dedupeOptions in app features.",
+      "resolvedAt": "2026-10-11T21:39:11.132253Z"
+    },
+    {
+      "id": "0.354.0:3c658b3a",
+      "version": "0.354.0",
+      "title": "Boot validation rejects an object-form redirect with idFrom on a screen that has no id",
+      "resolution": "not-applicable",
+      "reason": "No redirect or idFrom on app screens.",
+      "resolvedAt": "2026-10-11T21:39:11.618999Z"
+    },
+    {
+      "id": "0.354.0:a5e6b74c",
+      "version": "0.354.0",
+      "title": "A list column absent from the query output schema must set virtual: true",
+      "resolution": "not-applicable",
+      "reason": "App lists are entityList over entity fields only, no projection list; boot validation passes.",
+      "resolvedAt": "2026-10-11T21:39:12.078614Z"
+    },
+    {
+      "id": "0.354.0:9171075f",
+      "version": "0.354.0",
+      "title": "Boot validator rejects inert sortable, authored urlPrefillFields and an unknown listScreenId",
+      "resolution": "not-applicable",
+      "reason": "Sortable fields are used by list columns, no urlPrefillFields or listScreenId; boot validation passes.",
+      "resolvedAt": "2026-10-11T21:39:12.564421Z"
+    },
+    {
+      "id": "0.354.0:0b6e545a",
+      "version": "0.354.0",
+      "title": "TreeAction is screen XOR target at the type level",
+      "resolution": "not-applicable",
+      "reason": "No tree screens or TreeAction.",
+      "resolvedAt": "2026-10-11T21:39:13.524989Z"
+    },
+    {
+      "id": "0.354.0:8fd394ce",
+      "version": "0.354.0",
+      "title": "MFA setup and recovery-code buttons moved from Section actions to the section body",
+      "resolution": "not-applicable",
+      "reason": "auth-mfa is not mounted.",
+      "resolvedAt": "2026-10-11T21:39:14.842916Z"
+    },
+    {
+      "id": "0.354.0:e57094cd",
+      "version": "0.354.0",
+      "title": "Grid columns is number | \"auto\"",
+      "resolution": "not-applicable",
+      "reason": "No Grid columns in app UI; typecheck passes.",
+      "resolvedAt": "2026-10-11T21:39:15.346096Z"
+    },
+    {
+      "id": "0.354.0:988164f1",
+      "version": "0.354.0",
+      "title": "Button without children requires icon and ariaLabel",
+      "resolution": "not-applicable",
+      "reason": "The only Button (RsvpForm.tsx) has children.",
+      "resolvedAt": "2026-10-11T21:39:15.845174Z"
     }
   ]
 }
