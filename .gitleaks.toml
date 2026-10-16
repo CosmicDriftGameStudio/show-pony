@@ -1,0 +1,12 @@
+title = "show-pony gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Lockfiles and generated test artifacts, not hand-written source"
+paths = [
+  '''(^|/)[^/]+\.lock$''',
+  '''(^|/)__tests__/(.+/)?fixtures/''',
+  '''(^|/)e2e/screenshots/''',
+]
