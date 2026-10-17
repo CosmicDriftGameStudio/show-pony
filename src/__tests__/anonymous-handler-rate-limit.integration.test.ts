@@ -9,8 +9,6 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
@@ -20,9 +18,7 @@ import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
 const BASE_DOMAIN = "show-pony.test";
 const LIMIT = 60;
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 let stack: TestStack;
 let hostname: string;
@@ -46,8 +42,6 @@ beforeAll(async () => {
     [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
       showPonyFeature,
     ],
     {

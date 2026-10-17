@@ -14,8 +14,6 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { rebuildProjection } from "@cosmicdrift/kumiko-framework/pipeline";
@@ -27,27 +25,16 @@ import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 let stack: TestStack;
 let host: SessionUser;
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => null });
 
 beforeAll(async () => {
-  stack = await setupAppTestStack(
-    [
-      createConfigFeature(),
-      managedPages,
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
-      showPonyFeature,
-    ],
-    {
-      extraContext: ({ registry }) => ({
-        configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-      }),
-    },
-  );
+  stack = await setupAppTestStack([createConfigFeature(), managedPages, showPonyFeature], {
+    extraContext: ({ registry }) => ({
+      configResolver,
+      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+    }),
+  });
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
   const rebuildcheck = await seedTenant(stack, { name: "Rebuild Check" });
   host = (await rebuildcheck.addUser(["Admin"])).session;

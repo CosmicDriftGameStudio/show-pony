@@ -8,26 +8,29 @@
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
 import { authFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
+import {
+  createChannelEmailFeature,
+  createInMemoryTransport,
+} from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
+import { createDeliveryFeature } from "@cosmicdrift/kumiko-bundled-features/delivery";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import {
   createMetricsFeature,
   createSystemMetricsFeature,
   DEFAULT_METRICS,
-  deliveriesByChannelMetric,
-  failedDeliveriesMetric,
 } from "@cosmicdrift/kumiko-bundled-features/metrics";
 import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { createSessionsFeature } from "@cosmicdrift/kumiko-bundled-features/sessions";
-import { createTemplateResolverFeature } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
-import { composePagesStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
+import {
+  composePagesStack,
+  composeRendererStack,
+} from "@cosmicdrift/kumiko-dev-server/compose-stacks";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
@@ -37,16 +40,11 @@ import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { renderLegalLayout } from "./legal-layout";
 import { createShowPonyTenantRoutingFeature, resolveSubdomainPageTenant } from "./tenant-routing";
 
-// show-pony mounts no delivery feature, so the delivery metrics would fail boot validation.
-const APP_METRICS = DEFAULT_METRICS.filter(
-  (metric) => metric !== deliveriesByChannelMetric && metric !== failedDeliveriesMetric,
-);
-
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
   registerWorkspaces: false,
   includeTierAdmin: true,
-  metrics: APP_METRICS,
+  metrics: DEFAULT_METRICS,
 });
 
 export type AppFeaturesRouting = {
@@ -69,14 +67,19 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     authFoundationFeature,
     createSessionsFeature(),
     createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
-    createTemplateResolverFeature(),
+    ...composeRendererStack(),
     ...composePagesStack({ wrapLayout: renderLegalLayout }),
     createManagedPagesFeature({
       resolveApexTenant: resolveSubdomainPageTenant,
       allowCustomCss: false,
     }),
-    mailFoundationFeature,
-    mailTransportInMemoryFeature,
+    createDeliveryFeature(),
+    // Guests are addressed by the email they typed, so no user lookup exists.
+    // The in-memory transport keeps the demo behaviour: no RSVP mail leaves the process.
+    createChannelEmailFeature({
+      transport: createInMemoryTransport(),
+      resolveEmail: async () => null,
+    }),
     createRateLimitingFeature(),
     createAuditFeature(),
     createJobsFeature(),
@@ -86,8 +89,8 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
     createCryptoShreddingFeature(),
     createSecretsFeature(),
-    createMetricsFeature({ metrics: APP_METRICS }),
-    createSystemMetricsFeature({ metrics: APP_METRICS }),
+    createMetricsFeature({ metrics: DEFAULT_METRICS }),
+    createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),
     adminShellFeature,
     appShellFeature,
     showPonyFeature,

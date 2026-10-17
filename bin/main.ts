@@ -52,9 +52,7 @@ const searchWiring = resolveSearchAdapter({
 // capture it here so the boot-time search-index seed below can use it.
 let boundRegistry: Registry | null = null;
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 await renderAllMarketingPages(APEX_ORIGIN);
 

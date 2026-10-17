@@ -40,10 +40,7 @@ export const rsvpSubmitHandler = defineWriteHandler({
     if (capFailure) return capFailure;
 
     const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
-    // The mail is best-effort — a transport error must not fail the RSVP.
-    await sendRsvpConfirmation(ctx, event.user.tenantId, event.payload, found).catch(
-      () => undefined,
-    );
+    await sendRsvpConfirmation(ctx, event.payload, found);
     return result;
   },
 });

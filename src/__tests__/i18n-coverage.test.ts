@@ -23,7 +23,8 @@ function referencedKeys(): ReadonlySet<string> {
         key.includes(":screen:") ||
         key.includes(":nav:") ||
         key.includes(":query:") ||
-        key.includes(":config:")
+        key.includes(":config:") ||
+        key.includes(":notify:")
       )
         continue;
       out.add(key);

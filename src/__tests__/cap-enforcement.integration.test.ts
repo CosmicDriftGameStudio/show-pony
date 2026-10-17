@@ -14,8 +14,6 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
@@ -26,11 +24,7 @@ import { TIER_MAX_GUESTS } from "../marketing/pricing";
 
 let stack: TestStack;
 
-// Same appOverride as bin/server.ts — mail-foundation needs a selected
-// provider or createTransportForTenant throws "no provider selected".
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => null });
 
@@ -38,24 +32,15 @@ let host: SessionUser;
 let guestCapHost: SessionUser;
 
 beforeAll(async () => {
-  stack = await setupAppTestStack(
-    [
-      createConfigFeature(),
-      managedPages,
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
-      showPonyFeature,
-    ],
-    {
-      // Mirrors prod (one ingress hop) so each guest below gets its own
-      // rsvp:submit ip+handler bucket via X-Forwarded-For.
-      trustedProxyHops: 1,
-      extraContext: ({ registry }) => ({
-        configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-      }),
-    },
-  );
+  stack = await setupAppTestStack([createConfigFeature(), managedPages, showPonyFeature], {
+    // Mirrors prod (one ingress hop) so each guest below gets its own
+    // rsvp:submit ip+handler bucket via X-Forwarded-For.
+    trustedProxyHops: 1,
+    extraContext: ({ registry }) => ({
+      configResolver,
+      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+    }),
+  });
   await unsafePushTables(stack.db, {
     tier_assignments: tierAssignmentTable,
     config_values: configValuesTable,

@@ -5,8 +5,6 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import {
   BRANDING_QN,
   createManagedPagesFeature,
@@ -25,9 +23,7 @@ import {
 
 const BASE_DOMAIN = "show-pony.test";
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 // Real production wiring (run-config.ts): resolveApexTenant IS
 // resolveSubdomainPageTenant, the actual Host→tenant parsing (apex/www
@@ -45,25 +41,16 @@ let acmeHostname: string;
 let acmeAdmin: SessionUser;
 
 beforeAll(async () => {
-  stack = await setupAppTestStack(
-    [
-      createConfigFeature(),
-      managedPages,
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
-      showPonyFeature,
-    ],
-    {
-      anonymousAccess: ({ db }) => {
-        bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-        return createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN });
-      },
-      extraContext: ({ registry }) => ({
-        configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-      }),
+  stack = await setupAppTestStack([createConfigFeature(), managedPages, showPonyFeature], {
+    anonymousAccess: ({ db }) => {
+      bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
+      return createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN });
     },
-  );
+    extraContext: ({ registry }) => ({
+      configResolver,
+      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+    }),
+  });
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,

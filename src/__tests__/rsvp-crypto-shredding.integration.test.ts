@@ -13,8 +13,6 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
 import {
@@ -46,9 +44,7 @@ const BASE_DOMAIN = "show-pony.test";
 let eventId = "";
 const FORGET = "crypto-shredding:write:forget-subject";
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 let acmeId: string;
 let acmeHostname: string;
@@ -94,8 +90,6 @@ beforeAll(async () => {
     [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
       createCryptoShreddingFeature(),
       showPonyFeature,
     ],
