@@ -89,12 +89,8 @@ jobs:
       - name: Comment-Language guard
         # Baseline regression guard: fails only on NEW German comments; existing
         # ones are frozen in .kumiko-comment-lang-baseline.json.
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guards comment-lang
       - name: UI guards
-        env:
-          KUMIKO_GUARD_ROOTS: show-pony
         run: bun kumiko-guards ui
       - run: |
           ulimit -n 65536 || true

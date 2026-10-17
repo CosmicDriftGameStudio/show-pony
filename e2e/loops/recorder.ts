@@ -72,7 +72,15 @@ function restoreIdentitiesInDocument(): void {
   window.__loopPresentRestore = [];
 }
 
+// An empty `from` makes replaceAll("", to) rewrite every text node; same guard as the framework.
+function assertPresentableMappings(identities: readonly PresentIdentity[]): void {
+  for (const { from } of identities) {
+    if (from === "") throw new Error("presentIdentities: `from` must not be empty");
+  }
+}
+
 async function captureFrame(page: Page, path: string, identities: readonly PresentIdentity[]): Promise<void> {
+  assertPresentableMappings(identities);
   if (identities.length > 0) await page.evaluate(presentIdentitiesInDocument, identities);
   try {
     // @template-drift-exception: #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
