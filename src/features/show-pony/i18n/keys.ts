@@ -166,4 +166,9 @@ export const showPonyTranslations = {
     de: "Die Gästeliste ist voll.",
     en: "The guest list is full.",
   },
+  // Delivery-log label for the qualified type `showpony:notify:rsvp-confirmation`.
+  "showpony.notification.rsvp-confirmation": {
+    de: "Antwortbestätigung",
+    en: "RSVP confirmation",
+  },
 } as const satisfies Record<string, LocaleEntry>;

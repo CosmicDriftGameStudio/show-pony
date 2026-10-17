@@ -89,7 +89,7 @@ export function EventPage(): ReactElement {
     dateStyle: "long",
     timeStyle: "short",
   });
-  const guestLimit = event.guestLimit > 0 ? event.guestLimit : null;
+  const guestLimit = event.guestLimit !== null && event.guestLimit > 0 ? event.guestLimit : null;
   const canvasStyle =
     splitPage && splitAccent
       ? splitInviteCanvasStyle(splitAccent)

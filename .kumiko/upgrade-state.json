@@ -1016,7 +1016,7 @@
       "version": "0.363.0",
       "title": "GDPR default mails are r.notification declarations, render*Email is gone",
       "resolution": "migrated",
-      "reason": "Auth/GDPR default mails are now notifications from the framework; run-config mounts delivery, channel-email and composeRendererStack(), seeds run at boot in runProdApp/runDevApp; verified boot via integration stacks and kumiko check.",
+      "reason": "Auth mails are framework notifications addressed by route {email}, so channel-email's resolveEmail is never called; run-config mounts delivery, channel-email and composeRendererStack() and seeds run at boot. user-data-rights (GDPR mails) is not mounted in show-pony.",
       "resolvedAt": "2026-10-17T10:00:40.485146Z"
     },
     {
@@ -1024,7 +1024,7 @@
       "version": "0.363.0",
       "title": "Auth mails are notifications with seeded templates, render*Email is gone",
       "resolution": "migrated",
-      "reason": "Auth/GDPR default mails are now notifications from the framework; run-config mounts delivery, channel-email and composeRendererStack(), seeds run at boot in runProdApp/runDevApp; verified boot via integration stacks and kumiko check.",
+      "reason": "Auth mails are framework notifications addressed by route {email}, so channel-email's resolveEmail is never called; run-config mounts delivery, channel-email and composeRendererStack() and seeds run at boot. user-data-rights (GDPR mails) is not mounted in show-pony.",
       "resolvedAt": "2026-10-17T10:00:40.485146Z"
     },
     {

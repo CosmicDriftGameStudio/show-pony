@@ -15,7 +15,7 @@ export type PublicEvent = {
   readonly startsAt: string;
   readonly location: string;
   readonly description: string;
-  readonly guestLimit: number;
+  readonly guestLimit: number | null;
 };
 
 export type RsvpStatus = "yes" | "no" | "maybe";
