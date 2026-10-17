@@ -43,9 +43,7 @@ const BASE_DOMAIN = resolveBaseDomainFromEnv();
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 await renderAllMarketingPages(DEV_ORIGIN);
 

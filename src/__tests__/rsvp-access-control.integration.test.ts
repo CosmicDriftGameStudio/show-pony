@@ -10,8 +10,6 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, TestUsers, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
@@ -20,9 +18,7 @@ import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 const BASE_DOMAIN = "show-pony.test";
 
@@ -39,8 +35,6 @@ beforeAll(async () => {
     [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
       showPonyFeature,
     ],
     {

@@ -17,13 +17,14 @@ function referencedKeys(): ReadonlySet<string> {
     const src = readFileSync(join(FEATURE_DIR, rel), "utf8");
     for (const m of src.matchAll(KEY_RE)) {
       const key = m[1] as string;
-      // Qualified handler/screen/nav refs — not translation keys.
+      // Qualified handler/screen/nav/notification refs — not translation keys.
       if (
         key.includes(":write:") ||
         key.includes(":screen:") ||
         key.includes(":nav:") ||
         key.includes(":query:") ||
-        key.includes(":config:")
+        key.includes(":config:") ||
+        key.includes(":notify:")
       )
         continue;
       out.add(key);

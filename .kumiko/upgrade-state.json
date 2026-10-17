@@ -1,6 +1,6 @@
 {
-  "version": "0.359.0",
-  "appliedAt": "2026-10-11T21:34:44.10132Z",
+  "version": "0.364.0",
+  "appliedAt": "2026-10-17T09:58:47.174829Z",
   "codemods": [],
   "resolvedManual": [
     {
@@ -802,6 +802,302 @@
       "resolution": "not-applicable",
       "reason": "The only Button (RsvpForm.tsx) has children.",
       "resolvedAt": "2026-10-11T21:39:15.845174Z"
+    },
+    {
+      "id": "0.364.0:63286a87",
+      "version": "0.364.0",
+      "title": "CapExceededError carries resetAt and retryAfterSeconds, API sets Retry-After",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.364.0:aa805dac",
+      "version": "0.364.0",
+      "title": "DocumentRepeatRow is removed, use DocumentTableRow",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.364.0:5277d99e",
+      "version": "0.364.0",
+      "title": "renderAndStorePdf is removed; render in beforeTransaction with renderPdfBeforeTransaction and store with storeRenderedPdf",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:196e154f",
+      "version": "0.363.0",
+      "title": "Waitlist confirmation and admin notice use template variables",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:e8257d88",
+      "version": "0.363.0",
+      "title": "document-pdf requests name a template, the response carries fileName",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:3cf557c0",
+      "version": "0.363.0",
+      "title": "RenderRequest kind mail replaces mail-html",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:0e9e3d69",
+      "version": "0.363.0",
+      "title": "renderer-simple, MailBranding and renderer kind \"notification\" are removed",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:3ee376a9",
+      "version": "0.363.0",
+      "title": "AuthMailContent is removed",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:1032f3d2",
+      "version": "0.363.0",
+      "title": "document-pdf templates require contentFormat html, and html bodies are sanitized on write",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:03e781f7",
+      "version": "0.363.0",
+      "title": "kind mail-html is replaced by mail, mail-layout and pdf-layout; templates carry meta",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:00244647",
+      "version": "0.363.0",
+      "title": "linkedResources is no longer a payload field of upsertSystem/upsertTenant; resourceUpload and resourceRemove manage it",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:974ee050",
+      "version": "0.363.0",
+      "title": "Tenant mail-layouts are structured html, pdf-layout and document-pdf are placeholder-validated",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:198ced6e",
+      "version": "0.363.0",
+      "title": "NotificationRenderer and RendererInput removed, immediate notify renders with the tenant config",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:e8fe4ae4",
+      "version": "0.363.0",
+      "title": "Contract confirmation and termination mails use template variables",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:3403ae69",
+      "version": "0.363.0",
+      "title": "Documents format dates and numbers by the template locale, dates in the long style",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:4f629cd7",
+      "version": "0.363.0",
+      "title": "renders kind mail from document templates, Markdown path removed",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.363.0:c9246185",
+      "version": "0.363.0",
+      "title": "renders document-pdf from templates, adds renderAndStorePdf, the rendered-pdf entity and puppeteer-status",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony src, bin, e2e and scripts do not use the affected API (CapExceededError, DocumentRepeatRow, renderAndStorePdf, document-pdf, mail-html, renderer-simple, MailBranding, AuthMailContent, linkedResources, NotificationRenderer, document templates); grep found no match.",
+      "resolvedAt": "2026-10-17T10:00:29.969364Z"
+    },
+    {
+      "id": "0.361.0:6e0e54d2",
+      "version": "0.361.0",
+      "title": "POST /files checks write access to the target record",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony has no file fields and no upload or /files usage in src, bin or e2e.",
+      "resolvedAt": "2026-10-17T10:00:30.325447Z"
+    },
+    {
+      "id": "0.361.0:f697244a",
+      "version": "0.361.0",
+      "title": "Unbound uploads are private to the uploader (security)",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony has no file fields and no upload or /files usage in src, bin or e2e.",
+      "resolvedAt": "2026-10-17T10:00:30.325447Z"
+    },
+    {
+      "id": "0.361.0:391bc94c",
+      "version": "0.361.0",
+      "title": "Plural file fields have a projection column",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony has no file fields and no upload or /files usage in src, bin or e2e.",
+      "resolvedAt": "2026-10-17T10:00:30.325447Z"
+    },
+    {
+      "id": "0.361.0:2d14739d",
+      "version": "0.361.0",
+      "title": "Writes with file ids from another tenant are rejected",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony has no file fields and no upload or /files usage in src, bin or e2e.",
+      "resolvedAt": "2026-10-17T10:00:30.325447Z"
+    },
+    {
+      "id": "0.360.0:195bd4a0",
+      "version": "0.360.0",
+      "title": "Uploads from an update form are attached to the record",
+      "resolution": "not-applicable",
+      "reason": "Reviewed: show-pony has no file fields and no upload or /files usage in src, bin or e2e.",
+      "resolvedAt": "2026-10-17T10:00:30.325447Z"
+    },
+    {
+      "id": "0.361.0:1579d8a8",
+      "version": "0.361.0",
+      "title": "Schema generate rejects a table listed twice in ENTITY_METAS",
+      "resolution": "migrated",
+      "reason": "Checked kumiko/schema.ts: ENTITY_METAS comes from collectTableMetas(FEATURES), so no table can be listed twice by hand; kumiko-schema validate passes.",
+      "resolvedAt": "2026-10-17T10:00:30.663897Z"
+    },
+    {
+      "id": "0.364.0:8524ef12",
+      "version": "0.364.0",
+      "title": "A draft no longer replaces the active template",
+      "resolution": "not-applicable",
+      "reason": "No app-owned template editing: show-pony only declares one r.notification with a localizedTemplate; the draft/active split affects tenant template admin only.",
+      "resolvedAt": "2026-10-17T10:00:39.85922Z"
+    },
+    {
+      "id": "0.364.0:c75a19a0",
+      "version": "0.364.0",
+      "title": "Handler field references support business keys and array fields",
+      "resolution": "not-applicable",
+      "reason": "Handler field references are not used; show-pony handlers read plain payload fields.",
+      "resolvedAt": "2026-10-17T10:00:40.068015Z"
+    },
+    {
+      "id": "0.364.0:94701eb5",
+      "version": "0.364.0",
+      "title": "Writes without an open transaction run as their own command; ctx.db writes there throw",
+      "resolution": "migrated",
+      "reason": "Checked: all ctx.db writes in src run inside r.writeHandler transactions (rsvp-submit, event handlers); no job, hook or bin code writes outside a transaction.",
+      "resolvedAt": "2026-10-17T10:00:40.275419Z"
+    },
+    {
+      "id": "0.363.0:f44ae707",
+      "version": "0.363.0",
+      "title": "GDPR default mails are r.notification declarations, render*Email is gone",
+      "resolution": "migrated",
+      "reason": "Auth mails are framework notifications addressed by route {email}, so channel-email's resolveEmail is never called; run-config mounts delivery, channel-email and composeRendererStack() and seeds run at boot. user-data-rights (GDPR mails) is not mounted in show-pony.",
+      "resolvedAt": "2026-10-17T10:00:40.485146Z"
+    },
+    {
+      "id": "0.363.0:7037f614",
+      "version": "0.363.0",
+      "title": "Auth mails are notifications with seeded templates, render*Email is gone",
+      "resolution": "migrated",
+      "reason": "Auth mails are framework notifications addressed by route {email}, so channel-email's resolveEmail is never called; run-config mounts delivery, channel-email and composeRendererStack() and seeds run at boot. user-data-rights (GDPR mails) is not mounted in show-pony.",
+      "resolvedAt": "2026-10-17T10:00:40.485146Z"
+    },
+    {
+      "id": "0.363.0:cdc8fc82",
+      "version": "0.363.0",
+      "title": "A notification without a mail template fails on the email channel",
+      "resolution": "migrated",
+      "reason": "Migrated the RSVP confirmation mail to r.notification with a localizedTemplate sent via ctx.notify (deferred after commit) to a single email route, no broadcast; covered by rsvp-anonymous integration test over the inmemory transport.",
+      "resolvedAt": "2026-10-17T10:00:40.695588Z"
+    },
+    {
+      "id": "0.363.0:551b2c38",
+      "version": "0.363.0",
+      "title": "ctx.notify in write handlers delivers after commit",
+      "resolution": "migrated",
+      "reason": "Migrated the RSVP confirmation mail to r.notification with a localizedTemplate sent via ctx.notify (deferred after commit) to a single email route, no broadcast; covered by rsvp-anonymous integration test over the inmemory transport.",
+      "resolvedAt": "2026-10-17T10:00:40.695588Z"
+    },
+    {
+      "id": "0.363.0:a9c2e953",
+      "version": "0.363.0",
+      "title": "ctx.notify rejects a broadcast to another tenant",
+      "resolution": "migrated",
+      "reason": "Migrated the RSVP confirmation mail to r.notification with a localizedTemplate sent via ctx.notify (deferred after commit) to a single email route, no broadcast; covered by rsvp-anonymous integration test over the inmemory transport.",
+      "resolvedAt": "2026-10-17T10:00:40.695588Z"
+    },
+    {
+      "id": "0.363.0:494e95d2",
+      "version": "0.363.0",
+      "title": "Package moved to the framework under the @cosmicdrift scope",
+      "resolution": "migrated",
+      "reason": "Replaced the enterprise renderer package with @cosmicdrift/kumiko-renderer-mail-html via composeRendererStack() in run-config.",
+      "resolvedAt": "2026-10-17T10:00:40.908836Z"
+    },
+    {
+      "id": "0.362.0:01030e26",
+      "version": "0.362.0",
+      "title": "Optional number fields in entity forms start empty instead of 0",
+      "resolution": "migrated",
+      "reason": "Only guestLimit is an optional number field (display value, not read by cap logic); starting empty in the event form is the intended behavior.",
+      "resolvedAt": "2026-10-17T10:00:41.119803Z"
+    },
+    {
+      "id": "0.361.0:c1d64ead",
+      "version": "0.361.0",
+      "title": "runDevApp encrypts PII on ephemeral dev DBs by default",
+      "resolution": "not-applicable",
+      "reason": "bin/server.ts passes explicit kms and blindIndexKey from resolveKmsWiring; e2e does not read PII columns raw.",
+      "resolvedAt": "2026-10-17T10:00:41.327055Z"
+    },
+    {
+      "id": "0.361.0:535b203b",
+      "version": "0.361.0",
+      "title": "Searchable lists show their description as its own row",
+      "resolution": "not-applicable",
+      "reason": "Display-only change; the event list keeps its searchable title/location fields, no code change needed.",
+      "resolvedAt": "2026-10-17T10:00:41.536753Z"
+    },
+    {
+      "id": "0.360.0:3651021e",
+      "version": "0.360.0",
+      "title": "Secure host-only session cookies use the __Host- prefix",
+      "resolution": "migrated",
+      "reason": "cookieDomain is set so auth/csrf names are unchanged; only the host-only tenant cookie gets __Host-, users log in once after rollout. No code reads cookie names directly.",
+      "resolvedAt": "2026-10-17T10:00:41.746281Z"
+    },
+    {
+      "id": "0.360.0:1d179b88",
+      "version": "0.360.0",
+      "title": "Origin guard defaults on when the public app URL is known",
+      "resolution": "not-applicable",
+      "reason": "bin/main.ts already sets allowedOrigins: [APEX_ORIGIN]; the origin guard config is explicit.",
+      "resolvedAt": "2026-10-17T10:00:41.955589Z"
     }
   ]
 }

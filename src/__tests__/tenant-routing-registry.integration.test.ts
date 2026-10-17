@@ -28,9 +28,7 @@ import { rsvpTable } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { buildAppFeatures } from "../run-config";
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 const BASE_DOMAIN = "show-pony-registry.test";
 // Empty until beforeAll assigns create id — leftover UUID silently passes z.uuid() (show-pony#134/3).

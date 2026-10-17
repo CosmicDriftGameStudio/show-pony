@@ -9,18 +9,22 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import {
+  createChannelEmailFeature,
+  createInMemoryTransport,
+} from "@cosmicdrift/kumiko-bundled-features/channel-email";
+import {
   configValuesTable,
   createConfigAccessorFactory,
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import {
-  clearInbox,
-  getInbox,
-  mailTransportInMemoryFeature,
-} from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
+  createDeliveryFeature,
+  createDeliveryTestContext,
+} from "@cosmicdrift/kumiko-bundled-features/delivery";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { seedNotificationTemplates } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
+import { composeRendererStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
@@ -29,11 +33,8 @@ import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";
 
-// Default the mail provider app-wide to inmemory (otherwise createTransportForTenant
-// throws "no provider selected") — the same appOverride as in bin/server.ts.
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
+const emailTransport = createInMemoryTransport();
 
 const BASE_DOMAIN = "show-pony.test";
 const EVENT_ID = "00000000-0000-4000-8000-0000000000e1";
@@ -66,17 +67,19 @@ beforeAll(async () => {
     [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
+      ...composeRendererStack(),
+      createDeliveryFeature(),
+      createChannelEmailFeature({ transport: emailTransport, resolveEmail: async () => null }),
       showPonyFeature,
     ],
     {
       // Exact boot wiring from bin/server.ts: the factory gets the stack db
       // and builds the real DB resolver.
       anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
-      extraContext: ({ registry }) => ({
+      extraContext: (deps) => ({
+        ...createDeliveryTestContext(deps),
         configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+        _configAccessorFactory: createConfigAccessorFactory(deps.registry, configResolver),
       }),
     },
   );
@@ -84,6 +87,8 @@ beforeAll(async () => {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
+  // setupAppTestStack runs no boot seeds; the mail renders from the seeded system template.
+  await seedNotificationTemplates(stack.db, stack.registry);
   // Subdomain routing resolves the tenant via a real DB lookup by key
   // (tenant-routing.ts enabledTenantByKey) — needs persisted rows.
   const acme = await seedTenant(stack, { name: "Acme", persist: true });
@@ -127,8 +132,7 @@ afterAll(async () => stack?.cleanup());
 
 beforeEach(async () => {
   await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
-  clearInbox(acmeId);
-  clearInbox(globexId);
+  emailTransport.sent.length = 0;
 });
 
 describe("anonymous multi-tenant RSVP write (real resolver)", () => {
@@ -281,36 +285,89 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   });
 });
 
-describe("guest confirmation mail (mail-foundation direct)", () => {
-  test("sends a confirmation to the host tenant's inbox when email is given", async () => {
+describe("guest confirmation mail (notification template)", () => {
+  test("sends the confirmation to the guest with the event title and the answer", async () => {
     const res = await submit(acmeHostname, {
       eventId: acmeEventId,
-      name: "Alice",
+      name: "Zelda Quuxington",
       email: "alice@example.com",
       status: "yes",
     });
     expect(res.status).toBe(200);
 
-    const inbox = getInbox(acmeId);
-    expect(inbox).toHaveLength(1);
-    expect(inbox[0]?.to).toBe("alice@example.com");
-    // The real event title, not the "your event" fallback — proves the
-    // event-title lookup in sendRsvpConfirmation actually matched a row.
-    expect(inbox[0]?.subject).toContain("Rooftop Launch Party");
-    // Lands in the right tenant buffer — Globex stays empty.
-    expect(getInbox(globexId)).toHaveLength(0);
+    expect(emailTransport.sent).toHaveLength(1);
+    const mail = emailTransport.sent[0];
+    expect(mail?.to).toBe("alice@example.com");
+    expect(mail?.subject).toBe('Your RSVP for "Rooftop Launch Party"');
+    expect(mail?.html).toContain("Rooftop Launch Party");
+    expect(mail?.html).toContain("Coming");
+    expect(mail?.text).toContain("Rooftop Launch Party");
+    expect(mail?.text).toContain("Coming");
   });
 
-  test("escapes HTML in the guest name — no injection into the mail body", async () => {
+  test("renders the German template for a German guest", async () => {
+    await submit(
+      acmeHostname,
+      { eventId: acmeEventId, name: "Gast", email: "gast@example.com", status: "no" },
+      { "X-Locale": "de" },
+    );
+    const mail = emailTransport.sent[0];
+    expect(mail?.subject).toBe("Deine Antwort für „Rooftop Launch Party“");
+    expect(mail?.text).toContain("Ich komme nicht");
+  });
+
+  test("keeps the unverified guest name out of the mail", async () => {
     await submit(acmeHostname, {
       eventId: acmeEventId,
-      name: "<script>alert(1)</script>",
+      name: "Zelda Quuxington",
       email: "mallory@example.com",
-      status: "yes",
+      status: "maybe",
     });
-    const mail = getInbox(acmeId)[0] as { html: string } | undefined;
+    const mail = emailTransport.sent[0];
+    expect(mail).toBeDefined();
+    expect(`${mail?.subject}${mail?.html}${mail?.text}`).not.toContain("Zelda");
+  });
+
+  test("escapes HTML in the event title — no injection into the mail body", async () => {
+    // The free tier caps at one event per tenant, so the existing event is renamed and restored.
+    const retitle = async (title: string) => {
+      const { version } = await stack.http.queryOk<{ version: number }>(
+        "showpony:query:event:detail",
+        { id: acmeEventId },
+        acmeHost,
+      );
+      await stack.http.writeOk(
+        "showpony:write:event:update",
+        { id: acmeEventId, version, changes: { title } },
+        acmeHost,
+      );
+    };
+    await retitle("<script>alert(1)</script>");
+    try {
+      await submit(acmeHostname, {
+        eventId: acmeEventId,
+        name: "Mallory",
+        email: "mallory@example.com",
+        status: "yes",
+      });
+    } finally {
+      await retitle("Rooftop Launch Party");
+    }
+    const mail = emailTransport.sent[0];
     expect(mail?.html).toContain("&lt;script&gt;");
     expect(mail?.html).not.toContain("<script>");
+  });
+
+  test("the mail names the event of the tenant the guest replied to", async () => {
+    await submit(globexHostname, {
+      eventId: globexEventId,
+      name: "Bob",
+      email: "bob@example.com",
+      status: "yes",
+    });
+    expect(emailTransport.sent.map((mail) => mail.subject)).toEqual([
+      'Your RSVP for "Globex Kickoff"',
+    ]);
   });
 
   test("no mail when the guest skips the email field", async () => {
@@ -320,6 +377,17 @@ describe("guest confirmation mail (mail-foundation direct)", () => {
       status: "maybe",
     });
     expect(res.status).toBe(200);
-    expect(getInbox(acmeId)).toHaveLength(0);
+    expect(emailTransport.sent).toHaveLength(0);
+  });
+
+  test("no mail when the RSVP is rejected", async () => {
+    const res = await submit(acmeHostname, {
+      eventId: globexEventId,
+      name: "Mallory",
+      email: "mallory@example.com",
+      status: "yes",
+    });
+    expect(res.status).toBe(404);
+    expect(emailTransport.sent).toHaveLength(0);
   });
 });

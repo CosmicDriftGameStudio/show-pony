@@ -1,6 +1,5 @@
 // show-pony — event + RSVP feature (server registration only).
 
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
 import {
   access,
   defineEntityDetailHandler,
@@ -20,6 +19,11 @@ import { rsvpSubmitHandler } from "./handlers/rsvp-submit.write";
 import { usageQuery } from "./handlers/usage.query";
 import { showPonyTranslations } from "./i18n";
 import { INVITE_BRANDING_KEYS } from "./invite-branding";
+import {
+  RSVP_CONFIRMATION_NOTIFICATION,
+  RSVP_CONFIRMATION_VARIABLES,
+  rsvpConfirmationTemplate,
+} from "./lib/rsvp-confirmation-mail";
 import { registerShowPonyNav } from "./register/nav";
 import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
@@ -33,11 +37,16 @@ const rsvpReadAccess = { access: { roles: access.admin } } as const;
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
-  r.requires(mailFoundationFeature.name, "config", "managed-pages");
+  r.requires("config", "managed-pages");
 
   r.config({ keys: INVITE_BRANDING_KEYS });
 
   r.translations({ keys: showPonyTranslations });
+
+  r.notification(RSVP_CONFIRMATION_NOTIFICATION, {
+    variables: RSVP_CONFIRMATION_VARIABLES,
+    localizedTemplate: rsvpConfirmationTemplate,
+  });
 
   r.entity("event", eventEntity);
   r.writeHandler(eventCreateHandler);

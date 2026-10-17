@@ -10,8 +10,6 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { mailFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/mail-foundation";
-import { mailTransportInMemoryFeature } from "@cosmicdrift/kumiko-bundled-features/mail-transport-inmemory";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { EntityId, SessionUser, TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
@@ -34,9 +32,7 @@ const GUEST_TWO = "Bartholomew Grumpkin";
 const STALE_GUEST = "Ghostwriter Vanished";
 const OTHER_TENANT_GUEST = "Cornelius Fandango";
 
-const configResolver = createConfigResolver({
-  appOverrides: new Map([["mail-foundation:config:provider", "inmemory"]]),
-});
+const configResolver = createConfigResolver();
 
 // Unique prefix: parallel runs and other apps share the same Meilisearch.
 const connection: MeilisearchConnection = {
@@ -87,8 +83,6 @@ beforeAll(async () => {
     [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
-      mailFoundationFeature,
-      mailTransportInMemoryFeature,
       showPonyFeature,
     ],
     {
