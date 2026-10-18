@@ -1,114 +1,44 @@
-// Production bootstrap for show-pony (Docker / any container host).
-//
-// Same shape as bin/server.ts (dev) but for production: runProdApp, https
-// origins, env-driven admin + base domain.
-//
-// Required env: DATABASE_URL, REDIS_URL, JWT_SECRET, BASE_DOMAIN,
-//   DEMO_ADMIN_EMAIL, DEMO_ADMIN_PASSWORD (the names the Pulumi createKumikoApp
-//   deploy helper injects). Optional: PORT (default 3000), BUILD_VERSION,
-//   DEMO_READ_ONLY=true (live cloud demo — blocks /api/write, shows login hints),
-//   KUMIKO_TRUSTED_PROXY_HOPS (1 behind the k3s ingress-nginx; unset means every
-//   guest shares one rate-limit bucket for rsvp:submit and event-by-slug).
-//   BASE_DOMAIN is the host's surface, e.g. show-pony.kumiko.rocks — guest
-//   pages live on <key>.<BASE_DOMAIN>.
-
+// Production entry. Env contract and the full var list: bin/env-schema.ts.
 import {
   createConfigAccessorFactory,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
-import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
-import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
-import type { Registry } from "@cosmicdrift/kumiko-framework/engine";
+import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
-import { withDemoReadOnlyFetch } from "../src/demo-mode";
-import { buildDemoModeRoutes } from "../src/demo-mode-routes";
-import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
-import { buildTermsRoutes } from "../src/legal-terms";
-import { dispatchShowPonyApexStatic } from "../src/marketing/locale-routes";
+import appConfig from "../kumiko.config";
+import { buildDemoNotice } from "../src/demo-mode-notice";
+import { DEFAULT_TIER, priceToTierFromEnv, TIER_NAMES } from "../src/features/show-pony/tier-map";
+import { createShowPonyHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
-import { buildAppFeatures } from "../src/run-config";
-import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
-import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
-import { rebuildAllTenantSearchIndexes, resolveSearchAdapter } from "./search-wiring";
-import { seedLegalContent } from "./seed-legal-content";
-import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
+import { bindSubdomainPageResolver } from "../src/tenant-routing";
+import { env, isDryRun } from "./env";
+import { showPonyEnvSchema } from "./env-schema";
+import { buildProdAuthOptions, buildProdSeeds, heroAssetRoute } from "./prod-options";
+import { resolveSearchAdapter } from "./search-wiring";
 
-function required(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`show-pony: missing required env var ${name}`);
-  return value;
-}
-
-const BASE_DOMAIN = required("BASE_DOMAIN");
-const APEX_ORIGIN = `https://${BASE_DOMAIN}`;
-const port = Number.parseInt(process.env["PORT"] ?? "3000", 10);
-const searchWiring = resolveSearchAdapter({
-  MEILI_URL: process.env["MEILI_URL"],
-  MEILI_MASTER_KEY: process.env["MEILI_MASTER_KEY"],
-});
-// registry is only reachable via extraContext (ProdSeedFn gets {db} only) —
-// capture it here so the boot-time search-index seed below can use it.
-let boundRegistry: Registry | null = null;
-
+// BASE_DOMAIN is required, so the placeholder only exists for the dry run's empty env.
+const BASE_DOMAIN = env.BASE_DOMAIN ?? "dry-run.invalid";
 const configResolver = createConfigResolver();
+const priceToTier = priceToTierFromEnv(env);
 
-await renderAllMarketingPages(APEX_ORIGIN);
+// The dry run only prints the env inventory: no dist writes, no search wiring.
+if (!isDryRun) await renderAllMarketingPages(`https://${BASE_DOMAIN}`);
+const searchWiring = resolveSearchAdapter(isDryRun ? {} : env);
 
-const stripeBilling = buildStripeBillingConfig({
-  STRIPE_API_KEY: process.env["STRIPE_API_KEY"],
-  STRIPE_WEBHOOK_SECRET: process.env["STRIPE_WEBHOOK_SECRET"],
-  STRIPE_PRICE_STARTER: process.env["STRIPE_PRICE_STARTER"],
-  STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
-});
-
-// After the FIRST deploy that wires a real KMS here (kms/blindIndexKey below
-// switch from the plaintext branch to actual credentials), run
-// `bun bin/ops/backfill-pii.ts` once — pre-KMS RSVP guest events (name/email/
-// note) stay plaintext in the event log otherwise, and crypto-shredding:
-// write:forget-subject on one of them would report success without erasing
-// anything (show-pony#130).
-const kmsWiring = resolveKmsWiring(process.env, {
-  logPrefix: "[show-pony]",
-  plaintextReason: "show-pony demo app, no subject-keys KMS provisioned",
-});
-if ("allowPlaintextPii" in kmsWiring) {
-  // biome-ignore lint/suspicious/noConsole: intentional operator-visible plaintext-PII boot warning
-  console.warn(`[show-pony] PII IS STORED IN PLAINTEXT — ${kmsWiring.allowPlaintextPii}`);
-}
-
-const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
-async function serveHeroAsset(file: string): Promise<Response | null> {
-  if (!isAssetName(file)) return null;
-  const f = Bun.file(`./dist/heroes/${file}`);
-  return (await f.exists()) ? new Response(f) : null;
-}
-
-const handle = await runProdApp({
-  features: [
-    ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: APEX_ORIGIN }),
-    ...(hasConfiguredPrices(stripeBilling)
-      ? [
-          createSubscriptionStripeFeature({
-            ...(stripeBilling.webhookSecret !== undefined && {
-              webhookSecret: stripeBilling.webhookSecret,
-            }),
-            ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
-            priceToTier: stripeBilling.priceToTier,
-          }),
-        ]
-      : []),
-  ],
-  autoListen: false,
-  // Subject-keys KMS when PLATFORM_KEK / SUBJECT_KEYS_DATABASE_URL /
-  // KUMIKO_BLIND_INDEX_KEY are all set; otherwise plaintext with an explicit
-  // reason (demo / local). Partial trio is a boot error.
-  ...kmsWiring,
+// After the first real KMS deploy run `bun kumiko ops backfill-pii` once.
+await runProdApp({
+  features: allAppFeatures(appConfig),
+  envSchema: showPonyEnvSchema,
+  pulumiPrefix: "showPony",
+  kmsMode: { plaintextReason: "show-pony demo app, no subject-keys KMS provisioned" },
+  ...(env.KUMIKO_TRUSTED_PROXY_HOPS !== undefined && {
+    trustedProxyHops: Number.parseInt(env.KUMIKO_TRUSTED_PROXY_HOPS, 10),
+  }),
   staticDir: "./dist",
   seedsDir: "./seeds",
   extraContext: ({ registry, db }) => {
-    boundRegistry = registry;
+    bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
     return {
       configResolver,
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -116,105 +46,23 @@ const handle = await runProdApp({
       searchAdapter: searchWiring.adapter,
     };
   },
-  // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
-  anonymousAccess: ({ db }) => {
-    bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-    return {};
+  hostDispatch: createShowPonyHostDispatch(BASE_DOMAIN),
+  auth: buildProdAuthOptions({
+    baseDomain: BASE_DOMAIN,
+    adminEmail: env.DEMO_ADMIN_EMAIL,
+    adminPassword: env.DEMO_ADMIN_PASSWORD,
+  }),
+  seeds: buildProdSeeds(searchWiring),
+  demoMode: {
+    readOnly: env.DEMO_READ_ONLY === "true" || env.DEMO_READ_ONLY === "1",
+    notice: buildDemoNotice(BASE_DOMAIN),
   },
-  hostDispatch: ({ host, path }) => {
-    const h = hostnameOf(host);
-    if (h === BASE_DOMAIN || h === `www.${BASE_DOMAIN}`) {
-      const dispatched = dispatchShowPonyApexStatic(path);
-      if (dispatched !== null) return dispatched;
-      return { kind: "html", file: "admin.html" };
-    }
-    return { kind: "html", file: "index.html" };
-  },
-  auth: {
-    cookieDomain: BASE_DOMAIN,
-    allowedOrigins: [APEX_ORIGIN],
-    admin: {
-      email: required("DEMO_ADMIN_EMAIL"),
-      password: required("DEMO_ADMIN_PASSWORD"),
-      displayName: "Show-Pony Host",
-      memberships: [
-        {
-          tenantId: DEMO_TENANT.id,
-          tenantKey: DEMO_TENANT.tenantKey,
-          tenantName: DEMO_TENANT.name,
-          roles: ["Admin", "TenantAdmin"],
-        },
-        {
-          tenantId: ACME_TENANT.id,
-          tenantKey: ACME_TENANT.tenantKey,
-          tenantName: ACME_TENANT.name,
-          roles: ["Admin", "TenantAdmin"],
-        },
-      ],
+  ...(Object.keys(priceToTier).length > 0 && {
+    billing: {
+      stripe: { priceToTier },
+      defaultTier: DEFAULT_TIER,
+      tierNames: TIER_NAMES,
     },
-  },
-  seeds: [
-    async ({ db }) => {
-      if (!boundRegistry)
-        throw new Error(
-          "[show-pony][search] boundRegistry not set — extraContext must run before seeds",
-        );
-      // Rebuilt on every boot: resetDbOnDeploy wipes the DB but not the
-      // Meilisearch volume, which would keep documents of vanished rows/tenants.
-      try {
-        const summary = await rebuildAllTenantSearchIndexes(db, boundRegistry, searchWiring);
-        // biome-ignore lint/suspicious/noConsole: operator-visible boot summary
-        console.info(`[show-pony][search] index rebuilt: ${JSON.stringify(summary)}`);
-      } catch (err) {
-        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, must not crash-loop the pod when the rebuild fails
-        console.warn(`[show-pony][search] search index rebuild failed: ${err}`);
-      }
-    },
-    async ({ db }) => {
-      await seedLegalContent(db);
-    },
-    async ({ db }) => {
-      await seedSysadmin(db, {
-        email: required("DEMO_SYSADMIN_EMAIL"),
-        password: required("DEMO_SYSADMIN_PASSWORD"),
-      });
-    },
-  ],
-  extraRoutes: [
-    ...buildDemoModeRoutes(port),
-    ...buildTermsRoutes(),
-    ...(hasConfiguredPrices(stripeBilling) ? [buildSubscriptionWebhookRoute()] : []),
-    {
-      method: "GET",
-      path: "/heroes/:file",
-      entry: "anonymous",
-      handler: async (c) => {
-        const file = c.req.param("file");
-        const r = file ? await serveHeroAsset(file) : null;
-        return r ?? c.notFound();
-      },
-    } satisfies ExtraRouteDefinition,
-  ],
+  }),
+  extraRoutes: [heroAssetRoute],
 });
-
-const fetch = withDemoReadOnlyFetch(handle.fetch);
-
-if (typeof Bun !== "undefined") {
-  handle.server = Bun.serve({ port, fetch, idleTimeout: 0 });
-
-  let shuttingDown = false;
-  const shutdown = async (_signal: string) => {
-    // skip: shutdown already in progress — nothing left to do.
-    if (shuttingDown) return;
-    shuttingDown = true;
-    try {
-      await handle.stop();
-    } catch (e) {
-      console.error("[runProdApp] error during shutdown:", e);
-    } finally {
-      process.exit(0);
-    }
-  };
-  process.on("SIGTERM", () => void shutdown("SIGTERM"));
-  process.on("SIGINT", () => void shutdown("SIGINT"));
-}

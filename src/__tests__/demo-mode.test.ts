@@ -1,69 +1,45 @@
 import { describe, expect, test } from "bun:test";
-import { demoModePayload, isDemoReadOnly, withDemoReadOnlyFetch } from "../demo-mode";
+import {
+  buildDemoNotice,
+  DEMO_ACCOUNT_LABELS,
+  type DemoModePayload,
+  findDemoLinkHref,
+  HOST_LOGIN_LINK_LABEL,
+  TUTORIAL_LINK_LABEL,
+  TUTORIAL_URL,
+} from "../demo-mode-notice";
 
-describe("demo-mode", () => {
-  test("isDemoReadOnly respects env", () => {
-    expect(isDemoReadOnly({ DEMO_READ_ONLY: "true" })).toBe(true);
-    expect(isDemoReadOnly({ DEMO_READ_ONLY: "1" })).toBe(true);
-    expect(isDemoReadOnly({})).toBe(false);
+describe("demo-mode notice", () => {
+  test("publishes the host and sysadmin accounts and both links", () => {
+    const notice = buildDemoNotice("show-pony.kumiko.rocks");
+    expect(notice.accounts).toEqual(["admin", "sysadmin"]);
+    expect(notice.links.map((link) => link.href)).toEqual([
+      "https://show-pony.kumiko.rocks",
+      TUTORIAL_URL,
+    ]);
   });
 
-  test("demoModePayload exposes accounts only when read-only", () => {
-    const open = demoModePayload({}, 4180);
-    expect(open.readOnly).toBe(false);
-    expect(open.accounts).toEqual([]);
-
-    const ro = demoModePayload(
-      {
-        DEMO_READ_ONLY: "true",
-        DEMO_ADMIN_EMAIL: "host@demo.test",
-        DEMO_ADMIN_PASSWORD: "secret",
-        DEMO_SYSADMIN_EMAIL: "sys@demo.test",
-        DEMO_SYSADMIN_PASSWORD: "secret2",
-        BASE_DOMAIN: "show-pony.kumiko.rocks",
-      },
-      4180,
-    );
-    expect(ro.readOnly).toBe(true);
-    expect(ro.accounts).toHaveLength(2);
-    expect(ro.hostLoginUrl).toBe("https://show-pony.kumiko.rocks");
-  });
-
-  test("withDemoReadOnlyFetch blocks POST /api/write", async () => {
-    const inner = async (req: Request) =>
-      Response.json({ ok: true, path: new URL(req.url).pathname });
-    const guarded = withDemoReadOnlyFetch(inner, { DEMO_READ_ONLY: "true" });
-    const blocked = await guarded(
-      new Request("https://show-pony.kumiko.rocks/api/write", { method: "POST" }),
-    );
-    expect(blocked.status).toBe(403);
-    const allowed = await guarded(
-      new Request("https://show-pony.kumiko.rocks/api/query", { method: "POST" }),
-    );
-    expect(allowed.status).toBe(200);
-  });
-
-  test("withDemoReadOnlyFetch blocks mutating auth routes, allows login/logout", async () => {
-    const inner = async (req: Request) =>
-      Response.json({ ok: true, path: new URL(req.url).pathname });
-    const guarded = withDemoReadOnlyFetch(inner, { DEMO_READ_ONLY: "true" });
-
-    for (const path of [
-      "/api/auth/switch-tenant",
-      "/api/auth/signup-confirm",
-      "/api/auth/invite-accept",
-      "/api/auth/invite-accept-with-login",
-      "/api/auth/invite-signup-complete",
-    ]) {
-      const blocked = await guarded(
-        new Request(`https://show-pony.kumiko.rocks${path}`, { method: "POST" }),
-      );
-      expect(blocked.status).toBe(403);
+  test("every published account role has a label", () => {
+    for (const role of buildDemoNotice("x.test").accounts) {
+      expect(DEMO_ACCOUNT_LABELS[role].en.length).toBeGreaterThan(0);
     }
+  });
 
-    const login = await guarded(
-      new Request("https://show-pony.kumiko.rocks/api/auth/login", { method: "POST" }),
-    );
-    expect(login.status).toBe(200);
+  test("findDemoLinkHref picks by label, not by position", () => {
+    const payload: DemoModePayload = {
+      readOnly: true,
+      notice: {
+        accounts: [],
+        links: [
+          { label: TUTORIAL_LINK_LABEL, href: "https://docs.test/" },
+          { label: HOST_LOGIN_LINK_LABEL, href: "https://host.test" },
+        ],
+      },
+    };
+    expect(findDemoLinkHref(payload, HOST_LOGIN_LINK_LABEL)).toBe("https://host.test");
+    expect(findDemoLinkHref(payload, TUTORIAL_LINK_LABEL)).toBe("https://docs.test/");
+    expect(
+      findDemoLinkHref({ readOnly: false, notice: { accounts: [] } }, TUTORIAL_LINK_LABEL),
+    ).toBeUndefined();
   });
 });

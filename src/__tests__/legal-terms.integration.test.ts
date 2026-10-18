@@ -1,16 +1,18 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createLegalPagesFeature } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createTemplateResolverFeature } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { seedLegalContentFromJson } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import type { TestStack } from "@cosmicdrift/kumiko-testing/stack";
-import { buildTermsRoutes } from "../legal-terms";
+import { showPonyLegalLayout } from "../marketing/layouts/legal";
 
 let stack: TestStack;
 
 beforeAll(async () => {
-  stack = await setupAppTestStack([createTemplateResolverFeature()], {
-    extraRoutes: buildTermsRoutes(),
-  });
+  stack = await setupAppTestStack([
+    createTemplateResolverFeature(),
+    createLegalPagesFeature({ wrapLayout: showPonyLegalLayout, terms: true }),
+  ]);
   await seedLegalContentFromJson(stack.db, [
     { slug: "terms", locale: "en", title: "Terms Title EN", content: "Some **bold** terms." },
   ]);
@@ -30,6 +32,8 @@ describe("GET /legal/terms", () => {
     const html = await res.text();
     expect(html).toContain("Terms Title EN");
     expect(html).toContain("<strong>bold</strong>");
+    expect(html).toContain("<header");
+    expect(html).toContain("Show Pony");
   });
 
   test("answers 304 when If-None-Match carries the current etag", async () => {

@@ -6,30 +6,31 @@
 // (config/user/tenant/auth-email-password/secrets).
 
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
-import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
 import { createAuthFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
 } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
-import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
 import { createDeliveryFeature } from "@cosmicdrift/kumiko-bundled-features/delivery";
+import {
+  createHostRoutingFeature,
+  type HostRoutingOptions,
+} from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
+import { createLegalPagesFeature } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import {
   createMetricsFeature,
   createSystemMetricsFeature,
   DEFAULT_METRICS,
 } from "@cosmicdrift/kumiko-bundled-features/metrics";
-import { createRateLimitingFeature } from "@cosmicdrift/kumiko-bundled-features/rate-limiting";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
-import { createSessionsFeature } from "@cosmicdrift/kumiko-bundled-features/sessions";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import {
-  composePagesStack,
   composeRendererStack,
+  composeSecurityStack,
 } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
@@ -37,8 +38,8 @@ import { appShellFeature } from "./features/app-shell/feature";
 import { createShowPonyBillingFoundationFeature } from "./features/show-pony/billing/plan-catalog";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
-import { renderLegalLayout } from "./legal-layout";
-import { createShowPonyTenantRoutingFeature, resolveSubdomainPageTenant } from "./tenant-routing";
+import { showPonyLegalLayout } from "./marketing/layouts/legal";
+import { resolveSubdomainPageTenant } from "./tenant-routing";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -61,14 +62,26 @@ export function resolveBaseDomainFromEnv(
   return env["BASE_DOMAIN"] ?? "show-pony.localhost";
 }
 
+/** The host decides the tenant: apex = host surface, `<key>.<baseDomain>` = guest pages.
+ *  No apexAnonymousTenantId, so anonymous writes on the apex keep answering tenant_required. */
+export function showPonyHostRoutingOptions(baseDomain: string): HostRoutingOptions {
+  return {
+    tenantBy: "host",
+    baseDomain,
+    apex: { file: "admin.html" },
+    tenant: { file: "index.html" },
+    unknownTenant: { file: "index.html" },
+  };
+}
+
 export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition[] {
   return [
     localeDe(),
     createAuthFoundationFeature(),
-    createSessionsFeature(),
-    createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
+    ...composeSecurityStack(),
+    createHostRoutingFeature(showPonyHostRoutingOptions(routing.baseDomain)),
     ...composeRendererStack(),
-    ...composePagesStack({ wrapLayout: renderLegalLayout }),
+    createLegalPagesFeature({ wrapLayout: showPonyLegalLayout, terms: true }),
     createManagedPagesFeature({
       resolveApexTenant: resolveSubdomainPageTenant,
       allowCustomCss: false,
@@ -80,14 +93,11 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
       transport: createInMemoryTransport(),
       resolveEmail: async () => null,
     }),
-    createRateLimitingFeature(),
-    createAuditFeature(),
     createJobsFeature(),
     createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
     createComplianceProfilesFeature(),
     createTenantLifecycleFeature(),
     createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
-    createCryptoShreddingFeature(),
     createSecretsFeature(),
     createMetricsFeature({ metrics: DEFAULT_METRICS }),
     createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),

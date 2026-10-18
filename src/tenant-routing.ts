@@ -1,96 +1,28 @@
-// Subdomain → host tenant. The anonymous RSVP write needs the tenant from the
-// request envelope (the Host header), never from the payload — otherwise a
-// guest could forge it. We map <key>.<baseDomain> straight onto the bundled
-// `tenant.key`, so there's no extra profile schema. Apex / www / unknown all
-// resolve to null (no tenant).
-//
-// createShowPonyAnonymousAccess is the shared implementation:
-// createShowPonyTenantRoutingFeature (auth-foundation providers, production
-// since #1374) builds both its resolver and existence plugin on it, and
-// isolated test stacks that inject Resolved callbacks without mounting
-// providers call it directly.
-//
-// tenantExists is the defense-in-depth check against a forged X-Tenant header:
-// only a real, enabled tenant row counts.
+// Host → tenant lookup for managed-pages `resolveApexTenant` (branding reads on the
+// subdomain pages). The anonymous-request tenant itself comes from the FW host-routing
+// feature, not from here.
 
+import { normalizeHostname } from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import {
-  type AuthProviderBuildDeps,
-  EXT_TENANT_EXISTENCE,
-  EXT_TENANT_RESOLVER,
-  type TenantExistenceProvider,
-  type TenantExistsFn,
-  type TenantResolverFn,
-  type TenantResolverProvider,
-} from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
-import { tenantTable } from "@cosmicdrift/kumiko-bundled-features/tenant";
+  isTenantServingPublicContent,
+  type TenantLifecycleStatus,
+  tenantTable,
+} from "@cosmicdrift/kumiko-bundled-features/tenant";
 import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
 import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
-import {
-  defineFeature,
-  type FeatureDefinition,
-  isSystemTenant,
-  type TenantId,
-} from "@cosmicdrift/kumiko-framework/engine";
+import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 
-// Strip the port: "acme.show-pony.localhost:4180" → "acme.show-pony.localhost".
-export function hostnameOf(host: string): string {
-  const i = host.indexOf(":");
-  return i === -1 ? host : host.slice(0, i);
-}
+type TenantRow = {
+  id: TenantId;
+  isEnabled: boolean;
+  status: TenantLifecycleStatus;
+};
 
-type HeaderReader = { req: { header: (n: string) => string | undefined } };
-
-function isHeaderReader(c: unknown): c is HeaderReader {
-  return (
-    typeof c === "object" &&
-    c !== null &&
-    "req" in c &&
-    typeof c.req === "object" &&
-    c.req !== null &&
-    "header" in c.req &&
-    typeof c.req.header === "function"
-  );
-}
-
-type TenantRow = { id: TenantId; isEnabled: boolean };
-
-async function enabledTenantByKey(db: DbConnection, key: string): Promise<TenantId | null> {
-  const row = await fetchOne<TenantRow>(db, tenantTable, { key });
-  return row !== undefined && row.isEnabled === true ? row.id : null;
-}
-
-async function isTenantEnabled(db: DbConnection, id: TenantId): Promise<boolean> {
-  const row = await fetchOne<TenantRow>(db, tenantTable, { id });
-  return row !== undefined && row.isEnabled === true;
-}
-
-export function createShowPonyTenantResolver(config: { db: DbConnection; baseDomain: string }) {
-  const { db, baseDomain } = config;
-  return {
-    tenantResolver: async (c: unknown): Promise<TenantId | null> => {
-      if (!isHeaderReader(c)) return null;
-      const host = hostnameOf(c.req.header("Host") ?? "");
-      // Apex / www: the host's own login, not a guest surface — no tenant.
-      if (host === baseDomain || host === `www.${baseDomain}`) return null;
-      // <key>.<baseDomain>: the subdomain IS the tenant key.
-      if (host.endsWith(`.${baseDomain}`)) {
-        return enabledTenantByKey(db, host.slice(0, -(baseDomain.length + 1)));
-      }
-      return null;
-    },
-    tenantExists: (id: TenantId): Promise<boolean> =>
-      isSystemTenant(id) ? Promise.resolve(true) : isTenantEnabled(db, id),
-    // Host-derived, not client-controlled — see createShowPonyAnonymousAccess.
-    resolverTrust: "authoritative" as const,
-  };
-}
-
-/** Apex anonymous routes (legal pages) need SYSTEM tenant; subdomains keep host tenant. */
 // Module-global singleton, not per-stack state: acceptable because
-// buildAppFeatures(...)/resolveApexTenant are wired once at static boot,
-// never per request, and this process only ever runs one app stack. Bind
-// BEFORE the first request that needs it (bindSubdomainPageResolver at
-// boot) — a second stack in the same process would silently share this db.
+// resolveApexTenant is wired once at static boot, never per request, and this process only
+// ever runs one app stack. Bind BEFORE the first request that needs it
+// (bindSubdomainPageResolver at boot) — a second stack in the same process would silently
+// share this db.
 let subdomainPageResolver: { db: DbConnection; baseDomain: string } | null = null;
 
 /** Wire db for managed-pages `resolveApexTenant` (boot hook — wired once at static boot). */
@@ -102,75 +34,10 @@ export function bindSubdomainPageResolver(config: { db: DbConnection; baseDomain
 export async function resolveSubdomainPageTenant(host: string): Promise<TenantId | null> {
   if (!subdomainPageResolver) return null;
   const { db, baseDomain } = subdomainPageResolver;
-  const h = hostnameOf(host);
-  if (h === baseDomain || h === `www.${baseDomain}`) return null;
-  if (h.endsWith(`.${baseDomain}`)) {
-    return enabledTenantByKey(db, h.slice(0, -(baseDomain.length + 1)));
-  }
-  return null;
-}
-
-export function createShowPonyAnonymousAccess(config: { db: DbConnection; baseDomain: string }): {
-  tenantResolver: TenantResolverFn;
-  tenantExists: TenantExistsFn;
-  resolverTrust: "authoritative";
-} {
-  const subdomain = createShowPonyTenantResolver(config);
-  const { baseDomain } = config;
-  return {
-    tenantResolver: async (c: unknown): Promise<TenantId | null> => {
-      if (!isHeaderReader(c)) return null;
-      const host = hostnameOf(c.req.header("Host") ?? "");
-      // Apex has no anonymous tenant: legal/marketing pages are pre-rendered
-      // static HTML (renderAllMarketingPages) and branding reads go through
-      // the separate resolveSubdomainPageTenant/bindSubdomainPageResolver
-      // pipeline, not this resolver. Returning null here (not
-      // SYSTEM_TENANT_ID) means an apex-origin anonymous /api/write or
-      // /api/query — with or without an X-Tenant header — gets
-      // "tenant_required" from the authoritative resolver instead of
-      // silently landing on SYSTEM_TENANT_ID.
-      if (host === baseDomain || host === `www.${baseDomain}`) return null;
-      return subdomain.tenantResolver(c);
-    },
-    tenantExists: subdomain.tenantExists,
-    // Host-derived, not client-controlled — the resolver's answer is final.
-    // A client-supplied X-Tenant header disagreeing with the subdomain (e.g.
-    // a guest on acme.show-pony.<domain> claiming Globex's real tenant id)
-    // is rejected with 400 tenant_mismatch instead of silently overriding
-    // the subdomain.
-    resolverTrust: "authoritative" as const,
-  };
-}
-
-export type ShowPonyTenantRoutingFeatureConfig = {
-  readonly baseDomain: string;
-};
-
-/**
- * Registers subdomain tenantResolver + tenantExists as auth-foundation
- * providers (#1374). Mount alongside auth-foundation; boot merges them into
- * anonymousAccess via resolveAnonymousAccessFromRegistry.
- */
-export function createShowPonyTenantRoutingFeature(
-  config: ShowPonyTenantRoutingFeatureConfig,
-): FeatureDefinition {
-  const { baseDomain } = config;
-  return defineFeature("show-pony-tenant-routing", (r) => {
-    r.requires({ features: ["auth-foundation"] });
-    const resolverPlugin: TenantResolverProvider = {
-      trust: "authoritative",
-      build: (deps: AuthProviderBuildDeps) => {
-        const built = createShowPonyAnonymousAccess({ db: deps.db, baseDomain });
-        return built.tenantResolver;
-      },
-    };
-    const existencePlugin: TenantExistenceProvider = {
-      build: (deps: AuthProviderBuildDeps) => {
-        const built = createShowPonyAnonymousAccess({ db: deps.db, baseDomain });
-        return built.tenantExists;
-      },
-    };
-    r.useExtension(EXT_TENANT_RESOLVER, "subdomain", resolverPlugin);
-    r.useExtension(EXT_TENANT_EXISTENCE, "db", existencePlugin);
-  });
+  const hostname = normalizeHostname(host);
+  if (hostname === null || !hostname.endsWith(`.${baseDomain}`)) return null;
+  const key = hostname.slice(0, -(baseDomain.length + 1));
+  if (key === "www") return null;
+  const row = await fetchOne<TenantRow>(db, tenantTable, { key });
+  return row !== undefined && isTenantServingPublicContent(row) ? row.id : null;
 }

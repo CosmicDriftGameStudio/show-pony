@@ -32,7 +32,7 @@ services:
       MEILI_MASTER_KEY: kumiko-dev-key
       MEILI_ENV: development
     ports:
-      - "17700:7700"
+      - "17710:7700"
     volumes:
       - showpony-meili:/meili_data
     healthcheck:

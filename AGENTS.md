@@ -16,8 +16,8 @@ Read the framework guide before you add or change a feature. The sections below 
 
 Composed in `src/run-config.ts` (`buildAppFeatures`):
 
-- App features: `show-pony` (events, RSVPs, billing plan catalog, tenant routing by subdomain) and `app-shell` in `src/features/`.
-- Bundled: auth-foundation, sessions, managed-pages, delivery, channel-email (in-memory transport), rate-limiting, audit, jobs, tier-engine, compliance-profiles, tenant-lifecycle, crypto-shredding, secrets, metrics, admin-shell, plus the renderer and pages stacks and the German locale.
+- App features: `show-pony` (events, RSVPs, billing plan catalog) and `app-shell` in `src/features/`.
+- Bundled: auth-foundation, host-routing (tenant by subdomain), legal-pages (imprint, privacy, terms), managed-pages, delivery, channel-email (in-memory transport), jobs, tier-engine, compliance-profiles, tenant-lifecycle, secrets, metrics, admin-shell, the security stack (sessions, crypto-shredding, rate-limiting, audit), the renderer stack and the German locale.
 
 Mount more in `src/run-config.ts`. App code lives in `src/features/<name>/`.
 
@@ -25,14 +25,16 @@ Mount more in `src/run-config.ts`. App code lives in `src/features/<name>/`.
 
 | Command | What it does |
 |---|---|
-| `docker compose up -d` | local Postgres and Redis |
+| `docker compose up -d` | local Postgres, Redis and Meilisearch (port 17710) |
 | `bun dev` | run the app on `show-pony.localhost:4180` |
+| `bun start` | prod boot (`bin/main.ts`); env contract in `bin/env-schema.ts`, local values in `.env.example` |
 | `bun run typecheck` | `tsc` for the app and `e2e/` |
 | `bun run lint` | Biome |
-| `bun kumiko check` | Kumiko guards, schema and upgrade-state checks |
+| `bun run check` | Kumiko guards, schema and upgrade-state checks |
 | `bun run test` | unit tests |
 | `bun run test:integration` | integration tests against a real Postgres |
 | `bun run e2e` | Playwright end-to-end flows |
+| `bun kumiko ops backfill-pii` | one-off after the first deploy with a real KMS (prod boots with plaintext PII) |
 | `bun kumiko-upgrade --apply` | framework codemods after a version bump; resolve open entries with `--resolve` |
 
 ## App-specific rules
@@ -40,6 +42,6 @@ Mount more in `src/run-config.ts`. App code lives in `src/features/<name>/`.
 - ShowPony is a throwaway demo and tutorial, not a long-lived tenant database. Prod demo data is a resettable fixture: edit the single demo seed `seeds/2026-06-28-demo-event-rsvps.ts` and reset the demo DB; do not stack dated repair seeds.
 - Boot seeds must never throw. `seedsDir: "./seeds"` runs on every prod pod start, so a failing seed is a crash loop (`src/__tests__/seed-boot-safety.test.ts`).
 - `bun dev` skips `seedsDir`. Before shipping seed changes run `bin/main.ts` against Docker Postgres.
-- The host is decided by the subdomain a request arrives on, never by anything the guest sends. Keep anonymous writes (`rsvp:submit`) tenant-scoped through the subdomain resolver.
+- The host is decided by the subdomain a request arrives on, never by anything the guest sends. Keep anonymous writes (`rsvp:submit`) tenant-scoped through the `host-routing` feature (`showPonyHostRoutingOptions` in `src/run-config.ts`).
 - Never patch the cluster or rollout strategy to get past a boot failure; fix the seed or code and ship it through a PR.
 - After changes that affect the docs tutorial embeds, run `./scripts/sync-docs-samples.sh`.

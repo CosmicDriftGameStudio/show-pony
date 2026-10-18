@@ -1,3 +1,4 @@
+# kumiko-managed
 # Per-Dockerfile .dockerignore — Buildkit reads this when the
 # Dockerfile lives next to it (`deploy/Dockerfile` + `deploy/Dockerfile.dockerignore`).
 #

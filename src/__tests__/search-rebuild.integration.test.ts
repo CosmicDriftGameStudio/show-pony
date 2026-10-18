@@ -1,6 +1,6 @@
 // resetDbOnDeploy wipes the DB but the Meilisearch volume survives: the boot
 // rebuild must drop stale documents/indexes and re-derive the index from the
-// DB. Runs against a real Meilisearch (docker compose / CI service, port 17700)
+// DB. Runs against a real Meilisearch (docker compose / CI service, port 17710)
 // and needs it — no skip when it is missing.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
@@ -24,7 +24,7 @@ import {
 } from "../../bin/search-wiring";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyAnonymousAccess } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BASE_DOMAIN = "show-pony.test";
 const GUEST_ONE = "Zephyrine Quoxley";
@@ -36,7 +36,7 @@ const configResolver = createConfigResolver();
 
 // Unique prefix: parallel runs and other apps share the same Meilisearch.
 const connection: MeilisearchConnection = {
-  url: process.env["MEILI_URL"] ?? "http://localhost:17700",
+  url: process.env["MEILI_URL"] ?? "http://localhost:17710",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
   indexPrefix: `sp_rebuild_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}_`,
 };
@@ -81,12 +81,13 @@ async function findIds(query: string, forTenant: TenantId = tenantId): Promise<s
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
+      ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       showPonyFeature,
     ],
     {
-      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
         _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),

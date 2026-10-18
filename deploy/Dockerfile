@@ -1,15 +1,16 @@
 # syntax=docker/dockerfile:1.27
+# kumiko-managed
 #
 # Production-Image for show-pony.
 #
-# Server-Bundle variant — the runtime image doesn't know about the
-# monorepo any more, only:
+# Server-Bundle variant — the runtime image doesn't carry the source tree
+# or its node_modules any more, only:
 #
 #   dist/                  ← Client build (kumiko-build)
 #   dist-server/           ← Server bundle (bun build) + minimal package.json
 #   kumiko/migrations/     ← Checked-in SQL migrations applied by `kumiko schema apply`
 #
-# Build context: repository root (monorepo is used in the build stage).
+# Build context: repository root (the full source tree is only used in the build stage).
 
 ARG BUN_VERSION=1.4.0
 # Build identity — passed in by the CI workflow via --build-arg. Defaults
@@ -20,6 +21,7 @@ ARG BUILD_TIME=unknown
 # ----- build: produces dist/ + dist-server/ ---------------------------------
 FROM oven/bun:${BUN_VERSION}-alpine AS build
 WORKDIR /app
+
 # Manifests first for Docker layer cache — bun install only invalidates on
 # dependency change, not on every source edit.
 COPY package.json bun.lock bunfig.toml ./

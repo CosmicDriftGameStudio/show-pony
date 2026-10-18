@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# kumiko-managed
 # PRE_PUSH_SKIP is checked here too so the bypass works even without node_modules.
 if [ "${PRE_PUSH_SKIP:-0}" = "1" ]; then
   echo "[pre-push] PRE_PUSH_SKIP=1 — hook skipped"

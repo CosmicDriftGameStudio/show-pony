@@ -9,8 +9,8 @@ import { expect, test } from "@cosmicdrift/kumiko-testing/e2e";
 import { DEMO_HOST_PRESENTED_EMAIL, seedDemoHostTenant } from "../seeds/demo-host";
 import { seedLoopEvent, seedLoopGuest } from "../seeds/loops";
 import { APEX_URL, publicEventUrl, publicOrigin } from "./env";
-import { waitForWrite } from "./wait-for-write";
 import { HOST_VIEWPORT, PUBLIC_VIEWPORT, recordGif, recordMultiPartGif } from "./recorder";
+import { waitForWrite } from "./wait-for-write";
 
 const LOOP_DIR =
   process.env["LOOP_DIR"] ?? resolve(import.meta.dirname, "../../docs/loops/show-pony");
@@ -98,7 +98,10 @@ test("06-host-nav", async ({ browser, seedTenant }, testInfo) => {
       await page.getByRole("link", { name: /^Guest list$|^Gästeliste$/ }).click();
       await expect(page.getByText("Ava Chen").first()).toBeVisible();
       await hold(14);
-      await page.getByRole("link", { name: /^Events$|^Neues Event$/ }).first().click();
+      await page
+        .getByRole("link", { name: /^Events$|^Neues Event$/ })
+        .first()
+        .click();
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
       await hold(12);
     },
@@ -120,7 +123,9 @@ test("06-create-event", async ({ browser, seedTenant }, testInfo) => {
     async (page, { hold, type }) => {
       await tenant.loginAs(page, host);
       await page.goto(`${APEX_URL}/host/event-edit`);
-      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: /Edit event|Event bearbeiten/i }),
+      ).toBeVisible();
       await hold(10);
       await type(page.getByRole("textbox", { name: /Title/i }), "Summer Rooftop Meetup", 2);
       await type(page.getByRole("textbox", { name: /Slug/i }), "summer-rooftop-meetup", 2);
@@ -230,13 +235,24 @@ test("12-marketing-journey", async ({ browser }, testInfo) => {
       await page.goto(`${APEX_URL}/`);
       await expect(page.getByRole("heading", { name: /Your event/i })).toBeVisible();
       await hold(14);
-      await page.getByRole("link", { name: /^Features$/i }).first().click();
+      await page
+        .getByRole("link", { name: /^Features$/i })
+        .first()
+        .click();
       await expect(page.getByRole("heading", { name: /How Show Pony works/i })).toBeVisible();
       await hold(12);
-      await page.getByRole("link", { name: /^Pricing$/i }).first().click();
-      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible();
+      await page
+        .getByRole("link", { name: /^Pricing$/i })
+        .first()
+        .click();
+      await expect(
+        page.getByRole("heading", { name: /Plans for growing hosts/i }).first(),
+      ).toBeVisible();
       await hold(12);
-      await page.getByRole("link", { name: /^Login$/i }).first().click();
+      await page
+        .getByRole("link", { name: /^Login$/i })
+        .first()
+        .click();
       await expect(page.locator("#login-email")).toBeVisible();
       await hold(16);
     },

@@ -20,5 +20,3 @@ console.log("[copy-marketing-assets] public/screenshots → dist/screenshots");
 await cp("public/heroes", "dist/heroes", { recursive: true });
 // biome-ignore lint/suspicious/noConsole: build-script stdout
 console.log("[copy-marketing-assets] public/heroes → dist/heroes");
-
-

@@ -1,16 +1,13 @@
-// Production mounts createShowPonyTenantRoutingFeature (#1374) and returns `{}`
-// from anonymousAccess; tenantResolver / tenantExists are merged afterwards via
-// resolveAnonymousAccessFromRegistry (same as bin/main.ts / bin/server.ts).
+// Production mounts the FW host-routing feature and returns `{}` from
+// anonymousAccess; tenantResolver / tenantExists are merged afterwards via
+// resolveAnonymousAccessFromRegistry (same as runProdApp / runDevApp).
 //
-// rsvp-anonymous.integration.test.ts covers resolver/existence logic on the bare
-// factory. This file proves the merged registry providers deliver a working
+// This file proves the full buildAppFeatures composition; the other integration tests mount
+// the same feature on a reduced stack (host-routing-stack.ts). It proves the merged registry providers deliver a working
 // tenantResolver at request time and a DB-backed EXT_TENANT_EXISTENCE check.
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import {
-  resolveAnonymousAccessFromRegistry,
-  resolveTenantExistence,
-} from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
+import { resolveTenantExistence } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import {
   configValuesTable,
   createConfigAccessorFactory,
@@ -24,6 +21,7 @@ import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/st
 import { rsvpTable } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { buildAppFeatures } from "../run-config";
+import { hostRoutingAnonymousAccess } from "./host-routing-stack";
 
 const configResolver = createConfigResolver();
 
@@ -53,9 +51,8 @@ function submit(
 
 beforeAll(async () => {
   stack = await setupAppTestStack(buildAppFeatures({ baseDomain: BASE_DOMAIN }), {
-    // bin/main.ts pattern: anonymousAccess returns `{}`; registry merge supplies resolver.
-    anonymousAccess: () => ({}),
-    enrichAnonymousAccess: (base, deps) => resolveAnonymousAccessFromRegistry(base, deps),
+    // Boot pattern: anonymousAccess returns `{}`; registry merge supplies resolver.
+    ...hostRoutingAnonymousAccess,
     extraContext: ({ registry }) => ({
       configResolver,
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -94,7 +91,7 @@ beforeEach(async () => {
   await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
 });
 
-describe("registry-merged tenant routing (createShowPonyTenantRoutingFeature, #1374)", () => {
+describe("registry-merged tenant routing (FW host-routing)", () => {
   test("subdomain resolves via the registry-merged resolver, not a bypassed no-op", async () => {
     const res = await submit(acmeHostname, {
       eventId: seededEventId,

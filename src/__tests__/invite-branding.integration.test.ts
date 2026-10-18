@@ -15,11 +15,8 @@ import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/st
 import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import {
-  bindSubdomainPageResolver,
-  createShowPonyTenantResolver,
-  resolveSubdomainPageTenant,
-} from "../tenant-routing";
+import { bindSubdomainPageResolver, resolveSubdomainPageTenant } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BASE_DOMAIN = "show-pony.test";
 
@@ -41,22 +38,25 @@ let acmeHostname: string;
 let acmeAdmin: SessionUser;
 
 beforeAll(async () => {
-  stack = await setupAppTestStack([createConfigFeature(), managedPages, showPonyFeature], {
-    anonymousAccess: ({ db }) => {
-      bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-      return createShowPonyTenantResolver({ db, baseDomain: BASE_DOMAIN });
+  stack = await setupAppTestStack(
+    [...hostRoutingFeatures(BASE_DOMAIN), createConfigFeature(), managedPages, showPonyFeature],
+    {
+      ...hostRoutingAnonymousAccess,
+      extraContext: ({ db, registry }) => {
+        bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
+        return {
+          configResolver,
+          _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+        };
+      },
     },
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
+  );
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
   // Subdomain routing resolves the tenant via a real DB lookup by key
-  // (tenant-routing.ts enabledTenantByKey) — needs persisted rows.
+  // (tenant-routing.ts resolveSubdomainPageTenant) — needs persisted rows.
   const demo = await seedTenant(stack, { name: "Demo", persist: true });
   const acme = await seedTenant(stack, { name: "Acme", persist: true });
   demoId = demo.id;

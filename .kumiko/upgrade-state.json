@@ -1,7 +1,38 @@
 {
-  "version": "0.368.0",
-  "appliedAt": "2026-10-18T02:12:14.348467Z",
-  "codemods": [],
+  "version": "0.370.0",
+  "appliedAt": "2026-10-18T16:41:37.255549Z",
+  "codemods": [
+    {
+      "version": "0.370.0",
+      "codemod": "scripts/codemod/feature-factory.ts",
+      "title": "The deprecated tenantSettingsFeature constant is removed"
+    },
+    {
+      "version": "0.370.0",
+      "codemod": "scripts/codemod/s3-imports.ts",
+      "title": "The file-provider-s3-env and files-provider-s3 subpaths are removed"
+    },
+    {
+      "version": "0.370.0",
+      "codemod": "scripts/codemod/import-extensions.ts",
+      "title": "import-extensions codemod and tsconfig options for .ts import specifiers"
+    },
+    {
+      "version": "0.370.0",
+      "codemod": "scripts/codemod/db-factory.ts",
+      "title": "createDbConnection takes only the options object, the bun-db subpath is gone"
+    },
+    {
+      "version": "0.370.0",
+      "codemod": "scripts/codemod/tenant-db-options.ts",
+      "title": "createTenantDb takes only the options object"
+    },
+    {
+      "version": "0.370.0",
+      "codemod": "scripts/codemod/testing-move.ts",
+      "title": "The test stack is no longer re-exported from the framework"
+    }
+  ],
   "resolvedManual": [
     {
       "id": "0.346.0:693f3da9",
@@ -1226,6 +1257,62 @@
       "resolution": "not-applicable",
       "reason": "The app does not use framework image-snapshot HTML; screenshots are Playwright captures of the running app.",
       "resolvedAt": "2026-10-18T02:12:14.185536Z"
+    },
+    {
+      "id": "0.370.0:988bdd7d",
+      "version": "0.370.0",
+      "title": "Waitlist gets linkOnSignup, a configurable submit rate limit, export and purge handlers and a status provisioned",
+      "resolution": "not-applicable",
+      "reason": "show-pony uses no waitlist feature",
+      "resolvedAt": "2026-10-18T17:04:00.750129Z"
+    },
+    {
+      "id": "0.370.0:36da8092",
+      "version": "0.370.0",
+      "title": "DB_PROVIDER other than postgres fails at boot",
+      "resolution": "not-applicable",
+      "reason": "show-pony sets no DB_PROVIDER",
+      "resolvedAt": "2026-10-18T17:04:00.908118Z"
+    },
+    {
+      "id": "0.370.0:e892cb7b",
+      "version": "0.370.0",
+      "title": "escapeHatch on a spread entity query handler requires SystemAdmin access",
+      "resolution": "not-applicable",
+      "reason": "no escapeHatch spread in src or bin",
+      "resolvedAt": "2026-10-18T17:04:01.0668Z"
+    },
+    {
+      "id": "0.370.0:a2dc6d5b",
+      "version": "0.370.0",
+      "title": "runProdApp requires envSchema",
+      "resolution": "migrated",
+      "reason": "envSchema passed to runProdApp in bin/main.ts, contract in bin/env-schema.ts",
+      "resolvedAt": "2026-10-18T17:04:01.227085Z"
+    },
+    {
+      "id": "0.370.0:f8af09fe",
+      "version": "0.370.0",
+      "title": "SaveContext.event and DeleteContext.event are required",
+      "resolution": "not-applicable",
+      "reason": "no hand-built SaveContext/DeleteContext in src",
+      "resolvedAt": "2026-10-18T17:04:01.387667Z"
+    },
+    {
+      "id": "0.369.0:38e58055",
+      "version": "0.369.0",
+      "title": "Tenant admins edit their own SMTP server on the Email sending screen",
+      "resolution": "not-applicable",
+      "reason": "no tenant SMTP use",
+      "resolvedAt": "2026-10-18T17:04:01.554645Z"
+    },
+    {
+      "id": "0.369.0:197b9089",
+      "version": "0.369.0",
+      "title": "The tenant mail transport applies per notification",
+      "resolution": "not-applicable",
+      "reason": "no tenant SMTP use",
+      "resolvedAt": "2026-10-18T17:04:01.554645Z"
     }
   ]
 }

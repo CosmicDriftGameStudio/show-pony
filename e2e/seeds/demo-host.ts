@@ -3,7 +3,11 @@
 // "Test Tenant <id>" / "Seed <id>" / "user-<uuid>@example.test".
 // user:create's email uniqueness is global, so the seeded email carries the
 // tenant id and is swapped for DEMO_HOST_PRESENTED_EMAIL at capture time.
-import type { E2eSeededTenant, PresentIdentity, SeedTenantFixture } from "@cosmicdrift/kumiko-testing/e2e";
+import type {
+  E2eSeededTenant,
+  PresentIdentity,
+  SeedTenantFixture,
+} from "@cosmicdrift/kumiko-testing/e2e";
 
 export const DEMO_TENANT_NAME = "Demo Host";
 export const DEMO_HOST_PRESENTED_EMAIL = "host@show-pony.local";

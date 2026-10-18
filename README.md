@@ -23,7 +23,7 @@ You need [Bun](https://bun.sh) and Docker.
 git clone https://github.com/CosmicDriftGameStudio/show-pony
 cd show-pony
 cp .env.example .env
-docker compose up -d      # Postgres + Redis
+docker compose up -d      # Postgres, Redis, Meilisearch (port 17710)
 bun install
 bun dev
 ```
@@ -54,9 +54,10 @@ confirmation mail.
 | Path | What's there |
 |---|---|
 | `src/features/show-pony/` | the `showpony` feature — entities, handlers, screens, billing plans, i18n |
-| `src/tenant-routing.ts` | subdomain → host-tenant resolver |
+| `src/tenant-routing.ts` | subdomain → tenant lookup for managed-pages branding (the request tenant comes from the `host-routing` feature) |
 | `src/public/` | the guest-facing event page (React) |
 | `src/run-config.ts` | the mounted feature list shared by dev server and prod boot |
+| `bin/env-schema.ts` | every env var the prod boot reads; `.env.example` is the local copy |
 | `bin/server.ts` | dev-server wiring (two bundles, host dispatch); `bin/main.ts` is the prod boot |
 | `e2e/screenshots/` | the Playwright runner that generates the doc images |
 
@@ -79,8 +80,11 @@ migration chains.
 - **Deploy stuck? Fix the seed locally** — never patch k8s rollout strategy or
   scale tricks to paper over a boot failure.
 
-Inline boot seeds (accounts, legal) live in `bin/main.ts` / `bin/server.ts` via
-`seedAdmin` + `seedLegalContent` — idempotent, no dated files.
+Inline boot seeds (accounts, legal) live in `bin/prod-options.ts` / `bin/server.ts` via
+the `seeds` option and `legalContentSeed` — idempotent, no dated files.
+
+**PII:** the demo boots with `kmsMode: { plaintextReason }`, so guest data is stored in
+plaintext. After the first deploy with a real KMS, run `bun kumiko ops backfill-pii` once.
 
 **Billing (optional):** mount Stripe test keys to try checkout locally:
 
@@ -99,7 +103,6 @@ embeds, sync the tutorial mirror:
 
 ```bash
 ./scripts/sync-docs-samples.sh
-./scripts/sync-env-example.ts   # optional — refreshes .env.example from env.example
 ```
 
 ## Scripts
@@ -107,9 +110,10 @@ embeds, sync the tutorial mirror:
 | Command | What it does |
 |---|---|
 | `bun dev` | run the app locally (needs `docker compose up -d`) |
+| `bun start` | prod boot (`bin/main.ts`); `KUMIKO_DRY_RUN_ENV=boot` prints the env table and exits |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run lint` | Biome |
-| `bun kumiko check` | Kumiko guards, schema drift and upgrade-state checks |
+| `bun run check` | Kumiko guards, schema drift and upgrade-state checks |
 | `bun run test` | unit tests |
 | `bun run test:integration` | integration tests (needs `docker compose up -d`) |
 | `bun run e2e` | Playwright end-to-end flows |

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { renderLegalLayout } from "../legal-layout";
+import { showPonyLegalLayout } from "../marketing/layouts/legal";
 import { renderMarketingLayout } from "../marketing/layouts/marketing";
 import { dispatchShowPonyApexStatic } from "../marketing/locale-routes";
 
@@ -40,7 +40,7 @@ describe("show-pony marketing render", () => {
 
 describe("show-pony legal layout", () => {
   test("wraps body in marketing chrome", () => {
-    const html = renderLegalLayout({
+    const html = showPonyLegalLayout({
       title: "Imprint",
       bodyHtml: "<h1>Imprint</h1><p>Test</p>",
       lang: "en",

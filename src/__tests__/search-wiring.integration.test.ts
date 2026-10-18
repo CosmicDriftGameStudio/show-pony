@@ -18,7 +18,7 @@ import {
 } from "../../bin/search-wiring";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyAnonymousAccess } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BASE_DOMAIN = "show-pony.test";
 const PLATFORM_TENANT = "00000000-0000-4000-8000-000000000001";
@@ -32,12 +32,13 @@ let disabledTenantId: TenantId;
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
+      ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       showPonyFeature,
     ],
     {
-      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
         _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),

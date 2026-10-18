@@ -4,8 +4,8 @@
 import { execSync } from "node:child_process";
 import { mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Browser, Locator, Page } from "@playwright/test";
 import type { PresentIdentity } from "@cosmicdrift/kumiko-testing/e2e";
+import type { Browser, Locator, Page } from "@playwright/test";
 
 // Match screenshot runner desktop size — 960×600 felt like a tiny crop with sidebar.
 export const HOST_VIEWPORT = { width: 1280, height: 800 };
@@ -79,7 +79,11 @@ function assertPresentableMappings(identities: readonly PresentIdentity[]): void
   }
 }
 
-async function captureFrame(page: Page, path: string, identities: readonly PresentIdentity[]): Promise<void> {
+async function captureFrame(
+  page: Page,
+  path: string,
+  identities: readonly PresentIdentity[],
+): Promise<void> {
   assertPresentableMappings(identities);
   if (identities.length > 0) await page.evaluate(presentIdentitiesInDocument, identities);
   try {
