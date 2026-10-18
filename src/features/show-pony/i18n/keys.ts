@@ -129,10 +129,6 @@ export const showPonyTranslations = {
   },
   "showpony:demo.public.host-link": { de: "Host-Login", en: "Host login" },
   "showpony:demo.public.tutorial-link": { de: "Tutorial", en: "Tutorial" },
-  "showpony:demo.read-only.error": {
-    de: "Live-Demo ist read-only — lokal klonen zum Ausprobieren.",
-    en: "Live demo is read-only — clone locally to try writes.",
-  },
 
   "showpony:caps.usageTitle": { de: "Verbrauch", en: "Usage" },
   "showpony:caps.events": { de: "Events", en: "Events" },

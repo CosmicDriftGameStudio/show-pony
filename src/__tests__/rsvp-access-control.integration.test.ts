@@ -17,7 +17,7 @@ import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyAnonymousAccess } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const configResolver = createConfigResolver();
 
@@ -34,12 +34,13 @@ let acme: Awaited<ReturnType<typeof seedTenant>>;
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
+      ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       showPonyFeature,
     ],
     {
-      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
         _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),

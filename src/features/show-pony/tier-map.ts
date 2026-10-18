@@ -57,3 +57,13 @@ export function capsForTier(tier: string): ShowPonyCaps {
   }
   return def.caps;
 }
+
+type StripePriceVars = Readonly<Record<string, string | undefined>>;
+
+/** Stripe price id -> tier for the billing boot option; unset price vars map nothing. */
+export function priceToTierFromEnv(vars: StripePriceVars): Record<string, TierName> {
+  const priceToTier: Record<string, TierName> = {};
+  if (vars["STRIPE_PRICE_STARTER"]) priceToTier[vars["STRIPE_PRICE_STARTER"]] = "starter";
+  if (vars["STRIPE_PRICE_PRO"]) priceToTier[vars["STRIPE_PRICE_PRO"]] = "pro";
+  return priceToTier;
+}

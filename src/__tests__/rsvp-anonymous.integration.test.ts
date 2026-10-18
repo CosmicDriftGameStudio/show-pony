@@ -2,8 +2,8 @@
 // tenant resolved from the subdomain (Host header) — never on the wrong one.
 // That's the gap show-pony fills as a sample.
 //
-// We run the REAL production factory (createShowPonyAnonymousAccess, the
-// same factory bin/main.ts/bin/server.ts wire) against real tenant rows —
+// We mount the REAL production host routing (FW host-routing feature, the same
+// options bin/main.ts/bin/server.ts use) against real tenant rows —
 // subdomain→key lookup AND the tenantExists guard against a forged X-Tenant
 // header are both covered, not just the framework pipeline.
 
@@ -31,7 +31,7 @@ import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyAnonymousAccess } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const configResolver = createConfigResolver();
 const emailTransport = createInMemoryTransport();
@@ -65,6 +65,7 @@ function submit(
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
+      ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...composeRendererStack(),
@@ -73,9 +74,7 @@ beforeAll(async () => {
       showPonyFeature,
     ],
     {
-      // Exact boot wiring from bin/server.ts: the factory gets the stack db
-      // and builds the real DB resolver.
-      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      ...hostRoutingAnonymousAccess,
       extraContext: (deps) => ({
         ...createDeliveryTestContext(deps),
         configResolver,
@@ -254,9 +253,8 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
   });
 
   test("apex host + X-Tenant → 400 tenant_required (apex resolves to no tenant)", async () => {
-    // Proves the apex branch inside createShowPonyAnonymousAccess (only
-    // exercised by the production factory, not the bare subdomain
-    // resolver): the apex resolver returns null — no anonymous tenant
+    // Proves the apex branch of the host-routing resolver (show-pony sets no
+    // apexAnonymousTenantId): the apex resolver returns null — no anonymous tenant
     // exists at apex, legal/marketing pages are static and branding reads
     // go through the separate resolveSubdomainPageTenant pipeline. With
     // resolverTrust: "authoritative" a resolver returning null never falls

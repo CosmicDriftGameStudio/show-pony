@@ -24,7 +24,7 @@ import {
 } from "../../bin/search-wiring";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyAnonymousAccess } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BASE_DOMAIN = "show-pony.test";
 const GUEST_ONE = "Zephyrine Quoxley";
@@ -81,12 +81,13 @@ async function findIds(query: string, forTenant: TenantId = tenantId): Promise<s
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
+      ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       showPonyFeature,
     ],
     {
-      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
         _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),

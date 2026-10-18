@@ -1,6 +1,6 @@
 {
-  "version": "0.368.0",
-  "appliedAt": "2026-10-18T02:12:14.348467Z",
+  "version": "0.371.0",
+  "appliedAt": "2026-10-18T20:05:44.562675Z",
   "codemods": [],
   "resolvedManual": [
     {
@@ -1226,6 +1226,62 @@
       "resolution": "not-applicable",
       "reason": "The app does not use framework image-snapshot HTML; screenshots are Playwright captures of the running app.",
       "resolvedAt": "2026-10-18T02:12:14.185536Z"
+    },
+    {
+      "id": "0.370.0:988bdd7d",
+      "version": "0.370.0",
+      "title": "Waitlist gets linkOnSignup, a configurable submit rate limit, export and purge handlers and a status provisioned",
+      "resolution": "not-applicable",
+      "reason": "show-pony uses no waitlist feature",
+      "resolvedAt": "2026-10-18T17:04:00.750129Z"
+    },
+    {
+      "id": "0.370.0:36da8092",
+      "version": "0.370.0",
+      "title": "DB_PROVIDER other than postgres fails at boot",
+      "resolution": "not-applicable",
+      "reason": "show-pony sets no DB_PROVIDER",
+      "resolvedAt": "2026-10-18T17:04:00.908118Z"
+    },
+    {
+      "id": "0.370.0:e892cb7b",
+      "version": "0.370.0",
+      "title": "escapeHatch on a spread entity query handler requires SystemAdmin access",
+      "resolution": "not-applicable",
+      "reason": "no escapeHatch spread in src or bin",
+      "resolvedAt": "2026-10-18T17:04:01.0668Z"
+    },
+    {
+      "id": "0.370.0:a2dc6d5b",
+      "version": "0.370.0",
+      "title": "runProdApp requires envSchema",
+      "resolution": "migrated",
+      "reason": "envSchema passed to runProdApp in bin/main.ts, contract in bin/env-schema.ts",
+      "resolvedAt": "2026-10-18T17:04:01.227085Z"
+    },
+    {
+      "id": "0.370.0:f8af09fe",
+      "version": "0.370.0",
+      "title": "SaveContext.event and DeleteContext.event are required",
+      "resolution": "not-applicable",
+      "reason": "no hand-built SaveContext/DeleteContext in src",
+      "resolvedAt": "2026-10-18T17:04:01.387667Z"
+    },
+    {
+      "id": "0.369.0:38e58055",
+      "version": "0.369.0",
+      "title": "Tenant admins edit their own SMTP server on the Email sending screen",
+      "resolution": "not-applicable",
+      "reason": "no tenant SMTP use",
+      "resolvedAt": "2026-10-18T17:04:01.554645Z"
+    },
+    {
+      "id": "0.369.0:197b9089",
+      "version": "0.369.0",
+      "title": "The tenant mail transport applies per notification",
+      "resolution": "not-applicable",
+      "reason": "no tenant SMTP use",
+      "resolvedAt": "2026-10-18T17:04:01.554645Z"
     }
   ]
 }

@@ -7,8 +7,6 @@ try {
   const firstLine = version.split("\n", 1)[0]?.trim() ?? "ffmpeg";
   process.stdout.write(`✓ ${firstLine}\n`);
 } catch {
-  process.stderr.write(
-    "✖ ffmpeg is required for `bun run loops`; install ffmpeg and retry.\n",
-  );
+  process.stderr.write("✖ ffmpeg is required for `bun run loops`; install ffmpeg and retry.\n");
   process.exit(1);
 }

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# kumiko-managed
+# kumiko-managed: local compose project name via docker compose config (template still derives it from the directory)
 # show-pony pre-deploy migrate step.
 #
 # Called by the deploy workflow between `compose up -d db redis` and

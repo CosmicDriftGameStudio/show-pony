@@ -36,7 +36,7 @@ import {
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { createShowPonyAnonymousAccess } from "../tenant-routing";
+import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BIDX_KEY = Buffer.alloc(32, 9).toString("base64");
 const BASE_DOMAIN = "show-pony.test";
@@ -88,13 +88,14 @@ async function submitGuest(name: string, email: string, note: string): Promise<s
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
+      ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       createCryptoShreddingFeature(),
       showPonyFeature,
     ],
     {
-      anonymousAccess: ({ db }) => createShowPonyAnonymousAccess({ db, baseDomain: BASE_DOMAIN }),
+      ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
         _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
@@ -216,7 +217,7 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
   // its rsvp.created event carries plaintext name/email/note directly in
   // kumiko_events, with no subject key ever minted. Without a backfill,
   // forget-subject on it would report success without erasing anything —
-  // there is no key to erase. bin/ops/backfill-pii.ts runs
+  // there is no key to erase. `kumiko ops backfill-pii` runs
   // backfillEventPiiEncryption to re-encrypt such events after the fact.
   test("forget-subject erases a legacy plaintext RSVP after the PII backfill runs", async () => {
     // A full projection rebuild below replays every rsvp.created event since

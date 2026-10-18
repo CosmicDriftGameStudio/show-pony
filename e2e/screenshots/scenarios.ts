@@ -2,8 +2,8 @@
 // the `seedTenant` fixture (no shared login/seed state, safe under parallel
 // workers) and navigates before runMatrix captures it.
 
-import type { Page } from "@playwright/test";
 import { expect, type Scenario, type ScenarioFixtures } from "@cosmicdrift/kumiko-testing/e2e";
+import type { Page } from "@playwright/test";
 import { DEMO_TENANT_NAME, type DemoHostTenant, seedDemoHostTenant } from "../seeds/demo-host";
 import { APEX_URL, publicEventUrl } from "./constants";
 import {
@@ -21,7 +21,7 @@ async function loginDemoHost(page: Page, fixtures: ScenarioFixtures): Promise<De
   return demo;
 }
 
-// Fixed dark brand chrome (marketing.ts / legal-layout.ts) — these four don't
+// Fixed dark brand chrome (marketing.ts / marketing/layouts/legal.ts) — these four don't
 // react to .dark, so they're captured with THEMES = ["default-light"] only.
 export const FIXED_CHROME_SCENARIOS: readonly Scenario[] = [
   {
@@ -46,7 +46,9 @@ export const FIXED_CHROME_SCENARIOS: readonly Scenario[] = [
     description: "Marketing pricing page",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/pricing`);
-      await expect(page.getByRole("heading", { name: /Plans for growing hosts/i }).first()).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: /Plans for growing hosts/i }).first(),
+      ).toBeVisible();
     },
   },
   {
@@ -63,7 +65,8 @@ export const FIXED_CHROME_SCENARIOS: readonly Scenario[] = [
 export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "host-login",
-    description: "Host login in marketing chrome at /login — post-mount gate before chapter 12 landing",
+    description:
+      "Host login in marketing chrome at /login — post-mount gate before chapter 12 landing",
     flow: async (page) => {
       await page.goto(`${APEX_URL}/login`);
       await expect(page.getByRole("link", { name: "Show Pony" }).first()).toBeVisible();
@@ -99,9 +102,15 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
       await page.goto(`${APEX_URL}/host/event-list`);
       await expect(page.getByText("Rooftop Launch Party").first()).toBeVisible();
       await page.getByRole("row", { name: /Rooftop Launch Party/ }).click();
-      await expect(page.getByRole("heading", { name: /Edit event|Event bearbeiten/i })).toBeVisible();
-      await expect(page.getByRole("textbox", { name: /Title/i })).toHaveValue("Rooftop Launch Party");
-      await expect(page.getByRole("textbox", { name: /Location/i })).toHaveValue("Sky Lounge, 24th floor");
+      await expect(
+        page.getByRole("heading", { name: /Edit event|Event bearbeiten/i }),
+      ).toBeVisible();
+      await expect(page.getByRole("textbox", { name: /Title/i })).toHaveValue(
+        "Rooftop Launch Party",
+      );
+      await expect(page.getByRole("textbox", { name: /Location/i })).toHaveValue(
+        "Sky Lounge, 24th floor",
+      );
     },
   },
   {

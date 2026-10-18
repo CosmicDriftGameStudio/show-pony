@@ -17,6 +17,7 @@ import {
   createConfigAccessorFactory,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
+import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
@@ -26,18 +27,16 @@ import {
   createE2eSeedRoutes,
   isE2eSeedingEnabled,
 } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
-import { buildDemoModeRoutes } from "../src/demo-mode-routes";
 import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
-import { buildTermsRoutes } from "../src/legal-terms";
-import { dispatchShowPonyApexStaticDev } from "../src/marketing/locale-routes";
+import { priceToTierFromEnv } from "../src/features/show-pony/tier-map";
+import legalContent from "../src/generated/legal-content.json";
+import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
-import { bindSubdomainPageResolver, hostnameOf } from "../src/tenant-routing";
+import { bindSubdomainPageResolver } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
-import { seedLegalContent } from "./seed-legal-content";
-import { buildStripeBillingConfig, hasConfiguredPrices } from "./stripe-billing-env";
 
 const BASE_DOMAIN = resolveBaseDomainFromEnv();
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
@@ -47,12 +46,12 @@ const configResolver = createConfigResolver();
 
 await renderAllMarketingPages(DEV_ORIGIN);
 
-const stripeBilling = buildStripeBillingConfig({
-  STRIPE_API_KEY: process.env["STRIPE_API_KEY"],
-  STRIPE_WEBHOOK_SECRET: process.env["STRIPE_WEBHOOK_SECRET"],
-  STRIPE_PRICE_STARTER: process.env["STRIPE_PRICE_STARTER"],
-  STRIPE_PRICE_PRO: process.env["STRIPE_PRICE_PRO"],
-});
+const priceToTier = priceToTierFromEnv(process.env);
+const stripeApiKey = process.env["STRIPE_API_KEY"];
+const stripeWebhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
+// Without any configured price billing-plans resolves enabled:false and checkout rejects with
+// feature_disabled; the webhook route would drop every event anyway.
+const hasConfiguredPrices = Object.keys(priceToTier).length > 0;
 
 const searchWiring = createMeilisearchWiring({
   url: process.env["MEILI_URL"] ?? "http://localhost:17700",
@@ -86,14 +85,12 @@ await runDevApp({
     // bin/main.ts never imports this stub, so prod always gets the real plugin.
     ...(isE2eSeedingEnabled()
       ? [createE2eBillingStubFeature()]
-      : hasConfiguredPrices(stripeBilling)
+      : hasConfiguredPrices
         ? [
             createSubscriptionStripeFeature({
-              ...(stripeBilling.webhookSecret !== undefined && {
-                webhookSecret: stripeBilling.webhookSecret,
-              }),
-              ...(stripeBilling.apiKey !== undefined && { apiKey: stripeBilling.apiKey }),
-              priceToTier: stripeBilling.priceToTier,
+              ...(stripeWebhookSecret && { webhookSecret: stripeWebhookSecret }),
+              ...(stripeApiKey && { apiKey: stripeApiKey }),
+              priceToTier,
             }),
           ]
         : []),
@@ -104,28 +101,19 @@ await runDevApp({
     { name: "public", sourceFile: "./src/client-public.tsx", htmlPath: "./public/index.html" },
   ],
   htmlPath: "./public/index.html",
-  hostDispatch: (req) => {
-    const host = hostnameOf(req.headers.get("host") ?? "");
-    const path = new URL(req.url).pathname;
-    if (host === BASE_DOMAIN || host === `www.${BASE_DOMAIN}`) {
-      const dispatched = dispatchShowPonyApexStaticDev(path);
-      if (dispatched !== null) return dispatched;
-      return { kind: "html", entryName: "admin" };
-    }
-    return { kind: "html", entryName: "public" };
-  },
+  // Opt-in only: the host-routing provider fills tenantResolver/tenantExists, but never enables anonymous access.
+  anonymousAccess: {},
+  hostDispatch: createShowPonyDevHostDispatch(BASE_DOMAIN),
   watchDirs: ["./src", "./bin"],
-  // Tenant resolve/exists: show-pony-tenant-routing feature (#1374).
-  anonymousAccess: ({ db }) => {
+  extraContext: ({ registry, db }) => {
     bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-    return {};
+    return {
+      configResolver,
+      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      templateResolver: createTemplateResolverApi(db),
+      searchAdapter: searchWiring.adapter,
+    };
   },
-  extraContext: ({ registry, db }) => ({
-    configResolver,
-    _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    templateResolver: createTemplateResolverApi(db),
-    searchAdapter: searchWiring.adapter,
-  }),
   auth: {
     admin: {
       email: "admin@show-pony.local",
@@ -159,9 +147,7 @@ await runDevApp({
         console.warn(`[search] search index rebuild failed: ${err}`);
       }
     },
-    async (stack) => {
-      await seedLegalContent(stack.db);
-    },
+    legalContentSeed({ blocks: legalContent }),
     async ({ db }) => {
       await seedSysadmin(db, {
         email: "sysadmin@show-pony.local",
@@ -174,11 +160,7 @@ await runDevApp({
     ...(isE2eSeedingEnabled()
       ? createE2eSeedRoutes({ extraRoles: ["Admin"], extraSeeders: e2eBillingExtraSeeders })
       : []),
-    ...buildDemoModeRoutes(port),
-    ...buildTermsRoutes(),
-    ...(!isE2eSeedingEnabled() && hasConfiguredPrices(stripeBilling)
-      ? [buildSubscriptionWebhookRoute()]
-      : []),
+    ...(!isE2eSeedingEnabled() && hasConfiguredPrices ? [buildSubscriptionWebhookRoute()] : []),
     ...(["screenshots", "logos", "heroes"] as const).map(
       (dir): ExtraRouteDefinition => ({
         method: "GET",

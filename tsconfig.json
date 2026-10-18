@@ -1,21 +1,9 @@
 {
+  "extends": "@cosmicdrift/kumiko-framework/tsconfig.app.json",
   "compilerOptions": {
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
     "noPropertyAccessFromIndexSignature": true,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
-    "verbatimModuleSyntax": true,
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "types": ["bun-types"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
-  "include": ["./src", "./bin", "./seeds", "./kumiko"]
+  "include": ["./src", "./bin", "./seeds", "./kumiko", "./kumiko.config.ts"]
 }

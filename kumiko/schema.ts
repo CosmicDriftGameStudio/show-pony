@@ -1,18 +1,17 @@
-// ENTITY_METAS source for `kumiko schema generate/apply/validate`.
-//
-// Computes table metas from the SAME composeFeatures(buildAppFeatures(...))
-// the runtime sees (bin/main.ts, bin/server.ts) — migrations and runtime
-// can't drift. The schema CLI imports this file and reads ENTITY_METAS
-// directly.
+// kumiko-managed
+// kumiko-managed: local auth-mode app: schema and boot validation need the bundled auth features composeFeatures adds
+// Input of the schema tooling (kumiko-schema generate|apply|validate and the
+// boot step of kumiko check), derived from kumiko.config.ts. Edit the feature
+// lists there.
 
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
+import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
 import { collectTableMetas, type EntityTableMeta } from "@cosmicdrift/kumiko-framework/db";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
-import { buildAppFeatures, HAS_AUTH, resolveBaseDomainFromEnv } from "../src/run-config";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
+import appConfig from "../kumiko.config";
+import { HAS_AUTH } from "../src/run-config";
 
-const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
-
-export const FEATURES: readonly FeatureDefinition[] = composeFeatures([...appFeatures], {
+export const FEATURES: readonly FeatureDefinition[] = composeFeatures(allAppFeatures(appConfig), {
   includeBundled: HAS_AUTH,
 });
 

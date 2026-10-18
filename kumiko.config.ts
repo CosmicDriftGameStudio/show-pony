@@ -1,10 +1,8 @@
-// Feature list for `kumiko agent lint` and the agent-manifest guard.
-//
-// Reuses kumiko/schema.ts's FEATURES so the linted list is the same
-// composeFeatures(APP_FEATURES) the runtime and the migration generator see —
-// a config with its own composition could go green on a list the app never
-// mounts.
+import { defineAppConfig } from "@cosmicdrift/kumiko-framework/config";
+import { buildAppFeatures, resolveBaseDomainFromEnv } from "./src/run-config";
 
-import { FEATURES } from "./kumiko/schema";
-
-export default { features: FEATURES };
+export default defineAppConfig({
+  features: buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() }),
+  client: { entries: ["src/client-admin.tsx", "src/client-public.tsx"] },
+  ports: { dev: 4180, e2e: 4181 },
+});

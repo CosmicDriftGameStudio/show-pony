@@ -3,5 +3,9 @@
   "compilerOptions": {
     "types": ["bun-types"]
   },
-  "include": ["./", "../playwright.screenshots.config.ts", "../playwright.config.ts"]
+  "include": [
+    "./",
+    "../playwright.screenshots.config.ts",
+    "../playwright.config.ts"
+  ]
 }
