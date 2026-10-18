@@ -1,38 +1,7 @@
 {
-  "version": "0.370.0",
-  "appliedAt": "2026-10-18T16:41:37.255549Z",
-  "codemods": [
-    {
-      "version": "0.370.0",
-      "codemod": "scripts/codemod/feature-factory.ts",
-      "title": "The deprecated tenantSettingsFeature constant is removed"
-    },
-    {
-      "version": "0.370.0",
-      "codemod": "scripts/codemod/s3-imports.ts",
-      "title": "The file-provider-s3-env and files-provider-s3 subpaths are removed"
-    },
-    {
-      "version": "0.370.0",
-      "codemod": "scripts/codemod/import-extensions.ts",
-      "title": "import-extensions codemod and tsconfig options for .ts import specifiers"
-    },
-    {
-      "version": "0.370.0",
-      "codemod": "scripts/codemod/db-factory.ts",
-      "title": "createDbConnection takes only the options object, the bun-db subpath is gone"
-    },
-    {
-      "version": "0.370.0",
-      "codemod": "scripts/codemod/tenant-db-options.ts",
-      "title": "createTenantDb takes only the options object"
-    },
-    {
-      "version": "0.370.0",
-      "codemod": "scripts/codemod/testing-move.ts",
-      "title": "The test stack is no longer re-exported from the framework"
-    }
-  ],
+  "version": "0.371.0",
+  "appliedAt": "2026-10-18T20:05:44.562675Z",
+  "codemods": [],
   "resolvedManual": [
     {
       "id": "0.346.0:693f3da9",
