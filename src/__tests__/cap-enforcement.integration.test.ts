@@ -16,8 +16,8 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { TIER_MAX_GUESTS } from "../marketing/pricing";

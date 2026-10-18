@@ -25,10 +25,10 @@ import {
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { seedNotificationTemplates } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
 import { composeRendererStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
-import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
+import { asRawClient } from "@cosmicdrift/kumiko-framework/db";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";

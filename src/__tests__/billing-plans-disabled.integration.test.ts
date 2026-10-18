@@ -11,8 +11,9 @@ import {
   SubscriptionFoundationHandlers,
   SubscriptionFoundationQueries,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
-import { createTestUser, type TestStack } from "@cosmicdrift/kumiko-framework/stack";
+import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import type { TestStack } from "@cosmicdrift/kumiko-testing/stack";
 import { buildAppFeatures } from "../run-config";
 
 let stack: TestStack;

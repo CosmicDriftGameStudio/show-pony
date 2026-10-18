@@ -1,6 +1,6 @@
 {
-  "version": "0.364.0",
-  "appliedAt": "2026-10-17T09:58:47.174829Z",
+  "version": "0.368.0",
+  "appliedAt": "2026-10-18T02:12:14.348467Z",
   "codemods": [],
   "resolvedManual": [
     {
@@ -1098,6 +1098,134 @@
       "resolution": "not-applicable",
       "reason": "bin/main.ts already sets allowedOrigins: [APEX_ORIGIN]; the origin guard config is explicit.",
       "resolvedAt": "2026-10-17T10:00:41.955589Z"
+    },
+    {
+      "id": "0.368.0:88788458",
+      "version": "0.368.0",
+      "title": "HandlerContext and AppContext no longer expose _userId and _handlerType",
+      "resolution": "not-applicable",
+      "reason": "grep _userId|_handlerType over src, bin, e2e, scripts, seeds: no hits.",
+      "resolvedAt": "2026-10-18T02:12:11.692374Z"
+    },
+    {
+      "id": "0.368.0:7a7bceec",
+      "version": "0.368.0",
+      "title": "@app/define and kumiko codegen are removed",
+      "resolution": "not-applicable",
+      "reason": "No @app/define import and no kumiko codegen step in src, bin, scripts, CI or package.json; kumiko/schema.ts builds from run-config directly.",
+      "resolvedAt": "2026-10-18T02:12:11.847634Z"
+    },
+    {
+      "id": "0.367.0:a2c63a46",
+      "version": "0.367.0",
+      "title": "Mail footer texts come from the i18n system",
+      "resolution": "not-applicable",
+      "reason": "No custom mail layout, MailFooterLink or footer text; channel-email runs with the in-memory transport.",
+      "resolvedAt": "2026-10-18T02:12:12.00175Z"
+    },
+    {
+      "id": "0.366.0:5319ab2c",
+      "version": "0.366.0",
+      "title": "InboundMailContext exposes metricsFor to provider plugins",
+      "resolution": "not-applicable",
+      "reason": "No inbound mail provider plugin in the app.",
+      "resolvedAt": "2026-10-18T02:12:12.157322Z"
+    },
+    {
+      "id": "0.366.0:9d4add9c",
+      "version": "0.366.0",
+      "title": "One injectable Clock for ctx.tz in handlers and jobs",
+      "resolution": "not-applicable",
+      "reason": "No ctx.tz, Clock or JobContext use in src, bin, seeds; no custom jobs.",
+      "resolvedAt": "2026-10-18T02:12:12.311848Z"
+    },
+    {
+      "id": "0.366.0:db8f2b20",
+      "version": "0.366.0",
+      "title": "Registrar methods take a single object, positional calls throw at registration",
+      "resolution": "migrated",
+      "reason": "object-form codemod ran (6 sites rewritten); --check reports 0 rewritable and 0 manual over the repo; typecheck, unit tests and kumiko-schema validate boot check pass.",
+      "resolvedAt": "2026-10-18T02:12:12.466935Z"
+    },
+    {
+      "id": "0.365.0:91145bbc",
+      "version": "0.365.0",
+      "title": "Handlers wrapped with withCapEnforcement or withRollingCapEnforcement are rejected when called through a nested ctx.write",
+      "resolution": "not-applicable",
+      "reason": "No withCapEnforcement/withRollingCapEnforcement; rsvp:submit uses checkStockCap, which is not a wrapped handler.",
+      "resolvedAt": "2026-10-18T02:12:12.625819Z"
+    },
+    {
+      "id": "0.365.0:b2e45d4d",
+      "version": "0.365.0",
+      "title": "copy-locale copies the system default's files in a beforeTransaction phase and can no longer run as a nested write",
+      "resolution": "not-applicable",
+      "reason": "No copy-locale call in src, bin or seeds.",
+      "resolvedAt": "2026-10-18T02:12:12.784172Z"
+    },
+    {
+      "id": "0.365.0:6d68baf5",
+      "version": "0.365.0",
+      "title": "onEditorReady receives null when the editor is destroyed",
+      "resolution": "not-applicable",
+      "reason": "No onEditorReady use; no rich-text editor integration in the app.",
+      "resolvedAt": "2026-10-18T02:12:13.088968Z"
+    },
+    {
+      "id": "0.365.0:b1ea1adf",
+      "version": "0.365.0",
+      "title": "resource-upload, import-bundle and import-bundle-system upload in a beforeTransaction phase and can no longer run as nested writes",
+      "resolution": "not-applicable",
+      "reason": "No resource-upload or import-bundle call in src, bin or seeds.",
+      "resolvedAt": "2026-10-18T02:12:13.245163Z"
+    },
+    {
+      "id": "0.365.0:304e3d0e",
+      "version": "0.365.0",
+      "title": "Boot checks from the review round 1 release reject configurations that used to boot",
+      "resolution": "not-applicable",
+      "reason": "kumiko-schema validate boot check passes; rsvp:submit uses personalData public-intake with an active rateLimit; no recordOwned serial entities.",
+      "resolvedAt": "2026-10-18T02:12:13.401943Z"
+    },
+    {
+      "id": "0.365.0:4aa98da7",
+      "version": "0.365.0",
+      "title": "Boot rejects visibleWhen queries with required input, non-sql index where clauses, lockedWhen on read-restricted fields and same-named features with a different surface",
+      "resolution": "not-applicable",
+      "reason": "kumiko-schema validate boot check passes; no visibleWhen, lockedWhen or non-sql index where in the app.",
+      "resolvedAt": "2026-10-18T02:12:13.558973Z"
+    },
+    {
+      "id": "0.365.0:cff1cfbc",
+      "version": "0.365.0",
+      "title": "Entity list and detail handlers with escapeHatch must declare SystemAdmin-only access",
+      "resolution": "not-applicable",
+      "reason": "No escapeHatch in src, bin or seeds.",
+      "resolvedAt": "2026-10-18T02:12:13.713848Z"
+    },
+    {
+      "id": "0.365.0:a4eeee4c",
+      "version": "0.365.0",
+      "title": "moneyAmount returns ColumnBuilder<bigint> instead of ColumnBuilder<number>",
+      "resolution": "not-applicable",
+      "reason": "No moneyAmount column in the app schema.",
+      "resolvedAt": "2026-10-18T02:12:13.871033Z"
+    },
+    {
+      "id": "0.365.0:4ea77c0e",
+      "version": "0.365.0",
+      "title": "The kumiko-schema-check bin and the resolveGeneratePath, usesDerivedSchemaLayout and implicitAuthModeFeatureNames exports are removed",
+      "resolution": "not-applicable",
+      "reason": "kumiko-schema-check bin and the removed dev-server/cli exports are not used (grep: no hits); kumiko-schema validate runs.",
+      "resolvedAt": "2026-10-18T02:12:14.028123Z"
+    },
+    {
+      "id": "0.365.0:a338d0a7",
+      "version": "0.365.0",
+      "title": "image-snapshot HTML must embed every resource as a data URI",
+      "resolution": "not-applicable",
+      "reason": "The app does not use framework image-snapshot HTML; screenshots are Playwright captures of the running app.",
+      "resolvedAt": "2026-10-18T02:12:14.185536Z"
     }
   ]
 }

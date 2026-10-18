@@ -14,13 +14,9 @@ import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/ti
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { countWhere, createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import {
-  createTestUser,
-  type TestStack,
-  testTenantId,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
+import { createTestUser, testTenantId } from "@cosmicdrift/kumiko-framework/seeding";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import Stripe from "stripe";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
 import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
@@ -49,7 +45,7 @@ const features = [
 let stack: TestStack;
 
 function tierResolverDb(tenantId: TenantId) {
-  return createTenantDb(stack.db, tenantId, "system");
+  return createTenantDb({ db: stack.db, tenantId, mode: "system" });
 }
 const PLATFORM_TENANT = "00000000-0000-4000-8000-000000000001";
 const sysadmin = createTestUser({
@@ -253,10 +249,14 @@ describe("tier-sync failure self-heals on Stripe retry", () => {
     // process-event's idempotent write (no-op) and gets a second, this
     // time successful, shot at the tier-sync step.
     await unsafePushTables(selfHealStack.db, { tier_assignments: tierAssignmentTable });
-    expect(await resolveTier(createTenantDb(selfHealStack.db, tenantId, "system"))).toBe("free");
+    expect(
+      await resolveTier(createTenantDb({ db: selfHealStack.db, tenantId, mode: "system" })),
+    ).toBe("free");
 
     const retried = await postSignedWebhookTo(selfHealStack, eventPayload);
     expect(retried.status).toBe(200);
-    expect(await resolveTier(createTenantDb(selfHealStack.db, tenantId, "system"))).toBe("starter");
+    expect(
+      await resolveTier(createTenantDb({ db: selfHealStack.db, tenantId, mode: "system" })),
+    ).toBe("starter");
   });
 });

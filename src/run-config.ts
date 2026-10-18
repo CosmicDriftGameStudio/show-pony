@@ -7,7 +7,7 @@
 
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuditFeature } from "@cosmicdrift/kumiko-bundled-features/audit";
-import { authFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
+import { createAuthFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
@@ -64,7 +64,7 @@ export function resolveBaseDomainFromEnv(
 export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition[] {
   return [
     localeDe(),
-    authFoundationFeature,
+    createAuthFoundationFeature(),
     createSessionsFeature(),
     createShowPonyTenantRoutingFeature({ baseDomain: routing.baseDomain }),
     ...composeRendererStack(),

@@ -14,8 +14,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import { createSeedMigrationContext } from "@cosmicdrift/kumiko-framework/es-ops";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { DEMO_TENANT_ID } from "../../seeds/_demo-event-db";
 import { resolveTierCaps, tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../run-config";
@@ -23,7 +23,7 @@ import { buildAppFeatures, resolveBaseDomainFromEnv } from "../run-config";
 let stack: TestStack;
 
 function tierResolverDb() {
-  return createTenantDb(stack.db, DEMO_TENANT_ID, "system");
+  return createTenantDb({ db: stack.db, tenantId: DEMO_TENANT_ID, mode: "system" });
 }
 
 beforeAll(async () => {
