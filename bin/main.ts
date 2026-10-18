@@ -46,6 +46,8 @@ await runProdApp({
       searchAdapter: searchWiring.adapter,
     };
   },
+  // Opt-in only: the host-routing provider fills tenantResolver/tenantExists, but never enables anonymous access.
+  anonymousAccess: {},
   hostDispatch: createShowPonyHostDispatch(BASE_DOMAIN),
   auth: buildProdAuthOptions({
     baseDomain: BASE_DOMAIN,

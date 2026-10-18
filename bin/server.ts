@@ -101,6 +101,8 @@ await runDevApp({
     { name: "public", sourceFile: "./src/client-public.tsx", htmlPath: "./public/index.html" },
   ],
   htmlPath: "./public/index.html",
+  // Opt-in only: the host-routing provider fills tenantResolver/tenantExists, but never enables anonymous access.
+  anonymousAccess: {},
   hostDispatch: createShowPonyDevHostDispatch(BASE_DOMAIN),
   watchDirs: ["./src", "./bin"],
   extraContext: ({ registry, db }) => {
