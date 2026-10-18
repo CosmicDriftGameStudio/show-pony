@@ -9,12 +9,9 @@ import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/
 import { TenantHandlers } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import type { SearchAdapter, SearchAdapterConfig } from "@cosmicdrift/kumiko-framework/search";
-import {
-  createTestUser,
-  type TestStack,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
+import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import {
   collectSearchableFieldNames,
   configureAllTenantSearchIndexes,

@@ -53,11 +53,11 @@ confirmation mail.
 
 | Path | What's there |
 |---|---|
-| `src/feature.ts` | the `showpony` feature — entities, handlers, screens |
+| `src/features/show-pony/` | the `showpony` feature — entities, handlers, screens, billing plans, i18n |
 | `src/tenant-routing.ts` | subdomain → host-tenant resolver |
 | `src/public/` | the guest-facing event page (React) |
-| `src/i18n.ts` | the dashboard's text (de + en) |
-| `bin/server.ts` | dev-server wiring (two bundles, host dispatch) |
+| `src/run-config.ts` | the mounted feature list shared by dev server and prod boot |
+| `bin/server.ts` | dev-server wiring (two bundles, host dispatch); `bin/main.ts` is the prod boot |
 | `e2e/screenshots/` | the Playwright runner that generates the doc images |
 
 ## Demo ops (learning sample)
@@ -109,6 +109,10 @@ embeds, sync the tutorial mirror:
 | `bun dev` | run the app locally (needs `docker compose up -d`) |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run lint` | Biome |
+| `bun kumiko check` | Kumiko guards, schema drift and upgrade-state checks |
+| `bun run test` | unit tests |
+| `bun run test:integration` | integration tests (needs `docker compose up -d`) |
+| `bun run e2e` | Playwright end-to-end flows |
 | `bun run screenshots` | regenerate the tutorial screenshots |
 | `bun run loops:check` | verify that `ffmpeg` is available |
 | `bun run loops` | regenerate the tutorial GIFs (writes to `LOOP_DIR`) |

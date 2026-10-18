@@ -29,12 +29,9 @@ import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/ti
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import { defineFeature, type TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import {
-  createTestUser,
-  type TestStack,
-  unsafePushTables,
-} from "@cosmicdrift/kumiko-framework/stack";
+import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
 import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
@@ -98,7 +95,7 @@ const mockStripePlugin: SubscriptionProviderPlugin = {
 };
 
 const mockStripeFeature = defineFeature("test-mock-stripe", (r) => {
-  r.requires("billing-foundation");
+  r.requires({ features: ["billing-foundation"] });
   r.useExtension("subscriptionProvider", "stripe", mockStripePlugin);
 });
 
@@ -271,7 +268,9 @@ describe("switch-plan", () => {
       }),
     );
     expect(created.status).toBe(200);
-    expect(await resolveTier(createTenantDb(stack.db, tenantId, "system"))).toBe("starter");
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
+      "starter",
+    );
 
     const result = await stack.http.writeOk<{ url: string }>(
       SubscriptionFoundationHandlers.switchPlan,
@@ -367,7 +366,9 @@ describe("subscription cancellation", () => {
         priceId: "price_pro_sp",
       }),
     );
-    expect(await resolveTier(createTenantDb(stack.db, tenantId, "system"))).toBe("pro");
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
+      "pro",
+    );
 
     const canceled = await postWebhook(
       subscriptionEvent({
@@ -379,7 +380,9 @@ describe("subscription cancellation", () => {
       }),
     );
     expect(canceled.status).toBe(200);
-    expect(await resolveTier(createTenantDb(stack.db, tenantId, "system"))).toBe("free");
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
+      "free",
+    );
 
     const result = await stack.http.queryOk<BillingPlansResult>(
       SubscriptionFoundationQueries.billingPlans,
@@ -420,7 +423,9 @@ describe("subscription — pending cancellation", () => {
       }),
     );
     expect(updated.status).toBe(200);
-    expect(await resolveTier(createTenantDb(stack.db, tenantId, "system"))).toBe("pro");
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
+      "pro",
+    );
 
     const result = await stack.http.queryOk<BillingPlansResult>(
       SubscriptionFoundationQueries.billingPlans,

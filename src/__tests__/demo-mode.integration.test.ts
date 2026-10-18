@@ -26,8 +26,8 @@ import {
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { UserQueries, userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { withDemoReadOnlyFetch } from "../demo-mode";
 
 const BASE_DOMAIN = "show-pony.test";

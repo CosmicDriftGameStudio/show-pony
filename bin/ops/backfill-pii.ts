@@ -71,7 +71,7 @@ configureBlindIndexKey(requiredEnv("KUMIKO_BLIND_INDEX_KEY"));
 const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
 const registry = createRegistry(composeFeatures([...appFeatures], { includeBundled: HAS_AUTH }));
 
-const { db, close } = createDbConnection(databaseUrl, { maxConnections: 4 });
+const { db, close } = createDbConnection({ url: databaseUrl, maxConnections: 4 });
 let failed = false;
 try {
   const result = await backfillEventPiiEncryption(db, registry, {

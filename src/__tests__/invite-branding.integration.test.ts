@@ -10,8 +10,8 @@ import {
   createManagedPagesFeature,
 } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { createSystemUser, type SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";

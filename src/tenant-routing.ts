@@ -156,7 +156,7 @@ export function createShowPonyTenantRoutingFeature(
 ): FeatureDefinition {
   const { baseDomain } = config;
   return defineFeature("show-pony-tenant-routing", (r) => {
-    r.requires("auth-foundation");
+    r.requires({ features: ["auth-foundation"] });
     const resolverPlugin: TenantResolverProvider = {
       trust: "authoritative",
       build: (deps: AuthProviderBuildDeps) => {

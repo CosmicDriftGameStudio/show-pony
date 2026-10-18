@@ -14,7 +14,6 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { asRawClient } from "@cosmicdrift/kumiko-framework/bun-db";
 import {
   configureBlindIndexKey,
   configurePiiSubjectKms,
@@ -22,18 +21,19 @@ import {
   isPiiCiphertext,
   PII_ERASED_SENTINEL,
 } from "@cosmicdrift/kumiko-framework/crypto";
+import { asRawClient } from "@cosmicdrift/kumiko-framework/db";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { append, backfillEventPiiEncryptionBatch } from "@cosmicdrift/kumiko-framework/event-store";
 import {
   listProjectionsWithState,
   rebuildProjection,
 } from "@cosmicdrift/kumiko-framework/pipeline";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-framework/stack";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import {
   resetBlindIndexKeyForTests,
   resetPiiSubjectKmsForTests,
-} from "@cosmicdrift/kumiko-framework/testing";
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+} from "@cosmicdrift/kumiko-testing/helpers";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { createShowPonyAnonymousAccess } from "../tenant-routing";

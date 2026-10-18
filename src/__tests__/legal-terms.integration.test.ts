@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createTemplateResolverFeature } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { seedLegalContentFromJson } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
-import type { TestStack } from "@cosmicdrift/kumiko-framework/stack";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import type { TestStack } from "@cosmicdrift/kumiko-testing/stack";
 import { buildTermsRoutes } from "../legal-terms";
 
 let stack: TestStack;

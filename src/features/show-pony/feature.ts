@@ -37,7 +37,7 @@ const rsvpReadAccess = { access: { roles: access.admin } } as const;
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
-  r.requires("config", "managed-pages");
+  r.requires({ features: ["config", "managed-pages"] });
 
   r.config({ keys: INVITE_BRANDING_KEYS });
 
@@ -48,7 +48,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
     localizedTemplate: rsvpConfirmationTemplate,
   });
 
-  r.entity("event", eventEntity);
+  r.entity({ name: "event", ...eventEntity });
   r.writeHandler(eventCreateHandler);
   r.writeHandler(eventUpdateHandler);
   r.writeHandler(eventDeleteHandler);
@@ -58,7 +58,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(eventBySlugQuery);
   r.queryHandler(inviteBrandingQuery);
 
-  r.entity("rsvp", rsvpEntity);
+  r.entity({ name: "rsvp", ...rsvpEntity });
   r.writeHandler(rsvpSubmitHandler);
 
   r.queryHandler(
