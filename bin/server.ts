@@ -54,9 +54,9 @@ const stripeWebhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
 const hasConfiguredPrices = Object.keys(priceToTier).length > 0;
 
 const searchWiring = createMeilisearchWiring({
-  url: process.env["MEILI_URL"] ?? "http://localhost:17710",
+  url: process.env["MEILI_URL"] ?? "http://localhost:17700",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
-  // The dev Meilisearch on 17710 is shared with other apps using the default
+  // The dev Meilisearch on 17700 is shared with other apps using the default
   // kumiko_ prefix; the boot rebuild drops every index under this prefix.
   indexPrefix: "showpony_dev_",
 });

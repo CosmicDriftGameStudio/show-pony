@@ -136,7 +136,7 @@ jobs:
             --health-interval=2s --health-timeout=3s --health-retries=30 \
             postgres:18.4-alpine
           docker run -d --name sp-ci-redis -p 16379:6379 redis:8-alpine
-          docker run -d --name sp-ci-meili -p 17710:7700 \
+          docker run -d --name sp-ci-meili -p 17700:7700 \
             -e MEILI_MASTER_KEY=kumiko-dev-key -e MEILI_ENV=development \
             getmeili/meilisearch:v1.12
           for i in $(seq 1 60); do
@@ -148,10 +148,10 @@ jobs:
             exit 1
           fi
           for i in $(seq 1 30); do
-            curl -sf http://localhost:17710/health >/dev/null && break
+            curl -sf http://localhost:17700/health >/dev/null && break
             sleep 2
           done
-          if ! curl -sf http://localhost:17710/health >/dev/null; then
+          if ! curl -sf http://localhost:17700/health >/dev/null; then
             docker logs sp-ci-meili
             exit 1
           fi

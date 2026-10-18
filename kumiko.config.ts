@@ -4,5 +4,5 @@ import { buildAppFeatures, resolveBaseDomainFromEnv } from "./src/run-config";
 export default defineAppConfig({
   features: buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() }),
   client: { entries: ["src/client-admin.tsx", "src/client-public.tsx"] },
-  ports: { dev: 4180, e2e: 4181, infra: { meilisearch: 17710 } },
+  ports: { dev: 4180, e2e: 4181 },
 });

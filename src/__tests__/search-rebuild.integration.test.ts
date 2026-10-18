@@ -1,6 +1,6 @@
 // resetDbOnDeploy wipes the DB but the Meilisearch volume survives: the boot
 // rebuild must drop stale documents/indexes and re-derive the index from the
-// DB. Runs against a real Meilisearch (docker compose / CI service, port 17710)
+// DB. Runs against a real Meilisearch (docker compose / CI service, port 17700)
 // and needs it — no skip when it is missing.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
@@ -36,7 +36,7 @@ const configResolver = createConfigResolver();
 
 // Unique prefix: parallel runs and other apps share the same Meilisearch.
 const connection: MeilisearchConnection = {
-  url: process.env["MEILI_URL"] ?? "http://localhost:17710",
+  url: process.env["MEILI_URL"] ?? "http://localhost:17700",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
   indexPrefix: `sp_rebuild_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}_`,
 };

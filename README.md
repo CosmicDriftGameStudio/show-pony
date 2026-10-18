@@ -23,7 +23,7 @@ You need [Bun](https://bun.sh) and Docker.
 git clone https://github.com/CosmicDriftGameStudio/show-pony
 cd show-pony
 cp .env.example .env
-docker compose up -d      # Postgres, Redis, Meilisearch (port 17710)
+docker compose up -d      # Postgres, Redis, Meilisearch (port 17700)
 bun install
 bun dev
 ```

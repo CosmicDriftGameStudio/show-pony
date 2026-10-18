@@ -25,7 +25,7 @@ Mount more in `src/run-config.ts`. App code lives in `src/features/<name>/`.
 
 | Command | What it does |
 |---|---|
-| `docker compose up -d` | local Postgres, Redis and Meilisearch (port 17710) |
+| `docker compose up -d` | local Postgres, Redis and Meilisearch (port 17700) |
 | `bun dev` | run the app on `show-pony.localhost:4180` |
 | `bun start` | prod boot (`bin/main.ts`); env contract in `bin/env-schema.ts`, local values in `.env.example` |
 | `bun run typecheck` | `tsc` for the app and `e2e/` |
