@@ -8,7 +8,7 @@
 
 import { localeDeClient } from "@cosmicdrift/kumiko-locale-de/web";
 import { createStaticLocaleResolver } from "@cosmicdrift/kumiko-renderer";
-import { createPublicSurface } from "@cosmicdrift/kumiko-renderer-web";
+import { createPublicSurface } from "@cosmicdrift/kumiko-renderer/web";
 import { showPonyTranslationsByLocale } from "../features/show-pony/i18n";
 import { EventPage } from "./EventPage";
 

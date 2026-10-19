@@ -1,4 +1,4 @@
-import { escapeHtml } from "@cosmicdrift/kumiko-headless";
+import { escapeHtml } from "@cosmicdrift/kumiko-renderer/headless";
 import type { Lang } from "./layouts/shared";
 
 export const ICON = {

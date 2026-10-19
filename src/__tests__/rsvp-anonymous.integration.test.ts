@@ -25,9 +25,9 @@ import {
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { seedNotificationTemplates } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
 import { composeRendererStack } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import { asRawClient } from "@cosmicdrift/kumiko-framework/db";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";

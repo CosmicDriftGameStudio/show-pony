@@ -21,12 +21,10 @@ import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pag
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
+import { createE2eSeedRoutes } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
-import {
-  createE2eSeedRoutes,
-  isE2eSeedingEnabled,
-} from "@cosmicdrift/kumiko-testing/e2e/seed-route";
+import { isE2eSeedingEnabled } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { priceToTierFromEnv } from "../src/features/show-pony/tier-map";
 import legalContent from "../src/generated/legal-content.json";

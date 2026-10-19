@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createLegalPagesFeature } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createTemplateResolverFeature } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { seedLegalContentFromJson } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
-import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
+import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { TestStack } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyLegalLayout } from "../marketing/layouts/legal";
 

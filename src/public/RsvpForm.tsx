@@ -2,7 +2,7 @@
 // email optional. Inline success on submit, no redirect.
 
 import { usePrimitives, useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { ModeSwitch } from "@cosmicdrift/kumiko-renderer-web";
+import { ModeSwitch } from "@cosmicdrift/kumiko-renderer/web";
 import { type ReactElement, useState } from "react";
 import { type RsvpStatus, submitRsvp } from "./api";
 

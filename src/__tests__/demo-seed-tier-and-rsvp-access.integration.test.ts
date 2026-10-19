@@ -5,6 +5,8 @@
 //   - event:create is stock-capped by tier (free tier = 1 event); the
 //     demo tenant needs 2, so the seed grants "starter" via a
 //     SystemAdmin-gated set-tenant-tier write.
+import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
+
 //   - rsvp:submit is gated on access.anonymous; the bare system actor has
 //     neither role without extraRoles.
 // Not a full seed.run() rehearsal — the other seed paths (branding config,
@@ -14,7 +16,6 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import { createSeedMigrationContext } from "@cosmicdrift/kumiko-framework/es-ops";
-import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { DEMO_TENANT_ID } from "../../seeds/_demo-event-db";
 import { resolveTierCaps, tierAssignmentTable } from "../features/show-pony/tier-resolver";

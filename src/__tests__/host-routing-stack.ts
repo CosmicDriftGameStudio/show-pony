@@ -7,8 +7,8 @@ import {
   resolveAnonymousAccessFromRegistry,
 } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import { createHostRoutingFeature } from "@cosmicdrift/kumiko-bundled-features/host-routing";
+import type { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
-import type { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { showPonyHostRoutingOptions } from "../run-config";
 
 export function hostRoutingFeatures(baseDomain: string): FeatureDefinition[] {

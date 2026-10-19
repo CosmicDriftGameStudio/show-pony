@@ -1,11 +1,11 @@
-import { escapeHtml } from "@cosmicdrift/kumiko-headless";
+import { escapeHtml } from "@cosmicdrift/kumiko-renderer/headless";
 import {
   APEX_NAV_MENU_CSS,
   APEX_NAV_TOGGLE_RESPONSIVE_CSS,
   type ApexFooter,
   type ApexHeader,
   renderApexHeader,
-} from "@cosmicdrift/kumiko-headless/apex";
+} from "@cosmicdrift/kumiko-renderer/headless/apex";
 import { LOGO_ICON } from "../../brand-mark";
 import { localeRouter } from "../locale-routes";
 
