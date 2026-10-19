@@ -32,6 +32,7 @@ import {
   composeRendererStack,
   composeSecurityStack,
 } from "@cosmicdrift/kumiko-dev-server/compose-stacks";
+import { createDocumentDesignerFeature } from "@cosmicdrift/kumiko-document-designer";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
@@ -81,6 +82,7 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     ...composeSecurityStack(),
     createHostRoutingFeature(showPonyHostRoutingOptions(routing.baseDomain)),
     ...composeRendererStack(),
+    createDocumentDesignerFeature(),
     createLegalPagesFeature({ wrapLayout: showPonyLegalLayout, terms: true }),
     createManagedPagesFeature({
       resolveApexTenant: resolveSubdomainPageTenant,

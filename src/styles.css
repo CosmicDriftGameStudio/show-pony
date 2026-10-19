@@ -3,9 +3,14 @@
    hero palette. Admin + public share this file; the guest page adds
    `.show-pony-public` on <body> for a slightly warmer invite surface. */
 
-@import "@cosmicdrift/kumiko-renderer-web/styles.css";
+@import "@cosmicdrift/kumiko-renderer/web/styles.css";
 
 @source "./**/*.{ts,tsx}";
+/* The renderer stylesheet scans the designer only via a monorepo-relative path
+   (../../../document-designer) that does not exist in an npm install. */
+@source "../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
+@source "../../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
+@source "../../../../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
 
 @theme {
   /* Dark — deep violet chrome (not renderer neutral gray). */

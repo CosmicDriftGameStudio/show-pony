@@ -269,3 +269,57 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
     },
   },
 ];
+
+const RSVP_MAIL_LABEL = /RSVP confirmation|Antwortbestätigung/;
+const EVENT_TITLE_LABEL = /Event title|Titel des Events/;
+const GUEST_ANSWER_LABEL = /Guest's answer|Antwort des Gasts/;
+const EXAMPLE_EVENT_TITLE = /Rooftop Launch Party|Sommerfest auf der Dachterrasse/;
+const EXAMPLE_ANSWER = /Coming|Ich komme/;
+
+async function openRsvpMailEditor(page: Page, fixtures: ScenarioFixtures): Promise<void> {
+  await loginDemoHost(page, fixtures);
+  await page.goto(`${APEX_URL}/host/templates`);
+  const row = page.getByRole("row").filter({ hasText: RSVP_MAIL_LABEL });
+  await expect(row).toHaveCount(1);
+  await row.getByRole("button", { name: /Edit|Bearbeiten/ }).click();
+  await expect(page.getByTestId("document-designer-mail-editor")).toBeVisible();
+}
+
+// Mail templates of the host, edited in the document designer. The locale axis
+// runs en + de so both the labels and the translated example values are captured.
+export const DESIGNER_SCENARIOS: readonly Scenario[] = [
+  {
+    name: "host-templates",
+    description: "Template overview — RSVP confirmation mail listed under its registered label",
+    flow: async (page, fixtures) => {
+      await loginDemoHost(page, fixtures);
+      await page.goto(`${APEX_URL}/host/templates`);
+      await expect(page.getByRole("row").filter({ hasText: RSVP_MAIL_LABEL })).toHaveCount(1);
+    },
+  },
+  {
+    name: "host-mail-editor",
+    description: "Mail editor — variable rail shows translated labels for the RSVP confirmation",
+    flow: async (page, fixtures) => {
+      await openRsvpMailEditor(page, fixtures);
+      const rail = page.getByTestId("mail-editor-placeholders");
+      await expect(rail).toContainText(EVENT_TITLE_LABEL);
+      await expect(rail).toContainText(GUEST_ANSWER_LABEL);
+    },
+  },
+  {
+    name: "host-mail-preview",
+    description: "Mail editor preview mode — translated example values fill the placeholders",
+    flow: async (page, fixtures) => {
+      await openRsvpMailEditor(page, fixtures);
+      await page
+        .getByTestId("mail-mode-switch")
+        .getByRole("button", { name: /Preview|Vorschau/ })
+        .click();
+      await expect(page.getByTestId("mail-preview-side")).toBeVisible();
+      const frame = page.frameLocator('[data-testid="mail-preview-iframe"]');
+      await expect(frame.locator("body")).toContainText(EXAMPLE_EVENT_TITLE);
+      await expect(frame.locator("body")).toContainText(EXAMPLE_ANSWER);
+    },
+  },
+];

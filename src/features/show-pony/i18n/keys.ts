@@ -162,6 +162,23 @@ export const showPonyTranslations = {
     de: "Die Gästeliste ist voll.",
     en: "The guest list is full.",
   },
+  // Names the mail template in the document designer: the feature group and one entry per notification.
+  "showpony:feature.label": { de: "Show Pony", en: "Show Pony" },
+  "showpony:notify.rsvp-confirmation.label": {
+    de: "Antwortbestätigung",
+    en: "RSVP confirmation",
+  },
+
+  // Variable names in the designer's rail and chips; hosts edit this template.
+  "showpony:mail.variable.eventTitle": { de: "Titel des Events", en: "Event title" },
+  "showpony:mail.variable.answer": { de: "Antwort des Gasts", en: "Guest's answer" },
+  // Example values in the designer preview; answer must equal the mail's "yes" answer text.
+  "showpony:mail.example.eventTitle": {
+    de: "Sommerfest auf der Dachterrasse",
+    en: "Rooftop Launch Party",
+  },
+  "showpony:mail.example.answer": { de: "Ich komme", en: "Coming" },
+
   // Delivery-log label for the qualified type `showpony:notify:rsvp-confirmation`.
   "showpony.notification.rsvp-confirmation": {
     de: "Antwortbestätigung",
