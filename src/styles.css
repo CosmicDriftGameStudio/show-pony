@@ -10,7 +10,7 @@
    (../../../document-designer) that does not exist in an npm install. */
 @source "../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
 @source "../../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
-@source "../../../../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
+@source "../../../node_modules/@cosmicdrift/kumiko-document-designer/dist/**/*.js";
 
 @theme {
   /* Dark — deep violet chrome (not renderer neutral gray). */

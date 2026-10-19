@@ -504,7 +504,7 @@
       "version": "0.344.0",
       "title": "Consumer-protection gaps - per-locale legal links, gate order, confirmation mail, exports",
       "resolution": "not-applicable",
-      "reason": "Demo app: no consumer checkout, legal links and confirmation mail stay as shipped (Marc, 2026-10-19).",
+      "reason": "Demo app: consumerProtection deliberately not mounted; Stripe checkout via priceToTier stays as shipped, legal links and confirmation mail unchanged (Marc, 2026-10-19).",
       "resolvedAt": "2026-10-19T20:00:00.000000Z"
     },
     {
