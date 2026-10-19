@@ -9,8 +9,8 @@ import {
   BRANDING_QN,
   createManagedPagesFeature,
 } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import { createSystemUser, type SessionUser } from "@cosmicdrift/kumiko-framework/engine";
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";

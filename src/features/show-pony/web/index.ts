@@ -1,4 +1,4 @@
-import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer-web";
+import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer/web";
 import { showPonyTranslationsByLocale } from "../i18n";
 import { ShowPonyUsagePanel } from "./usage-panel";
 

@@ -1,7 +1,23 @@
 {
-  "version": "0.371.1",
-  "appliedAt": "2026-10-19T08:20:35.979163635Z",
-  "codemods": [],
+  "version": "0.377.0",
+  "appliedAt": "2026-10-19T19:29:36.005366Z",
+  "codemods": [
+    {
+      "version": "0.372.0",
+      "codemod": "scripts/codemod/remove-engine-payload-casts.ts",
+      "title": "executor.detail() and executor.list() return EntityRow<E>, derived from the entity definition"
+    },
+    {
+      "version": "0.376.0",
+      "codemod": "scripts/codemod/testing-injection.ts",
+      "title": "Test stack and seed helpers moved to @cosmicdrift/kumiko-dev-server/testing"
+    },
+    {
+      "version": "0.377.0",
+      "codemod": "scripts/codemod/package-merge.ts",
+      "title": "http moved into framework"
+    }
+  ],
   "resolvedManual": [
     {
       "id": "0.346.0:693f3da9",
@@ -488,8 +504,8 @@
       "version": "0.344.0",
       "title": "Consumer-protection gaps - per-locale legal links, gate order, confirmation mail, exports",
       "resolution": "not-applicable",
-      "reason": "Server mounts no createBillingFoundationFeature consumerProtection; only billingFoundationClient is used (grep src/bin).",
-      "resolvedAt": "2026-10-08T09:48:29.702664Z"
+      "reason": "Demo app: consumerProtection deliberately not mounted; Stripe checkout via priceToTier stays as shipped, legal links and confirmation mail unchanged (Marc, 2026-10-19).",
+      "resolvedAt": "2026-10-19T20:00:00.000000Z"
     },
     {
       "id": "0.352.0:99753012",
@@ -1282,6 +1298,102 @@
       "resolution": "not-applicable",
       "reason": "no tenant SMTP use",
       "resolvedAt": "2026-10-18T17:04:01.554645Z"
+    },
+    {
+      "id": "0.377.0:6f304e9d",
+      "version": "0.377.0",
+      "title": "Provider contexts expose auditUserId instead of _userId",
+      "resolution": "not-applicable",
+      "reason": "No hand-built provider or job context; grep _userId over src, bin, seeds, e2e: no hits.",
+      "resolvedAt": "2026-10-19T19:34:30.712924Z"
+    },
+    {
+      "id": "0.377.0:2bbbe839",
+      "version": "0.377.0",
+      "title": "JobContext._userId removed",
+      "resolution": "not-applicable",
+      "reason": "No hand-built provider or job context; grep _userId over src, bin, seeds, e2e: no hits.",
+      "resolvedAt": "2026-10-19T19:34:30.712924Z"
+    },
+    {
+      "id": "0.376.0:aed66582",
+      "version": "0.376.0",
+      "title": "effectiveFeatures is gone from runProdApp, runDevApp and runWorkerApp",
+      "resolution": "not-applicable",
+      "reason": "bin/main.ts passes no effectiveFeatures to runProdApp (grep: no hits); tier gating runs through createTierEngineFeature in run-config.ts.",
+      "resolvedAt": "2026-10-19T19:34:30.901712Z"
+    },
+    {
+      "id": "0.376.0:55d4f0c1",
+      "version": "0.376.0",
+      "title": "The default mail resolver only reaches members of the notifying tenant",
+      "resolution": "not-applicable",
+      "reason": "createChannelEmailFeature mounts its own resolveEmail (always null): guests are routed by the typed address, no user lookup; no mail boot option.",
+      "resolvedAt": "2026-10-19T19:34:31.093886Z"
+    },
+    {
+      "id": "0.374.0:da980756",
+      "version": "0.374.0",
+      "title": "tenant-caps:list pages by offset and rejects cursor",
+      "resolution": "not-applicable",
+      "reason": "No caller of cap-overview:query:tenant-caps:list and no cap-overview i18n overrides (grep tenant-caps:list, invalidCursor, sortFieldUnsupported: no hits).",
+      "resolvedAt": "2026-10-19T19:34:31.284915Z"
+    },
+    {
+      "id": "0.374.0:c12fa0d0",
+      "version": "0.374.0",
+      "title": "DashboardChartPanel.valueFormat only takes the currency format",
+      "resolution": "not-applicable",
+      "reason": "No valueFormat or DashboardValueFormat in src (grep: no hits); dashboards come from admin-shell DEFAULT_METRICS.",
+      "resolvedAt": "2026-10-19T19:34:31.4915Z"
+    },
+    {
+      "id": "0.373.0:da1166ae",
+      "version": "0.373.0",
+      "title": "rateLimit accepts a list of buckets that are enforced all-or-nothing",
+      "resolution": "not-applicable",
+      "reason": "No custom RateLimitResolver, enforceAll or additionalRateLimits; rsvp:submit keeps its single-bucket rateLimit (grep: only an error string in seed-boot-safety.test.ts).",
+      "resolvedAt": "2026-10-19T19:34:31.693622Z"
+    },
+    {
+      "id": "0.372.0:a4d33892",
+      "version": "0.372.0",
+      "title": "Queued delivery jobs carry the recipient address sealed",
+      "resolution": "not-applicable",
+      "reason": "No direct createDeliveryService call; delivery is wired by runProdApp with the secrets master key, single process without a separate worker.",
+      "resolvedAt": "2026-10-19T19:34:31.884449Z"
+    },
+    {
+      "id": "0.372.0:20a582e5",
+      "version": "0.372.0",
+      "title": "Orphaned upload bytes are swept through a new upload ledger",
+      "resolution": "not-applicable",
+      "reason": "No files feature mounted (grep createFilesFeature, composeFileStack: no hits); kumiko check boot: migrations match the entity definitions.",
+      "resolvedAt": "2026-10-19T19:34:32.099283Z"
+    },
+    {
+      "id": "0.372.0:01af8eda",
+      "version": "0.372.0",
+      "title": "executor.detail() and executor.list() return EntityRow<E>, derived from the entity definition",
+      "resolution": "migrated",
+      "reason": "Codemod remove-engine-payload-casts rewrote 0 sites; no row casts on executor.detail/list in src (grep: no hits).",
+      "resolvedAt": "2026-10-19T19:34:32.284094Z"
+    },
+    {
+      "id": "0.372.0:d9c8517f",
+      "version": "0.372.0",
+      "title": "Tokens carrying system or all lose those roles on verify",
+      "resolution": "not-applicable",
+      "reason": "No self-minted system tokens: tests sign member/admin users via stack.jwt.sign and run system writes through stack.dispatcher with createSystemUser (grep roles system: no hits).",
+      "resolvedAt": "2026-10-19T19:34:32.544443Z"
+    },
+    {
+      "id": "0.372.0:459dc581",
+      "version": "0.372.0",
+      "title": "http.route and the metric route label carry the route pattern, http.target is removed",
+      "resolution": "not-applicable",
+      "reason": "No dashboards, alerts or trace queries keyed on http.target or http.request in the repo (grep over src, bin, deploy, docker: no hits).",
+      "resolvedAt": "2026-10-19T19:34:32.756625Z"
     }
   ]
 }

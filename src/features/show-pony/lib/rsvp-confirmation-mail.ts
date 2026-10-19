@@ -18,13 +18,29 @@ import type { RsvpStatus } from "../schema/rsvp";
 export const RSVP_CONFIRMATION_NOTIFICATION = "rsvp-confirmation";
 export const RSVP_CONFIRMATION_TYPE = "showpony:notify:rsvp-confirmation";
 
+export function mailVariableLabel(name: string): string {
+  return `showpony:mail.variable.${name}`;
+}
+
+export function mailVariableExample(name: string): string {
+  return `showpony:mail.example.${name}`;
+}
+
 export const RSVP_CONFIRMATION_VARIABLES: TemplateVariables = {
-  eventTitle: templateVariable.text({ required: true, example: "Rooftop Launch Party" }),
-  answer: templateVariable.text({ required: true, example: "Coming" }),
+  eventTitle: templateVariable.text({
+    label: mailVariableLabel("eventTitle"),
+    required: true,
+    example: mailVariableExample("eventTitle"),
+  }),
+  answer: templateVariable.text({
+    label: mailVariableLabel("answer"),
+    required: true,
+    example: mailVariableExample("answer"),
+  }),
 };
 
 const MAIL_LOCALES = ["en", "de"] as const;
-type MailLocale = (typeof MAIL_LOCALES)[number];
+export type MailLocale = (typeof MAIL_LOCALES)[number];
 
 function isMailLocale(language: string): language is MailLocale {
   return (MAIL_LOCALES as readonly string[]).includes(language);
@@ -56,6 +72,10 @@ const MAIL_STRINGS: Readonly<Record<MailLocale, MailStrings>> = {
     answers: { yes: "Ich komme", no: "Ich komme nicht", maybe: "Vielleicht" },
   },
 };
+
+export function rsvpAnswerLabel(locale: MailLocale, status: RsvpStatus): string {
+  return MAIL_STRINGS[locale].answers[status];
+}
 
 export function rsvpConfirmationTemplate(): NotificationLocalizedTemplate {
   return Object.fromEntries(
@@ -90,7 +110,7 @@ export async function sendRsvpConfirmation(
     }
     await ctx.notify(RSVP_CONFIRMATION_TYPE, {
       route: { email: payload.email },
-      data: { eventTitle: eventRow.title, answer: MAIL_STRINGS[locale].answers[payload.status] },
+      data: { eventTitle: eventRow.title, answer: rsvpAnswerLabel(locale, payload.status) },
       priority: "normal",
       locale,
     });

@@ -4,7 +4,12 @@
 // check. Two calls because four marketing/legal pages have fixed dark brand
 // chrome that never reacts to .dark — they only need the light capture.
 import { applyDefaultTheme, DEFAULT_THEMES, runMatrix } from "@cosmicdrift/kumiko-testing/e2e";
-import { BILLING_SCENARIOS, FIXED_CHROME_SCENARIOS, THEMEABLE_SCENARIOS } from "./scenarios";
+import {
+  BILLING_SCENARIOS,
+  DESIGNER_SCENARIOS,
+  FIXED_CHROME_SCENARIOS,
+  THEMEABLE_SCENARIOS,
+} from "./scenarios";
 
 runMatrix(THEMEABLE_SCENARIOS, {
   themes: DEFAULT_THEMES,
@@ -22,4 +27,10 @@ runMatrix(BILLING_SCENARIOS, {
   themes: ["default-light"],
   applyTheme: applyDefaultTheme,
   locales: ["de"],
+});
+
+runMatrix(DESIGNER_SCENARIOS, {
+  themes: ["default-light"],
+  applyTheme: applyDefaultTheme,
+  locales: ["en", "de"],
 });

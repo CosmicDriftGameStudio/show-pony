@@ -11,8 +11,8 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { EntityId, SessionUser, TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { Meilisearch } from "meilisearch";
 import {

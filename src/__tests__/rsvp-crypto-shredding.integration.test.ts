@@ -14,6 +14,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createCryptoShreddingFeature } from "@cosmicdrift/kumiko-bundled-features/crypto-shredding";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import {
   configureBlindIndexKey,
   configurePiiSubjectKms,
@@ -28,7 +29,6 @@ import {
   listProjectionsWithState,
   rebuildProjection,
 } from "@cosmicdrift/kumiko-framework/pipeline";
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import {
   resetBlindIndexKeyForTests,
   resetPiiSubjectKmsForTests,

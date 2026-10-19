@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { APEX_NAV_TOGGLE_RESPONSIVE_CSS } from "@cosmicdrift/kumiko-headless/apex";
+import { APEX_NAV_TOGGLE_RESPONSIVE_CSS } from "@cosmicdrift/kumiko-renderer/headless/apex";
 import { SHARED_CSS } from "./shared";
 
 describe("SHARED_CSS mobile nav-toggle", () => {

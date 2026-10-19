@@ -3,7 +3,7 @@ import {
   type ApexPricingTier,
   type ApexSection,
   renderApexPage,
-} from "@cosmicdrift/kumiko-headless/apex";
+} from "@cosmicdrift/kumiko-renderer/headless/apex";
 import { LOGIN_PATH } from "../../auth-paths";
 import { LOGO_HERO, LOGO_ICON, LOGO_PONY } from "../../brand-mark";
 import { gridFeatures } from "../features-catalog";

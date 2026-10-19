@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { showPonyTranslations } from "../features/show-pony/i18n/keys";
 import {
+  mailVariableExample,
+  mailVariableLabel,
   RSVP_CONFIRMATION_VARIABLES,
+  rsvpAnswerLabel,
   rsvpConfirmationTemplate,
 } from "../features/show-pony/lib/rsvp-confirmation-mail";
 
@@ -31,4 +35,35 @@ describe("rsvpConfirmationTemplate", () => {
       expect(subject).toContain("eventTitle");
     },
   );
+});
+
+describe("mail variable translations", () => {
+  const entries = Object.entries(RSVP_CONFIRMATION_VARIABLES);
+  const translations: Readonly<Record<string, { readonly de: string; readonly en: string }>> =
+    showPonyTranslations;
+  const translationOf = (key: string) => translations[key];
+
+  test("every variable has a de and en label", () => {
+    for (const [name] of entries) {
+      const entry = translationOf(mailVariableLabel(name));
+      expect(entry?.de, name).toBeTruthy();
+      expect(entry?.en, name).toBeTruthy();
+    }
+  });
+
+  test("every text variable has a de and en example behind its example key", () => {
+    for (const [name, variable] of entries) {
+      if (variable.type !== "text" && variable.type !== "richText") continue;
+      expect(variable.example, name).toBe(mailVariableExample(name));
+      const entry = translationOf(mailVariableExample(name));
+      expect(entry?.de, name).toBeTruthy();
+      expect(entry?.en, name).toBeTruthy();
+    }
+  });
+
+  test.each(["en", "de"] as const)("%s answer example matches the sent yes answer", (locale) => {
+    expect(translationOf(mailVariableExample("answer"))?.[locale]).toBe(
+      rsvpAnswerLabel(locale, "yes"),
+    );
+  });
 });

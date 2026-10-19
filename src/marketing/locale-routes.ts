@@ -1,4 +1,4 @@
-import { createLocaleRouter } from "@cosmicdrift/kumiko-headless/locale-routing";
+import { createLocaleRouter } from "@cosmicdrift/kumiko-renderer/headless/locale-routing";
 
 export type ShowPonyPage = "home" | "features" | "pricing";
 

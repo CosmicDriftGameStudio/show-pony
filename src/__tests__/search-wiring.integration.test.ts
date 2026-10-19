@@ -7,10 +7,10 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { TenantHandlers } from "@cosmicdrift/kumiko-bundled-features/tenant";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import type { SearchAdapter, SearchAdapterConfig } from "@cosmicdrift/kumiko-framework/search";
 import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import {
   collectSearchableFieldNames,

@@ -1,5 +1,9 @@
-import { escapeHtml } from "@cosmicdrift/kumiko-headless";
-import { type ApexPage, type ApexSection, renderApexPage } from "@cosmicdrift/kumiko-headless/apex";
+import { escapeHtml } from "@cosmicdrift/kumiko-renderer/headless";
+import {
+  type ApexPage,
+  type ApexSection,
+  renderApexPage,
+} from "@cosmicdrift/kumiko-renderer/headless/apex";
 import { LOGIN_PATH } from "../../auth-paths";
 import { LOGO_HERO, LOGO_ICON, LOGO_PONY } from "../../brand-mark";
 import { detailFeatures, tutorialLinksHtml } from "../features-catalog";

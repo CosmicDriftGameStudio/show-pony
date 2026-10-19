@@ -1,5 +1,5 @@
 import { useLocale, useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { ProgressBar } from "@cosmicdrift/kumiko-renderer-web";
+import { ProgressBar } from "@cosmicdrift/kumiko-renderer/web";
 import type { ReactNode } from "react";
 import type { CapUsage } from "../handlers/usage.query";
 

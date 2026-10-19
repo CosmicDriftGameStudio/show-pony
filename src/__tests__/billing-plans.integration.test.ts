@@ -27,10 +27,10 @@ import {
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
+import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import { defineFeature, type TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
-import { setupAppTestStack } from "@cosmicdrift/kumiko-testing";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
 import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";

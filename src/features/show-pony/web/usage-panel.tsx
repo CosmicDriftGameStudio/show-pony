@@ -3,7 +3,7 @@ import {
   SubscriptionFoundationQueries,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation/web";
 import { type ExtensionSectionProps, useQuery, useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { ErrorState, LoadingState, SectionCard } from "@cosmicdrift/kumiko-renderer-web";
+import { ErrorState, LoadingState, SectionCard } from "@cosmicdrift/kumiko-renderer/web";
 import type { ReactNode } from "react";
 import type { UsageInfo } from "../handlers/usage.query";
 import { isUpgradeOffered } from "./billing-upgrade-hint";
