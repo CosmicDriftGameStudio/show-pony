@@ -3,6 +3,26 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.378.0] - 2026-10-20
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.377.0 → 0.378.0
+
+### Breaking
+
+- 0.378.0 · Template editing is SystemAdmin-only unless the app unlocks it
+- 0.378.0 · Boot check for projectionList writeHandler actions
+- 0.378.0 · Designer screens are SystemAdmin-only unless the app passes access
+- 0.378.0 · Renderer stylesheet no longer scans the document designer
+
+### Manual migrations
+
+- [open] 0.378.0:9ba4dbff · 0.378.0 · Template editing is SystemAdmin-only unless the app unlocks it
+- [open] 0.378.0:bf2b6dab · 0.378.0 · Boot check for projectionList writeHandler actions
+- [open] 0.378.0:2a2e894e · 0.378.0 · Designer screens are SystemAdmin-only unless the app passes access
+- [open] 0.378.0:90f527f5 · 0.378.0 · Renderer stylesheet no longer scans the document designer
+
 ## [0.377.0] - 2026-10-19
 
 ### Changed
