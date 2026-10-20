@@ -1,6 +1,6 @@
 {
-  "version": "0.377.0",
-  "appliedAt": "2026-10-19T19:29:36.005366Z",
+  "version": "0.378.0",
+  "appliedAt": "2026-10-20T07:14:25.167162Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -1394,6 +1394,38 @@
       "resolution": "not-applicable",
       "reason": "No dashboards, alerts or trace queries keyed on http.target or http.request in the repo (grep over src, bin, deploy, docker: no hits).",
       "resolvedAt": "2026-10-19T19:34:32.756625Z"
+    },
+    {
+      "id": "0.378.0:9ba4dbff",
+      "version": "0.378.0",
+      "title": "Template editing is SystemAdmin-only unless the app unlocks it",
+      "resolution": "migrated",
+      "reason": "tenantEditable for showpony:notify:rsvp-confirmation via TENANT_EDITABLE_TEMPLATES in run-config",
+      "resolvedAt": "2026-10-20T07:15:01.969863Z"
+    },
+    {
+      "id": "0.378.0:2a2e894e",
+      "version": "0.378.0",
+      "title": "Designer screens are SystemAdmin-only unless the app passes access",
+      "resolution": "migrated",
+      "reason": "Designer access = templateEditAccess(TENANT_EDITABLE_TEMPLATES)",
+      "resolvedAt": "2026-10-20T07:15:02.181802Z"
+    },
+    {
+      "id": "0.378.0:90f527f5",
+      "version": "0.378.0",
+      "title": "Renderer stylesheet no longer scans the document designer",
+      "resolution": "migrated",
+      "reason": "styles.css imports designer stylesheet, @source lines removed",
+      "resolvedAt": "2026-10-20T07:15:02.388365Z"
+    },
+    {
+      "id": "0.378.0:bf2b6dab",
+      "version": "0.378.0",
+      "title": "Boot check for projectionList writeHandler actions",
+      "resolution": "not-applicable",
+      "reason": "Boot check passes in kumiko check; no projectionList writeHandler actions",
+      "resolvedAt": "2026-10-20T07:15:02.593592Z"
     }
   ]
 }

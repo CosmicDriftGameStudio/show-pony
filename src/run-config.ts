@@ -26,6 +26,7 @@ import {
   DEFAULT_METRICS,
 } from "@cosmicdrift/kumiko-bundled-features/metrics";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
+import { templateEditAccess } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import {
@@ -38,6 +39,7 @@ import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
 import { createShowPonyBillingFoundationFeature } from "./features/show-pony/billing/plan-catalog";
 import { showPonyFeature } from "./features/show-pony/feature";
+import { TENANT_EDITABLE_TEMPLATES } from "./features/show-pony/tenant-editable-templates";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { showPonyLegalLayout } from "./marketing/layouts/legal";
 import { resolveSubdomainPageTenant } from "./tenant-routing";
@@ -81,8 +83,8 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createAuthFoundationFeature(),
     ...composeSecurityStack(),
     createHostRoutingFeature(showPonyHostRoutingOptions(routing.baseDomain)),
-    ...composeRendererStack(),
-    createDocumentDesignerFeature(),
+    ...composeRendererStack({ templateResolver: { tenantEditable: TENANT_EDITABLE_TEMPLATES } }),
+    createDocumentDesignerFeature({ access: templateEditAccess(TENANT_EDITABLE_TEMPLATES) }),
     createLegalPagesFeature({ wrapLayout: showPonyLegalLayout, terms: true }),
     createManagedPagesFeature({
       resolveApexTenant: resolveSubdomainPageTenant,
