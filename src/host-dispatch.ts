@@ -12,7 +12,7 @@ import {
   dispatchShowPonyApexStatic,
   dispatchShowPonyApexStaticDev,
 } from "./marketing/locale-routes";
-import { showPonyHostRoutingOptions } from "./run-config";
+import { showPonyHostRoutingOptions } from "./tenant-routing";
 
 type HostDispatchFn = NonNullable<RunProdAppOptions["hostDispatch"]>;
 type DevHostDispatch = ReturnType<typeof toDevHostDispatch>;

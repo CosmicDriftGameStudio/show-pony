@@ -3,15 +3,10 @@
 import { useLocale, useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { type ReactElement, useEffect, useState } from "react";
 import { fetchDemoMode } from "./demo-mode-client";
-import {
-  DEMO_ACCOUNT_LABELS,
-  type DemoModePayload,
-  findDemoLinkHref,
-  TUTORIAL_LINK_LABEL,
-} from "./demo-mode-notice";
+import { type DemoModePayload, findDemoLinkHref, TUTORIAL_LINK_LABEL } from "./demo-mode-notice";
 
-function localeLabel(entry: { de: string; en: string }, locale: string): string {
-  return locale.startsWith("de") ? entry.de : entry.en;
+function localeLabel(entry: Readonly<Record<string, string>>, locale: string): string {
+  return (locale.startsWith("de") ? entry["de"] : entry["en"]) ?? "";
 }
 
 export function DemoLoginHint(): ReactElement | null {
@@ -37,7 +32,7 @@ export function DemoLoginHint(): ReactElement | null {
             className="rounded border border-[var(--color-border)] bg-[var(--color-background)] px-2 py-1.5"
           >
             <div className="text-xs font-medium text-[var(--color-muted-foreground)]">
-              {localeLabel(DEMO_ACCOUNT_LABELS[account.role], locale)}
+              {account.label === undefined ? account.role : localeLabel(account.label, locale)}
             </div>
             <div className="font-mono text-xs">
               {account.email} / {account.password}

@@ -98,13 +98,6 @@ export STRIPE_PRICE_PRO=price_…
 Sysadmin → **Platform** → Stripe settings → flip **billing live** when keys are set.
 Prod demo stays read-only; tier + usage still show on **Plan & billing**.
 
-After code changes that affect [docs.kumiko.rocks](https://docs.kumiko.rocks/en/show-pony/)
-embeds, sync the tutorial mirror:
-
-```bash
-./scripts/sync-docs-samples.sh
-```
-
 ## Scripts
 
 | Command | What it does |

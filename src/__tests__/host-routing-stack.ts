@@ -9,7 +9,7 @@ import {
 import { createHostRoutingFeature } from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import type { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
-import { showPonyHostRoutingOptions } from "../run-config";
+import { showPonyHostRoutingOptions } from "../tenant-routing";
 
 export function hostRoutingFeatures(baseDomain: string): FeatureDefinition[] {
   return [

@@ -1,6 +1,6 @@
 {
-  "version": "0.378.0",
-  "appliedAt": "2026-10-20T07:14:25.167162Z",
+  "version": "0.383.0",
+  "appliedAt": "2026-10-20T21:41:00.183751Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -16,6 +16,16 @@
       "version": "0.377.0",
       "codemod": "scripts/codemod/package-merge.ts",
       "title": "http moved into framework"
+    },
+    {
+      "version": "0.379.0",
+      "codemod": "scripts/codemod/package-merge.ts",
+      "title": "Re-export shim packages removed"
+    },
+    {
+      "version": "0.379.0",
+      "codemod": "scripts/codemod/feature-layout.ts",
+      "title": "Client files of a feature live under web/"
     }
   ],
   "resolvedManual": [
@@ -1426,6 +1436,182 @@
       "resolution": "not-applicable",
       "reason": "Boot check passes in kumiko check; no projectionList writeHandler actions",
       "resolvedAt": "2026-10-20T07:15:02.593592Z"
+    },
+    {
+      "id": "0.383.0:9b3a6c92",
+      "version": "0.383.0",
+      "title": "Job handlers can return ctx.defer(ms)",
+      "resolution": "not-applicable",
+      "reason": "No hand-built JobContext literals and no job handler returning defer in show-pony.",
+      "resolvedAt": "2026-10-20T21:45:30.447389Z"
+    },
+    {
+      "id": "0.383.0:e58d6a0e",
+      "version": "0.383.0",
+      "title": "Placeholder reasons are rejected at boot and at runtime",
+      "resolution": "not-applicable",
+      "reason": "Grepped declareEscapeHatch, unsafeRaw, acknowledgeCrossTenant, acknowledgeConventionCrossTenant, unsafeAllTenants: none used in src, bin, seeds.",
+      "resolvedAt": "2026-10-20T21:45:30.742777Z"
+    },
+    {
+      "id": "0.383.0:85ebb6fc",
+      "version": "0.383.0",
+      "title": "loadAllEventsByType and LOAD_ALL_EVENTS_ROW_LIMIT are removed",
+      "resolution": "not-applicable",
+      "reason": "loadAllEventsByType is not used anywhere.",
+      "resolvedAt": "2026-10-20T21:45:30.978115Z"
+    },
+    {
+      "id": "0.383.0:80e7d21f",
+      "version": "0.383.0",
+      "title": "metricField is removed from the screen type exports",
+      "resolution": "not-applicable",
+      "reason": "No metrics screens with metricField; only DEFAULT_METRICS from the bundled metrics feature.",
+      "resolvedAt": "2026-10-20T21:45:31.185857Z"
+    },
+    {
+      "id": "0.383.0:a8239cd8",
+      "version": "0.383.0",
+      "title": "globalIpRateLimit and httpRouteRateLimit option onFailClosed is now onFailOpen",
+      "resolution": "not-applicable",
+      "reason": "No globalIpRateLimit or httpRouteRateLimit option set by the app.",
+      "resolvedAt": "2026-10-20T21:45:31.393879Z"
+    },
+    {
+      "id": "0.383.0:9b2c3c63",
+      "version": "0.383.0",
+      "title": "runProdApp requires trustedProxyHops in production",
+      "resolution": "not-applicable",
+      "reason": "bin/main.ts already forwards KUMIKO_TRUSTED_PROXY_HOPS to runProdApp; infra sets it for the deployment, no separate prod path.",
+      "resolvedAt": "2026-10-20T21:45:31.590696Z"
+    },
+    {
+      "id": "0.383.0:5ecbdb44",
+      "version": "0.383.0",
+      "title": "MetricSpec requires the object form with a label",
+      "resolution": "not-applicable",
+      "reason": "No custom MetricSpec; DEFAULT_METRICS from the framework is used.",
+      "resolvedAt": "2026-10-20T21:45:31.799695Z"
+    },
+    {
+      "id": "0.383.0:e2066a6a",
+      "version": "0.383.0",
+      "title": "EditFieldsSection is either fields or groups",
+      "resolution": "not-applicable",
+      "reason": "No EditFieldsSection with fields next to groups in src/features.",
+      "resolvedAt": "2026-10-20T21:45:31.999826Z"
+    },
+    {
+      "id": "0.383.0:f0929413",
+      "version": "0.383.0",
+      "title": "HeaderActionsBar onError receives an ErrorNotice instead of a string",
+      "resolution": "not-applicable",
+      "reason": "HeaderActionsBar is not used by the app.",
+      "resolvedAt": "2026-10-20T21:45:32.199988Z"
+    },
+    {
+      "id": "0.380.0:ba46c719",
+      "version": "0.380.0",
+      "title": "Writes compile only for Writable tables or capable runners",
+      "resolution": "not-applicable",
+      "reason": "tsc --noEmit passes on 0.383.0 without write-type errors; seeds only SELECT via raw runner.",
+      "resolvedAt": "2026-10-20T21:45:32.416239Z"
+    },
+    {
+      "id": "0.379.0:17824d40",
+      "version": "0.379.0",
+      "title": "Overrides of locked templates are no longer served",
+      "resolution": "migrated",
+      "reason": "createTemplateResolverApi now receives the registry in bin/main.ts and bin/server.ts; templates are tenantEditable via TENANT_EDITABLE_TEMPLATES only.",
+      "resolvedAt": "2026-10-20T21:45:32.663809Z"
+    },
+    {
+      "id": "0.379.0:05314008",
+      "version": "0.379.0",
+      "title": "dsgvoSelfServiceFeatures removed",
+      "resolution": "not-applicable",
+      "reason": "dsgvoSelfServiceFeatures is not used.",
+      "resolvedAt": "2026-10-20T21:45:32.891978Z"
+    },
+    {
+      "id": "0.379.0:b076fcc4",
+      "version": "0.379.0",
+      "title": "Form draft content is encrypted per owner",
+      "resolution": "not-applicable",
+      "reason": "App has no form drafts of its own; framework forms only.",
+      "resolvedAt": "2026-10-20T21:45:33.136143Z"
+    },
+    {
+      "id": "0.379.0:c2bdf67a",
+      "version": "0.379.0",
+      "title": "SSE entity signals follow the read access of the connection",
+      "resolution": "not-applicable",
+      "reason": "App uses the generated entity list queries and the framework SSE route; no custom buildServer and no reliance on signals for unexposed entities.",
+      "resolvedAt": "2026-10-20T21:45:33.399578Z"
+    },
+    {
+      "id": "0.379.0:fc65a329",
+      "version": "0.379.0",
+      "title": "Global IP rate-limit middleware default matches runProdApp",
+      "resolution": "not-applicable",
+      "reason": "App does not mount the global IP rate-limit middleware itself; runProdApp owns it.",
+      "resolvedAt": "2026-10-20T21:45:33.696575Z"
+    },
+    {
+      "id": "0.379.0:cac3018d",
+      "version": "0.379.0",
+      "title": "Direct writes on event-fed tables throw at runtime",
+      "resolution": "not-applicable",
+      "reason": "No ctx.db writes on event-fed tables; seeds only run SELECT; integration tests write through the API.",
+      "resolvedAt": "2026-10-20T21:45:33.947065Z"
+    },
+    {
+      "id": "0.379.0:bb83981f",
+      "version": "0.379.0",
+      "title": "buildEntityTableMeta and observabilityOptions removed",
+      "resolution": "not-applicable",
+      "reason": "buildEntityTableMeta and observabilityOptions are not used.",
+      "resolvedAt": "2026-10-20T21:45:34.186581Z"
+    },
+    {
+      "id": "0.379.0:7fdb9b53",
+      "version": "0.379.0",
+      "title": "TenantDb.databaseNow",
+      "resolution": "not-applicable",
+      "reason": "TenantDb.databaseNow is not used.",
+      "resolvedAt": "2026-10-20T21:45:34.441252Z"
+    },
+    {
+      "id": "0.379.0:529404c8",
+      "version": "0.379.0",
+      "title": "HandlerContext.outsideTransaction removed",
+      "resolution": "not-applicable",
+      "reason": "HandlerContext.outsideTransaction is not used.",
+      "resolvedAt": "2026-10-20T21:45:34.687256Z"
+    },
+    {
+      "id": "0.379.0:c0e25ffd",
+      "version": "0.379.0",
+      "title": "kumiko check managed rejects loose Kumiko pins and a missing infraRef",
+      "resolution": "migrated",
+      "reason": "All kumiko-* pins and overrides are exact 0.383.0 and package.json#kumiko.deploy.infraRef is reusables-v1.2.0; kumiko check managed verified.",
+      "resolvedAt": "2026-10-20T21:45:34.93352Z"
+    },
+    {
+      "id": "0.379.0:033de70d",
+      "version": "0.379.0",
+      "title": "Forms ask before unsaved input is discarded",
+      "resolution": "not-applicable",
+      "reason": "Show-pony has no custom edit screens or forms; the framework forms handle unsaved input.",
+      "resolvedAt": "2026-10-20T21:45:35.18482Z"
+    },
+    {
+      "id": "0.379.0:4c9fd9f7",
+      "version": "0.379.0",
+      "title": "Form writes carry a requestId and reuse it only for a safe retry",
+      "resolution": "not-applicable",
+      "reason": "Show-pony has no custom form submit code; the RSVP submit is a plain anonymous write, unchanged.",
+      "resolvedAt": "2026-10-20T21:45:35.440772Z"
     }
   ]
 }

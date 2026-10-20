@@ -1,43 +1,37 @@
-// Host → tenant lookup for managed-pages `resolveApexTenant` (branding reads on the
-// subdomain pages). The anonymous-request tenant itself comes from the FW host-routing
-// feature, not from here.
+// Host → tenant routing options plus the lookup for managed-pages `resolveApexTenant`
+// (branding reads on the subdomain pages). The mapping is the FW host-routing one; only the
+// db is late-bound because managed-pages calls the resolver with the host alone.
 
-import { normalizeHostname } from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import {
-  isTenantServingPublicContent,
-  type TenantLifecycleStatus,
-  tenantTable,
-} from "@cosmicdrift/kumiko-bundled-features/tenant";
+  createHostTenantIdResolver,
+  type HostRoutingOptions,
+} from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
-import { fetchOne } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 
-type TenantRow = {
-  id: TenantId;
-  isEnabled: boolean;
-  status: TenantLifecycleStatus;
-};
-
-// Module-global singleton, not per-stack state: acceptable because
-// resolveApexTenant is wired once at static boot, never per request, and this process only
-// ever runs one app stack. Bind BEFORE the first request that needs it
-// (bindSubdomainPageResolver at boot) — a second stack in the same process would silently
-// share this db.
-let subdomainPageResolver: { db: DbConnection; baseDomain: string } | null = null;
-
-/** Wire db for managed-pages `resolveApexTenant` (boot hook — wired once at static boot). */
-export function bindSubdomainPageResolver(config: { db: DbConnection; baseDomain: string }): void {
-  subdomainPageResolver = config;
+/** The host decides the tenant: apex = host surface, `<key>.<baseDomain>` = guest pages.
+ *  No apexAnonymousTenantId, so anonymous writes on the apex keep answering tenant_required. */
+export function showPonyHostRoutingOptions(baseDomain: string): HostRoutingOptions {
+  return {
+    tenantBy: "host",
+    baseDomain,
+    apex: { file: "admin.html" },
+    tenant: { file: "index.html" },
+    unknownTenant: { file: "index.html" },
+  };
 }
 
-/** Host → tenantId for managed-pages branding reads (subdomain = tenant.key). */
+// Module-global singleton: the process runs one app stack and binds once at static boot,
+// before the first request that needs it.
+let boundResolver: ((host: string) => Promise<TenantId | null>) | null = null;
+
+export function bindSubdomainPageResolver(config: { db: DbConnection; baseDomain: string }): void {
+  boundResolver = createHostTenantIdResolver(
+    showPonyHostRoutingOptions(config.baseDomain),
+    config.db,
+  );
+}
+
 export async function resolveSubdomainPageTenant(host: string): Promise<TenantId | null> {
-  if (!subdomainPageResolver) return null;
-  const { db, baseDomain } = subdomainPageResolver;
-  const hostname = normalizeHostname(host);
-  if (hostname === null || !hostname.endsWith(`.${baseDomain}`)) return null;
-  const key = hostname.slice(0, -(baseDomain.length + 1));
-  if (key === "www") return null;
-  const row = await fetchOne<TenantRow>(db, tenantTable, { key });
-  return row !== undefined && isTenantServingPublicContent(row) ? row.id : null;
+  return boundResolver === null ? null : boundResolver(host);
 }

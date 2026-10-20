@@ -13,10 +13,7 @@ import {
 } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createDeliveryFeature } from "@cosmicdrift/kumiko-bundled-features/delivery";
-import {
-  createHostRoutingFeature,
-  type HostRoutingOptions,
-} from "@cosmicdrift/kumiko-bundled-features/host-routing";
+import { createHostRoutingFeature } from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import { createJobsFeature } from "@cosmicdrift/kumiko-bundled-features/jobs";
 import { createLegalPagesFeature } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
@@ -42,7 +39,7 @@ import { showPonyFeature } from "./features/show-pony/feature";
 import { TENANT_EDITABLE_TEMPLATES } from "./features/show-pony/tenant-editable-templates";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
 import { showPonyLegalLayout } from "./marketing/layouts/legal";
-import { resolveSubdomainPageTenant } from "./tenant-routing";
+import { resolveSubdomainPageTenant, showPonyHostRoutingOptions } from "./tenant-routing";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -63,18 +60,6 @@ export function resolveBaseDomainFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): string {
   return env["BASE_DOMAIN"] ?? "show-pony.localhost";
-}
-
-/** The host decides the tenant: apex = host surface, `<key>.<baseDomain>` = guest pages.
- *  No apexAnonymousTenantId, so anonymous writes on the apex keep answering tenant_required. */
-export function showPonyHostRoutingOptions(baseDomain: string): HostRoutingOptions {
-  return {
-    tenantBy: "host",
-    baseDomain,
-    apex: { file: "admin.html" },
-    tenant: { file: "index.html" },
-    unknownTenant: { file: "index.html" },
-  };
 }
 
 export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition[] {

@@ -12,7 +12,7 @@ import {
 describe("demo-mode notice", () => {
   test("publishes the host and sysadmin accounts and both links", () => {
     const notice = buildDemoNotice("show-pony.kumiko.rocks");
-    expect(notice.accounts).toEqual(["admin", "sysadmin"]);
+    expect(notice.accounts.map((account) => account.role)).toEqual(["admin", "sysadmin"]);
     expect(notice.links.map((link) => link.href)).toEqual([
       "https://show-pony.kumiko.rocks",
       TUTORIAL_URL,
@@ -20,7 +20,8 @@ describe("demo-mode notice", () => {
   });
 
   test("every published account role has a label", () => {
-    for (const role of buildDemoNotice("x.test").accounts) {
+    for (const { role, label } of buildDemoNotice("x.test").accounts) {
+      expect(label).toEqual(DEMO_ACCOUNT_LABELS[role]);
       expect(DEMO_ACCOUNT_LABELS[role].en.length).toBeGreaterThan(0);
     }
   });
