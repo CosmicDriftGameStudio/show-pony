@@ -25,6 +25,7 @@ import { createE2eSeedRoutes } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import { isE2eSeedingEnabled } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
+import appConfig from "../kumiko.config";
 import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
 import { priceToTierFromEnv } from "../src/features/show-pony/tier-map";
 import legalContent from "../src/generated/legal-content.json";
@@ -102,6 +103,7 @@ await runDevApp({
   // Opt-in only: the host-routing provider fills tenantResolver/tenantExists, but never enables anonymous access.
   anonymousAccess: {},
   hostDispatch: createShowPonyDevHostDispatch(BASE_DOMAIN),
+  ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   watchDirs: ["./src", "./bin"],
   extraContext: ({ registry, db }) => {
     bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });

@@ -1,6 +1,6 @@
 {
-  "version": "0.383.1",
-  "appliedAt": "2026-10-21T00:36:07.723831Z",
+  "version": "0.385.0",
+  "appliedAt": "2026-10-21T13:31:20.101922Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -1612,6 +1612,22 @@
       "resolution": "not-applicable",
       "reason": "Show-pony has no custom form submit code; the RSVP submit is a plain anonymous write, unchanged.",
       "resolvedAt": "2026-10-20T21:45:35.440772Z"
+    },
+    {
+      "id": "0.384.0:c4e47f9e",
+      "version": "0.384.0",
+      "title": "Boot fails when a feature leaves a locale out of some of its translation keys",
+      "resolution": "not-applicable",
+      "reason": "Boot validates cleanly with requiredLocales [de, en]; no feature of the app has partial locale coverage",
+      "resolvedAt": "2026-10-21T13:31:13.487628Z"
+    },
+    {
+      "id": "0.384.0:dc44900b",
+      "version": "0.384.0",
+      "title": "Entity text fields must declare a personal stance",
+      "resolution": "not-applicable",
+      "reason": "No raw text/longText entity fields in the app (tsc clean); nothing to migrate",
+      "resolvedAt": "2026-10-21T13:31:13.677988Z"
     }
   ]
 }
