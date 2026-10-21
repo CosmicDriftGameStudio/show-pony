@@ -42,7 +42,7 @@ await runProdApp({
     return {
       configResolver,
       _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-      templateResolver: createTemplateResolverApi(db),
+      templateResolver: createTemplateResolverApi(db, registry),
       searchAdapter: searchWiring.adapter,
     };
   },

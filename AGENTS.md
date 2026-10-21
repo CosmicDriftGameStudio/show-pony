@@ -42,6 +42,5 @@ Mount more in `src/run-config.ts`. App code lives in `src/features/<name>/`.
 - ShowPony is a throwaway demo and tutorial, not a long-lived tenant database. Prod demo data is a resettable fixture: edit the single demo seed `seeds/2026-06-28-demo-event-rsvps.ts` and reset the demo DB; do not stack dated repair seeds.
 - Boot seeds must never throw. `seedsDir: "./seeds"` runs on every prod pod start, so a failing seed is a crash loop (`src/__tests__/seed-boot-safety.test.ts`).
 - `bun dev` skips `seedsDir`. Before shipping seed changes run `bin/main.ts` against Docker Postgres.
-- The host is decided by the subdomain a request arrives on, never by anything the guest sends. Keep anonymous writes (`rsvp:submit`) tenant-scoped through the `host-routing` feature (`showPonyHostRoutingOptions` in `src/run-config.ts`).
+- The host is decided by the subdomain a request arrives on, never by anything the guest sends. Keep anonymous writes (`rsvp:submit`) tenant-scoped through the `host-routing` feature (`showPonyHostRoutingOptions` in `src/tenant-routing.ts`).
 - Never patch the cluster or rollout strategy to get past a boot failure; fix the seed or code and ship it through a PR.
-- After changes that affect the docs tutorial embeds, run `./scripts/sync-docs-samples.sh`.

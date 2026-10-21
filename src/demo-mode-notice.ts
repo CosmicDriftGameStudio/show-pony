@@ -13,10 +13,16 @@ export type DemoModePayload = {
     readonly links?: readonly { readonly label: LocalizedText; readonly href: string }[];
     readonly accounts: readonly {
       readonly role: DemoAccountRole;
+      readonly label?: LocalizedText;
       readonly email: string;
       readonly password: string;
     }[];
   };
+};
+
+export const DEMO_ACCOUNT_LABELS: Record<DemoAccountRole, { de: string; en: string }> = {
+  admin: { de: "Host (Events-Workspace)", en: "Host (Events workspace)" },
+  sysadmin: { de: "Plattform (Sysadmin)", en: "Platform (sysadmin)" },
 };
 
 export const HOST_LOGIN_LINK_LABEL = { de: "Host-Login", en: "Host login" } as const;
@@ -28,7 +34,10 @@ export function buildDemoNotice(baseDomain: string) {
     // Publishing the sysadmin login is deliberate: writes are blocked read-only regardless of
     // role, so the only extra exposure is anonymous cross-tenant READS. It backs the
     // tutorial's "here's what a platform admin sees" walkthrough.
-    accounts: ["admin", "sysadmin"] satisfies DemoAccountRole[],
+    accounts: [
+      { role: "admin", label: DEMO_ACCOUNT_LABELS.admin },
+      { role: "sysadmin", label: DEMO_ACCOUNT_LABELS.sysadmin },
+    ] satisfies { role: DemoAccountRole; label: LocalizedText }[],
     links: [
       { label: HOST_LOGIN_LINK_LABEL, href: `https://${baseDomain}` },
       { label: TUTORIAL_LINK_LABEL, href: TUTORIAL_URL },
@@ -43,8 +52,3 @@ export function findDemoLinkHref(
 ): string | undefined {
   return payload.notice.links?.find((link) => link.label["en"] === label.en)?.href;
 }
-
-export const DEMO_ACCOUNT_LABELS: Record<DemoAccountRole, { de: string; en: string }> = {
-  admin: { de: "Host (Events-Workspace)", en: "Host (Events workspace)" },
-  sysadmin: { de: "Plattform (Sysadmin)", en: "Platform (sysadmin)" },
-};

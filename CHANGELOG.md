@@ -3,6 +3,74 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.383.1] - 2026-10-21
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.383.0 → 0.383.1
+
+## [0.383.0] - 2026-10-20
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.378.0 → 0.383.0
+
+### Breaking
+
+- 0.383.0 · Job handlers can return ctx.defer(ms)
+- 0.383.0 · Placeholder reasons are rejected at boot and at runtime
+- 0.383.0 · loadAllEventsByType and LOAD_ALL_EVENTS_ROW_LIMIT are removed
+- 0.383.0 · metricField is removed from the screen type exports
+- 0.383.0 · globalIpRateLimit and httpRouteRateLimit option onFailClosed is now onFailOpen
+- 0.383.0 · runProdApp requires trustedProxyHops in production
+- 0.383.0 · MetricSpec requires the object form with a label
+- 0.383.0 · EditFieldsSection is either fields or groups
+- 0.383.0 · HeaderActionsBar onError receives an ErrorNotice instead of a string
+- 0.380.0 · Writes compile only for Writable tables or capable runners
+- 0.379.0 · Overrides of locked templates are no longer served
+- 0.379.0 · dsgvoSelfServiceFeatures removed
+- 0.379.0 · Form draft content is encrypted per owner
+- 0.379.0 · SSE entity signals follow the read access of the connection
+- 0.379.0 · Global IP rate-limit middleware default matches runProdApp
+- 0.379.0 · Direct writes on event-fed tables throw at runtime
+- 0.379.0 · buildEntityTableMeta and observabilityOptions removed
+- 0.379.0 · Re-export shim packages removed
+- 0.379.0 · TenantDb.databaseNow
+- 0.379.0 · HandlerContext.outsideTransaction removed
+- 0.379.0 · kumiko check managed rejects loose Kumiko pins and a missing infraRef
+- 0.379.0 · Forms ask before unsaved input is discarded
+- 0.379.0 · Form writes carry a requestId and reuse it only for a safe retry
+
+### Manual migrations
+
+- [open] 0.383.0:9b3a6c92 · 0.383.0 · Job handlers can return ctx.defer(ms)
+- [open] 0.383.0:e58d6a0e · 0.383.0 · Placeholder reasons are rejected at boot and at runtime
+- [open] 0.383.0:85ebb6fc · 0.383.0 · loadAllEventsByType and LOAD_ALL_EVENTS_ROW_LIMIT are removed
+- [open] 0.383.0:80e7d21f · 0.383.0 · metricField is removed from the screen type exports
+- [open] 0.383.0:a8239cd8 · 0.383.0 · globalIpRateLimit and httpRouteRateLimit option onFailClosed is now onFailOpen
+- [open] 0.383.0:9b2c3c63 · 0.383.0 · runProdApp requires trustedProxyHops in production
+- [open] 0.383.0:5ecbdb44 · 0.383.0 · MetricSpec requires the object form with a label
+- [open] 0.383.0:e2066a6a · 0.383.0 · EditFieldsSection is either fields or groups
+- [open] 0.383.0:f0929413 · 0.383.0 · HeaderActionsBar onError receives an ErrorNotice instead of a string
+- [open] 0.380.0:ba46c719 · 0.380.0 · Writes compile only for Writable tables or capable runners
+- [open] 0.379.0:17824d40 · 0.379.0 · Overrides of locked templates are no longer served
+- [open] 0.379.0:05314008 · 0.379.0 · dsgvoSelfServiceFeatures removed
+- [open] 0.379.0:b076fcc4 · 0.379.0 · Form draft content is encrypted per owner
+- [open] 0.379.0:c2bdf67a · 0.379.0 · SSE entity signals follow the read access of the connection
+- [open] 0.379.0:fc65a329 · 0.379.0 · Global IP rate-limit middleware default matches runProdApp
+- [open] 0.379.0:cac3018d · 0.379.0 · Direct writes on event-fed tables throw at runtime
+- [open] 0.379.0:bb83981f · 0.379.0 · buildEntityTableMeta and observabilityOptions removed
+- [open] 0.379.0:7fdb9b53 · 0.379.0 · TenantDb.databaseNow
+- [open] 0.379.0:529404c8 · 0.379.0 · HandlerContext.outsideTransaction removed
+- [open] 0.379.0:c0e25ffd · 0.379.0 · kumiko check managed rejects loose Kumiko pins and a missing infraRef
+- [open] 0.379.0:033de70d · 0.379.0 · Forms ask before unsaved input is discarded
+- [open] 0.379.0:4c9fd9f7 · 0.379.0 · Form writes carry a requestId and reuse it only for a safe retry
+
+### Codemods applied
+
+- 0.379.0 · scripts/codemod/package-merge.ts · Re-export shim packages removed
+- 0.379.0 · scripts/codemod/feature-layout.ts · Client files of a feature live under web/
+
 ## [0.378.0] - 2026-10-20
 
 ### Changed
