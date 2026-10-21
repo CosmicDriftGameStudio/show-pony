@@ -16,3 +16,5 @@ export const FEATURES: readonly FeatureDefinition[] = composeFeatures(allAppFeat
 });
 
 export const ENTITY_METAS: readonly EntityTableMeta[] = collectTableMetas(FEATURES);
+
+export const VALIDATE_BOOT_OPTIONS = appConfig.validateBootOptions;

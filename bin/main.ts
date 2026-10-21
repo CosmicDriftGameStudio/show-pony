@@ -35,6 +35,7 @@ await runProdApp({
   ...(env.KUMIKO_TRUSTED_PROXY_HOPS !== undefined && {
     trustedProxyHops: Number.parseInt(env.KUMIKO_TRUSTED_PROXY_HOPS, 10),
   }),
+  ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   staticDir: "./dist",
   seedsDir: "./seeds",
   extraContext: ({ registry, db }) => {
