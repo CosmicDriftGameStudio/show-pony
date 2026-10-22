@@ -4,6 +4,7 @@ import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pag
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { createLogger } from "@cosmicdrift/kumiko-framework/logging";
 import type { ProdSeedFn, RunProdAppOptions } from "@cosmicdrift/kumiko-server-runtime";
+import { buildDemoNotice } from "../src/demo-mode-notice";
 import legalContent from "../src/generated/legal-content.json";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { rebuildAllTenantSearchIndexes, type SearchWiring } from "./search-wiring";
@@ -79,3 +80,13 @@ export const heroAssetRoute: ExtraRouteDefinition = {
     return (await asset.exists()) ? new Response(asset) : c.notFound();
   },
 };
+
+export function buildDemoModeOption(
+  env: { readonly DEMO_READ_ONLY?: string | undefined },
+  baseDomain: string,
+): NonNullable<RunProdAppOptions["demoMode"]> {
+  return {
+    readOnly: env.DEMO_READ_ONLY === "true" || env.DEMO_READ_ONLY === "1",
+    notice: buildDemoNotice(baseDomain),
+  };
+}

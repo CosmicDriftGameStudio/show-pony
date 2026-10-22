@@ -2,15 +2,10 @@
 // an aggregated KumikoBootError before runProdApp reaches the database.
 
 import { parseEnv, parseEnvDryRun } from "@cosmicdrift/kumiko-framework/env";
+import { isDryRunEnvActive } from "@cosmicdrift/kumiko-framework/env/dry-run";
 import { type ShowPonyEnv, showPonyEnvSchema } from "./env-schema";
 
-// Must mirror runProdApp's parseRunMode (not exported by the framework): a value the app
-// treats as dry run but the framework does not would boot for real on a partial env.
-const FRAMEWORK_RUN_MODES = ["1", "true", "human", "json", "pulumi", "k8s", "boot"] as const;
-
-export const isDryRun = FRAMEWORK_RUN_MODES.some(
-  (mode) => mode === process.env["KUMIKO_DRY_RUN_ENV"]?.toLowerCase(),
-);
+export const isDryRun = isDryRunEnvActive(process.env);
 
 // The dry run prints the env inventory on an empty env, so its result is honestly partial.
 export const env: Partial<ShowPonyEnv> = isDryRun

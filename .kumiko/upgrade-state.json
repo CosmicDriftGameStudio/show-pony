@@ -1594,7 +1594,7 @@
       "version": "0.379.0",
       "title": "kumiko check managed rejects loose Kumiko pins and a missing infraRef",
       "resolution": "migrated",
-      "reason": "All kumiko-* pins and overrides are exact 0.383.0 and package.json#kumiko.deploy.infraRef is reusables-v1.2.0; kumiko check managed verified.",
+      "reason": "All kumiko-* pins and overrides are exact 0.383.1 and package.json#kumiko.deploy.infraRef is reusables-v1.2.0; kumiko check managed verified.",
       "resolvedAt": "2026-10-20T21:45:34.93352Z"
     },
     {

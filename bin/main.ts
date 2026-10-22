@@ -7,14 +7,18 @@ import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/
 import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import appConfig from "../kumiko.config";
-import { buildDemoNotice } from "../src/demo-mode-notice";
 import { DEFAULT_TIER, priceToTierFromEnv, TIER_NAMES } from "../src/features/show-pony/tier-map";
 import { createShowPonyHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { bindSubdomainPageResolver } from "../src/tenant-routing";
 import { env, isDryRun } from "./env";
 import { showPonyEnvSchema } from "./env-schema";
-import { buildProdAuthOptions, buildProdSeeds, heroAssetRoute } from "./prod-options";
+import {
+  buildDemoModeOption,
+  buildProdAuthOptions,
+  buildProdSeeds,
+  heroAssetRoute,
+} from "./prod-options";
 import { resolveSearchAdapter } from "./search-wiring";
 
 // BASE_DOMAIN is required, so the placeholder only exists for the dry run's empty env.
@@ -32,9 +36,6 @@ await runProdApp({
   envSchema: showPonyEnvSchema,
   pulumiPrefix: "showPony",
   kmsMode: { plaintextReason: "show-pony demo app, no subject-keys KMS provisioned" },
-  ...(env.KUMIKO_TRUSTED_PROXY_HOPS !== undefined && {
-    trustedProxyHops: Number.parseInt(env.KUMIKO_TRUSTED_PROXY_HOPS, 10),
-  }),
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   staticDir: "./dist",
   seedsDir: "./seeds",
@@ -56,10 +57,7 @@ await runProdApp({
     adminPassword: env.DEMO_ADMIN_PASSWORD,
   }),
   seeds: buildProdSeeds(searchWiring),
-  demoMode: {
-    readOnly: env.DEMO_READ_ONLY === "true" || env.DEMO_READ_ONLY === "1",
-    notice: buildDemoNotice(BASE_DOMAIN),
-  },
+  demoMode: buildDemoModeOption(env, BASE_DOMAIN),
   ...(Object.keys(priceToTier).length > 0 && {
     billing: {
       stripe: { priceToTier },

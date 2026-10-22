@@ -6,8 +6,6 @@
 // to protect: a rebuild from the event log must reproduce the exact same
 // startsAt timestamptz and leave the row findable by slug, not just "some
 // row exists". A regression here (e.g. a timezone-lossy apply) would have
-import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
-
 // caught the bug 0002 fixed before it needed a migration at all.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
@@ -17,6 +15,7 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { rebuildProjection } from "@cosmicdrift/kumiko-framework/pipeline";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";

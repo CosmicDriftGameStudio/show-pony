@@ -3,8 +3,6 @@
 // as show-pony boots with no STRIPE_PRICE_* env set. billing-plans still
 // resolves `enabled: false` instead of throwing (findCatalogProvider
 // returns null, buildBillingPlans treats that like a disabled plugin), and
-import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
-
 // every catalog write handler rejects with feature_disabled.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
@@ -13,6 +11,7 @@ import {
   SubscriptionFoundationHandlers,
   SubscriptionFoundationQueries,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
 import type { TestStack } from "@cosmicdrift/kumiko-testing/stack";
 import { buildAppFeatures } from "../run-config";

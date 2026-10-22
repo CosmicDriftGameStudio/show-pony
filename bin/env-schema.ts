@@ -13,10 +13,13 @@ import { composeEnvSchema } from "@cosmicdrift/kumiko-framework/env";
 import { z } from "zod";
 import appConfig from "../kumiko.config";
 
+// Same floor as the shared demoAdminEnvSchema, which is not exported.
+export const SEED_PASSWORD_MIN_LENGTH = 16;
+
 const requiredSecret = (description: string) =>
   z
     .string()
-    .min(1)
+    .min(SEED_PASSWORD_MIN_LENGTH)
     .describe(description)
     .meta({ kumiko: { pulumi: { generator: "openssl rand -hex 24", secret: true } } });
 
