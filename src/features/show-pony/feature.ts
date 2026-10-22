@@ -37,7 +37,7 @@ const rsvpReadAccess = { access: { roles: access.admin } } as const;
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
-  r.requires({ features: ["config", "managed-pages"] });
+  r.requires({ features: ["config", "managed-pages", "delivery", "channel-email"] });
 
   r.config({ keys: INVITE_BRANDING_KEYS });
 

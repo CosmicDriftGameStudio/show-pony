@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
   createConfigAccessorFactory,
@@ -16,6 +17,7 @@ import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { bindSubdomainPageResolver, resolveSubdomainPageTenant } from "../tenant-routing";
+import { deliveryFeatures } from "./delivery-stack";
 import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BASE_DOMAIN = "show-pony.test";
@@ -39,7 +41,13 @@ let acmeAdmin: SessionUser;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
-    [...hostRoutingFeatures(BASE_DOMAIN), createConfigFeature(), managedPages, showPonyFeature],
+    [
+      ...hostRoutingFeatures(BASE_DOMAIN),
+      createConfigFeature(),
+      managedPages,
+      ...deliveryFeatures(createInMemoryTransport()),
+      showPonyFeature,
+    ],
     {
       ...hostRoutingAnonymousAccess,
       extraContext: ({ db, registry }) => {

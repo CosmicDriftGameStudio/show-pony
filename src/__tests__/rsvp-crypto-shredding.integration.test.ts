@@ -6,6 +6,7 @@
 // with it, it's a claim about behaviour.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
   createConfigAccessorFactory,
@@ -36,6 +37,7 @@ import {
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
+import { deliveryFeatures } from "./delivery-stack";
 import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const BIDX_KEY = Buffer.alloc(32, 9).toString("base64");
@@ -92,6 +94,7 @@ beforeAll(async () => {
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       createCryptoShreddingFeature(),
+      ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
     ],
     {

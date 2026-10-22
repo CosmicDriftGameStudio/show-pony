@@ -388,4 +388,20 @@ describe("guest confirmation mail (notification template)", () => {
     expect(res.status).toBe(404);
     expect(emailTransport.sent).toHaveLength(0);
   });
+
+  test("a failing mail transport does not fail the RSVP", async () => {
+    emailTransport.failNext = { message: "smtp down" };
+    const res = await submit(acmeHostname, {
+      eventId: acmeEventId,
+      name: "Carol",
+      email: "carol@example.com",
+      status: "yes",
+    });
+    expect(res.status).toBe(200);
+    expect(emailTransport.failNext).toBeNull();
+    expect(emailTransport.sent).toHaveLength(0);
+
+    const rows = await asRawClient(stack.db).unsafe(`SELECT 1 FROM "${rsvpTable.tableName}"`);
+    expect(rows).toHaveLength(1);
+  });
 });

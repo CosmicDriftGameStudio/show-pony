@@ -13,7 +13,7 @@ import { composeEnvSchema } from "@cosmicdrift/kumiko-framework/env";
 import { z } from "zod";
 import appConfig from "../kumiko.config";
 
-// Same floor as the shared demoAdminEnvSchema, which is not exported.
+// Same floor as the shared demoAdminEnvSchema; the framework does not export its constant.
 export const SEED_PASSWORD_MIN_LENGTH = 16;
 
 const requiredSecret = (description: string) =>

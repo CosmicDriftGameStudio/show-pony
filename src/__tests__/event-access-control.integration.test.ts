@@ -6,6 +6,7 @@
 // can still read, Admin can do both.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   createConfigAccessorFactory,
   createConfigFeature,
@@ -18,6 +19,7 @@ import { TestUsers } from "@cosmicdrift/kumiko-framework/seeding";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
+import { deliveryFeatures } from "./delivery-stack";
 
 const configResolver = createConfigResolver();
 
@@ -32,6 +34,7 @@ beforeAll(async () => {
     [
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
+      ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
     ],
     {

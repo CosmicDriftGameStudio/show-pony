@@ -8,6 +8,7 @@
 // coverage anywhere.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
   createConfigAccessorFactory,
@@ -21,6 +22,7 @@ import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/st
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { TIER_MAX_GUESTS } from "../marketing/pricing";
+import { deliveryFeatures } from "./delivery-stack";
 
 let stack: TestStack;
 
@@ -32,15 +34,23 @@ let host: SessionUser;
 let guestCapHost: SessionUser;
 
 beforeAll(async () => {
-  stack = await setupAppTestStack([createConfigFeature(), managedPages, showPonyFeature], {
-    // Mirrors prod (one ingress hop) so each guest below gets its own
-    // rsvp:submit ip+handler bucket via X-Forwarded-For.
-    trustedProxyHops: 1,
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
+  stack = await setupAppTestStack(
+    [
+      createConfigFeature(),
+      managedPages,
+      ...deliveryFeatures(createInMemoryTransport()),
+      showPonyFeature,
+    ],
+    {
+      // Mirrors prod (one ingress hop) so each guest below gets its own
+      // rsvp:submit ip+handler bucket via X-Forwarded-For.
+      trustedProxyHops: 1,
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, {
     tier_assignments: tierAssignmentTable,
     config_values: configValuesTable,
