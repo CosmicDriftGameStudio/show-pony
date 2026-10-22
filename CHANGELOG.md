@@ -3,6 +3,26 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.388.0] - 2026-10-22
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.385.0 → 0.388.0
+
+### Breaking
+
+- 0.388.0 · A catalog with several providers no longer throws an ambiguous-provider error
+- 0.388.0 · runAsDirectCallEntry renamed to runAsAgentToolCallEntry
+- 0.388.0 · billing boot option takes stripe and/or dodo
+- 0.388.0 · Input gets kind "code" and autoFocus on kind "text"
+
+### Manual migrations
+
+- [not-applicable] 0.388.0:41caf008 · 0.388.0 · A catalog with several providers no longer throws an ambiguous-provider error
+- [not-applicable] 0.388.0:bb5a35e3 · 0.388.0 · runAsDirectCallEntry renamed to runAsAgentToolCallEntry
+- [not-applicable] 0.388.0:ada45613 · 0.388.0 · billing boot option takes stripe and/or dodo
+- [not-applicable] 0.388.0:45bde48d · 0.388.0 · Input gets kind "code" and autoFocus on kind "text"
+
 ## [0.385.0] - 2026-10-21
 
 ### Changed
