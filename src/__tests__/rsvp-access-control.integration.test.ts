@@ -4,6 +4,7 @@
 // member of the tenant is denied, Admin can read.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
   createConfigAccessorFactory,
@@ -17,6 +18,7 @@ import { TestUsers } from "@cosmicdrift/kumiko-framework/seeding";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
+import { deliveryFeatures } from "./delivery-stack";
 import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
 const configResolver = createConfigResolver();
@@ -37,6 +39,7 @@ beforeAll(async () => {
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
+      ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
     ],
     {

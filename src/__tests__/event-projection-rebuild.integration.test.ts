@@ -9,6 +9,7 @@
 // caught the bug 0002 fixed before it needed a migration at all.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   createConfigAccessorFactory,
   createConfigFeature,
@@ -21,6 +22,7 @@ import { rebuildProjection } from "@cosmicdrift/kumiko-framework/pipeline";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
+import { deliveryFeatures } from "./delivery-stack";
 
 let stack: TestStack;
 let host: SessionUser;
@@ -29,12 +31,20 @@ const configResolver = createConfigResolver();
 const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => null });
 
 beforeAll(async () => {
-  stack = await setupAppTestStack([createConfigFeature(), managedPages, showPonyFeature], {
-    extraContext: ({ registry }) => ({
-      configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-    }),
-  });
+  stack = await setupAppTestStack(
+    [
+      createConfigFeature(),
+      managedPages,
+      ...deliveryFeatures(createInMemoryTransport()),
+      showPonyFeature,
+    ],
+    {
+      extraContext: ({ registry }) => ({
+        configResolver,
+        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
+    },
+  );
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
   const rebuildcheck = await seedTenant(stack, { name: "Rebuild Check" });
   host = (await rebuildcheck.addUser(["Admin"])).session;

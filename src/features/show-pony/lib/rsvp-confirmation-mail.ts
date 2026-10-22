@@ -9,7 +9,6 @@ import {
   type TemplateVariables,
   templateVariable,
 } from "@cosmicdrift/kumiko-framework/engine";
-import { InternalError } from "@cosmicdrift/kumiko-framework/errors";
 import type { z } from "zod";
 import type { rsvpSubmitSchema } from "../handlers/rsvp-submit.write";
 import type { EventRow } from "../schema/event";
@@ -104,10 +103,11 @@ export async function sendRsvpConfirmation(
   // skip: guest left email empty — nothing to send
   if (!payload.email) return;
   const locale = resolveMailLocale(ctx.locale);
+  if (!ctx.notify) {
+    ctx.log?.error("[showpony:rsvp-submit] ctx.notify unavailable, delivery feature not mounted");
+    return;
+  }
   try {
-    if (!ctx.notify) {
-      throw new InternalError({ message: "ctx.notify unavailable — mount the delivery feature" });
-    }
     await ctx.notify(RSVP_CONFIRMATION_TYPE, {
       route: { email: payload.email },
       data: { eventTitle: eventRow.title, answer: rsvpAnswerLabel(locale, payload.status) },
