@@ -1,6 +1,6 @@
 {
-  "version": "0.385.0",
-  "appliedAt": "2026-10-21T13:31:20.101922Z",
+  "version": "0.388.0",
+  "appliedAt": "2026-10-22T20:11:55.793934Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -1628,6 +1628,38 @@
       "resolution": "not-applicable",
       "reason": "No raw text/longText entity fields in the app (tsc clean); nothing to migrate",
       "resolvedAt": "2026-10-21T13:31:13.677988Z"
+    },
+    {
+      "id": "0.388.0:41caf008",
+      "version": "0.388.0",
+      "title": "A catalog with several providers no longer throws an ambiguous-provider error",
+      "resolution": "not-applicable",
+      "reason": "Production mounts Stripe only; the e2e billing stub registers under the same provider name, so the catalog never holds several providers.",
+      "resolvedAt": "2026-10-22T20:11:56.252847Z"
+    },
+    {
+      "id": "0.388.0:bb5a35e3",
+      "version": "0.388.0",
+      "title": "runAsDirectCallEntry renamed to runAsAgentToolCallEntry",
+      "resolution": "not-applicable",
+      "reason": "runAsDirectCallEntry is not imported anywhere in the app.",
+      "resolvedAt": "2026-10-22T20:11:56.633647Z"
+    },
+    {
+      "id": "0.388.0:ada45613",
+      "version": "0.388.0",
+      "title": "billing boot option takes stripe and/or dodo",
+      "resolution": "not-applicable",
+      "reason": "bin/main.ts already passes billing as { stripe, defaultTier, tierNames } when prices are configured; the app never calls resolveBillingOption.",
+      "resolvedAt": "2026-10-22T20:11:57.135342Z"
+    },
+    {
+      "id": "0.388.0:45bde48d",
+      "version": "0.388.0",
+      "title": "Input gets kind \"code\" and autoFocus on kind \"text\"",
+      "resolution": "not-applicable",
+      "reason": "No custom Input primitive; the app does not use PrimitivesProvider.",
+      "resolvedAt": "2026-10-22T20:11:57.839058Z"
     }
   ]
 }
