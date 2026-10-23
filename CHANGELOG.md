@@ -3,6 +3,42 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.389.0] - 2026-10-23
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.388.0 → 0.389.0
+
+### Breaking
+
+- 0.389.0 · isPrincipalBlocked is no longer exported from sessions
+- 0.389.0 · Bun.SQL replaces postgres-js as the only Postgres driver
+- 0.389.0 · Money list aggregates answer one value per currency
+- 0.389.0 · FeatureRegistrar types moved to @cosmicdrift/kumiko-types/feature-registrar
+- 0.389.0 · relatedList groupBy replaced by table.grouping
+- 0.389.0 · Unused ProviderPluginContext helpers removed
+- 0.389.0 · provider selector option labels are unique per owner
+- 0.389.0 · captureClosedConnectionError returns a Bun.SQL error
+- 0.389.0 · e2e tests fail after more than 8 app boots; the per-test client IP no longer disables the HTTP cache
+- 0.389.0 · BootOptionName drops demoMode, seeds and signals
+- 0.389.0 · DbConnection, DbTx and PgClient are Bun.SQL types and postgres is no longer a peer dependency
+- 0.389.0 · DataTable rowGrouping removed
+
+### Manual migrations
+
+- [not-applicable] 0.389.0:ea3eee55 · 0.389.0 · isPrincipalBlocked is no longer exported from sessions
+- [migrated] 0.389.0:40d38105 · 0.389.0 · Bun.SQL replaces postgres-js as the only Postgres driver
+- [not-applicable] 0.389.0:c1c92c96 · 0.389.0 · Money list aggregates answer one value per currency
+- [not-applicable] 0.389.0:27381b29 · 0.389.0 · FeatureRegistrar types moved to @cosmicdrift/kumiko-types/feature-registrar
+- [not-applicable] 0.389.0:db22828f · 0.389.0 · relatedList groupBy replaced by table.grouping
+- [not-applicable] 0.389.0:201a7e61 · 0.389.0 · Unused ProviderPluginContext helpers removed
+- [not-applicable] 0.389.0:761b33b4 · 0.389.0 · provider selector option labels are unique per owner
+- [not-applicable] 0.389.0:715ee7b4 · 0.389.0 · captureClosedConnectionError returns a Bun.SQL error
+- [not-applicable] 0.389.0:eef12ba6 · 0.389.0 · e2e tests fail after more than 8 app boots; the per-test client IP no longer disables the HTTP cache
+- [not-applicable] 0.389.0:6d477801 · 0.389.0 · BootOptionName drops demoMode, seeds and signals
+- [not-applicable] 0.389.0:447ebcc7 · 0.389.0 · DbConnection, DbTx and PgClient are Bun.SQL types and postgres is no longer a peer dependency
+- [not-applicable] 0.389.0:12b95cee · 0.389.0 · DataTable rowGrouping removed
+
 ## [0.388.0] - 2026-10-22
 
 ### Changed

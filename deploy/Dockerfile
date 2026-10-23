@@ -12,7 +12,7 @@
 #
 # Build context: repository root (the full source tree is only used in the build stage).
 
-ARG BUN_VERSION=1.4.0
+ARG BUN_VERSION=1.4.4
 # Build identity — passed in by the CI workflow via --build-arg. Defaults
 # for local container builds.
 ARG BUILD_VERSION=dev
@@ -48,7 +48,8 @@ RUN bun install --production --frozen-lockfile
 # Client build (static assets) — served by runProdApp.staticDir.
 COPY --from=build --chown=app:app /app/dist ./dist
 
-# Checked-in SQL migrations for the pre-deploy `kumiko schema apply` step.
+# Checked-in SQL migrations for the pre-deploy `kumiko schema apply` step
+# (k3s InitContainer from release.yml, or migrate-step.sh on compose hosts).
 # The shipped `kumiko-schema` bin reads `${INIT_CWD}/kumiko/migrations/*.sql`
 # (see ENV INIT_CWD=/app below). kumiko/schema.ts is NOT needed at runtime
 # (only generate reads it; apply is checksum-tracked SQL only).

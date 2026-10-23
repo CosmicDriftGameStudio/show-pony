@@ -1,6 +1,6 @@
 {
-  "version": "0.388.0",
-  "appliedAt": "2026-10-22T20:11:55.793934Z",
+  "version": "0.389.0",
+  "appliedAt": "2026-10-23T10:54:30.41893Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -1660,6 +1660,102 @@
       "resolution": "not-applicable",
       "reason": "No custom Input primitive; the app does not use PrimitivesProvider.",
       "resolvedAt": "2026-10-22T20:11:57.839058Z"
+    },
+    {
+      "id": "0.389.0:40d38105",
+      "version": "0.389.0",
+      "title": "Bun.SQL replaces postgres-js as the only Postgres driver",
+      "resolution": "migrated",
+      "reason": "Bun 1.4.4 in CI (ci.yml), deploy Dockerfile (sync-managed) and bun-types ^1.4.4; no direct SQLSTATE/constraint reads, no onNotice, no DB_PROVIDER, no own postgres import",
+      "resolvedAt": "2026-10-23T10:55:21.828846Z"
+    },
+    {
+      "id": "0.389.0:ea3eee55",
+      "version": "0.389.0",
+      "title": "isPrincipalBlocked is no longer exported from sessions",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:c1c92c96",
+      "version": "0.389.0",
+      "title": "Money list aggregates answer one value per currency",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:db22828f",
+      "version": "0.389.0",
+      "title": "relatedList groupBy replaced by table.grouping",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:201a7e61",
+      "version": "0.389.0",
+      "title": "Unused ProviderPluginContext helpers removed",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:761b33b4",
+      "version": "0.389.0",
+      "title": "provider selector option labels are unique per owner",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:715ee7b4",
+      "version": "0.389.0",
+      "title": "captureClosedConnectionError returns a Bun.SQL error",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:6d477801",
+      "version": "0.389.0",
+      "title": "BootOptionName drops demoMode, seeds and signals",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:447ebcc7",
+      "version": "0.389.0",
+      "title": "DbConnection, DbTx and PgClient are Bun.SQL types and postgres is no longer a peer dependency",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:12b95cee",
+      "version": "0.389.0",
+      "title": "DataTable rowGrouping removed",
+      "resolution": "not-applicable",
+      "reason": "grep: no isPrincipalBlocked, money aggregates, groupBy, ProviderPluginContext, provider option overrides, captureClosedConnectionError, bootRequires, postgres types or rowGrouping in show-pony",
+      "resolvedAt": "2026-10-23T10:55:22.118942Z"
+    },
+    {
+      "id": "0.389.0:27381b29",
+      "version": "0.389.0",
+      "title": "FeatureRegistrar types moved to @cosmicdrift/kumiko-types/feature-registrar",
+      "resolution": "not-applicable",
+      "reason": "FeatureRegistrar is imported from the framework engine barrel, which still exports it",
+      "resolvedAt": "2026-10-23T10:55:22.740199Z"
+    },
+    {
+      "id": "0.389.0:eef12ba6",
+      "version": "0.389.0",
+      "title": "e2e tests fail after more than 8 app boots; the per-test client IP no longer disables the HTTP cache",
+      "resolution": "not-applicable",
+      "reason": "screenshot specs use runMatrix; loops and verify specs navigate at most twice per test and seed through the API",
+      "resolvedAt": "2026-10-23T10:55:23.012958Z"
     }
   ]
 }
