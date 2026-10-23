@@ -6,12 +6,11 @@
 //
 // All schema-apply logic — migrations, idempotent greenfield infra tables, and
 // projection rebuild after a schema change — lives in the framework's
-// runSchemaCli. We only compose the app feature set (for the rebuild's
-// registry) and delegate.
+// runSchemaCli. The feature set (for the rebuild's registry) is the same one
+// the schema tooling uses, so we only delegate.
 
 import { runSchemaCli } from "@cosmicdrift/kumiko-framework/schema-cli";
-import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
-import { buildAppFeatures, HAS_AUTH, resolveBaseDomainFromEnv } from "../src/run-config";
+import { FEATURES } from "../kumiko/schema";
 
 const [, , cmd, ...rest] = Bun.argv;
 if (cmd !== "schema") {
@@ -19,12 +18,10 @@ if (cmd !== "schema") {
   process.exit(1);
 }
 
-const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
-const features = composeFeatures([...appFeatures], { includeBundled: HAS_AUTH });
 const out = { log: (l: string) => console.log(l), err: (l: string) => console.error(l) };
 process.exit(
   await runSchemaCli(rest, process.env["INIT_CWD"] ?? process.cwd(), out, {
-    features,
+    features: FEATURES,
     // show-pony provisions no Key Manager ciphertexts.
     kmsSlots: [],
   }),
