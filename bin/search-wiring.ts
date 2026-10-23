@@ -199,13 +199,14 @@ export async function rebuildAllTenantSearchIndexes(
   db: DbConnection,
   registry: Registry,
   wiring: SearchWiring,
-  timeoutMs: number = REBUILD_TIMEOUT_MS,
+  reindexTimeoutMs: number = REBUILD_TIMEOUT_MS,
 ): Promise<SearchRebuildSummary> {
+  // The drop keeps the full budget: it moves every index at once, a reindex only one entity of one tenant.
   const droppedIndexes = wiring.meilisearch
     ? await withTimeout(
         dropMeilisearchIndexesWithPrefix(wiring.meilisearch),
         "index drop",
-        timeoutMs,
+        REBUILD_TIMEOUT_MS,
       )
     : 0;
   const tenants = await loadEnabledTenants(db);
@@ -229,7 +230,7 @@ export async function rebuildAllTenantSearchIndexes(
         const result = await withTimeout(
           reindexEntity(db, registry, wiring.adapter, entityName, tenantId),
           `reindex of ${entityName} for tenant ${tenantId}`,
-          timeoutMs,
+          reindexTimeoutMs,
         );
         indexedRows += result.indexedRows;
         if (result.failures.length > 0) {

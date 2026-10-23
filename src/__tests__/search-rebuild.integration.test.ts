@@ -198,7 +198,8 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
       stack.db,
       stack.registry,
       stallingWiring,
-      3_000,
+      // Each stalled entity waits the full reindex timeout in turn; a short one keeps three stalls well inside the test budget.
+      1_000,
     );
 
     // The stalled tenant has three search-indexed entities: its own tenant row, event and rsvp.
