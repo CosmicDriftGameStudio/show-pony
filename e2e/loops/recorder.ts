@@ -4,7 +4,7 @@
 import { execSync } from "node:child_process";
 import { mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
-import type { PresentIdentity } from "@cosmicdrift/kumiko-testing/e2e";
+import { type PresentIdentity, withPresentedIdentities } from "@cosmicdrift/kumiko-testing/e2e";
 import type { Browser, Locator, Page } from "@playwright/test";
 
 // Match screenshot runner desktop size — 960×600 felt like a tiny crop with sidebar.
@@ -26,72 +26,15 @@ function gifFilter(): string {
   );
 }
 
-declare global {
-  interface Window {
-    __loopPresentRestore?: Array<() => void>;
-  }
-}
-
-// Runs in the browser, so it may not reference module scope. Mirrors the
-// screenshot runner's presentIdentities, which kumiko-testing does not export
-// for frame sequences: text and field values are swapped only for the capture
-// and restored right after, so the flow keeps typing and submitting real values.
-function presentIdentitiesInDocument(mappings: readonly PresentIdentity[]): void {
-  const restorers: Array<() => void> = [];
-  window.__loopPresentRestore = restorers;
-  const present = (text: string): string =>
-    mappings.reduce((current, { from, to }) => current.replaceAll(from, to), text);
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
-    const textNode = node;
-    const original = textNode.nodeValue ?? "";
-    const presented = present(original);
-    if (presented !== original) {
-      textNode.nodeValue = presented;
-      restorers.push(() => {
-        textNode.nodeValue = original;
-      });
-    }
-  }
-  for (const field of document.querySelectorAll("input, textarea")) {
-    if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
-      const original = field.value;
-      const presented = present(original);
-      if (presented !== original) {
-        field.value = presented;
-        restorers.push(() => {
-          field.value = original;
-        });
-      }
-    }
-  }
-}
-
-function restoreIdentitiesInDocument(): void {
-  for (const restore of (window.__loopPresentRestore ?? []).reverse()) restore();
-  window.__loopPresentRestore = [];
-}
-
-// An empty `from` makes replaceAll("", to) rewrite every text node; same guard as the framework.
-function assertPresentableMappings(identities: readonly PresentIdentity[]): void {
-  for (const { from } of identities) {
-    if (from === "") throw new Error("presentIdentities: `from` must not be empty");
-  }
-}
-
 async function captureFrame(
   page: Page,
   path: string,
   identities: readonly PresentIdentity[],
 ): Promise<void> {
-  assertPresentableMappings(identities);
-  if (identities.length > 0) await page.evaluate(presentIdentitiesInDocument, identities);
-  try {
+  await withPresentedIdentities(page, identities, async () => {
     // @template-drift-exception: #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
     await page.screenshot({ path, animations: "disabled" });
-  } finally {
-    if (identities.length > 0) await page.evaluate(restoreIdentitiesInDocument);
-  }
+  });
 }
 
 async function holdFrames(
