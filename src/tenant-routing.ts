@@ -6,8 +6,8 @@ import {
   createHostTenantIdResolver,
   type HostRoutingOptions,
 } from "@cosmicdrift/kumiko-bundled-features/host-routing";
-import type { DbConnection } from "@cosmicdrift/kumiko-framework/db";
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { createTenantDb, type DbConnection } from "@cosmicdrift/kumiko-framework/db";
+import { SYSTEM_TENANT_ID, type TenantId } from "@cosmicdrift/kumiko-framework/engine";
 
 /** The host decides the tenant: apex = host surface, `<key>.<baseDomain>` = guest pages.
  *  No apexAnonymousTenantId, so anonymous writes on the apex keep answering tenant_required. */
@@ -26,9 +26,12 @@ export function showPonyHostRoutingOptions(baseDomain: string): HostRoutingOptio
 let boundResolver: ((host: string) => Promise<TenantId | null>) | null = null;
 
 export function bindSubdomainPageResolver(config: { db: DbConnection; baseDomain: string }): void {
+  // managed-pages resolves the host before any tenant is established, so the raw connection would
+  // read no row under row-level security. Tenant rows are global (SYSTEM_TENANT_ID), so a handle on
+  // that tenant reads them without the system scope.
   boundResolver = createHostTenantIdResolver(
     showPonyHostRoutingOptions(config.baseDomain),
-    config.db,
+    createTenantDb({ db: config.db, tenantId: SYSTEM_TENANT_ID }),
   );
 }
 

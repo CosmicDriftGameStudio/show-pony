@@ -76,6 +76,20 @@ beforeAll(async () => {
 
 afterAll(async () => stack?.cleanup());
 
+describe("subdomain page tenant resolution", () => {
+  // managed-pages calls the resolver from its anonymous page route before any tenant is
+  // established; a direct call has no ambient scope either.
+  test("resolves a tenant subdomain to its tenant without a request scope", async () => {
+    expect(await resolveSubdomainPageTenant(demoHostname)).toBe(demoId);
+    expect(await resolveSubdomainPageTenant(acmeHostname)).toBe(acmeId);
+  });
+
+  test("an unknown key and the apex resolve to no tenant", async () => {
+    expect(await resolveSubdomainPageTenant(`no-such-tenant.${BASE_DOMAIN}`)).toBeNull();
+    expect(await resolveSubdomainPageTenant(BASE_DOMAIN)).toBeNull();
+  });
+});
+
 describe("invite-branding query", () => {
   test("returns tenant-scoped branding + hero fields for anonymous subdomain callers", async () => {
     await stack.dispatcher.write(
