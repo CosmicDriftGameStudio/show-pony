@@ -18,3 +18,6 @@ export const FEATURES: readonly FeatureDefinition[] = composeFeatures(allAppFeat
 export const ENTITY_METAS: readonly EntityTableMeta[] = collectTableMetas(FEATURES);
 
 export const VALIDATE_BOOT_OPTIONS = appConfig.validateBootOptions;
+
+// Decides whether `generate` emits row-level-security policies and `apply` runs as a policy-enforced connection.
+export const ROW_LEVEL_SECURITY = appConfig.rowLevelSecurity;

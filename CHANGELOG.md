@@ -3,6 +3,58 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.390.0] - 2026-10-24
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.389.0 → 0.390.0
+
+### Breaking
+
+- 0.390.0 · Tenant streams and rows live on the system tenant, seed defaults changed
+- 0.390.0 · HandlerContext without wiring, hooks receive the HandlerContext
+- 0.390.0 · HandlerContext and JobContext use namespaces instead of flat members
+- 0.390.0 · Feature AST, pattern library and codemods moved to @cosmicdrift/kumiko-feature-ast
+- 0.390.0 · Jobs append their own events with ctx.events.append
+- 0.390.0 · Jobs see whether they can still defer (ctx.canDefer)
+- 0.390.0 · meilisearch is an optional peer dependency
+- 0.390.0 · Framework subpaths no longer export names without a user
+- 0.390.0 · preQuery hooks removed
+- 0.390.0 · createTenantDb mode system requires a reason
+- 0.390.0 · RLS boot check tells known tables from orphaned ones
+- 0.390.0 · rowLevelSecurity defaults to "on"
+- 0.390.0 · Boot hooks with a db dependency get a system-scoped db at rowLevelSecurity "on"
+- 0.390.0 · runInSystemRowLevelSecurityScope and systemScopedRunner take a reason
+- 0.390.0 · A projection write under a tenant scope can no longer land in another tenant
+- 0.390.0 · happy-dom and undici updated for security advisories
+- 0.390.0 · extraContext factories get the raw db in the test stack and dev
+- 0.390.0 · The test stack runs with row level security on as role kumiko_app
+- 0.390.0 · The dev server runs with row level security on
+
+### Manual migrations
+
+- [migrated] 0.390.0:24ed4ba0 · 0.390.0 · Tenant streams and rows live on the system tenant, seed defaults changed
+- [not-applicable] 0.390.0:c2e924b0 · 0.390.0 · Jobs append their own events with ctx.events.append
+- [not-applicable] 0.390.0:98616096 · 0.390.0 · Jobs see whether they can still defer (ctx.canDefer)
+- [migrated] 0.390.0:1670c6c2 · 0.390.0 · meilisearch is an optional peer dependency
+- [not-applicable] 0.390.0:cfeaff80 · 0.390.0 · Framework subpaths no longer export names without a user
+- [not-applicable] 0.390.0:8ea1076e · 0.390.0 · preQuery hooks removed
+- [not-applicable] 0.390.0:b1f2c39d · 0.390.0 · createTenantDb mode system requires a reason
+- [not-applicable] 0.390.0:85949cd3 · 0.390.0 · RLS boot check tells known tables from orphaned ones
+- [migrated] 0.390.0:9b65d050 · 0.390.0 · rowLevelSecurity defaults to "on"
+- [migrated] 0.390.0:79e2595f · 0.390.0 · Boot hooks with a db dependency get a system-scoped db at rowLevelSecurity "on"
+- [not-applicable] 0.390.0:a0e444ab · 0.390.0 · runInSystemRowLevelSecurityScope and systemScopedRunner take a reason
+- [not-applicable] 0.390.0:b02c020a · 0.390.0 · A projection write under a tenant scope can no longer land in another tenant
+- [migrated] 0.390.0:320382d4 · 0.390.0 · happy-dom and undici updated for security advisories
+- [migrated] 0.390.0:0d310ad7 · 0.390.0 · extraContext factories get the raw db in the test stack and dev
+- [migrated] 0.390.0:d3b22cd6 · 0.390.0 · The test stack runs with row level security on as role kumiko_app
+- [migrated] 0.390.0:e1c37b50 · 0.390.0 · The dev server runs with row level security on
+
+### Codemods applied
+
+- 0.390.0 · scripts/codemod/ctx-namespaces.ts · HandlerContext without wiring, hooks receive the HandlerContext
+- 0.390.0 · scripts/codemod/feature-ast-package.ts · Feature AST, pattern library and codemods moved to @cosmicdrift/kumiko-feature-ast
+
 ## [0.389.0] - 2026-10-23
 
 ### Changed

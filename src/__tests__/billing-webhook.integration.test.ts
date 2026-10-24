@@ -45,7 +45,7 @@ const features = [
 let stack: TestStack;
 
 function tierResolverDb(tenantId: TenantId) {
-  return createTenantDb({ db: stack.db, tenantId, mode: "system" });
+  return createTenantDb({ db: stack.db, tenantId });
 }
 const PLATFORM_TENANT = "00000000-0000-4000-8000-000000000001";
 const sysadmin = createTestUser({
@@ -249,14 +249,10 @@ describe("tier-sync failure self-heals on Stripe retry", () => {
     // process-event's idempotent write (no-op) and gets a second, this
     // time successful, shot at the tier-sync step.
     await unsafePushTables(selfHealStack.db, { tier_assignments: tierAssignmentTable });
-    expect(
-      await resolveTier(createTenantDb({ db: selfHealStack.db, tenantId, mode: "system" })),
-    ).toBe("free");
+    expect(await resolveTier(createTenantDb({ db: selfHealStack.db, tenantId }))).toBe("free");
 
     const retried = await postSignedWebhookTo(selfHealStack, eventPayload);
     expect(retried.status).toBe(200);
-    expect(
-      await resolveTier(createTenantDb({ db: selfHealStack.db, tenantId, mode: "system" })),
-    ).toBe("starter");
+    expect(await resolveTier(createTenantDb({ db: selfHealStack.db, tenantId }))).toBe("starter");
   });
 });

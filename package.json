@@ -33,14 +33,14 @@
     "loops:dry-run": "bunx --bun playwright test --list"
   },
   "dependencies": {
-    "@cosmicdrift/kumiko-bundled-features": "0.389.0",
-    "@cosmicdrift/kumiko-dev-server": "0.389.0",
-    "@cosmicdrift/kumiko-document-designer": "0.389.0",
-    "@cosmicdrift/kumiko-server-runtime": "0.389.0",
-    "@cosmicdrift/kumiko-types": "0.389.0",
-    "@cosmicdrift/kumiko-framework": "0.389.0",
-    "@cosmicdrift/kumiko-locale-de": "0.389.0",
-    "@cosmicdrift/kumiko-renderer": "0.389.0",
+    "@cosmicdrift/kumiko-bundled-features": "0.390.0",
+    "@cosmicdrift/kumiko-dev-server": "0.390.0",
+    "@cosmicdrift/kumiko-document-designer": "0.390.0",
+    "@cosmicdrift/kumiko-server-runtime": "0.390.0",
+    "@cosmicdrift/kumiko-types": "0.390.0",
+    "@cosmicdrift/kumiko-framework": "0.390.0",
+    "@cosmicdrift/kumiko-locale-de": "0.390.0",
+    "@cosmicdrift/kumiko-renderer": "0.390.0",
     "meilisearch": "^0.58.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
@@ -48,9 +48,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
-    "@cosmicdrift/kumiko-cli": "0.389.0",
-    "@cosmicdrift/kumiko-guards": "0.389.0",
-    "@cosmicdrift/kumiko-testing": "0.389.0",
+    "@cosmicdrift/kumiko-cli": "0.390.0",
+    "@cosmicdrift/kumiko-guards": "0.390.0",
+    "@cosmicdrift/kumiko-testing": "0.390.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
     "@types/react": "^19.2.18",
@@ -60,23 +60,25 @@
     "typescript": "^7.0.2"
   },
   "overrides": {
-    "@cosmicdrift/kumiko-framework": "0.389.0",
-    "@cosmicdrift/kumiko-bundled-features": "0.389.0",
-    "@cosmicdrift/kumiko-dev-server": "0.389.0",
-    "@cosmicdrift/kumiko-document-designer": "0.389.0",
-    "@cosmicdrift/kumiko-server-runtime": "0.389.0",
-    "@cosmicdrift/kumiko-renderer": "0.389.0",
-    "@cosmicdrift/kumiko-locale-de": "0.389.0",
+    "@cosmicdrift/kumiko-framework": "0.390.0",
+    "@cosmicdrift/kumiko-bundled-features": "0.390.0",
+    "@cosmicdrift/kumiko-dev-server": "0.390.0",
+    "@cosmicdrift/kumiko-document-designer": "0.390.0",
+    "@cosmicdrift/kumiko-server-runtime": "0.390.0",
+    "@cosmicdrift/kumiko-renderer": "0.390.0",
+    "@cosmicdrift/kumiko-locale-de": "0.390.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "hono": "^4.13.13",
     "brace-expansion": "^5.0.12",
     "html-to-text": "10.0.1",
-    "ip-address": "^10.7.3"
+    "ip-address": "^10.7.3",
+    "undici": "7.30.1",
+    "happy-dom": "21.0.4"
   },
   "kumiko": {
     "deploy": {
-      "infraRef": "reusables-v1.2.0"
+      "infraRef": "reusables-v1.2.3"
     },
     "clientEntries": [
       {

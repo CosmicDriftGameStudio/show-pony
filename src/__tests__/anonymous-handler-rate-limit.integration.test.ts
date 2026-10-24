@@ -20,6 +20,7 @@ import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-
 
 const BASE_DOMAIN = "show-pony.test";
 const LIMIT = 60;
+const FROZEN_NOW_MS = Date.UTC(2026, 9, 23, 12);
 const configResolver = createConfigResolver();
 
 let stack: TestStack;
@@ -52,10 +53,12 @@ beforeAll(async () => {
       ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+        configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
       }),
       // Honour x-forwarded-for so each test caller gets its own IP bucket.
       trustedProxyHops: 1,
+      // A frozen clock keeps the bucket from refilling while the loop runs, however slow the requests are.
+      rateLimitNowMs: () => FROZEN_NOW_MS,
     },
   );
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });

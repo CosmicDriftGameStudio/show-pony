@@ -47,7 +47,7 @@ beforeAll(async () => {
       trustedProxyHops: 1,
       extraContext: ({ registry }) => ({
         configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+        configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
       }),
     },
   );

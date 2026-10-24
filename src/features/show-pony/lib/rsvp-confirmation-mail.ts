@@ -104,7 +104,9 @@ export async function sendRsvpConfirmation(
   if (!payload.email) return;
   const locale = resolveMailLocale(ctx.locale);
   if (!ctx.notify) {
-    ctx.log?.error("[showpony:rsvp-submit] ctx.notify unavailable, delivery feature not mounted");
+    ctx.obs.log?.error(
+      "[showpony:rsvp-submit] ctx.notify unavailable, delivery feature not mounted",
+    );
     return;
   }
   try {
@@ -115,7 +117,7 @@ export async function sendRsvpConfirmation(
       locale,
     });
   } catch (err) {
-    ctx.log?.warn("[showpony:rsvp-submit] confirmation mail failed", {
+    ctx.obs.log?.warn("[showpony:rsvp-submit] confirmation mail failed", {
       error: err instanceof Error ? err.message : String(err),
     });
   }
