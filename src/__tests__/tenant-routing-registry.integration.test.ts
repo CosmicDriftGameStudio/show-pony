@@ -55,7 +55,7 @@ beforeAll(async () => {
     ...hostRoutingAnonymousAccess,
     extraContext: ({ registry }) => ({
       configResolver,
-      _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
     }),
   });
   await unsafePushTables(stack.db, {

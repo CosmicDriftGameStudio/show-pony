@@ -53,7 +53,7 @@ beforeAll(async () => {
       ...hostRoutingAnonymousAccess,
       extraContext: ({ registry }) => ({
         configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+        configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
       }),
       // Honour x-forwarded-for so each test caller gets its own IP bucket.
       trustedProxyHops: 1,

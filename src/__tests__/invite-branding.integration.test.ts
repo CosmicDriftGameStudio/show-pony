@@ -54,7 +54,7 @@ beforeAll(async () => {
         bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
         return {
           configResolver,
-          _configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+          configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
         };
       },
     },

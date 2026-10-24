@@ -78,7 +78,7 @@ beforeAll(async () => {
       extraContext: (deps) => ({
         ...createDeliveryTestContext(deps),
         configResolver,
-        _configAccessorFactory: createConfigAccessorFactory(deps.registry, configResolver),
+        configAccessorFactory: createConfigAccessorFactory(deps.registry, configResolver),
       }),
     },
   );
