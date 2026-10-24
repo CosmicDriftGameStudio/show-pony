@@ -105,8 +105,8 @@ export async function configureAllTenantSearchIndexes(
 type EnabledTenant = { id: TenantId };
 
 // Search reads the index of the session's tenant, so only enabled tenants need one. The tenant rows
-// themselves sit under 00000000-0000-4000-8000-000000000001, the tenant of the seeding actor
-// (seedAdmin/seedTenant default to TestUsers.systemAdmin); no membership points there, so that index is never read.
+// themselves are a global system stream under SYSTEM_TENANT_ID; no membership points there, so that
+// index is never read.
 function loadEnabledTenants(db: DbConnection): Promise<readonly EnabledTenant[]> {
   return selectMany<EnabledTenant>(db, tenantTable, { isEnabled: true });
 }

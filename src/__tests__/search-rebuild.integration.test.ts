@@ -198,12 +198,14 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
       stack.db,
       stack.registry,
       stallingWiring,
-      // Each stalled entity waits the full reindex timeout in turn; a short one keeps three stalls well inside the test budget.
-      1_000,
+      // Each stalled entity waits the full reindex timeout in turn. It must stay well above a healthy
+      // real-Meilisearch reindex, which took over 1 s on a loaded host and was then counted as stalled.
+      3_000,
     );
 
-    // The stalled tenant has three search-indexed entities: its own tenant row, event and rsvp.
-    expect(summary.failedReindexes).toBe(3);
+    // The stalled tenant owns two search-indexed entities, event and rsvp. Tenant rows are a global
+    // system stream and are reindexed under SYSTEM_TENANT_ID, which this adapter does not stall.
+    expect(summary.failedReindexes).toBe(2);
     expect(await findIds(OTHER_TENANT_GUEST, otherTenantId)).toHaveLength(1);
     expect(await findIds(GUEST_ONE)).toEqual([]);
   });
