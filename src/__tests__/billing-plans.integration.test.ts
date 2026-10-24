@@ -268,9 +268,7 @@ describe("switch-plan", () => {
       }),
     );
     expect(created.status).toBe(200);
-    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
-      "starter",
-    );
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId }))).toBe("starter");
 
     const result = await stack.http.writeOk<{ url: string }>(
       SubscriptionFoundationHandlers.switchPlan,
@@ -366,9 +364,7 @@ describe("subscription cancellation", () => {
         priceId: "price_pro_sp",
       }),
     );
-    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
-      "pro",
-    );
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId }))).toBe("pro");
 
     const canceled = await postWebhook(
       subscriptionEvent({
@@ -380,9 +376,7 @@ describe("subscription cancellation", () => {
       }),
     );
     expect(canceled.status).toBe(200);
-    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
-      "free",
-    );
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId }))).toBe("free");
 
     const result = await stack.http.queryOk<BillingPlansResult>(
       SubscriptionFoundationQueries.billingPlans,
@@ -423,9 +417,7 @@ describe("subscription — pending cancellation", () => {
       }),
     );
     expect(updated.status).toBe(200);
-    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId, mode: "system" }))).toBe(
-      "pro",
-    );
+    expect(await resolveTier(createTenantDb({ db: stack.db, tenantId }))).toBe("pro");
 
     const result = await stack.http.queryOk<BillingPlansResult>(
       SubscriptionFoundationQueries.billingPlans,

@@ -23,7 +23,7 @@ import { buildAppFeatures, resolveBaseDomainFromEnv } from "../run-config";
 let stack: TestStack;
 
 function tierResolverDb() {
-  return createTenantDb({ db: stack.db, tenantId: DEMO_TENANT_ID, mode: "system" });
+  return createTenantDb({ db: stack.db, tenantId: DEMO_TENANT_ID });
 }
 
 beforeAll(async () => {
