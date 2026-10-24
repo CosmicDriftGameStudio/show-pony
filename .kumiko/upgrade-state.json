@@ -1,6 +1,6 @@
 {
-  "version": "0.389.0",
-  "appliedAt": "2026-10-23T10:54:30.41893Z",
+  "version": "0.390.0",
+  "appliedAt": "2026-10-24T13:03:02.064278Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -26,6 +26,16 @@
       "version": "0.379.0",
       "codemod": "scripts/codemod/feature-layout.ts",
       "title": "Client files of a feature live under web/"
+    },
+    {
+      "version": "0.390.0",
+      "codemod": "scripts/codemod/ctx-namespaces.ts",
+      "title": "HandlerContext without wiring, hooks receive the HandlerContext"
+    },
+    {
+      "version": "0.390.0",
+      "codemod": "scripts/codemod/feature-ast-package.ts",
+      "title": "Feature AST, pattern library and codemods moved to @cosmicdrift/kumiko-feature-ast"
     }
   ],
   "resolvedManual": [
@@ -1756,6 +1766,134 @@
       "resolution": "not-applicable",
       "reason": "screenshot specs use runMatrix; loops and verify specs navigate at most twice per test and seed through the API",
       "resolvedAt": "2026-10-23T10:55:23.012958Z"
+    },
+    {
+      "id": "0.390.0:24ed4ba0",
+      "version": "0.390.0",
+      "title": "Tenant streams and rows live on the system tenant, seed defaults changed",
+      "resolution": "migrated",
+      "reason": "Boot backfill verified on a DB created by 0.389.0: three tenant streams moved to the system tenant, second boot without moves; search rebuild test expects the tenant row under SYSTEM_TENANT_ID",
+      "resolvedAt": "2026-10-24T13:03:49.371617Z"
+    },
+    {
+      "id": "0.390.0:c2e924b0",
+      "version": "0.390.0",
+      "title": "Jobs append their own events with ctx.events.append",
+      "resolution": "not-applicable",
+      "reason": "No hand-built JobContext and no job appends events through escapeHatch or unsafeRaw",
+      "resolvedAt": "2026-10-24T13:03:49.43577Z"
+    },
+    {
+      "id": "0.390.0:98616096",
+      "version": "0.390.0",
+      "title": "Jobs see whether they can still defer (ctx.canDefer)",
+      "resolution": "not-applicable",
+      "reason": "No hand-built JobContext in seeds or tests",
+      "resolvedAt": "2026-10-24T13:03:49.499399Z"
+    },
+    {
+      "id": "0.390.0:1670c6c2",
+      "version": "0.390.0",
+      "title": "meilisearch is an optional peer dependency",
+      "resolution": "migrated",
+      "reason": "meilisearch ^0.58.0 is already a direct dependency for the Meilisearch adapter",
+      "resolvedAt": "2026-10-24T13:03:49.563072Z"
+    },
+    {
+      "id": "0.390.0:cfeaff80",
+      "version": "0.390.0",
+      "title": "Framework subpaths no longer export names without a user",
+      "resolution": "not-applicable",
+      "reason": "Typecheck is clean against 0.390.0; no removed name is imported",
+      "resolvedAt": "2026-10-24T13:03:49.626757Z"
+    },
+    {
+      "id": "0.390.0:8ea1076e",
+      "version": "0.390.0",
+      "title": "preQuery hooks removed",
+      "resolution": "not-applicable",
+      "reason": "No preQuery hook registered",
+      "resolvedAt": "2026-10-24T13:03:49.689998Z"
+    },
+    {
+      "id": "0.390.0:b1f2c39d",
+      "version": "0.390.0",
+      "title": "createTenantDb mode system requires a reason",
+      "resolution": "not-applicable",
+      "reason": "No createTenantDb mode system call left; tier-assignment tests read through a tenant-scoped handle",
+      "resolvedAt": "2026-10-24T13:03:49.752543Z"
+    },
+    {
+      "id": "0.390.0:85949cd3",
+      "version": "0.390.0",
+      "title": "RLS boot check tells known tables from orphaned ones",
+      "resolution": "not-applicable",
+      "reason": "The app does not call assertRowLevelSecurityBootState itself",
+      "resolvedAt": "2026-10-24T13:03:49.815592Z"
+    },
+    {
+      "id": "0.390.0:9b65d050",
+      "version": "0.390.0",
+      "title": "rowLevelSecurity defaults to \"on\"",
+      "resolution": "migrated",
+      "reason": "Migration 0031 adds RLS and policies, kumiko/schema.ts exports ROW_LEVEL_SECURITY, kumiko_app is NOSUPERUSER NOBYPASSRLS; prod boot as kumiko_app verified",
+      "resolvedAt": "2026-10-24T13:03:49.878611Z"
+    },
+    {
+      "id": "0.390.0:79e2595f",
+      "version": "0.390.0",
+      "title": "Boot hooks with a db dependency get a system-scoped db at rowLevelSecurity \"on\"",
+      "resolution": "migrated",
+      "reason": "No wire hook or anonymousAccess factory reads tenant rows; the subdomain resolver reads tenant rows through a SYSTEM_TENANT_ID handle",
+      "resolvedAt": "2026-10-24T13:03:49.941142Z"
+    },
+    {
+      "id": "0.390.0:a0e444ab",
+      "version": "0.390.0",
+      "title": "runInSystemRowLevelSecurityScope and systemScopedRunner take a reason",
+      "resolution": "not-applicable",
+      "reason": "No runInSystemRowLevelSecurityScope or systemScopedRunner call",
+      "resolvedAt": "2026-10-24T13:03:50.004969Z"
+    },
+    {
+      "id": "0.390.0:b02c020a",
+      "version": "0.390.0",
+      "title": "A projection write under a tenant scope can no longer land in another tenant",
+      "resolution": "not-applicable",
+      "reason": "No command writes another tenant's row through ctx.db; integration suite green under RLS",
+      "resolvedAt": "2026-10-24T13:03:50.069377Z"
+    },
+    {
+      "id": "0.390.0:320382d4",
+      "version": "0.390.0",
+      "title": "happy-dom and undici updated for security advisories",
+      "resolution": "migrated",
+      "reason": "undici pinned to 7.30.1 and happy-dom to 21.0.4 via overrides; no own happy-dom devDependency and no .test.tsx DOM tests",
+      "resolvedAt": "2026-10-24T13:03:50.133348Z"
+    },
+    {
+      "id": "0.390.0:0d310ad7",
+      "version": "0.390.0",
+      "title": "extraContext factories get the raw db in the test stack and dev",
+      "resolution": "migrated",
+      "reason": "invite-branding resolver scopes itself with a SYSTEM_TENANT_ID TenantDb; templateResolver reads under the request scope; integration green",
+      "resolvedAt": "2026-10-24T13:03:50.197967Z"
+    },
+    {
+      "id": "0.390.0:d3b22cd6",
+      "version": "0.390.0",
+      "title": "The test stack runs with row level security on as role kumiko_app",
+      "resolution": "migrated",
+      "reason": "Integration suite runs green as kumiko_app with RLS on; tier-assignment tests read through a tenant-scoped handle",
+      "resolvedAt": "2026-10-24T13:03:50.263613Z"
+    },
+    {
+      "id": "0.390.0:e1c37b50",
+      "version": "0.390.0",
+      "title": "The dev server runs with row level security on",
+      "resolution": "migrated",
+      "reason": "bin/server.ts runs with the default rowLevelSecurity on; e2e boots it and passes",
+      "resolvedAt": "2026-10-24T13:03:50.327408Z"
     }
   ]
 }
