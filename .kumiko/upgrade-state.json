@@ -1,6 +1,6 @@
 {
-  "version": "0.391.0",
-  "appliedAt": "2026-10-25T12:51:39.587101Z",
+  "version": "0.392.0",
+  "appliedAt": "2026-10-25T18:07:50.068216Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -1894,6 +1894,14 @@
       "resolution": "migrated",
       "reason": "bin/server.ts runs with the default rowLevelSecurity on; e2e boots it and passes",
       "resolvedAt": "2026-10-24T13:03:50.327408Z"
+    },
+    {
+      "id": "0.392.0:ffc424c8",
+      "version": "0.392.0",
+      "title": "The managed Dockerfile reads the registry token from a BuildKit secret",
+      "resolution": "not-applicable",
+      "reason": "Dockerfile pulls only public npm packages, so no registry token or secret mount is needed",
+      "resolvedAt": "2026-10-25T18:08:04.397066Z"
     }
   ]
 }

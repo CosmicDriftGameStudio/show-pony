@@ -5,14 +5,14 @@
     "": {
       "name": "show-pony",
       "dependencies": {
-        "@cosmicdrift/kumiko-bundled-features": "0.391.0",
-        "@cosmicdrift/kumiko-dev-server": "0.391.0",
-        "@cosmicdrift/kumiko-document-designer": "0.391.0",
-        "@cosmicdrift/kumiko-framework": "0.391.0",
-        "@cosmicdrift/kumiko-locale-de": "0.391.0",
-        "@cosmicdrift/kumiko-renderer": "0.391.0",
-        "@cosmicdrift/kumiko-server-runtime": "0.391.0",
-        "@cosmicdrift/kumiko-types": "0.391.0",
+        "@cosmicdrift/kumiko-bundled-features": "0.392.0",
+        "@cosmicdrift/kumiko-dev-server": "0.392.0",
+        "@cosmicdrift/kumiko-document-designer": "0.392.0",
+        "@cosmicdrift/kumiko-framework": "0.392.0",
+        "@cosmicdrift/kumiko-locale-de": "0.392.0",
+        "@cosmicdrift/kumiko-renderer": "0.392.0",
+        "@cosmicdrift/kumiko-server-runtime": "0.392.0",
+        "@cosmicdrift/kumiko-types": "0.392.0",
         "meilisearch": "^0.58.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -20,9 +20,9 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^2.5.15",
-        "@cosmicdrift/kumiko-cli": "0.391.0",
-        "@cosmicdrift/kumiko-guards": "0.391.0",
-        "@cosmicdrift/kumiko-testing": "0.391.0",
+        "@cosmicdrift/kumiko-cli": "0.392.0",
+        "@cosmicdrift/kumiko-guards": "0.392.0",
+        "@cosmicdrift/kumiko-testing": "0.392.0",
         "@playwright/test": "^1.63.0",
         "@tailwindcss/cli": "^4.3.3",
         "@types/react": "^19.2.18",
@@ -34,13 +34,13 @@
     },
   },
   "overrides": {
-    "@cosmicdrift/kumiko-bundled-features": "0.391.0",
-    "@cosmicdrift/kumiko-dev-server": "0.391.0",
-    "@cosmicdrift/kumiko-document-designer": "0.391.0",
-    "@cosmicdrift/kumiko-framework": "0.391.0",
-    "@cosmicdrift/kumiko-locale-de": "0.391.0",
-    "@cosmicdrift/kumiko-renderer": "0.391.0",
-    "@cosmicdrift/kumiko-server-runtime": "0.391.0",
+    "@cosmicdrift/kumiko-bundled-features": "0.392.0",
+    "@cosmicdrift/kumiko-dev-server": "0.392.0",
+    "@cosmicdrift/kumiko-document-designer": "0.392.0",
+    "@cosmicdrift/kumiko-framework": "0.392.0",
+    "@cosmicdrift/kumiko-locale-de": "0.392.0",
+    "@cosmicdrift/kumiko-renderer": "0.392.0",
+    "@cosmicdrift/kumiko-server-runtime": "0.392.0",
     "brace-expansion": "^5.0.12",
     "happy-dom": "21.0.4",
     "hono": "^4.13.13",
@@ -77,33 +77,33 @@
 
     "@colordx/core": ["@colordx/core@5.8.0", "", {}, "sha512-cG0QJAO6VkaRUlIb0zOzX9gfJgs1pjoOL9gZ/PK1kfvBs0GCkADu5oQh6gPxXgQnZ3gV575h+lQRC0NlMDTclA=="],
 
-    "@cosmicdrift/kumiko-bundled-features": ["@cosmicdrift/kumiko-bundled-features@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-renderer": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "@mollie/api-client": "^4.5.0", "@node-rs/argon2": "^2.0.2", "@tiptap/core": "^3.31.3", "@tiptap/extension-link": "^3.31.3", "@tiptap/extension-list": "^3.31.3", "@tiptap/extension-table": "^3.31.3", "@tiptap/extensions": "^3.31.3", "@tiptap/html": "^3.31.3", "@tiptap/pm": "^3.31.3", "@tiptap/react": "^3.31.3", "@tiptap/starter-kit": "^3.31.3", "@types/mailparser": "^3.4.6", "@types/qrcode": "^1.5.5", "clsx": "^2.1.1", "happy-dom": "^21.0.4", "hono": "^4.13.1", "imapflow": "^1.7.8", "ioredis": "^5.10.1", "jose": "^6.2.3", "lucide-react": "^1.14.0", "mailparser": "^3.12.4", "marked": "^18.0.3", "nodemailer": "^10.2.1", "pdf-lib": "^1.17.1", "qrcode": "^1.5.4", "react": "^19.2.6", "react-dom": "^19.2.6", "sharp": "^0.35.5", "stripe": "^22.6.2", "tailwind-merge": "^3.6.0", "temporal-polyfill": "^0.3.2", "uuid": "^14.0.0", "zod": "^4.6.7" }, "peerDependencies": { "@cosmicdrift/kumiko-testing": "0.391.0" }, "optionalPeers": ["@cosmicdrift/kumiko-testing"] }, "sha512-6oUXFyukv1hhu4wFzcTcKrV+IuH9h0rroK604ubcMtvJneEkQSJtptYBn5sJKZ8SmqxUQi3sWcwvksYkQRKimQ=="],
+    "@cosmicdrift/kumiko-bundled-features": ["@cosmicdrift/kumiko-bundled-features@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-renderer": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "@mollie/api-client": "^4.5.0", "@node-rs/argon2": "^2.0.2", "@tiptap/core": "^3.31.3", "@tiptap/extension-link": "^3.31.3", "@tiptap/extension-list": "^3.31.3", "@tiptap/extension-table": "^3.31.3", "@tiptap/extensions": "^3.31.3", "@tiptap/html": "^3.31.3", "@tiptap/pm": "^3.31.3", "@tiptap/react": "^3.31.3", "@tiptap/starter-kit": "^3.31.3", "@types/mailparser": "^3.4.6", "@types/qrcode": "^1.5.5", "clsx": "^2.1.1", "happy-dom": "^21.0.4", "hono": "^4.13.1", "imapflow": "^1.7.8", "ioredis": "^5.10.1", "jose": "^6.2.3", "lucide-react": "^1.14.0", "mailparser": "^3.12.4", "marked": "^18.0.3", "nodemailer": "^10.2.1", "pdf-lib": "^1.17.1", "qrcode": "^1.5.4", "react": "^19.2.6", "react-dom": "^19.2.6", "sharp": "^0.35.5", "stripe": "^22.6.2", "tailwind-merge": "^3.6.0", "temporal-polyfill": "^0.3.2", "uuid": "^14.0.0", "zod": "^4.6.7" }, "peerDependencies": { "@cosmicdrift/kumiko-testing": "0.392.0" }, "optionalPeers": ["@cosmicdrift/kumiko-testing"] }, "sha512-r3tlTVDitiI4+ri2wV0c6MCPcuQFWYe1S5Li17Cxge9HWU7vQe1oc3yzBkbANAMx0PCloOr7VnIUjMyu9Zb+oQ=="],
 
-    "@cosmicdrift/kumiko-cli": ["@cosmicdrift/kumiko-cli@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-dev-server": "0.391.0", "@cosmicdrift/kumiko-feature-ast": "0.391.0", "@cosmicdrift/kumiko-guards": "0.391.0", "@cosmicdrift/kumiko-server-runtime": "0.391.0", "@cosmicdrift/kumiko-testing": "0.391.0", "marked": "^18.0.3", "zod": "^4.6.7" }, "peerDependencies": { "@cosmicdrift/kumiko-bundled-features": "0.391.0", "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-renderer": "0.391.0", "sharp": "^0.35.5" }, "optionalPeers": ["@cosmicdrift/kumiko-bundled-features", "@cosmicdrift/kumiko-framework", "@cosmicdrift/kumiko-renderer", "sharp"], "bin": { "kumiko": "bin/cli.ts", "kumiko-upgrade": "bin/kumiko-upgrade.ts" } }, "sha512-KlyGf4GTEvG5VeNTY7Y82p8r+6Ap1eNjR2NjckjrxoAhcEPlwtAelxoGFr0HWM+0SWPfxG0nPlT6UYK1l36lcw=="],
+    "@cosmicdrift/kumiko-cli": ["@cosmicdrift/kumiko-cli@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-dev-server": "0.392.0", "@cosmicdrift/kumiko-feature-ast": "0.392.0", "@cosmicdrift/kumiko-guards": "0.392.0", "@cosmicdrift/kumiko-server-runtime": "0.392.0", "@cosmicdrift/kumiko-testing": "0.392.0", "marked": "^18.0.3", "zod": "^4.6.7" }, "peerDependencies": { "@cosmicdrift/kumiko-bundled-features": "0.392.0", "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-renderer": "0.392.0", "sharp": "^0.35.5" }, "optionalPeers": ["@cosmicdrift/kumiko-bundled-features", "@cosmicdrift/kumiko-framework", "@cosmicdrift/kumiko-renderer", "sharp"], "bin": { "kumiko": "bin/cli.ts", "kumiko-upgrade": "bin/kumiko-upgrade.ts" } }, "sha512-lqPjC6vAEgOuY82CtXca4wn1PjX/mSNy5PsIV5xrhAHbembbVUGQ4h9jVlNE3zBYuawwRxhs8LYK0MSnRbdrpw=="],
 
-    "@cosmicdrift/kumiko-dev-server": ["@cosmicdrift/kumiko-dev-server@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.391.0", "@cosmicdrift/kumiko-feature-ast": "0.391.0", "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-guards": "0.391.0", "@cosmicdrift/kumiko-renderer": "0.391.0", "@cosmicdrift/kumiko-renderer-mail-html": "0.391.0", "@cosmicdrift/kumiko-server-runtime": "0.391.0", "@cosmicdrift/kumiko-testing": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "ts-morph": "^28.0.0", "zod": "^4.6.7" }, "peerDependencies": { "bun-types": "^1.4.4" }, "bin": { "kumiko-dev": "bin/kumiko-dev.ts", "kumiko-build": "bin/kumiko-build.ts", "kumiko-schema": "bin/kumiko-schema.ts", "kumiko-upgrade": "bin/kumiko-upgrade.ts", "kumiko-init-deploy": "bin/kumiko-init-deploy.ts" } }, "sha512-pkpG5wmZa3+p2BvJ9R4FPQ1U/vNQoei9isg9h/Idu7HDk/BQZhUftA2fOvy0cg+QDpPrJTrY355n/rpQaN63/A=="],
+    "@cosmicdrift/kumiko-dev-server": ["@cosmicdrift/kumiko-dev-server@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.392.0", "@cosmicdrift/kumiko-feature-ast": "0.392.0", "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-guards": "0.392.0", "@cosmicdrift/kumiko-renderer": "0.392.0", "@cosmicdrift/kumiko-renderer-mail-html": "0.392.0", "@cosmicdrift/kumiko-server-runtime": "0.392.0", "@cosmicdrift/kumiko-testing": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "ts-morph": "^28.0.0", "zod": "^4.6.7" }, "peerDependencies": { "bun-types": "^1.4.4" }, "bin": { "kumiko-dev": "bin/kumiko-dev.ts", "kumiko-build": "bin/kumiko-build.ts", "kumiko-schema": "bin/kumiko-schema.ts", "kumiko-upgrade": "bin/kumiko-upgrade.ts", "kumiko-init-deploy": "bin/kumiko-init-deploy.ts" } }, "sha512-ORj9SPd7y+/HAChAO6QuVRaiGOiOTsdIwTaqvjTx1wfMhfgWtyNtcGuWe4s0Y1+svYBW3miBQRi/o6Z37Ef/Wg=="],
 
-    "@cosmicdrift/kumiko-document-designer": ["@cosmicdrift/kumiko-document-designer@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.391.0", "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-renderer": "0.391.0", "@cosmicdrift/kumiko-renderer-puppeteer-client": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "react": "^19.2.6" } }, "sha512-U6MmtP+5czUoJTzJAWerGshroYIZb85xYdUyN1EpI+PulBfmb/gHOKlrCP8TuwZQlM9OsKcOj2yPJtxiqlQZyw=="],
+    "@cosmicdrift/kumiko-document-designer": ["@cosmicdrift/kumiko-document-designer@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.392.0", "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-renderer": "0.392.0", "@cosmicdrift/kumiko-renderer-puppeteer-client": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "react": "^19.2.6" } }, "sha512-4z9FplMmcINMKYXdhdMxi81zljzWQr2MMvqbc4VtdTdhh1Xw1mPNpFQaFmjTzTquMdO8KP3x/90HSZtptaMWaA=="],
 
-    "@cosmicdrift/kumiko-feature-ast": ["@cosmicdrift/kumiko-feature-ast@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "ts-morph": "^28.0.0", "zod": "^4.6.7" } }, "sha512-dsBrZeKvl+COghx9M+e4SESDOhzFq0eiWNbOoKuMxy1CDOf2el8C3xqJHDBhx8zTzE2a3lIZP5lU3urYJ1KrJQ=="],
+    "@cosmicdrift/kumiko-feature-ast": ["@cosmicdrift/kumiko-feature-ast@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "ts-morph": "^28.0.0", "zod": "^4.6.7" } }, "sha512-MVs86js60X/7iK26pLuVPgnEBo/6Bp79mZcW3w7WIFfETIk7qDgoUx+8UtZpd9g1+1OMquGy79it60PM830JDw=="],
 
-    "@cosmicdrift/kumiko-framework": ["@cosmicdrift/kumiko-framework@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-types": "0.391.0", "bullmq": "^5.76.7", "hono": "^4.13.1", "i18next": "^26.1.0", "ioredis": "^5.10.1", "jose": "^6.2.3", "pino": "^10.3.1", "temporal-polyfill": "^0.3.2", "uuid": "^14.0.0", "write-excel-file": "^4.1.1", "zod": "^4.6.7" }, "peerDependencies": { "bun-types": "^1.4.4", "meilisearch": "^0.58.0" }, "optionalPeers": ["meilisearch"] }, "sha512-KOX5AOOqxLcBXrRiRLfsI+gtHz6bsVkz0Mw3/q7soigthaAZjhvguqd/4Hr9kNkpZRQLruzJV5Yxt39yVlw0Yg=="],
+    "@cosmicdrift/kumiko-framework": ["@cosmicdrift/kumiko-framework@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-types": "0.392.0", "bullmq": "^5.76.7", "hono": "^4.13.1", "i18next": "^26.1.0", "ioredis": "^5.10.1", "jose": "^6.2.3", "pino": "^10.3.1", "temporal-polyfill": "^0.3.2", "uuid": "^14.0.0", "write-excel-file": "^4.1.1", "zod": "^4.6.7" }, "peerDependencies": { "bun-types": "^1.4.4", "meilisearch": "^0.58.0" }, "optionalPeers": ["meilisearch"] }, "sha512-PNutFOwPeo/Q5o8wwubQT3IbsAhgf/Zs8TURtC9ug85g8hTBSFLCRc75gBDOE9++Zy3X5CXx/Yc0dVOGyDzvIw=="],
 
-    "@cosmicdrift/kumiko-guards": ["@cosmicdrift/kumiko-guards@0.391.0", "", { "dependencies": { "ts-morph": "^28.0.0", "zod": "^4.6.7" }, "peerDependencies": { "@cosmicdrift/kumiko-framework": "0.391.0" }, "optionalPeers": ["@cosmicdrift/kumiko-framework"], "bin": { "kumiko-guards": "src/cli.ts", "kumiko-pre-push": "src/pre-push.sh" } }, "sha512-f2tGPc0pRjspvOOcBLj7F+1HtbMV940j+J1+XWAQad9kjfLI4utK4mftUwXoiSXApWDhvJLmRtYeAEdTKWenZA=="],
+    "@cosmicdrift/kumiko-guards": ["@cosmicdrift/kumiko-guards@0.392.0", "", { "dependencies": { "ts-morph": "^28.0.0", "zod": "^4.6.7" }, "peerDependencies": { "@cosmicdrift/kumiko-framework": "0.392.0" }, "optionalPeers": ["@cosmicdrift/kumiko-framework"], "bin": { "kumiko-guards": "src/cli.ts", "kumiko-pre-push": "src/pre-push.sh" } }, "sha512-mnTdC6GC7Ng1vP0kYKB7WMqFcQN3hCY5J5liIDymQD45dftpznz1nZ8+VknS3o6kxma90SB0tl5WOzAliPgB9w=="],
 
-    "@cosmicdrift/kumiko-locale-de": ["@cosmicdrift/kumiko-locale-de@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.391.0" } }, "sha512-0/F2z1BYMNwfrPt6xTIuhm4bswkY0mvnzoEiEq83AC/+b0n3XfYJzxVHp5q827qqUbQ1RS4IIa74DgXCrVVyMg=="],
+    "@cosmicdrift/kumiko-locale-de": ["@cosmicdrift/kumiko-locale-de@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.392.0" } }, "sha512-8g0CmsgIrDpfFGdHLCzafatSrrU5AHDIJ3V+huMTu8hCDv1WgTMj9EZ3u3u9NIFN/QOBEd4w86FLndKufcS80w=="],
 
-    "@cosmicdrift/kumiko-renderer": ["@cosmicdrift/kumiko-renderer@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-label": "^2.1.8", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "@radix-ui/react-separator": "^1.1.7", "@radix-ui/react-slot": "^1.2.4", "@radix-ui/react-toast": "^1.2.15", "@radix-ui/react-tooltip": "^1.2.8", "@tiptap/core": "^3.31.3", "@tiptap/pm": "^3.31.3", "@tiptap/react": "^3.31.3", "@tiptap/starter-kit": "^3.31.3", "@types/qrcode": "^1.5.5", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "cmdk": "^1.1.1", "lucide-react": "^1.14.0", "pdfjs-dist": "6.3.289", "qrcode": "^1.5.4", "radix-ui": "^1.4.3", "react": "^19.2.6", "react-day-picker": "^10.0.0", "react-dom": "^19.2.6", "react-resizable-panels": "^4.12.2", "tailwind-merge": "^3.6.0", "temporal-polyfill": "^0.3.2", "zod": "^4.6.7" }, "peerDependencies": { "@tailwindcss/cli": "^4.3.0", "tailwindcss": "^4.3.0" } }, "sha512-gRmxlIQrUt8QOeuqXeATEPZ0YNN655a+d8iuFw3k/7YaIQQ9F/mfb6mA82jH8afcffxH4yfhOGVTgcbh8eggQw=="],
+    "@cosmicdrift/kumiko-renderer": ["@cosmicdrift/kumiko-renderer@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-dropdown-menu": "^2.1.16", "@radix-ui/react-label": "^2.1.8", "@radix-ui/react-popover": "^1.1.15", "@radix-ui/react-select": "^2.2.6", "@radix-ui/react-separator": "^1.1.7", "@radix-ui/react-slot": "^1.2.4", "@radix-ui/react-toast": "^1.2.15", "@radix-ui/react-tooltip": "^1.2.8", "@tiptap/core": "^3.31.3", "@tiptap/pm": "^3.31.3", "@tiptap/react": "^3.31.3", "@tiptap/starter-kit": "^3.31.3", "@types/qrcode": "^1.5.5", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "cmdk": "^1.1.1", "lucide-react": "^1.14.0", "pdfjs-dist": "6.3.289", "qrcode": "^1.5.4", "radix-ui": "^1.4.3", "react": "^19.2.6", "react-day-picker": "^10.0.0", "react-dom": "^19.2.6", "react-resizable-panels": "^4.12.2", "tailwind-merge": "^3.6.0", "temporal-polyfill": "^0.3.2", "zod": "^4.6.7" }, "peerDependencies": { "@tailwindcss/cli": "^4.3.0", "tailwindcss": "^4.3.0" } }, "sha512-sbFqb3nwwgYJxs+09MQ/fMOMYG4k9Xug1f2hQ1EKbdHP3a35adbMHfdSJ7Kin34PYlmY41Z7kWx1VyRqNgAhuA=="],
 
-    "@cosmicdrift/kumiko-renderer-mail-html": ["@cosmicdrift/kumiko-renderer-mail-html@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.391.0", "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-renderer": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "handlebars": "^4.7.8", "html-to-text": "^9.0.5", "mjml": "^5.2.2" } }, "sha512-19kJZEfeBW/pCc+kU/tymkrpCft0d3Ta7Mhni6GzKc3wEJIIEne3GwBKH3Vt6doBDCXWNDXwKU6jcLMf/h2AbA=="],
+    "@cosmicdrift/kumiko-renderer-mail-html": ["@cosmicdrift/kumiko-renderer-mail-html@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.392.0", "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-renderer": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "handlebars": "^4.7.8", "html-to-text": "^9.0.5", "mjml": "^5.2.2" } }, "sha512-2eM5c0B1Lr8hmKq9i2cmNd55nHQV7AvhuWNy35UaN8cCrWK+bHZEap6vMMelKRFIqxvYLU3ZvKlL0IPDGFX7Zg=="],
 
-    "@cosmicdrift/kumiko-renderer-puppeteer-client": ["@cosmicdrift/kumiko-renderer-puppeteer-client@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.391.0", "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-renderer-mail-html": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0" } }, "sha512-Uda2wF6giWjiIrOAFyh568TfntUYWOFdkGLhA31eazv5ebevu6QrUJtSJhHYwid6cHNutEbK6YkZRFJOE1TucA=="],
+    "@cosmicdrift/kumiko-renderer-puppeteer-client": ["@cosmicdrift/kumiko-renderer-puppeteer-client@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.392.0", "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-renderer-mail-html": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0" } }, "sha512-2lpmG65/7i6rWiQBtDiljgUn8/99t3ucewz9N6DdflIjFziaY0R3umrOTiVEpSnqy7Wu6uaUsbt2CXQzN2yAxg=="],
 
-    "@cosmicdrift/kumiko-server-runtime": ["@cosmicdrift/kumiko-server-runtime@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.391.0", "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-renderer": "0.391.0", "@cosmicdrift/kumiko-renderer-mail-html": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "ioredis": "^5.10.1", "temporal-polyfill": "^0.3.2", "zod": "^4.6.7" }, "peerDependencies": { "bun-types": "^1.4.4" } }, "sha512-3T7AzFJzHzEd2K4lqVDqNHYMB9MY33LvLT/8zjUa7xiFTJoLtilbfNk6fDl4kpPntgbUKF7/mTk8WkokSYnuUQ=="],
+    "@cosmicdrift/kumiko-server-runtime": ["@cosmicdrift/kumiko-server-runtime@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-bundled-features": "0.392.0", "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-renderer": "0.392.0", "@cosmicdrift/kumiko-renderer-mail-html": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "ioredis": "^5.10.1", "temporal-polyfill": "^0.3.2", "zod": "^4.6.7" }, "peerDependencies": { "bun-types": "^1.4.4" } }, "sha512-7dzKme0GNjaPB34CLixCwYlAMnKpQ6v5asN8/HFeeQXOSSOYnk3BG8JBxSIcGKvcWNnZX47iggZn4OZbpwIhCQ=="],
 
-    "@cosmicdrift/kumiko-testing": ["@cosmicdrift/kumiko-testing@0.391.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.391.0", "@cosmicdrift/kumiko-guards": "0.391.0", "@cosmicdrift/kumiko-types": "0.391.0", "zod": "^4.6.7" }, "peerDependencies": { "@happy-dom/global-registrator": "^21.0.4", "@playwright/test": "^1.62.1", "@testing-library/dom": "^10.4.1", "@testing-library/react": "^16.3.2" }, "optionalPeers": ["@happy-dom/global-registrator", "@playwright/test", "@testing-library/dom", "@testing-library/react"], "bin": { "kumiko-testing": "bin/kumiko-testing.ts" } }, "sha512-PZC9xfSCYAFpPW7/LpBWtmgW9Xt4awudkJKPIkfx2HjBOxGUWYRLON2g56XXtqV8ISc7ZCexNkv0Yc72ARjVng=="],
+    "@cosmicdrift/kumiko-testing": ["@cosmicdrift/kumiko-testing@0.392.0", "", { "dependencies": { "@cosmicdrift/kumiko-framework": "0.392.0", "@cosmicdrift/kumiko-guards": "0.392.0", "@cosmicdrift/kumiko-types": "0.392.0", "zod": "^4.6.7" }, "peerDependencies": { "@happy-dom/global-registrator": "^21.0.4", "@playwright/test": "^1.62.1", "@testing-library/dom": "^10.4.1", "@testing-library/react": "^16.3.2" }, "optionalPeers": ["@happy-dom/global-registrator", "@playwright/test", "@testing-library/dom", "@testing-library/react"], "bin": { "kumiko-testing": "bin/kumiko-testing.ts" } }, "sha512-A9HtjAoCNDCTYCuC2RntGbMAFI5EYG710kcW52b/YG9S3QsnmilTPgzLie990mOecKSZRjcjLOYH4NcQ57DJ+w=="],
 
-    "@cosmicdrift/kumiko-types": ["@cosmicdrift/kumiko-types@0.391.0", "", { "peerDependencies": { "bun-types": "^1.4.4", "hono": "^4.13.1", "ioredis": "^5.10.1", "temporal-polyfill": "^0.3.2", "zod": "^4.6.7" }, "optionalPeers": ["ioredis"] }, "sha512-ktiqajx9Nz0t5Gm+hUI7/O3KMRsueplnywIq4XD9au0Hw2PFHkH48XPlDKbydx0SRntPVgtcrY7mWaKlYGuCEw=="],
+    "@cosmicdrift/kumiko-types": ["@cosmicdrift/kumiko-types@0.392.0", "", { "peerDependencies": { "bun-types": "^1.4.4", "hono": "^4.13.1", "ioredis": "^5.10.1", "temporal-polyfill": "^0.3.2", "zod": "^4.6.7" }, "optionalPeers": ["ioredis"] }, "sha512-4mfqLzfxhgEQdPqdJMRRKZHR1grh9QJ4o08wrfcpBrHdKTwxj5ixKr3BoAWsCOwsv/j7Q0ipGJLkYxtqLMkKyQ=="],
 
     "@date-fns/tz": ["@date-fns/tz@1.5.0", "", {}, "sha512-lwYN/vDPeNRULcepoE/LO2Pgx+7/RV+S9ARfbc9lr2DtGkOD7pAiruHvbR1RX3Qyf6ja47EWJDMsNK5vK08DJg=="],
 
