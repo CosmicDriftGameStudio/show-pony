@@ -19,21 +19,18 @@ describe("show-pony app-shell workspaces", () => {
     expect(expectRoles(platform?.access)).toEqual(access.systemAdmin);
   });
 
-  test("system check: TenantAdmin under Konto in the host workspace, SystemAdmin in the platform", () => {
+  test("system check: SystemAdmin in the platform, no entry in the host workspace", () => {
     const registry = createRegistry([appShellFeature]);
     const hostNav = registry.getWorkspace("app-shell:workspace:host")?.nav ?? [];
     const platformNav = registry.getWorkspace("app-shell:workspace:platform")?.nav ?? [];
-    expect(hostNav).toContain("showpony:nav:system-check");
-    expect(platformNav).toContain("app-shell:nav:system-check");
-    expect(hostNav).not.toContain("app-shell:nav:system-check");
-    expect(platformNav).not.toContain("showpony:nav:system-check");
+    const systemCheckNavs = [
+      ...Object.values(appShellFeature.navs),
+      ...Object.values(showPonyFeature.navs),
+    ].filter((nav) => nav.screen === "readiness:screen:system-check");
 
-    const tenantEntry = showPonyFeature.navs["system-check"];
-    const platformEntry = appShellFeature.navs["system-check"];
-    expect(tenantEntry?.screen).toBe("readiness:screen:system-check");
-    expect(tenantEntry?.parent).toBe("showpony:nav:account");
-    expect(expectRoles(tenantEntry?.access)).toEqual(["TenantAdmin"]);
-    expect(platformEntry?.screen).toBe("readiness:screen:system-check");
-    expect(expectRoles(platformEntry?.access)).toEqual(access.systemAdmin);
+    expect(platformNav).toContain("app-shell:nav:system-check");
+    expect(hostNav.filter((qn) => qn.endsWith(":nav:system-check"))).toEqual([]);
+    expect(systemCheckNavs).toHaveLength(1);
+    expect(expectRoles(appShellFeature.navs["system-check"]?.access)).toEqual(access.systemAdmin);
   });
 });

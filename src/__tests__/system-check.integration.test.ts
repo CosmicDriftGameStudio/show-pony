@@ -1,6 +1,7 @@
 // Real HTTP round-trip of the readiness system check on the full show-pony feature set. show-pony mounts
-// no mail, file or inbound-mail foundation, so a tenant run finishes with no probes at all and only the
-// SystemAdmin sees results (the built-in database, cache and search probes).
+// no mail, file or inbound-mail foundation, so only the SystemAdmin gets a nav entry and results (the
+// built-in database, cache and search probes). The handlers still admit a TenantAdmin by URL, so that
+// run must stay free of system probes.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import {
@@ -43,7 +44,7 @@ beforeAll(async () => {
 afterAll(async () => stack?.cleanup());
 
 describe("system check", () => {
-  test("a TenantAdmin run finishes without the system probes", async () => {
+  test("a TenantAdmin run by URL finishes without the system probes", async () => {
     const tenantAdmin = createTestUser({ tenantId: testTenantId(901), roles: ["TenantAdmin"] });
 
     const started = await stack.http.writeOk<{ runId: string; isExisting: boolean }>(

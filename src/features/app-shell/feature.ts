@@ -17,7 +17,6 @@ const HOST_NAV_MEMBERS = [
   "document-designer:nav:templates",
   "showpony:nav:account",
   "showpony:nav:billing",
-  "showpony:nav:system-check",
   "tenant:nav:members",
 ] as const;
 

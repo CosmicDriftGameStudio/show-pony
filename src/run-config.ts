@@ -91,7 +91,7 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createSecretsFeature(),
     createMetricsFeature({ metrics: DEFAULT_METRICS }),
     createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),
-    // No nav option: showpony and app-shell file the entries per workspace, gated to TenantAdmin / SystemAdmin.
+    // No nav option: app-shell files the platform entry for SystemAdmin. No host entry, show-pony has no tenant probes.
     createReadinessFeature(),
     adminShellFeature,
     appShellFeature,
