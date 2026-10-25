@@ -72,7 +72,6 @@ const kmsWiring = resolveKmsWiring(process.env, {
   plaintextReason: "local dev without subject-keys KMS",
 });
 if ("allowPlaintextPii" in kmsWiring) {
-  // biome-ignore lint/suspicious/noConsole: intentional operator-visible plaintext-PII boot warning
   console.warn(`[show-pony] PII IS STORED IN PLAINTEXT — ${kmsWiring.allowPlaintextPii}`);
 }
 
