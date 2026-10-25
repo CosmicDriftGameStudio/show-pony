@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-23T22:54:00.082Z",
+  "generatedAt": "2026-10-25T12:54:55.435Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -474,6 +474,131 @@
           "columns": [
             "tenant_id"
           ]
+        }
+      ],
+      "source": "managed"
+    },
+    {
+      "tableName": "read_readiness_probe_runs",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "defaultSql": "gen_random_uuid()",
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "version",
+          "pgType": "integer",
+          "notNull": true,
+          "defaultSql": "1"
+        },
+        {
+          "name": "inserted_at",
+          "pgType": "timestamptz",
+          "notNull": true,
+          "defaultSql": "now()"
+        },
+        {
+          "name": "modified_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "inserted_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "modified_by_id",
+          "pgType": "text",
+          "notNull": false
+        },
+        {
+          "name": "status",
+          "pgType": "text",
+          "notNull": true,
+          "defaultSql": "'pending'"
+        },
+        {
+          "name": "include_paid",
+          "pgType": "boolean",
+          "notNull": true,
+          "defaultSql": "false"
+        },
+        {
+          "name": "include_system_probes",
+          "pgType": "boolean",
+          "notNull": true,
+          "defaultSql": "false"
+        },
+        {
+          "name": "triggered_by_user_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "requested_at",
+          "pgType": "timestamptz",
+          "notNull": true
+        },
+        {
+          "name": "started_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "finished_at",
+          "pgType": "timestamptz",
+          "notNull": false
+        },
+        {
+          "name": "duration_ms",
+          "pgType": "integer",
+          "notNull": false
+        },
+        {
+          "name": "ok_count",
+          "pgType": "integer",
+          "notNull": false
+        },
+        {
+          "name": "failed_count",
+          "pgType": "integer",
+          "notNull": false
+        },
+        {
+          "name": "skipped_count",
+          "pgType": "integer",
+          "notNull": false
+        },
+        {
+          "name": "results",
+          "pgType": "jsonb",
+          "notNull": true,
+          "defaultSql": "'{}'::jsonb"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "read_readiness_probe_runs_tenant_id_idx",
+          "columns": [
+            "tenant_id"
+          ]
+        },
+        {
+          "name": "read_readiness_probe_runs_one_active_per_tenant",
+          "columns": [
+            "tenant_id"
+          ],
+          "unique": true,
+          "whereSql": "status IN ('pending', 'running')"
         }
       ],
       "source": "managed"
@@ -1284,7 +1409,8 @@
       "source": "managed",
       "piiSubjectFields": [
         "name"
-      ]
+      ],
+      "tenancy": "global"
     },
     {
       "tableName": "read_tier_assignments",
@@ -2091,6 +2217,25 @@
       ]
     },
     "read_payments": {
+      "policies": [
+        {
+          "name": "kumiko_tenant_isolation",
+          "command": "ALL",
+          "kind": "PERMISSIVE",
+          "rolesSql": "PUBLIC",
+          "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
+          "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
+        },
+        {
+          "name": "kumiko_system_tenant_read",
+          "command": "SELECT",
+          "kind": "PERMISSIVE",
+          "rolesSql": "PUBLIC",
+          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
+        }
+      ]
+    },
+    "read_readiness_probe_runs": {
       "policies": [
         {
           "name": "kumiko_tenant_isolation",

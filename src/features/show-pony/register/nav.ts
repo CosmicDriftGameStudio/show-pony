@@ -10,6 +10,16 @@ export function registerShowPonyNav(r: FeatureRegistrar): void {
     screen: "showpony:screen:billing",
     order: 10,
   });
+  // The host workspace also admits Admin, the system-check screen does not, so the entry carries the screen's role.
+  r.nav({
+    id: "system-check",
+    icon: "shield-check",
+    label: "readiness:nav.systemCheck",
+    parent: "showpony:nav:account",
+    screen: "readiness:screen:system-check",
+    order: 20,
+    access: { roles: ["TenantAdmin"] },
+  });
 
   r.nav({
     id: "events",

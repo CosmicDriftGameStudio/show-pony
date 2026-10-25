@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { type AccessRule, access, createRegistry } from "@cosmicdrift/kumiko-framework/engine";
 import { appShellFeature } from "../features/app-shell/feature";
+import { showPonyFeature } from "../features/show-pony/feature";
 
 function expectRoles(rule: AccessRule | undefined): readonly string[] {
   expect(rule).toBeDefined();
@@ -16,5 +17,23 @@ describe("show-pony app-shell workspaces", () => {
     expect(expectRoles(host?.access)).toEqual(["TenantAdmin", "Admin"]);
     expect(expectRoles(host?.access)).not.toContain("SystemAdmin");
     expect(expectRoles(platform?.access)).toEqual(access.systemAdmin);
+  });
+
+  test("system check: TenantAdmin under Konto in the host workspace, SystemAdmin in the platform", () => {
+    const registry = createRegistry([appShellFeature]);
+    const hostNav = registry.getWorkspace("app-shell:workspace:host")?.nav ?? [];
+    const platformNav = registry.getWorkspace("app-shell:workspace:platform")?.nav ?? [];
+    expect(hostNav).toContain("showpony:nav:system-check");
+    expect(platformNav).toContain("app-shell:nav:system-check");
+    expect(hostNav).not.toContain("app-shell:nav:system-check");
+    expect(platformNav).not.toContain("showpony:nav:system-check");
+
+    const tenantEntry = showPonyFeature.navs["system-check"];
+    const platformEntry = appShellFeature.navs["system-check"];
+    expect(tenantEntry?.screen).toBe("readiness:screen:system-check");
+    expect(tenantEntry?.parent).toBe("showpony:nav:account");
+    expect(expectRoles(tenantEntry?.access)).toEqual(["TenantAdmin"]);
+    expect(platformEntry?.screen).toBe("readiness:screen:system-check");
+    expect(expectRoles(platformEntry?.access)).toEqual(access.systemAdmin);
   });
 });
