@@ -17,7 +17,7 @@ Read the framework guide before you add or change a feature. The sections below 
 Composed in `src/run-config.ts` (`buildAppFeatures`):
 
 - App features: `show-pony` (events, RSVPs, billing plan catalog) and `app-shell` in `src/features/`.
-- Bundled: auth-foundation, host-routing (tenant by subdomain), legal-pages (imprint, privacy, terms), managed-pages, delivery, channel-email (in-memory transport), jobs, tier-engine, compliance-profiles, tenant-lifecycle, secrets, metrics, admin-shell, the security stack (sessions, crypto-shredding, rate-limiting, audit), the renderer stack and the German locale.
+- Bundled: auth-foundation, host-routing (tenant by subdomain), legal-pages (imprint, privacy, terms), managed-pages, delivery, channel-email (in-memory transport), jobs, tier-engine, compliance-profiles, tenant-lifecycle, secrets, metrics, readiness (system check for SystemAdmin in the platform workspace only, show-pony has no tenant probes), admin-shell, the security stack (sessions, crypto-shredding, rate-limiting, audit), the renderer stack and the German locale.
 
 Mount more in `src/run-config.ts`. App code lives in `src/features/<name>/`.
 

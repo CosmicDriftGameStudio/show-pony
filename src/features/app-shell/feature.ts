@@ -29,6 +29,7 @@ const PLATFORM_NAV_MEMBERS = [
   "app-shell:nav:users",
   "audit:nav:audit-log",
   "jobs:nav:job-runs",
+  "app-shell:nav:system-check",
 ] as const;
 
 /** Tenant-scoped host tools — excludes global SystemAdmin (platform workspace). */
@@ -43,6 +44,14 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     screen: "user:screen:user-list",
     order: 20,
     icon: "users",
+    access: { roles: access.systemAdmin },
+  });
+  r.nav({
+    id: "system-check",
+    label: "readiness:nav.systemCheck",
+    screen: "readiness:screen:system-check",
+    order: 60,
+    icon: "shield-check",
     access: { roles: access.systemAdmin },
   });
 

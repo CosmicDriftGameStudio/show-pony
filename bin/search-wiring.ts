@@ -153,7 +153,6 @@ async function configureTenantSearchIndexesTolerant(
       configuredTenantIds.push(tenant.id);
     } catch (err) {
       failedConfigures += 1;
-      // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, one failed configure must not abort the sweep
       console.warn(`[show-pony][search] configure for tenant ${tenant.id} failed: ${err}`);
     }
   }
@@ -237,7 +236,6 @@ export async function rebuildAllTenantSearchIndexes(
         );
         indexedRows += result.indexedRows;
         if (result.failures.length > 0) {
-          // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, partial reindex must not crash-loop the pod
           console.warn(
             `[show-pony][search] reindex of ${entityName} for tenant ${tenantId}: ${result.failures.length} failed rows, first: ${result.failures[0]?.reason}`,
           );
@@ -245,7 +243,6 @@ export async function rebuildAllTenantSearchIndexes(
       } catch (err) {
         // One broken or stalled tenant index must not leave the remaining tenants unindexed.
         failedReindexes += 1;
-        // biome-ignore lint/suspicious/noConsole: operator-visible boot warning, one failed reindex must not abort the sweep
         console.warn(
           `[show-pony][search] reindex of ${entityName} for tenant ${tenantId} failed: ${err}`,
         );

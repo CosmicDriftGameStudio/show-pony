@@ -22,6 +22,7 @@ import {
   createSystemMetricsFeature,
   DEFAULT_METRICS,
 } from "@cosmicdrift/kumiko-bundled-features/metrics";
+import { createReadinessFeature } from "@cosmicdrift/kumiko-bundled-features/readiness";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
 import { templateEditAccess } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-features/tenant-lifecycle";
@@ -90,6 +91,8 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createSecretsFeature(),
     createMetricsFeature({ metrics: DEFAULT_METRICS }),
     createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),
+    // No nav option: app-shell files the platform entry for SystemAdmin. No host entry, show-pony has no tenant probes.
+    createReadinessFeature(),
     adminShellFeature,
     appShellFeature,
     showPonyFeature,
