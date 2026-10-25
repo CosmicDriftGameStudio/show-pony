@@ -98,6 +98,8 @@ jobs:
         run: bun kumiko-guards comment-lang
       - name: UI guards
         run: bun kumiko-guards ui
+      - name: Agent manifest lint
+        run: bun kumiko agent lint
       - run: |
           ulimit -n 65536 || true
           bun run test
