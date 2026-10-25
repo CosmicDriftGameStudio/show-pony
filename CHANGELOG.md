@@ -3,6 +3,20 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.392.0] - 2026-10-25
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.391.0 → 0.392.0
+
+### Breaking
+
+- 0.392.0 · The managed Dockerfile reads the registry token from a BuildKit secret
+
+### Manual migrations
+
+- [not-applicable] 0.392.0:ffc424c8 · 0.392.0 · The managed Dockerfile reads the registry token from a BuildKit secret
+
 ## [0.391.0] - 2026-10-25
 
 ### Changed
