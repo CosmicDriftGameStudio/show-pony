@@ -1,6 +1,6 @@
 // Cap-enforcement over real HTTP (not a direct ctx.systemWriteAs dispatch)
 // on the free tier's two hard caps — proves the wire-level contract
-// (422 + the specific error code), not just that checkStockCap runs.
+// (422 + the specific error code), not just that the stock-cap guard runs.
 //
 // event:create's maxEvents cap is exercised at ctx-level already in
 // demo-seed-tier-and-rsvp-access.integration.test.ts; this file adds the
@@ -32,6 +32,7 @@ const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => 
 
 let host: SessionUser;
 let guestCapHost: SessionUser;
+let concurrentCapHost: SessionUser;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
@@ -57,8 +58,10 @@ beforeAll(async () => {
   });
   const capcheck = await seedTenant(stack, { name: "Cap Check" });
   const guestCapTenant = await seedTenant(stack, { name: "Guest Cap Check" });
+  const concurrentCapTenant = await seedTenant(stack, { name: "Concurrent Guest Cap Check" });
   host = (await capcheck.addUser(["Admin"])).session;
   guestCapHost = (await guestCapTenant.addUser(["Admin"])).session;
+  concurrentCapHost = (await concurrentCapTenant.addUser(["Admin"])).session;
 });
 
 afterAll(async () => stack?.cleanup());
@@ -128,5 +131,54 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     expect(err.httpStatus).toBe(422);
     expect(err.code).toBe("unprocessable");
     expect((err.details as { reason?: string } | undefined)?.reason).toBe("guest_limit_reached");
+  });
+
+  test("concurrent rsvp:submit at the last free slots never overshoots maxGuests", async () => {
+    const event = await stack.http.writeOk<{ id: string }>(
+      "showpony:write:event:create",
+      {
+        title: "Concurrent Cap Event",
+        slug: "concurrent-cap-event",
+        startsAt: "2026-09-15T19:00:00.000Z",
+        guestLimit: 1000,
+      },
+      concurrentCapHost,
+    );
+
+    const maxGuests = TIER_MAX_GUESTS.free;
+    if (maxGuests === null) throw new Error("free tier has no guest cap — test premise broken");
+    const freeSlots = 2;
+    const racers = 6;
+
+    for (let i = 0; i < maxGuests - freeSlots; i++) {
+      const res = await stack.http.writeWithHeaders(
+        "showpony:write:rsvp:submit",
+        { eventId: event.id, name: `Guest ${i}`, status: "yes" },
+        { ...concurrentCapHost, roles: ["anonymous"] },
+        { "x-forwarded-for": `203.0.113.${i}` },
+      );
+      expect(res.status).toBe(200);
+    }
+
+    const responses = await Promise.all(
+      Array.from({ length: racers }, (_, i) =>
+        stack.http.writeWithHeaders(
+          "showpony:write:rsvp:submit",
+          { eventId: event.id, name: `Racer ${i}`, status: "yes" },
+          { ...concurrentCapHost, roles: ["anonymous"] },
+          { "x-forwarded-for": `198.51.100.${i}` },
+        ),
+      ),
+    );
+    const statuses = responses.map((res) => res.status);
+    expect(statuses.filter((status) => status === 200)).toHaveLength(freeSlots);
+    expect(statuses.filter((status) => status === 422)).toHaveLength(racers - freeSlots);
+
+    const usage = await stack.http.queryOk<{ guests: { used: number } }>(
+      "showpony:query:usage",
+      {},
+      concurrentCapHost,
+    );
+    expect(usage.guests.used).toBe(maxGuests);
   });
 });
