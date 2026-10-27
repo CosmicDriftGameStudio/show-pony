@@ -6,7 +6,7 @@
 # per-app overrides. Start with `docker compose up -d`.
 services:
   postgres:
-    image: postgres:18.4-alpine
+    image: postgres:18.6-alpine
     environment:
       POSTGRES_USER: kumiko
       POSTGRES_PASSWORD: kumiko
