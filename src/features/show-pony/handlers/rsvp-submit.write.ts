@@ -1,7 +1,11 @@
-import { access, defineWriteHandler } from "@cosmicdrift/kumiko-framework/engine";
+import {
+  access,
+  defineWriteHandler,
+  type WriteHandlerDef,
+} from "@cosmicdrift/kumiko-framework/engine";
 import { failNotFound } from "@cosmicdrift/kumiko-framework/errors";
 import { z } from "zod";
-import { checkStockCap } from "../cap-guard";
+import { withStockCap } from "../cap-guard";
 import { sendRsvpConfirmation } from "../lib/rsvp-confirmation-mail";
 import { findEventById } from "../schema/event";
 import { RSVP_STATUSES, rsvpExecutor, rsvpTable } from "../schema/rsvp";
@@ -15,7 +19,7 @@ export const rsvpSubmitSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
-export const rsvpSubmitHandler = defineWriteHandler({
+const rsvpSubmitDefinition = defineWriteHandler({
   name: "rsvp:submit",
   schema: rsvpSubmitSchema,
   access: { roles: [...access.anonymous], personalData: "public-intake" },
@@ -25,22 +29,26 @@ export const rsvpSubmitHandler = defineWriteHandler({
   handler: async (event, ctx) => {
     // Anonymous handler: eventId is only shape-checked (z.uuid()) by the
     // schema, so a forged/foreign UUID would otherwise pass through to
-    // capacity checks and confirmation mail; ctx.db is tenant-scoped so
+    // the insert and confirmation mail; ctx.db is tenant-scoped so
     // this also rejects a real event id from another tenant.
     const found = await findEventById(ctx, event.payload.eventId);
     if (!found) return failNotFound("event", event.payload.eventId);
-
-    const capFailure = await checkStockCap(ctx.db, {
-      table: rsvpTable,
-      limit: (caps) => caps.maxGuests,
-      code: "guest_limit_reached",
-      i18nKey: "showpony:errors.guestLimitReached",
-      field: "rsvp",
-    });
-    if (capFailure) return capFailure;
 
     const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
     await sendRsvpConfirmation(ctx, event.payload, found);
     return result;
   },
 });
+
+export const rsvpSubmitHandler = withStockCap(
+  // @cast-boundary engine-bridge — withStockCap takes the untyped storage form; the typed
+  // handler only narrows event.payload, which the dispatcher has already parsed with the schema.
+  rsvpSubmitDefinition as unknown as WriteHandlerDef,
+  {
+    table: rsvpTable,
+    limit: (caps) => caps.maxGuests,
+    code: "guest_limit_reached",
+    i18nKey: "showpony:errors.guestLimitReached",
+    field: "rsvp",
+  },
+);
