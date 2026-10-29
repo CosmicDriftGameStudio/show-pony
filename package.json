@@ -78,7 +78,7 @@
   },
   "kumiko": {
     "deploy": {
-      "infraRef": "reusables-v1.3.0"
+      "infraRef": "reusables-v2.0.0"
     },
     "clientEntries": [
       {
