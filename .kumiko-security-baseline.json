@@ -4,8 +4,11 @@
   "generated": "2026-09-16",
   "total": 0,
   "hardFail": [
-    "Escape-Hatch-Declared Guard",
-    "Open-To-All-Reason Guard"
+    "Admin-API Guard",
+    "Direct-Entity-Writes Guard",
+    "Direct-Fetch Guard",
+    "No-Direct-Fs Guard",
+    "Tenant-Escalation Guard"
   ],
   "findings": {}
 }
