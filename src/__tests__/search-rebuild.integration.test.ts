@@ -18,7 +18,6 @@ import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/st
 import { Meilisearch } from "meilisearch";
 import {
   createMeilisearchWiring,
-  dropMeilisearchIndexesWithPrefix,
   type MeilisearchConnection,
   rebuildAllTenantSearchIndexes,
   type SearchWiring,
@@ -143,7 +142,7 @@ async function seedEventWithGuests(
 }
 
 afterAll(async () => {
-  await dropMeilisearchIndexesWithPrefix(connection);
+  await wiring.adapter.dropAllIndexes?.();
   await stack?.cleanup();
 });
 
@@ -178,6 +177,7 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
       ...wiring,
       adapter: {
         configure: (id, config) => wiring.adapter.configure(id, config),
+        dropAllIndexes: () => wiring.adapter.dropAllIndexes?.() ?? Promise.resolve(0),
         index: (id, doc) =>
           id === tenantId ? new Promise(() => {}) : wiring.adapter.index(id, doc),
         indexBatch: wiring.adapter.indexBatch
