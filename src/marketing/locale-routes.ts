@@ -58,15 +58,6 @@ export function dispatchShowPonyApexStatic(
   return null;
 }
 
-export function dispatchShowPonyApexStaticDev(
-  path: string,
-): { kind: "static-html"; file: string } | { kind: "redirect"; to: string; status: 301 } | null {
-  const prod = dispatchShowPonyApexStatic(path);
-  if (prod === null) return null;
-  if (prod.kind === "redirect") return prod;
-  return { kind: "static-html", file: `./dist/${prod.file}` };
-}
-
 /** True when apex should serve the admin SPA (login + authenticated app). */
 export function isShowPonyApexAdminPath(path: string): boolean {
   return dispatchShowPonyApexStatic(path) === null;
