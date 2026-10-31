@@ -6,6 +6,7 @@ import { createLogger } from "@cosmicdrift/kumiko-framework/logging";
 import type { ProdSeedFn, RunProdAppOptions } from "@cosmicdrift/kumiko-server-runtime";
 import { buildDemoNotice } from "../src/demo-mode-notice";
 import legalContent from "../src/generated/legal-content.json";
+import { isAssetName } from "./asset-name";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
 import { rebuildAllTenantSearchIndexes, type SearchWiring } from "./search-wiring";
 
@@ -67,15 +68,13 @@ export function buildProdSeeds(
   };
 }
 
-const HERO_ASSET_NAME = /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/;
-
 export const heroAssetRoute: ExtraRouteDefinition = {
   method: "GET",
   path: "/heroes/:file",
   entry: "anonymous",
   handler: async (c) => {
     const file = c.req.param("file");
-    if (!file || !HERO_ASSET_NAME.test(file)) return c.notFound();
+    if (!file || !isAssetName(file)) return c.notFound();
     const asset = Bun.file(`./dist/heroes/${file}`);
     return (await asset.exists()) ? new Response(asset) : c.notFound();
   },

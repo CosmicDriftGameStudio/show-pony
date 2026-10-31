@@ -28,6 +28,7 @@ import legalContent from "../src/generated/legal-content.json";
 import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
+import { isAssetName } from "./asset-name";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { buildShowPonyExtraContext } from "./extra-context";
@@ -56,7 +57,6 @@ const searchWiring = createMeilisearchWiring({
   indexPrefix: "showpony_dev_",
 });
 
-const isAssetName = (file: string) => /^[a-zA-Z0-9_-]+\.(png|webp|svg|jpe?g)$/.test(file);
 async function serveFromDir(dir: string, file: string): Promise<Response | null> {
   if (!isAssetName(file)) return null;
   const f = Bun.file(`./public/${dir}/${file}`);
