@@ -7,7 +7,3 @@ export const AUTH_PATHS = {
 } as const;
 
 export const LOGIN_PATH = "/login";
-
-export function shouldRedirectAuthedLogin(authed: boolean, pathname: string): boolean {
-  return authed && pathname === LOGIN_PATH;
-}

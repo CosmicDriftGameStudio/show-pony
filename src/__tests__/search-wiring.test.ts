@@ -1,11 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { Registry } from "@cosmicdrift/kumiko-framework/engine";
-import {
-  collectSearchableFieldNames,
-  dropMeilisearchIndexesWithPrefix,
-  MEILI_INDEX_PREFIX,
-  resolveSearchAdapter,
-} from "../../bin/search-wiring";
+import { resolveSearchAdapter } from "../../bin/search-wiring";
 
 describe("resolveSearchAdapter", () => {
   test("both env vars unset → in-memory adapter that actually indexes and finds documents", async () => {
@@ -21,14 +15,9 @@ describe("resolveSearchAdapter", () => {
   });
 
   test("both env vars set → a real Meilisearch adapter, not the in-memory fallback", async () => {
-    const { adapter, meilisearch } = resolveSearchAdapter({
+    const { adapter } = resolveSearchAdapter({
       MEILI_URL: "http://127.0.0.1:1",
       MEILI_MASTER_KEY: "k",
-    });
-    expect(meilisearch).toEqual({
-      url: "http://127.0.0.1:1",
-      apiKey: "k",
-      indexPrefix: MEILI_INDEX_PREFIX,
     });
     await expect(
       adapter.index("tenant-a" as never, {
@@ -52,10 +41,6 @@ describe("resolveSearchAdapter", () => {
     expect(results).toEqual([{ entityType: "rsvp", entityId: "rsvp-1" }]);
   });
 
-  test("in-memory fallback carries no Meilisearch connection to clear", () => {
-    expect(resolveSearchAdapter({}).meilisearch).toBeUndefined();
-  });
-
   test("only MEILI_URL set → throws naming both env vars", () => {
     expect(() => resolveSearchAdapter({ MEILI_URL: "http://x" })).toThrow(/MEILI_URL/);
     expect(() => resolveSearchAdapter({ MEILI_URL: "http://x" })).toThrow(/MEILI_MASTER_KEY/);
@@ -64,30 +49,5 @@ describe("resolveSearchAdapter", () => {
   test("only MEILI_MASTER_KEY set → throws naming both env vars", () => {
     expect(() => resolveSearchAdapter({ MEILI_MASTER_KEY: "k" })).toThrow(/MEILI_URL/);
     expect(() => resolveSearchAdapter({ MEILI_MASTER_KEY: "k" })).toThrow(/MEILI_MASTER_KEY/);
-  });
-});
-
-function fakeRegistry(entities: Record<string, readonly string[]>): Registry {
-  return {
-    getAllEntities: () => new Map(Object.keys(entities).map((name) => [name, {}])),
-    getSearchableFields: (name: string) => entities[name] ?? [],
-  } as unknown as Registry;
-}
-
-describe("collectSearchableFieldNames", () => {
-  test("dedupes the union of searchable fields across all entities", () => {
-    const registry = fakeRegistry({
-      rsvp: ["name", "email"],
-      event: ["title", "name"],
-    });
-    expect([...collectSearchableFieldNames(registry)].sort()).toEqual(["email", "name", "title"]);
-  });
-});
-
-describe("dropMeilisearchIndexesWithPrefix", () => {
-  test("refuses an empty prefix so a whole Meilisearch instance is never wiped", async () => {
-    await expect(
-      dropMeilisearchIndexesWithPrefix({ url: "http://127.0.0.1:1", apiKey: "k", indexPrefix: "" }),
-    ).rejects.toThrow(/empty prefix/);
   });
 });

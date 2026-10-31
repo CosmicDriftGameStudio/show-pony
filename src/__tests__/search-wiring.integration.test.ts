@@ -10,13 +10,14 @@ import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/
 import { TenantHandlers } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import type { SearchAdapter, SearchAdapterConfig } from "@cosmicdrift/kumiko-framework/search";
-import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import {
   collectSearchableFieldNames,
-  configureAllTenantSearchIndexes,
-} from "../../bin/search-wiring";
+  type SearchAdapter,
+  type SearchAdapterConfig,
+} from "@cosmicdrift/kumiko-framework/search";
+import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
+import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
+import { rebuildAllTenantSearchIndexes } from "../../bin/search-wiring";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { deliveryFeatures } from "./delivery-stack";
@@ -115,29 +116,22 @@ describe("event list search", () => {
   });
 });
 
-describe("configureAllTenantSearchIndexes (real DB)", () => {
-  test("configures only enabled tenants with the searchable-field union, returns the tenant count", async () => {
+describe("rebuildAllTenantSearchIndexes configure step (real DB)", () => {
+  test("configures only enabled tenants with the searchable-field union, reports the tenant count", async () => {
     const { adapter, calls } = recordingAdapter();
 
-    const count = await configureAllTenantSearchIndexes(stack.db, stack.registry, adapter);
+    const summary = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, { adapter });
 
     const configuredIds = calls.map((c) => c.tenantId);
     expect(configuredIds).toContain(activeTenantId);
     expect(configuredIds).not.toContain(disabledTenantId);
-    expect(count).toBe(calls.length);
+    expect(summary.tenants).toBe(calls.length);
+    expect(summary.failedConfigures).toBe(0);
     const expectedFields = [...collectSearchableFieldNames(stack.registry)].sort();
     expect(expectedFields.length).toBeGreaterThan(0);
     for (const call of calls) {
       expect(call.config.searchableFields.slice().sort()).toEqual(expectedFields);
       expect(call.config.rankingFields?.slice().sort()).toEqual(expectedFields);
     }
-  });
-
-  test("rejects with the tenant id when a configure() call hangs", async () => {
-    const { adapter } = recordingAdapter(() => new Promise(() => {}));
-
-    await expect(
-      configureAllTenantSearchIndexes(stack.db, stack.registry, adapter, 50),
-    ).rejects.toThrow(new RegExp(activeTenantId));
   });
 });
