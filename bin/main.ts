@@ -1,18 +1,14 @@
 // Production entry. Env contract and the full var list: bin/env-schema.ts.
-import {
-  createConfigAccessorFactory,
-  createConfigResolver,
-} from "@cosmicdrift/kumiko-bundled-features/config";
-import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
+import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/config";
 import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import appConfig from "../kumiko.config";
 import { DEFAULT_TIER, priceToTierFromEnv, TIER_NAMES } from "../src/features/show-pony/tier-map";
 import { createShowPonyHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
-import { bindSubdomainPageResolver } from "../src/tenant-routing";
 import { env, isDryRun } from "./env";
 import { showPonyEnvSchema } from "./env-schema";
+import { buildShowPonyExtraContext } from "./extra-context";
 import {
   buildDemoModeOption,
   buildProdAuthOptions,
@@ -39,15 +35,11 @@ await runProdApp({
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   staticDir: "./dist",
   seedsDir: "./seeds",
-  extraContext: ({ registry, db }) => {
-    bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-    return {
-      configResolver,
-      configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-      templateResolver: createTemplateResolverApi(db, registry),
-      searchAdapter: searchWiring.adapter,
-    };
-  },
+  extraContext: buildShowPonyExtraContext({
+    baseDomain: BASE_DOMAIN,
+    configResolver,
+    searchAdapter: searchWiring.adapter,
+  }),
   // Opt-in only: the host-routing provider fills tenantResolver/tenantExists, but never enables anonymous access.
   anonymousAccess: {},
   hostDispatch: createShowPonyHostDispatch(BASE_DOMAIN),

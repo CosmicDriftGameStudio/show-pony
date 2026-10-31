@@ -13,13 +13,9 @@
 //
 //   admin@show-pony.local / changeme  — host account on the demo tenant
 
-import {
-  createConfigAccessorFactory,
-  createConfigResolver,
-} from "@cosmicdrift/kumiko-bundled-features/config";
+import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/config";
 import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
-import { createTemplateResolverApi } from "@cosmicdrift/kumiko-bundled-features/template-resolver";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { createE2eSeedRoutes } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
@@ -32,9 +28,9 @@ import legalContent from "../src/generated/legal-content.json";
 import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
-import { bindSubdomainPageResolver } from "../src/tenant-routing";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
+import { buildShowPonyExtraContext } from "./extra-context";
 import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
 
 const BASE_DOMAIN = resolveBaseDomainFromEnv();
@@ -104,15 +100,11 @@ await runDevApp({
   hostDispatch: createShowPonyDevHostDispatch(BASE_DOMAIN),
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   watchDirs: ["./src", "./bin"],
-  extraContext: ({ registry, db }) => {
-    bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-    return {
-      configResolver,
-      configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-      templateResolver: createTemplateResolverApi(db, registry),
-      searchAdapter: searchWiring.adapter,
-    };
-  },
+  extraContext: buildShowPonyExtraContext({
+    baseDomain: BASE_DOMAIN,
+    configResolver,
+    searchAdapter: searchWiring.adapter,
+  }),
   auth: {
     admin: {
       email: "admin@show-pony.local",
