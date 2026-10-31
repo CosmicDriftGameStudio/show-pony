@@ -43,68 +43,6 @@
       "title": "Content collections edit in plain or document format; rich and markdown are gone"
     }
   ],
-  "pendingManual": [
-    {
-      "id": "0.402.0:d9c675b2",
-      "version": "0.402.0",
-      "title": "The inbound mail supervisor requires a lock and the dedup anchor is unique"
-    },
-    {
-      "id": "0.402.0:cc1593bc",
-      "version": "0.402.0",
-      "title": "Agent manifest labels are one string in the requested locale"
-    },
-    {
-      "id": "0.401.0:5e91ab7e",
-      "version": "0.401.0",
-      "title": "Boot rejects a user reference with personal: false and file accept entries that never match"
-    },
-    {
-      "id": "0.400.0:c746cec7",
-      "version": "0.400.0",
-      "title": "An untouched money field is no longer submitted as 0"
-    },
-    {
-      "id": "0.396.0:bfd9c878",
-      "version": "0.396.0",
-      "title": "Entity writes on a row the caller cannot read fail with not_found"
-    },
-    {
-      "id": "0.395.0:5cab5fbc",
-      "version": "0.395.0",
-      "title": "A managed page body is Markdown or an editor document, edited in the document editor"
-    },
-    {
-      "id": "0.394.0:f48819c6",
-      "version": "0.394.0",
-      "title": "Mail account handlers are stricter and the trusted authserv-id has its own handler"
-    },
-    {
-      "id": "0.394.0:e96e1ab5",
-      "version": "0.394.0",
-      "title": "The mailbox row action Reconnect is folded into Reactivate"
-    },
-    {
-      "id": "0.394.0:4413a827",
-      "version": "0.394.0",
-      "title": "The OAuth callback only connects a personal mailbox for the account that signed in"
-    },
-    {
-      "id": "0.394.0:99b6cef7",
-      "version": "0.394.0",
-      "title": "inbound-message-received is v3 and inbound-message-content-fetched is v2"
-    },
-    {
-      "id": "0.394.0:7662810d",
-      "version": "0.394.0",
-      "title": "Personal mail is private to its owner, roles are configurable"
-    },
-    {
-      "id": "0.394.0:4c2809a9",
-      "version": "0.394.0",
-      "title": "Remove subscription-dodo, replaced by subscription-paddle"
-    }
-  ],
   "resolvedManual": [
     {
       "id": "0.346.0:693f3da9",
@@ -1969,6 +1907,102 @@
       "resolution": "not-applicable",
       "reason": "Dockerfile pulls only public npm packages, so no registry token or secret mount is needed",
       "resolvedAt": "2026-10-25T18:08:04.397066Z"
+    },
+    {
+      "id": "0.402.0:d9c675b2",
+      "version": "0.402.0",
+      "title": "The inbound mail supervisor requires a lock and the dedup anchor is unique",
+      "resolution": "not-applicable",
+      "reason": "show-pony mounts no inbound-mail-foundation (src/run-config.ts buildAppFeatures lists no inbound-mail features; no createInboundMailSupervisor in src/bin)",
+      "resolvedAt": "2026-10-31T01:20:37.006268Z"
+    },
+    {
+      "id": "0.402.0:cc1593bc",
+      "version": "0.402.0",
+      "title": "Agent manifest labels are one string in the requested locale",
+      "resolution": "not-applicable",
+      "reason": "No buildAgentManifest/buildToolCatalog or agent manifest usage in src, bin or e2e",
+      "resolvedAt": "2026-10-31T01:20:37.075639Z"
+    },
+    {
+      "id": "0.401.0:5e91ab7e",
+      "version": "0.401.0",
+      "title": "Boot rejects a user reference with personal: false and file accept entries that never match",
+      "resolution": "not-applicable",
+      "reason": "No user reference field with personal:false, no file/image fields with accept, requireFieldValueTranslations not set; the only personal:false uses are text fields in screens/invite-branding-screen.ts",
+      "resolvedAt": "2026-10-31T01:20:37.145814Z"
+    },
+    {
+      "id": "0.400.0:c746cec7",
+      "version": "0.400.0",
+      "title": "An untouched money field is no longer submitted as 0",
+      "resolution": "not-applicable",
+      "reason": "No money fields in entities, screens, e2e or DOM tests (grep for money in src, e2e finds only marketing copy)",
+      "resolvedAt": "2026-10-31T01:20:37.214953Z"
+    },
+    {
+      "id": "0.396.0:bfd9c878",
+      "version": "0.396.0",
+      "title": "Entity writes on a row the caller cannot read fail with not_found",
+      "resolution": "not-applicable",
+      "reason": "Entities event and rsvp declare no entity-level access.read owner rule (schema/event.ts, schema/rsvp.ts), write handlers are role-gated via access.admin and no custom handler calls the executor directly, so no write hits a row the caller cannot read",
+      "resolvedAt": "2026-10-31T01:20:37.284088Z"
+    },
+    {
+      "id": "0.395.0:5cab5fbc",
+      "version": "0.395.0",
+      "title": "A managed page body is Markdown or an editor document, edited in the document editor",
+      "resolution": "migrated",
+      "reason": "Generated migration 0034_kumiko-0403-pages.sql (read_pages.body_format default markdown); managedPagesClient() is mounted in src/client-admin.tsx:69, page-edit is not replaced by an app screen, and the read_pages body_format column migration 0034_kumiko-0403-pages.sql was generated",
+      "resolvedAt": "2026-10-31T01:20:37.353606Z"
+    },
+    {
+      "id": "0.394.0:f48819c6",
+      "version": "0.394.0",
+      "title": "Mail account handlers are stricter and the trusted authserv-id has its own handler",
+      "resolution": "not-applicable",
+      "reason": "No mail account handlers used: inbound-mail-foundation is not mounted in src/run-config.ts",
+      "resolvedAt": "2026-10-31T01:20:37.426214Z"
+    },
+    {
+      "id": "0.394.0:e96e1ab5",
+      "version": "0.394.0",
+      "title": "The mailbox row action Reconnect is folded into Reactivate",
+      "resolution": "not-applicable",
+      "reason": "inbound-mail-foundation is not mounted, no mailbox row action or inboundMail.accounts.reconnect i18n override in the app",
+      "resolvedAt": "2026-10-31T01:20:37.496354Z"
+    },
+    {
+      "id": "0.394.0:4413a827",
+      "version": "0.394.0",
+      "title": "The OAuth callback only connects a personal mailbox for the account that signed in",
+      "resolution": "not-applicable",
+      "reason": "No inbound OAuth provider defined in the app, inbound-mail-foundation is not mounted",
+      "resolvedAt": "2026-10-31T01:20:37.567734Z"
+    },
+    {
+      "id": "0.394.0:99b6cef7",
+      "version": "0.394.0",
+      "title": "inbound-message-received is v3 and inbound-message-content-fetched is v2",
+      "resolution": "not-applicable",
+      "reason": "No inbound-message events consumed or read_inbound_messages table in the app, inbound-mail-foundation is not mounted",
+      "resolvedAt": "2026-10-31T01:20:37.636593Z"
+    },
+    {
+      "id": "0.394.0:7662810d",
+      "version": "0.394.0",
+      "title": "Personal mail is private to its owner, roles are configurable",
+      "resolution": "not-applicable",
+      "reason": "No mail screens, createDefaultGuard or inbound-mail features used in the app",
+      "resolvedAt": "2026-10-31T01:20:37.708863Z"
+    },
+    {
+      "id": "0.394.0:4c2809a9",
+      "version": "0.394.0",
+      "title": "Remove subscription-dodo, replaced by subscription-paddle",
+      "resolution": "not-applicable",
+      "reason": "No subscription-dodo usage in src, bin or e2e; billing uses the billing foundation feature only",
+      "resolvedAt": "2026-10-31T01:20:37.778976Z"
     }
   ]
 }

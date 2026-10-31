@@ -27,18 +27,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Manual migrations
 
-- [open] 0.402.0:d9c675b2 · 0.402.0 · The inbound mail supervisor requires a lock and the dedup anchor is unique
-- [open] 0.402.0:cc1593bc · 0.402.0 · Agent manifest labels are one string in the requested locale
-- [open] 0.401.0:5e91ab7e · 0.401.0 · Boot rejects a user reference with personal: false and file accept entries that never match
-- [open] 0.400.0:c746cec7 · 0.400.0 · An untouched money field is no longer submitted as 0
-- [open] 0.396.0:bfd9c878 · 0.396.0 · Entity writes on a row the caller cannot read fail with not_found
-- [open] 0.395.0:5cab5fbc · 0.395.0 · A managed page body is Markdown or an editor document, edited in the document editor
-- [open] 0.394.0:f48819c6 · 0.394.0 · Mail account handlers are stricter and the trusted authserv-id has its own handler
-- [open] 0.394.0:e96e1ab5 · 0.394.0 · The mailbox row action Reconnect is folded into Reactivate
-- [open] 0.394.0:4413a827 · 0.394.0 · The OAuth callback only connects a personal mailbox for the account that signed in
-- [open] 0.394.0:99b6cef7 · 0.394.0 · inbound-message-received is v3 and inbound-message-content-fetched is v2
-- [open] 0.394.0:7662810d · 0.394.0 · Personal mail is private to its owner, roles are configurable
-- [open] 0.394.0:4c2809a9 · 0.394.0 · Remove subscription-dodo, replaced by subscription-paddle
+- [not-applicable] 0.402.0:d9c675b2 · 0.402.0 · The inbound mail supervisor requires a lock and the dedup anchor is unique
+- [not-applicable] 0.402.0:cc1593bc · 0.402.0 · Agent manifest labels are one string in the requested locale
+- [not-applicable] 0.401.0:5e91ab7e · 0.401.0 · Boot rejects a user reference with personal: false and file accept entries that never match
+- [not-applicable] 0.400.0:c746cec7 · 0.400.0 · An untouched money field is no longer submitted as 0
+- [not-applicable] 0.396.0:bfd9c878 · 0.396.0 · Entity writes on a row the caller cannot read fail with not_found
+- [migrated] 0.395.0:5cab5fbc · 0.395.0 · A managed page body is Markdown or an editor document, edited in the document editor
+- [not-applicable] 0.394.0:f48819c6 · 0.394.0 · Mail account handlers are stricter and the trusted authserv-id has its own handler
+- [not-applicable] 0.394.0:e96e1ab5 · 0.394.0 · The mailbox row action Reconnect is folded into Reactivate
+- [not-applicable] 0.394.0:4413a827 · 0.394.0 · The OAuth callback only connects a personal mailbox for the account that signed in
+- [not-applicable] 0.394.0:99b6cef7 · 0.394.0 · inbound-message-received is v3 and inbound-message-content-fetched is v2
+- [not-applicable] 0.394.0:7662810d · 0.394.0 · Personal mail is private to its owner, roles are configurable
+- [not-applicable] 0.394.0:4c2809a9 · 0.394.0 · Remove subscription-dodo, replaced by subscription-paddle
 
 ### Codemods applied
 
