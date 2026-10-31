@@ -4,17 +4,13 @@
 
 import {
   createHostDispatch,
+  type HostRoutingDispatchFn,
   normalizeHostname,
 } from "@cosmicdrift/kumiko-bundled-features/host-routing";
 import { toDevHostDispatch } from "@cosmicdrift/kumiko-dev-server";
-import type { RunProdAppOptions } from "@cosmicdrift/kumiko-server-runtime";
-import {
-  dispatchShowPonyApexStatic,
-  dispatchShowPonyApexStaticDev,
-} from "./marketing/locale-routes";
+import { dispatchShowPonyApexStatic } from "./marketing/locale-routes";
 import { showPonyHostRoutingOptions } from "./tenant-routing";
 
-type HostDispatchFn = NonNullable<RunProdAppOptions["hostDispatch"]>;
 type DevHostDispatch = ReturnType<typeof toDevHostDispatch>;
 
 function isApexHost(host: string, baseDomain: string): boolean {
@@ -22,7 +18,7 @@ function isApexHost(host: string, baseDomain: string): boolean {
   return hostname === baseDomain || hostname === `www.${baseDomain}`;
 }
 
-export function createShowPonyHostDispatch(baseDomain: string): HostDispatchFn {
+export function createShowPonyHostDispatch(baseDomain: string): HostRoutingDispatchFn {
   const routed = createHostDispatch(showPonyHostRoutingOptions(baseDomain));
   return async (req, deps) => {
     if (isApexHost(req.host, baseDomain)) {
@@ -34,15 +30,8 @@ export function createShowPonyHostDispatch(baseDomain: string): HostDispatchFn {
 }
 
 export function createShowPonyDevHostDispatch(baseDomain: string): DevHostDispatch {
-  const routed = toDevHostDispatch(createHostDispatch(showPonyHostRoutingOptions(baseDomain)), {
+  return toDevHostDispatch(createShowPonyHostDispatch(baseDomain), {
     entries: { "admin.html": "admin", "index.html": "public" },
     staticDir: "./dist",
   });
-  return async (req, deps) => {
-    if (isApexHost(req.headers.get("host") ?? "", baseDomain)) {
-      const marketing = dispatchShowPonyApexStaticDev(new URL(req.url).pathname);
-      if (marketing !== null) return marketing;
-    }
-    return routed(req, deps);
-  };
 }
