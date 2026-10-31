@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-25T12:54:55.435Z",
+  "generatedAt": "2026-10-31T01:19:49.741Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -373,6 +373,12 @@
           "name": "body",
           "pgType": "text",
           "notNull": false
+        },
+        {
+          "name": "body_format",
+          "pgType": "text",
+          "notNull": false,
+          "defaultSql": "'markdown'"
         },
         {
           "name": "description",
