@@ -18,7 +18,6 @@ import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pag
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { createE2eSeedRoutes } from "@cosmicdrift/kumiko-dev-server/testing";
-import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
 import { isE2eSeedingEnabled } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import appConfig from "../kumiko.config";
@@ -28,7 +27,6 @@ import legalContent from "../src/generated/legal-content.json";
 import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
-import { isAssetName } from "./asset-name";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { buildShowPonyExtraContext } from "./extra-context";
@@ -56,12 +54,6 @@ const searchWiring = createMeilisearchWiring({
   // kumiko_ prefix; the boot rebuild drops every index under this prefix.
   indexPrefix: "showpony_dev_",
 });
-
-async function serveFromDir(dir: string, file: string): Promise<Response | null> {
-  if (!isAssetName(file)) return null;
-  const f = Bun.file(`./public/${dir}/${file}`);
-  return (await f.exists()) ? new Response(f) : null;
-}
 
 const kmsWiring = resolveKmsWiring(process.env, {
   logPrefix: "[show-pony]",
@@ -152,17 +144,5 @@ await runDevApp({
       ? createE2eSeedRoutes({ extraRoles: ["Admin"], extraSeeders: e2eBillingExtraSeeders })
       : []),
     ...(!isE2eSeedingEnabled() && hasConfiguredPrices ? [buildSubscriptionWebhookRoute()] : []),
-    ...(["screenshots", "logos", "heroes"] as const).map(
-      (dir): ExtraRouteDefinition => ({
-        method: "GET",
-        path: `/${dir}/:file`,
-        entry: "anonymous",
-        handler: async (c) => {
-          const file = c.req.param("file");
-          const r = file ? await serveFromDir(dir, file) : null;
-          return r ?? c.notFound();
-        },
-      }),
-    ),
   ],
 });
