@@ -1,6 +1,6 @@
 // Tier caps for show-pony — aligned with src/marketing/pricing.ts (apex preview).
 
-import type { TierMap } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
+import { capsForTierFromMap, type TierMap } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { type ShowPonyTier, TIER_MAX_EVENTS, TIER_MAX_GUESTS } from "../../marketing/pricing";
 
 export type { ShowPonyTier };
@@ -49,14 +49,7 @@ export function isTierName(value: string): value is TierName {
   return (TIER_NAMES as readonly string[]).includes(value);
 }
 
-export function capsForTier(tier: string): ShowPonyCaps {
-  const name = isTierName(tier) ? tier : DEFAULT_TIER;
-  const def = SHOWPONY_TIER_MAP[name];
-  if (!def) {
-    throw new Error(`tier-map: tier "${name}" not in SHOWPONY_TIER_MAP`);
-  }
-  return def.caps;
-}
+export const capsForTier = capsForTierFromMap(SHOWPONY_TIER_MAP, isTierName, DEFAULT_TIER);
 
 type StripePriceVars = Readonly<Record<string, string | undefined>>;
 

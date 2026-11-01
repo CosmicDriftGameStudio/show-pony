@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-31T01:19:49.741Z",
+  "generatedAt": "2026-11-01T00:16:28.787Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -1711,6 +1711,11 @@
           "pgType": "timestamptz",
           "notNull": true,
           "defaultSql": "now()"
+        },
+        {
+          "name": "idempotency_key",
+          "pgType": "text",
+          "notNull": false
         }
       ],
       "indexes": [
@@ -1719,6 +1724,13 @@
           "columns": [
             "tenant_id",
             "created_at"
+          ]
+        },
+        {
+          "name": "store_delivery_attempts_tenant_id_idempotency_key_idx",
+          "columns": [
+            "tenant_id",
+            "idempotency_key"
           ]
         }
       ],
