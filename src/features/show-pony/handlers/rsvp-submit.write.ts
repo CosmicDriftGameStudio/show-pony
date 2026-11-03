@@ -19,31 +19,24 @@ export const rsvpSubmitSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
-const rsvpSubmitDefinition = defineWriteHandler({
+const rsvpSubmitBase = {
   name: "rsvp:submit",
   schema: rsvpSubmitSchema,
   access: { roles: [...access.anonymous], personalData: "public-intake" },
   rateLimit: { per: "ip+handler", limit: 20, windowSeconds: 60 },
   description:
     "Records a guest's reply to an event invite with name, attendance status (yes, no or maybe), number of additional guests and optional email and note; callable anonymously from the public invite page, rejected when the event does not belong to this tenant or the plan's guest limit is reached, and sends a best-effort confirmation mail when an email is given.",
-  handler: async (event, ctx) => {
-    // Anonymous handler: eventId is only shape-checked (z.uuid()) by the
-    // schema, so a forged/foreign UUID would otherwise pass through to
-    // the insert and confirmation mail; ctx.db is tenant-scoped so
-    // this also rejects a real event id from another tenant.
-    const found = await findEventById(ctx, event.payload.eventId);
-    if (!found) return failNotFound("event", event.payload.eventId);
+} as const;
 
-    const result = await rsvpExecutor.create(event.payload, event.user, ctx.db);
-    await sendRsvpConfirmation(ctx, event.payload, found);
-    return result;
-  },
-});
-
-export const rsvpSubmitHandler = withStockCap(
+// The cap guard takes the tenant-wide advisory lock before running its handler, so it must wrap
+// only the insert: the event check below has to reject forged ids before anyone queues on the lock.
+const cappedInsert = withStockCap(
   // @cast-boundary engine-bridge — withStockCap takes the untyped storage form; the typed
   // handler only narrows event.payload, which the dispatcher has already parsed with the schema.
-  rsvpSubmitDefinition as unknown as WriteHandlerDef,
+  defineWriteHandler({
+    ...rsvpSubmitBase,
+    handler: (event, ctx) => rsvpExecutor.create(event.payload, event.user, ctx.db),
+  }) as unknown as WriteHandlerDef,
   {
     table: rsvpTable,
     limit: (caps) => caps.maxGuests,
@@ -52,3 +45,19 @@ export const rsvpSubmitHandler = withStockCap(
     field: "rsvp",
   },
 );
+
+export const rsvpSubmitHandler = defineWriteHandler({
+  ...rsvpSubmitBase,
+  handler: async (event, ctx) => {
+    // Anonymous handler: eventId is only shape-checked (z.uuid()) by the
+    // schema, so a forged/foreign UUID would otherwise pass through to
+    // the insert and confirmation mail; ctx.db is tenant-scoped so
+    // this also rejects a real event id from another tenant.
+    const found = await findEventById(ctx, event.payload.eventId);
+    if (!found) return failNotFound("event", event.payload.eventId);
+
+    const result = await cappedInsert.handler(event, ctx);
+    if (result.isSuccess) await sendRsvpConfirmation(ctx, event.payload, found);
+    return result;
+  },
+});

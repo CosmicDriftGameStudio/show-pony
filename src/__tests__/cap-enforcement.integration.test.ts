@@ -133,6 +133,40 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     expect((err.details as { reason?: string } | undefined)?.reason).toBe("guest_limit_reached");
   });
 
+  test("rsvp:submit with an unknown eventId on a full tenant → 404, event check runs before the cap lock", async () => {
+    const maxGuests = TIER_MAX_GUESTS.free;
+    if (maxGuests === null) throw new Error("free tier has no guest cap — test premise broken");
+    const fullTenant = await seedTenant(stack, { name: "Full Guest Cap Check" });
+    const fullHost = (await fullTenant.addUser(["Admin"])).session;
+    const event = await stack.http.writeOk<{ id: string }>(
+      "showpony:write:event:create",
+      {
+        title: "Full Event",
+        slug: "full-event",
+        startsAt: "2026-09-16T19:00:00.000Z",
+        guestLimit: 1000,
+      },
+      fullHost,
+    );
+    for (let i = 0; i < maxGuests; i++) {
+      const res = await stack.http.writeWithHeaders(
+        "showpony:write:rsvp:submit",
+        { eventId: event.id, name: `Guest ${i}`, status: "yes" },
+        { ...fullHost, roles: ["anonymous"] },
+        { "x-forwarded-for": `192.0.2.${i}` },
+      );
+      expect(res.status).toBe(200);
+    }
+
+    const err = await stack.http.writeErr(
+      "showpony:write:rsvp:submit",
+      { eventId: "00000000-0000-4000-8000-0000000000ff", name: "Ghost", status: "yes" },
+      { ...fullHost, roles: ["anonymous"] },
+    );
+    expect(err.httpStatus).toBe(404);
+    expect(err.code).toBe("not_found");
+  });
+
   test("concurrent rsvp:submit at the last free slots never overshoots maxGuests", async () => {
     const event = await stack.http.writeOk<{ id: string }>(
       "showpony:write:event:create",
