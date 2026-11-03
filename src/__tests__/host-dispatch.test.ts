@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { z } from "zod";
 import { createShowPonyDevHostDispatch } from "../host-dispatch";
 
+const keyPayload = z.object({ key: z.string() });
 const BASE_DOMAIN = "show-pony.test";
 const dispatch = createShowPonyDevHostDispatch(BASE_DOMAIN);
 
@@ -20,7 +22,7 @@ function dispatchTenantHost(host: string, knownKeys: readonly string[]) {
   return dispatch(new Request(`http://${host}/`), {
     cspScriptHashes: [],
     systemQuery: async (_type, payload) => {
-      const { key } = payload as { key: string };
+      const { key } = keyPayload.parse(payload);
       return { exists: knownKeys.includes(key) };
     },
   });

@@ -66,6 +66,24 @@ beforeAll(async () => {
 
 afterAll(async () => stack?.cleanup());
 
+async function fillGuestCap(
+  host: SessionUser,
+  eventId: string,
+  ipPrefix: string,
+  maxGuests: number,
+): Promise<void> {
+  for (let i = 0; i < maxGuests; i++) {
+    const res = await stack.http.writeWithHeaders(
+      "showpony:write:rsvp:submit",
+      { eventId, name: `Guest ${i}`, status: "yes" },
+      { ...host, roles: ["anonymous"] },
+      { "x-forwarded-for": `${ipPrefix}.${i}` },
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ isSuccess: true });
+  }
+}
+
 describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
   test("event:create over maxEvents (free=1) → 422 upgrade_required", async () => {
     const first = await stack.http.writeOk<{ id: string }>(
@@ -112,16 +130,7 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     const maxGuests = TIER_MAX_GUESTS.free;
     if (maxGuests === null) throw new Error("free tier has no guest cap — test premise broken");
 
-    for (let i = 0; i < maxGuests; i++) {
-      const res = await stack.http.writeWithHeaders(
-        "showpony:write:rsvp:submit",
-        { eventId: event.id, name: `Guest ${i}`, status: "yes" },
-        { ...guestCapHost, roles: ["anonymous"] },
-        { "x-forwarded-for": `203.0.113.${i}` },
-      );
-      expect(res.status).toBe(200);
-      expect(await res.json()).toMatchObject({ isSuccess: true });
-    }
+    await fillGuestCap(guestCapHost, event.id, "203.0.113", maxGuests);
 
     const err = await stack.http.writeErr(
       "showpony:write:rsvp:submit",
@@ -148,15 +157,7 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
       },
       fullHost,
     );
-    for (let i = 0; i < maxGuests; i++) {
-      const res = await stack.http.writeWithHeaders(
-        "showpony:write:rsvp:submit",
-        { eventId: event.id, name: `Guest ${i}`, status: "yes" },
-        { ...fullHost, roles: ["anonymous"] },
-        { "x-forwarded-for": `192.0.2.${i}` },
-      );
-      expect(res.status).toBe(200);
-    }
+    await fillGuestCap(fullHost, event.id, "192.0.2", maxGuests);
 
     const err = await stack.http.writeErr(
       "showpony:write:rsvp:submit",
