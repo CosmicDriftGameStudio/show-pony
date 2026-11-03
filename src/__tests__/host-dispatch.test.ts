@@ -16,6 +16,16 @@ function dispatchApex(path: string) {
   return dispatch(new Request(`http://${BASE_DOMAIN}${path}`), deps);
 }
 
+function dispatchTenantHost(host: string, knownKeys: readonly string[]) {
+  return dispatch(new Request(`http://${host}/`), {
+    cspScriptHashes: [],
+    systemQuery: async (_type, payload) => {
+      const { key } = payload as { key: string };
+      return { exists: knownKeys.includes(key) };
+    },
+  });
+}
+
 describe("show-pony dev host dispatch (apex marketing)", () => {
   test("/ serves the english home page", async () => {
     expect(await dispatchApex("/")).toEqual({
@@ -39,6 +49,26 @@ describe("show-pony dev host dispatch (apex marketing)", () => {
     expect(await dispatchApex("/features")).toEqual({
       kind: "static-html",
       file: "dist/pages/en/features/index.html",
+    });
+  });
+});
+
+describe("show-pony dev host dispatch (host-routing entries)", () => {
+  test("apex login path serves the admin entry", async () => {
+    expect(await dispatchApex("/login")).toEqual({ kind: "html", entryName: "admin" });
+  });
+
+  test("known tenant host serves the public entry", async () => {
+    expect(await dispatchTenantHost(`acme.${BASE_DOMAIN}`, ["acme"])).toEqual({
+      kind: "html",
+      entryName: "public",
+    });
+  });
+
+  test("unknown tenant host answers not-found with the public entry", async () => {
+    expect(await dispatchTenantHost(`ghost.${BASE_DOMAIN}`, ["acme"])).toEqual({
+      kind: "not-found",
+      entryName: "public",
     });
   });
 });
