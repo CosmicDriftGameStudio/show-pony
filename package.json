@@ -16,7 +16,7 @@
     "check": "bun kumiko check",
     "build": "bun kumiko-build && bun scripts/copy-marketing-assets.ts",
     "prepare": "[ \"$HUSKY\" = \"0\" ] || git config core.hooksPath .husky 2>/dev/null || true",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p e2e/tsconfig.json",
+    "typecheck": "bun check --no-script && bun check --no-script -p e2e/tsconfig.json",
     "lint": "biome check .",
     "test": "bun --config=bunfig.toml test --timeout=5000 --dots",
     "test:unit": "bun --config=bunfig.toml test --timeout=5000 --dots",
