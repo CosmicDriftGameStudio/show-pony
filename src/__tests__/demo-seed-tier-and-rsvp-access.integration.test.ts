@@ -29,7 +29,7 @@ function tierResolverDb() {
 beforeAll(async () => {
   // setupAppTestStack adds the bundled features and creates the registry's
   // entity tables; tier_assignments is a plain table outside the registry.
-  const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv() });
+  const appFeatures = buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv(process.env) });
   stack = await setupAppTestStack(appFeatures);
   await unsafePushTables(stack.db, { tier_assignments: tierAssignmentTable });
 });

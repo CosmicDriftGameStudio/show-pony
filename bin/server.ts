@@ -32,7 +32,7 @@ import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billi
 import { buildShowPonyExtraContext } from "./extra-context";
 import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
 
-const BASE_DOMAIN = resolveBaseDomainFromEnv();
+const BASE_DOMAIN = resolveBaseDomainFromEnv(process.env);
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
 

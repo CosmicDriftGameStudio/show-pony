@@ -158,12 +158,12 @@ function ImmersiveHeroBackdrop({
     return (
       <>
         <HeroImage url={heroUrl} alt="" focus="bottom" />
-        {/* kumiko-lint-ignore no-inline-styles tenant hero gradient from branding config */}
+        {/* biome-ignore lint/style/noInlineStyles: tenant hero gradient from branding config */}
         <div className="sp-hero-grain absolute inset-0" style={heroOverlayStyle(accent)} />
       </>
     );
   }
-  // kumiko-lint-ignore no-inline-styles tenant accent fallback when no hero image
+  // biome-ignore lint/style/noInlineStyles: tenant accent fallback when no hero image
   return <div className="absolute inset-0 bg-[var(--color-primary)]" style={themeStyle} />;
 }
 
@@ -174,9 +174,9 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 
   if (branding.heroStyle === "split") {
     return (
-      // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
       <header
         className="sp-hero-split border-b border-[var(--color-border)] text-[var(--color-foreground)]"
+        // biome-ignore lint/style/noInlineStyles: tenant accent color from branding config
         style={themeStyle}
       >
         <div className="sp-hero-split-row">
@@ -196,9 +196,9 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   }
 
   return (
-    // kumiko-lint-ignore no-inline-styles tenant accent color + hero overlay from branding config
     <header
       className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10 sm:py-14"
+      // biome-ignore lint/style/noInlineStyles: tenant accent color + hero overlay from branding config
       style={themeStyle}
     >
       <ImmersiveHeroBackdrop

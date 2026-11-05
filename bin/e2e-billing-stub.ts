@@ -51,7 +51,10 @@ const e2eBillingStubPlugin: SubscriptionProviderPlugin = {
         },
       ];
     }),
-  createCheckoutSession: async (_ctx, options) => ({ url: options.successUrl }),
+  createCheckoutSession: async (_ctx, options) => ({
+    url: options.successUrl,
+    providerCheckoutId: `e2e-stub-checkout-${options.priceId}`,
+  }),
   createPortalSession: async (_ctx, options) => ({ url: options.returnUrl }),
   createPlanSwitchSession: async (_ctx, options) => ({ url: options.returnUrl }),
 };
