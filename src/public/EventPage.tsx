@@ -39,7 +39,7 @@ export function EventPage(): ReactElement {
   const [load, setLoad] = useState<Load>({ kind: "loading" });
   const [readOnly, setReadOnly] = useState(false);
 
-  // kumiko-lint-ignore no-raw-hooks anonymous public bundle — one-shot fetch by slug, no dispatcher
+  // biome-ignore lint/plugin: anonymous public bundle — one-shot fetch by slug, no dispatcher
   useEffect(() => {
     void fetchDemoMode().then((demo) => setReadOnly(demo.readOnly));
     const slug = slugFromPath();
@@ -56,7 +56,7 @@ export function EventPage(): ReactElement {
   // Syncs split-page body classes + tenant accent CSS vars; the gradient
   // itself comes from the CSS fallback rule (styles.css) keyed off these
   // same classes, so JS never sets it inline.
-  // kumiko-lint-ignore no-raw-hooks DOM-side-effect on document.body, not app state
+  // biome-ignore lint/plugin: DOM-side-effect on document.body, not app state
   useEffect(() => {
     if (!splitPage || !splitAccent) return;
     document.body.classList.add("show-pony-public", "sp-invite-split-page");
@@ -96,9 +96,9 @@ export function EventPage(): ReactElement {
       : inviteBrandingCssVars(branding);
 
   return (
-    // kumiko-lint-ignore no-inline-styles tenant accent color from branding config
     <div
       className={`min-h-screen show-pony-public${splitPage ? " sp-invite-split-page" : ""}`}
+      // biome-ignore lint/style/noInlineStyles: tenant accent color from branding config
       style={canvasStyle}
     >
       <InviteHero

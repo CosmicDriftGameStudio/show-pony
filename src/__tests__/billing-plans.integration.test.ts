@@ -82,7 +82,10 @@ const mockStripePlugin: SubscriptionProviderPlugin = {
       successUrl: options.successUrl,
       cancelUrl: options.cancelUrl,
     });
-    return { url: `https://mock.stripe.test/checkout/${options.priceId}` };
+    return {
+      url: `https://mock.stripe.test/checkout/${options.priceId}`,
+      providerCheckoutId: `cs_mock_${options.priceId}`,
+    };
   },
   createPlanSwitchSession: async (_ctx, options) => {
     switchCalls.push(options);
@@ -171,6 +174,7 @@ function subscriptionEvent(overrides: {
   status: "active" | "canceled";
   priceId: string;
   cancelAt?: string | null;
+  providerCheckoutId?: string;
 }): SubscriptionEvent {
   const tier = PRICE_TO_TIER[overrides.priceId];
   if (!tier) throw new Error(`test fixture: unknown priceId "${overrides.priceId}"`);
@@ -185,7 +189,20 @@ function subscriptionEvent(overrides: {
     tier,
     currentPeriodEnd: "2026-12-01T00:00:00Z",
     ...(overrides.cancelAt !== undefined && { cancelAt: overrides.cancelAt }),
+    ...(overrides.providerCheckoutId !== undefined && {
+      providerCheckoutId: overrides.providerCheckoutId,
+    }),
   };
+}
+
+async function recordCheckoutOpened(tenantId: TenantId, priceId: string): Promise<string> {
+  const providerCheckoutId = `cs_mock_${tenantId}_${priceId}`;
+  await stack.http.writeOk(
+    SubscriptionFoundationHandlers.recordCheckoutOpened,
+    { providerName: "stripe", providerCheckoutId, priceId, mode: "subscription" },
+    createTestUser({ id: `sysadmin-${tenantId}`, tenantId, roles: ["SystemAdmin"] }),
+  );
+  return providerCheckoutId;
 }
 
 async function postWebhook(event: SubscriptionEvent): Promise<Response> {
@@ -258,6 +275,7 @@ describe("start-plan-checkout", () => {
 describe("switch-plan", () => {
   test("switching an active starter subscription to pro calls createPlanSwitchSession", async () => {
     const tenantId = await createTenant("sp-bp-c1");
+    const providerCheckoutId = await recordCheckoutOpened(tenantId, "price_starter_sp");
     const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
@@ -265,6 +283,7 @@ describe("switch-plan", () => {
         type: "subscription.created",
         status: "active",
         priceId: "price_starter_sp",
+        providerCheckoutId,
       }),
     );
     expect(created.status).toBe(200);
@@ -355,6 +374,7 @@ describe("create-checkout-session — hardening (not show-pony's own call path)"
 describe("subscription cancellation", () => {
   test("a canceled webhook falls the tier back to free and re-opens checkout", async () => {
     const tenantId = await createTenant("sp-bp-f1");
+    const providerCheckoutId = await recordCheckoutOpened(tenantId, "price_pro_sp");
     await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
@@ -362,6 +382,7 @@ describe("subscription cancellation", () => {
         type: "subscription.created",
         status: "active",
         priceId: "price_pro_sp",
+        providerCheckoutId,
       }),
     );
     expect(await resolveTier(createTenantDb({ db: stack.db, tenantId }))).toBe("pro");
@@ -395,6 +416,7 @@ describe("subscription cancellation", () => {
 describe("subscription — pending cancellation", () => {
   test("a subscription.updated with a future cancelAt keeps the paid tier and stays non-terminal", async () => {
     const tenantId = await createTenant("sp-bp-g1");
+    const providerCheckoutId = await recordCheckoutOpened(tenantId, "price_pro_sp");
     const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
@@ -402,6 +424,7 @@ describe("subscription — pending cancellation", () => {
         type: "subscription.created",
         status: "active",
         priceId: "price_pro_sp",
+        providerCheckoutId,
       }),
     );
     expect(created.status).toBe(200);
@@ -457,6 +480,7 @@ describe("billing-plans — free tier defaults", () => {
 describe("create-portal-session", () => {
   test("a pure Admin (no TenantAdmin) with an active subscription opens the portal at the catalog's returnPath", async () => {
     const tenantId = await createTenant("sp-bp-i1");
+    const providerCheckoutId = await recordCheckoutOpened(tenantId, "price_starter_sp");
     const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
@@ -464,6 +488,7 @@ describe("create-portal-session", () => {
         type: "subscription.created",
         status: "active",
         priceId: "price_starter_sp",
+        providerCheckoutId,
       }),
     );
     expect(created.status).toBe(200);
@@ -480,6 +505,7 @@ describe("create-portal-session", () => {
 
   test("an extra field is rejected by the strict {} schema", async () => {
     const tenantId = await createTenant("sp-bp-i2");
+    const providerCheckoutId = await recordCheckoutOpened(tenantId, "price_starter_sp");
     const created = await postWebhook(
       subscriptionEvent({
         providerEventId: `evt_${tenantId}_created`,
@@ -487,6 +513,7 @@ describe("create-portal-session", () => {
         type: "subscription.created",
         status: "active",
         priceId: "price_starter_sp",
+        providerCheckoutId,
       }),
     );
     expect(created.status).toBe(200);

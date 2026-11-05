@@ -9,7 +9,7 @@ import {
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { TenantHandlers } from "@cosmicdrift/kumiko-bundled-features/tenant";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
-import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { SYSTEM_TENANT_ID, type TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import {
   collectSearchableFieldNames,
   type SearchAdapter,
@@ -125,7 +125,9 @@ describe("rebuildAllTenantSearchIndexes configure step (real DB)", () => {
     const configuredIds = calls.map((c) => c.tenantId);
     expect(configuredIds).toContain(activeTenantId);
     expect(configuredIds).not.toContain(disabledTenantId);
-    expect(summary.tenants).toBe(calls.length);
+    // The system tenant's index is configured too (system-stream documents land there) but is not an enabled tenant.
+    expect(configuredIds).toContain(SYSTEM_TENANT_ID);
+    expect(summary.tenants).toBe(calls.length - 1);
     expect(summary.failedConfigures).toBe(0);
     const expectedFields = [...collectSearchableFieldNames(stack.registry)].sort();
     expect(expectedFields.length).toBeGreaterThan(0);

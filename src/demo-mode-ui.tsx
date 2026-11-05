@@ -14,7 +14,6 @@ export function DemoLoginHint(): ReactElement | null {
   const locale = useLocale().locale();
   const [demo, setDemo] = useState<DemoModePayload | null>(null);
 
-  // kumiko-lint-ignore no-raw-hooks login subtitle — one-shot /api/demo-mode
   useEffect(() => {
     void fetchDemoMode().then(setDemo);
   }, []);
@@ -51,7 +50,6 @@ export function DemoReadOnlyBanner(): ReactElement | null {
   const t = useTranslation();
   const [demo, setDemo] = useState<DemoModePayload | null>(null);
 
-  // kumiko-lint-ignore no-raw-hooks banner — one-shot /api/demo-mode
   useEffect(() => {
     void fetchDemoMode().then(setDemo);
   }, []);

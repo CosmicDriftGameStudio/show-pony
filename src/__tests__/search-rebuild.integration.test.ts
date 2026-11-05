@@ -14,6 +14,7 @@ import {
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { EntityId, SessionUser, TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import { listIndexUids } from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { Meilisearch } from "meilisearch";
 import {
@@ -51,8 +52,8 @@ let staleRsvpId: EntityId;
 const foreignTenantId = crypto.randomUUID() as TenantId;
 
 async function indexUidsWithPrefix(): Promise<string[]> {
-  const page = await meili.getIndexes({ limit: 1000 });
-  return page.results.map((i) => i.uid).filter((uid) => uid.startsWith(connection.indexPrefix));
+  const uids = await listIndexUids(meili);
+  return uids.filter((uid) => uid.startsWith(connection.indexPrefix));
 }
 
 async function seedStaleDocuments(): Promise<void> {

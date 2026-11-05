@@ -12,7 +12,7 @@ export function DemoPublicNotice(): ReactElement | null {
   const t = useTranslation();
   const [demo, setDemo] = useState<DemoModePayload | null>(null);
 
-  // kumiko-lint-ignore no-raw-hooks public demo notice — one-shot /api/demo-mode
+  // biome-ignore lint/plugin: public demo notice — one-shot /api/demo-mode
   useEffect(() => {
     void fetchDemoMode().then(setDemo);
   }, []);

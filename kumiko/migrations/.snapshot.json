@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-01T00:16:28.787Z",
+  "generatedAt": "2026-11-05T09:06:21.491Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -77,7 +77,8 @@
           "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "systemRowsReadable": true
     },
     {
       "tableName": "read_events",
@@ -414,7 +415,8 @@
           "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "systemRowsReadable": true
     },
     {
       "tableName": "read_payments",
@@ -949,7 +951,8 @@
           "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "systemRowsReadable": true
     },
     {
       "tableName": "read_tenant_compliance_profiles",
@@ -2167,13 +2170,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2186,13 +2182,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2205,13 +2194,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2243,13 +2225,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2262,13 +2237,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2281,13 +2249,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2300,13 +2261,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2338,13 +2292,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2357,13 +2304,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2376,13 +2316,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2395,13 +2328,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2414,13 +2340,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2433,13 +2352,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2452,13 +2364,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2471,13 +2376,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2490,13 +2388,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2509,13 +2400,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2528,13 +2412,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::uuid AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     },
@@ -2547,13 +2424,6 @@
           "rolesSql": "PUBLIC",
           "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::text OR current_setting('kumiko.scope', true) = 'system'",
           "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::text OR current_setting('kumiko.scope', true) = 'system'"
-        },
-        {
-          "name": "kumiko_system_tenant_read",
-          "command": "SELECT",
-          "kind": "PERMISSIVE",
-          "rolesSql": "PUBLIC",
-          "using": "\"tenant_id\" = '00000000-0000-4000-8000-000000000000'::text AND NULLIF(current_setting('kumiko.tenant_id', true), '') IS NOT NULL"
         }
       ]
     }

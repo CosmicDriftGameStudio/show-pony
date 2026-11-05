@@ -13,7 +13,7 @@ const FALLBACK: DemoModePayload = {
 
 export async function fetchDemoMode(): Promise<DemoModePayload> {
   if (cached) return cached;
-  if (inflight) return inflight;
+  if (inflight !== null) return inflight;
   inflight = fetch("/demo-mode")
     .then((res) => (res.ok ? (res.json() as Promise<DemoModePayload>) : FALLBACK))
     .then((payload) => {

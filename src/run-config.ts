@@ -57,9 +57,7 @@ export type AppFeaturesRouting = {
 };
 
 /** $BASE_DOMAIN or show-pony.localhost — the one place that default lives. */
-export function resolveBaseDomainFromEnv(
-  env: Record<string, string | undefined> = process.env,
-): string {
+export function resolveBaseDomainFromEnv(env: Record<string, string | undefined>): string {
   return env["BASE_DOMAIN"] ?? "show-pony.localhost";
 }
 

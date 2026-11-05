@@ -3,6 +3,69 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.414.0] - 2026-11-05
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.409.0 → 0.414.0
+
+### Breaking
+
+- 0.414.0 · Stripe checkouts are matched by session id, consentId metadata is gone
+- 0.414.0 · SystemAdmin checks use ROLES.SystemAdmin
+- 0.414.0 · S3 endpoint rule from the booted env
+- 0.414.0 · Mollie first payments are matched by payment id, consentId metadata is gone
+- 0.414.0 · Paddle checkouts are bound by the checkout ledger, the tenant binding key is gone
+- 0.414.0 · includePaid from a non-SystemAdmin is rejected
+- 0.414.0 · Anonymous file uploads need the claim handle to be bound
+- 0.414.0 · Billing webhooks are accepted only for checkouts the server opened
+- 0.414.0 · Helpdesk reply error passthrough, paged user-data lookups
+- 0.414.0 · A personal password mailbox only connects the caller's own account address
+- 0.414.0 · Biome preset biome-rules with GritQL plugins
+- 0.414.0 · Review fixes in document-ingest, documents, feature-toggles, auth-mfa and auth-email-password
+- 0.414.0 · Remove dead allowPerRequest config key option
+- 0.414.0 · anonymous uploads are capped, rate limited and answer sign_in_required
+- 0.414.0 · Db and types review fixes
+- 0.414.0 · access.authenticated is renamed to access.builtinUserRoles
+- 0.414.0 · pool statements without a tenant scope run in an empty scope; seedRow refuses event-sourced entity tables; read_ tables are not writable from plain runners
+- 0.414.0 · Boot fails when the booted features declare tables the generated schema lacks
+- 0.414.0 · system tenant read policy only on tables marked systemRowsReadable
+- 0.414.0 · Test-stack cleanup removes only its own queues; one sweep per integration run
+- 0.414.0 · Single-file guards are replaced by the Biome preset biome-rules
+- 0.414.0 · cardRenderer removed from entityList and projectionList
+- 0.414.0 · DashboardTextPanel: blocks optional, text and items accept i18n objects
+- 0.413.0 · contact feature renamed to helpdesk
+
+### Manual migrations
+
+- [migrated] 0.414.0:6e982281 · 0.414.0 · Stripe checkouts are matched by session id, consentId metadata is gone
+- [not-applicable] 0.414.0:daacd4e2 · 0.414.0 · SystemAdmin checks use ROLES.SystemAdmin
+- [not-applicable] 0.414.0:b9a9b954 · 0.414.0 · S3 endpoint rule from the booted env
+- [not-applicable] 0.414.0:73be8142 · 0.414.0 · Mollie first payments are matched by payment id, consentId metadata is gone
+- [not-applicable] 0.414.0:8cbdc3bc · 0.414.0 · Paddle checkouts are bound by the checkout ledger, the tenant binding key is gone
+- [not-applicable] 0.414.0:8268ce80 · 0.414.0 · includePaid from a non-SystemAdmin is rejected
+- [not-applicable] 0.414.0:ba4e5b9c · 0.414.0 · Anonymous file uploads need the claim handle to be bound
+- [migrated] 0.414.0:6801b653 · 0.414.0 · Billing webhooks are accepted only for checkouts the server opened
+- [not-applicable] 0.414.0:199dad76 · 0.414.0 · Helpdesk reply error passthrough, paged user-data lookups
+- [not-applicable] 0.414.0:3d9e54f1 · 0.414.0 · A personal password mailbox only connects the caller's own account address
+- [migrated] 0.414.0:c32e1e67 · 0.414.0 · Biome preset biome-rules with GritQL plugins
+- [not-applicable] 0.414.0:6cbfa148 · 0.414.0 · Review fixes in document-ingest, documents, feature-toggles, auth-mfa and auth-email-password
+- [not-applicable] 0.414.0:b571806e · 0.414.0 · Remove dead allowPerRequest config key option
+- [not-applicable] 0.414.0:5025ef73 · 0.414.0 · anonymous uploads are capped, rate limited and answer sign_in_required
+- [not-applicable] 0.414.0:7109c755 · 0.414.0 · Db and types review fixes
+- [not-applicable] 0.414.0:43e3f08b · 0.414.0 · access.authenticated is renamed to access.builtinUserRoles
+- [migrated] 0.414.0:7490a816 · 0.414.0 · pool statements without a tenant scope run in an empty scope; seedRow refuses event-sourced entity tables; read_ tables are not writable from plain runners
+- [migrated] 0.414.0:37a28a10 · 0.414.0 · Boot fails when the booted features declare tables the generated schema lacks
+- [migrated] 0.414.0:48abc1d0 · 0.414.0 · system tenant read policy only on tables marked systemRowsReadable
+- [not-applicable] 0.414.0:4fe09931 · 0.414.0 · Test-stack cleanup removes only its own queues; one sweep per integration run
+- [not-applicable] 0.414.0:8f1009d5 · 0.414.0 · cardRenderer removed from entityList and projectionList
+- [not-applicable] 0.414.0:77a47b67 · 0.414.0 · DashboardTextPanel: blocks optional, text and items accept i18n objects
+- [not-applicable] 0.413.0:4c75b7c3 · 0.413.0 · contact feature renamed to helpdesk
+
+### Codemods applied
+
+- 0.414.0 · scripts/codemod/lint-ignore-to-biome.ts · Single-file guards are replaced by the Biome preset biome-rules
+
 ## [0.409.0] - 2026-11-01
 
 ### Changed

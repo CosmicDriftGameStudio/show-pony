@@ -1,9 +1,15 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { SubscriptionFoundationQueries } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import {
+  SubscriptionFoundationHandlers,
+  SubscriptionFoundationQueries,
+} from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { configValuesTable } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
-import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
+import {
+  createSubscriptionStripeFeature,
+  STRIPE_PROVIDER_NAME,
+} from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import {
   TenantHandlers,
   tenantMembershipsTable,
@@ -29,6 +35,25 @@ const PRICE_TO_TIER = { price_starter_sp: "starter", price_pro_sp: "pro" };
 
 const stripeForFixtures = new Stripe(TEST_API_KEY);
 
+const checkoutIdFor = (subscriptionId: string): string => `cs_stripe_${subscriptionId}`;
+
+// customer.subscription.created resolves its checkout session at Stripe; this local API answers
+// that list call with the checkout id the test recorded in the ledger.
+const checkoutFixtureApi = Bun.serve({
+  port: 0,
+  fetch: (request) => {
+    const url = new URL(request.url);
+    if (url.pathname !== "/v1/checkout/sessions") return new Response("{}", { status: 404 });
+    const subscription = url.searchParams.get("subscription") ?? "";
+    return Response.json({
+      object: "list",
+      data: [{ id: checkoutIdFor(subscription), object: "checkout.session" }],
+      has_more: false,
+      url: url.pathname,
+    });
+  },
+});
+
 const features = [
   createTierEngineFeature({ defaultTier: DEFAULT_TIER, tierMap: SHOWPONY_TIER_MAP }),
   createComplianceProfilesFeature(),
@@ -39,6 +64,12 @@ const features = [
     webhookSecret: TEST_SECRET,
     apiKey: TEST_API_KEY,
     priceToTier: PRICE_TO_TIER,
+    clientConfig: {
+      host: "127.0.0.1",
+      port: checkoutFixtureApi.port,
+      protocol: "http",
+      maxNetworkRetries: 0,
+    },
   }),
 ];
 
@@ -69,7 +100,41 @@ beforeAll(async () => {
   });
 });
 
-afterAll(async () => stack?.cleanup());
+afterAll(async () => {
+  await stack?.cleanup();
+  checkoutFixtureApi.stop(true);
+});
+
+// A created webhook is only admitted for a checkout the server opened, so record it first.
+async function recordCheckoutForCreatedEvent(target: TestStack, payload: string): Promise<void> {
+  const event = JSON.parse(payload) as {
+    type: string;
+    data: {
+      object: {
+        id: string;
+        metadata: { tenantId: string };
+        items: { data: { price: { id: string } }[] };
+      };
+    };
+  };
+  if (event.type !== "customer.subscription.created") return;
+  const subscription = event.data.object;
+  const tenantSysadmin = createTestUser({
+    id: "checkout-ledger-sysadmin",
+    tenantId: subscription.metadata.tenantId,
+    roles: ["SystemAdmin"],
+  });
+  await target.http.writeOk(
+    SubscriptionFoundationHandlers.recordCheckoutOpened,
+    {
+      providerName: STRIPE_PROVIDER_NAME,
+      providerCheckoutId: checkoutIdFor(subscription.id),
+      priceId: subscription.items.data[0]?.price.id,
+      mode: "subscription",
+    },
+    tenantSysadmin,
+  );
+}
 
 async function createTenant(key: string): Promise<TenantId> {
   const data = (await stack.http.writeOk<Record<string, unknown>>(
@@ -125,6 +190,7 @@ async function postSignedWebhookTo(
   payload: string,
   secret = TEST_SECRET,
 ): Promise<Response> {
+  await recordCheckoutForCreatedEvent(target, payload);
   const sig = await stripeForFixtures.webhooks.generateTestHeaderStringAsync({ payload, secret });
   return target.app.request("/webhooks/subscription/stripe", {
     method: "POST",

@@ -1,6 +1,6 @@
 {
-  "version": "0.409.0",
-  "appliedAt": "2026-11-01T00:14:09.375827Z",
+  "version": "0.414.0",
+  "appliedAt": "2026-11-05T09:04:11.212299Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -41,6 +41,11 @@
       "version": "0.395.0",
       "codemod": "scripts/codemod/content-collection-format.ts",
       "title": "Content collections edit in plain or document format; rich and markdown are gone"
+    },
+    {
+      "version": "0.414.0",
+      "codemod": "scripts/codemod/lint-ignore-to-biome.ts",
+      "title": "Single-file guards are replaced by the Biome preset biome-rules"
     }
   ],
   "resolvedManual": [
@@ -2003,6 +2008,190 @@
       "resolution": "not-applicable",
       "reason": "No subscription-dodo usage in src, bin or e2e; billing uses the billing foundation feature only",
       "resolvedAt": "2026-10-31T01:20:37.778976Z"
+    },
+    {
+      "id": "0.414.0:6e982281",
+      "version": "0.414.0",
+      "title": "Stripe checkouts are matched by session id, consentId metadata is gone",
+      "resolution": "migrated",
+      "reason": "No code reads consentId; the Stripe plugin is the bundled one. Before the deploy open sessions must finish or expire and the key needs Checkout Session read access; both are named in the PR.",
+      "resolvedAt": "2026-11-05T09:28:26.70657Z"
+    },
+    {
+      "id": "0.414.0:daacd4e2",
+      "version": "0.414.0",
+      "title": "SystemAdmin checks use ROLES.SystemAdmin",
+      "resolution": "not-applicable",
+      "reason": "SYSTEM_ADMIN_ROLE is not used.",
+      "resolvedAt": "2026-11-05T09:28:26.803314Z"
+    },
+    {
+      "id": "0.414.0:b9a9b954",
+      "version": "0.414.0",
+      "title": "S3 endpoint rule from the booted env",
+      "resolution": "not-applicable",
+      "reason": "No use of s3EndpointSchema alone and no match on the missing_env message.",
+      "resolvedAt": "2026-11-05T09:28:26.896495Z"
+    },
+    {
+      "id": "0.414.0:73be8142",
+      "version": "0.414.0",
+      "title": "Mollie first payments are matched by payment id, consentId metadata is gone",
+      "resolution": "not-applicable",
+      "reason": "Does not mount the Mollie plugin and has no consentId use in code.",
+      "resolvedAt": "2026-11-05T09:28:26.987684Z"
+    },
+    {
+      "id": "0.414.0:8cbdc3bc",
+      "version": "0.414.0",
+      "title": "Paddle checkouts are bound by the checkout ledger, the tenant binding key is gone",
+      "resolution": "not-applicable",
+      "reason": "Does not mount the Paddle plugin and does not read PADDLE_TENANT_BINDING_KEY.",
+      "resolvedAt": "2026-11-05T09:28:27.158666Z"
+    },
+    {
+      "id": "0.414.0:8268ce80",
+      "version": "0.414.0",
+      "title": "includePaid from a non-SystemAdmin is rejected",
+      "resolution": "not-applicable",
+      "reason": "No own button or caller sends includePaid; only the bundled system check screen does.",
+      "resolvedAt": "2026-11-05T09:28:27.281031Z"
+    },
+    {
+      "id": "0.414.0:ba4e5b9c",
+      "version": "0.414.0",
+      "title": "Anonymous file uploads need the claim handle to be bound",
+      "resolution": "not-applicable",
+      "reason": "No field opts into anonymousUpload and no createFileRoutes call.",
+      "resolvedAt": "2026-11-05T09:28:27.383089Z"
+    },
+    {
+      "id": "0.414.0:6801b653",
+      "version": "0.414.0",
+      "title": "Billing webhooks are accepted only for checkouts the server opened",
+      "resolution": "migrated",
+      "reason": "The e2e billing stub returns url and providerCheckoutId; production uses the bundled Stripe plugin. Open sessions before the deploy are named in the PR.",
+      "resolvedAt": "2026-11-05T09:28:27.489385Z"
+    },
+    {
+      "id": "0.414.0:199dad76",
+      "version": "0.414.0",
+      "title": "Helpdesk reply error passthrough, paged user-data lookups",
+      "resolution": "not-applicable",
+      "reason": "No SYSTEM_ADMIN_ROLE import from secrets and no match on helpdesk_attachment_not_found.",
+      "resolvedAt": "2026-11-05T09:28:27.583827Z"
+    },
+    {
+      "id": "0.414.0:3d9e54f1",
+      "version": "0.414.0",
+      "title": "A personal password mailbox only connects the caller's own account address",
+      "resolution": "not-applicable",
+      "reason": "Does not mount inbound-provider-imap.",
+      "resolvedAt": "2026-11-05T09:28:27.695704Z"
+    },
+    {
+      "id": "0.414.0:c32e1e67",
+      "version": "0.414.0",
+      "title": "Biome preset biome-rules with GritQL plugins",
+      "resolution": "migrated",
+      "reason": "biome.json gets the preset; lint reports 0 errors, new suppressions carry a checked reason.",
+      "resolvedAt": "2026-11-05T09:28:27.807493Z"
+    },
+    {
+      "id": "0.414.0:6cbfa148",
+      "version": "0.414.0",
+      "title": "Review fixes in document-ingest, documents, feature-toggles, auth-mfa and auth-email-password",
+      "resolution": "not-applicable",
+      "reason": "No call of createRedisToggleSyncSignal or appendMissingDocumentExtractEvent.",
+      "resolvedAt": "2026-11-05T09:28:27.89847Z"
+    },
+    {
+      "id": "0.414.0:b571806e",
+      "version": "0.414.0",
+      "title": "Remove dead allowPerRequest config key option",
+      "resolution": "not-applicable",
+      "reason": "No allowPerRequest in config key definitions.",
+      "resolvedAt": "2026-11-05T09:28:28.013945Z"
+    },
+    {
+      "id": "0.414.0:5025ef73",
+      "version": "0.414.0",
+      "title": "anonymous uploads are capped, rate limited and answer sign_in_required",
+      "resolution": "not-applicable",
+      "reason": "No createFileRoutes, metaBatchRateLimitResolver or rebindFileRef use.",
+      "resolvedAt": "2026-11-05T09:28:28.154426Z"
+    },
+    {
+      "id": "0.414.0:7109c755",
+      "version": "0.414.0",
+      "title": "Db and types review fixes",
+      "resolution": "not-applicable",
+      "reason": "No redactedHeaders, redactedQueryParams, physicalColumnName or lastDate placeholder.",
+      "resolvedAt": "2026-11-05T09:28:28.273257Z"
+    },
+    {
+      "id": "0.414.0:43e3f08b",
+      "version": "0.414.0",
+      "title": "access.authenticated is renamed to access.builtinUserRoles",
+      "resolution": "not-applicable",
+      "reason": "No access.authenticated use; the typecheck passes against the renamed option.",
+      "resolvedAt": "2026-11-05T09:28:28.38026Z"
+    },
+    {
+      "id": "0.414.0:7490a816",
+      "version": "0.414.0",
+      "title": "pool statements without a tenant scope run in an empty scope; seedRow refuses event-sourced entity tables; read_ tables are not writable from plain runners",
+      "resolution": "migrated",
+      "reason": "The typecheck passes with read_ tables no longer writable, seeds on entity tables fail loudly and the suite is green; no non-transactional DDL on an RLS-enforced pool.",
+      "resolvedAt": "2026-11-05T09:28:28.533117Z"
+    },
+    {
+      "id": "0.414.0:37a28a10",
+      "version": "0.414.0",
+      "title": "Boot fails when the booted features declare tables the generated schema lacks",
+      "resolution": "migrated",
+      "reason": "kumiko schema generate ran after the bump, the migration and snapshot are in this PR.",
+      "resolvedAt": "2026-11-05T09:28:28.660213Z"
+    },
+    {
+      "id": "0.414.0:48abc1d0",
+      "version": "0.414.0",
+      "title": "system tenant read policy only on tables marked systemRowsReadable",
+      "resolution": "migrated",
+      "reason": "RLS migration generated. No own code reads SYSTEM_TENANT_ID rows from a tenant session, so no table needs systemRowsReadable.",
+      "resolvedAt": "2026-11-05T09:28:28.753674Z"
+    },
+    {
+      "id": "0.414.0:4fe09931",
+      "version": "0.414.0",
+      "title": "Test-stack cleanup removes only its own queues; one sweep per integration run",
+      "resolution": "not-applicable",
+      "reason": "No runWithTestDbTemplates, queueNamePrefix, createJobRunner or flushNamespace use.",
+      "resolvedAt": "2026-11-05T09:28:28.848233Z"
+    },
+    {
+      "id": "0.414.0:8f1009d5",
+      "version": "0.414.0",
+      "title": "cardRenderer removed from entityList and projectionList",
+      "resolution": "not-applicable",
+      "reason": "No cardRenderer in screen definitions.",
+      "resolvedAt": "2026-11-05T09:28:28.93993Z"
+    },
+    {
+      "id": "0.414.0:77a47b67",
+      "version": "0.414.0",
+      "title": "DashboardTextPanel: blocks optional, text and items accept i18n objects",
+      "resolution": "not-applicable",
+      "reason": "No DashboardTextPanel use.",
+      "resolvedAt": "2026-11-05T09:28:29.029509Z"
+    },
+    {
+      "id": "0.413.0:4c75b7c3",
+      "version": "0.413.0",
+      "title": "contact feature renamed to helpdesk",
+      "resolution": "not-applicable",
+      "reason": "No import of kumiko-bundled-features/contact; a contact name in code here is the app's own.",
+      "resolvedAt": "2026-11-05T09:28:29.116323Z"
     }
   ]
 }
