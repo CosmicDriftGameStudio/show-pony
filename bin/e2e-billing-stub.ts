@@ -105,15 +105,23 @@ function subscriptionEventPayload(options: {
 // "active" and "cancelScheduled" both keep a live, non-terminal subscription.
 const billingSubscriptionSeeder: E2eExtraSeeder = async (ctx, tenantId, body) => {
   const parsed = billingSubscriptionSeedSchema.parse(body);
-  await ctx.write(
-    SubscriptionFoundationHandlers.processEvent,
-    subscriptionEventPayload({
+  // process-event only admits a subscription for a checkout the server opened.
+  const providerCheckoutId = `e2e-stub-checkout-${tenantId}`;
+  await ctx.write(SubscriptionFoundationHandlers.recordCheckoutOpened, {
+    providerName: "stripe",
+    providerCheckoutId,
+    priceId: `price_e2e_${parsed.tier}`,
+    mode: "subscription",
+  });
+  await ctx.write(SubscriptionFoundationHandlers.processEvent, {
+    ...subscriptionEventPayload({
       tenantId,
       providerEventId: `e2e_${tenantId}_created`,
       type: SubscriptionEventTypes.created,
       tier: parsed.tier,
     }),
-  );
+    providerCheckoutId,
+  });
   if (parsed.status === "cancelScheduled") {
     await ctx.write(
       SubscriptionFoundationHandlers.processEvent,
