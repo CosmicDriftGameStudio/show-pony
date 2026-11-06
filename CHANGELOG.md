@@ -3,6 +3,28 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.415.0] - 2026-11-06
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.414.0 → 0.415.0
+
+### Breaking
+
+- 0.415.0 · Whitespace-only translations and blank plural forms fail the boot check
+- 0.415.0 · Irreversible operations without a write-handler entry need a declared exception
+- 0.415.0 · Named filter refs carry `access` instead of `roles`
+- 0.415.0 · security-plugin-suppression guard rejects biome-ignore on the security Biome plugins
+- 0.415.0 · kumiko check fails when biome.json does not extend the Kumiko Biome preset
+
+### Manual migrations
+
+- [not-applicable] 0.415.0:ff0d0354 · 0.415.0 · Whitespace-only translations and blank plural forms fail the boot check
+- [not-applicable] 0.415.0:69f8ebde · 0.415.0 · Irreversible operations without a write-handler entry need a declared exception
+- [not-applicable] 0.415.0:6202b92a · 0.415.0 · Named filter refs carry `access` instead of `roles`
+- [not-applicable] 0.415.0:c3d2fdc7 · 0.415.0 · security-plugin-suppression guard rejects biome-ignore on the security Biome plugins
+- [not-applicable] 0.415.0:b1476991 · 0.415.0 · kumiko check fails when biome.json does not extend the Kumiko Biome preset
+
 ## [0.414.0] - 2026-11-05
 
 ### Changed
