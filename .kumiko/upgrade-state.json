@@ -1,6 +1,6 @@
 {
-  "version": "0.414.0",
-  "appliedAt": "2026-11-05T09:04:11.212299Z",
+  "version": "0.415.0",
+  "appliedAt": "2026-11-06T14:51:59.13943Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -2192,6 +2192,46 @@
       "resolution": "not-applicable",
       "reason": "No import of kumiko-bundled-features/contact; a contact name in code here is the app's own.",
       "resolvedAt": "2026-11-05T09:28:29.116323Z"
+    },
+    {
+      "id": "0.415.0:ff0d0354",
+      "version": "0.415.0",
+      "title": "Whitespace-only translations and blank plural forms fail the boot check",
+      "resolution": "not-applicable",
+      "reason": "Boot check over all features is green on 0.415.0, no blank translation.",
+      "resolvedAt": "2026-11-06T15:01:25.530696Z"
+    },
+    {
+      "id": "0.415.0:6202b92a",
+      "version": "0.415.0",
+      "title": "Named filter refs carry `access` instead of `roles`",
+      "resolution": "not-applicable",
+      "reason": "App declares no named list filter ref; typecheck is green on 0.415.0.",
+      "resolvedAt": "2026-11-06T15:01:25.608686Z"
+    },
+    {
+      "id": "0.415.0:b1476991",
+      "version": "0.415.0",
+      "title": "kumiko check fails when biome.json does not extend the Kumiko Biome preset",
+      "resolution": "not-applicable",
+      "reason": "biome.json already extends the Kumiko preset.",
+      "resolvedAt": "2026-11-06T15:01:25.685742Z"
+    },
+    {
+      "id": "0.415.0:69f8ebde",
+      "version": "0.415.0",
+      "title": "Irreversible operations without a write-handler entry need a declared exception",
+      "resolution": "not-applicable",
+      "reason": "Searched jobs and MSPs: no irreversible operation runs outside a write handler or a framework-declared job.",
+      "resolvedAt": "2026-11-06T15:01:25.764765Z"
+    },
+    {
+      "id": "0.415.0:c3d2fdc7",
+      "version": "0.415.0",
+      "title": "security-plugin-suppression guard rejects biome-ignore on the security Biome plugins",
+      "resolution": "not-applicable",
+      "reason": "Guard is green on 0.415.0, no suppressed security plugin finding.",
+      "resolvedAt": "2026-11-06T15:01:25.841845Z"
     }
   ]
 }
