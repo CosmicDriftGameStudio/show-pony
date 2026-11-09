@@ -17,14 +17,22 @@ import { defineFeature, type FeatureDefinition } from "@cosmicdrift/kumiko-frame
 import type { E2eExtraSeeder } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import * as z from "zod";
 
-const STUB_PRICE_TO_TIER: Readonly<Record<string, "starter" | "pro">> = {
-  price_e2e_starter: "starter",
-  price_e2e_pro: "pro",
+const STUB_TIERS = ["starter", "pro"] as const;
+type StubTier = (typeof STUB_TIERS)[number];
+
+const STUB_TIER_TO_PRICE = {
+  starter: "price_e2e_starter",
+  pro: "price_e2e_pro",
+} as const satisfies Record<StubTier, string>;
+
+const STUB_PRICE_TO_TIER: Readonly<Record<string, StubTier>> = {
+  [STUB_TIER_TO_PRICE.starter]: "starter",
+  [STUB_TIER_TO_PRICE.pro]: "pro",
 };
 
 const STUB_PRICE_UNIT_AMOUNTS: Readonly<Record<string, number>> = {
-  price_e2e_starter: 900,
-  price_e2e_pro: 2900,
+  [STUB_TIER_TO_PRICE.starter]: 900,
+  [STUB_TIER_TO_PRICE.pro]: 2900,
 };
 
 // Set by the "billing-disabled" extra-seeder — module-local because the
@@ -73,7 +81,7 @@ export function createE2eBillingStubFeature(): FeatureDefinition {
 const CANCEL_AT_ISO = "2026-12-01T00:00:00Z";
 
 const billingSubscriptionSeedSchema = z.object({
-  tier: z.enum(["starter", "pro"]),
+  tier: z.enum(STUB_TIERS),
   status: z.enum(["active", "cancelScheduled"]),
 });
 
@@ -81,7 +89,7 @@ function subscriptionEventPayload(options: {
   readonly tenantId: string;
   readonly providerEventId: string;
   readonly type: SubscriptionEventType;
-  readonly tier: "starter" | "pro";
+  readonly tier: StubTier;
   readonly cancelAtIso?: string | null;
 }) {
   return {
@@ -97,6 +105,16 @@ function subscriptionEventPayload(options: {
   };
 }
 
+function isIgnoredProcessEventResult(data: unknown): data is { ignored: true; reason?: unknown } {
+  return typeof data === "object" && data !== null && "ignored" in data && data.ignored === true;
+}
+
+function assertProcessEventAccepted(data: unknown, type: SubscriptionEventType): void {
+  if (isIgnoredProcessEventResult(data)) {
+    throw new Error(`e2e seed: process-event ignored ${type} (${String(data.reason)})`);
+  }
+}
+
 // Seeds a subscription straight through billing-foundation's own
 // process-event write-handler (bypassing the webhook route the stub has no
 // signature for), then syncs show-pony's own tier-assignment the same way
@@ -110,28 +128,34 @@ const billingSubscriptionSeeder: E2eExtraSeeder = async (ctx, tenantId, body) =>
   await ctx.write(SubscriptionFoundationHandlers.recordCheckoutOpened, {
     providerName: "stripe",
     providerCheckoutId,
-    priceId: `price_e2e_${parsed.tier}`,
+    priceId: STUB_TIER_TO_PRICE[parsed.tier],
     mode: "subscription",
   });
-  await ctx.write(SubscriptionFoundationHandlers.processEvent, {
-    ...subscriptionEventPayload({
-      tenantId,
-      providerEventId: `e2e_${tenantId}_created`,
-      type: SubscriptionEventTypes.created,
-      tier: parsed.tier,
-    }),
-    providerCheckoutId,
-  });
-  if (parsed.status === "cancelScheduled") {
-    await ctx.write(
-      SubscriptionFoundationHandlers.processEvent,
-      subscriptionEventPayload({
+  assertProcessEventAccepted(
+    await ctx.write(SubscriptionFoundationHandlers.processEvent, {
+      ...subscriptionEventPayload({
         tenantId,
-        providerEventId: `e2e_${tenantId}_cancel_scheduled`,
-        type: SubscriptionEventTypes.updated,
+        providerEventId: `e2e_${tenantId}_created`,
+        type: SubscriptionEventTypes.created,
         tier: parsed.tier,
-        cancelAtIso: CANCEL_AT_ISO,
       }),
+      providerCheckoutId,
+    }),
+    SubscriptionEventTypes.created,
+  );
+  if (parsed.status === "cancelScheduled") {
+    assertProcessEventAccepted(
+      await ctx.write(
+        SubscriptionFoundationHandlers.processEvent,
+        subscriptionEventPayload({
+          tenantId,
+          providerEventId: `e2e_${tenantId}_cancel_scheduled`,
+          type: SubscriptionEventTypes.updated,
+          tier: parsed.tier,
+          cancelAtIso: CANCEL_AT_ISO,
+        }),
+      ),
+      SubscriptionEventTypes.updated,
     );
   }
   await ctx.write(TierEngineHandlers.setTenantTier, {
