@@ -1,8 +1,4 @@
-import {
-  access,
-  defineWriteHandler,
-  type WriteHandlerDef,
-} from "@cosmicdrift/kumiko-framework/engine";
+import { access, defineWriteHandler } from "@cosmicdrift/kumiko-framework/engine";
 import { failNotFound } from "@cosmicdrift/kumiko-framework/errors";
 import { z } from "zod";
 import { withStockCap } from "../cap-guard";
@@ -31,12 +27,10 @@ const rsvpSubmitBase = {
 // The cap guard takes the tenant-wide advisory lock before running its handler, so it must wrap
 // only the insert: the event check below has to reject forged ids before anyone queues on the lock.
 const cappedInsert = withStockCap(
-  // @cast-boundary engine-bridge — withStockCap takes the untyped storage form; the typed
-  // handler only narrows event.payload, which the dispatcher has already parsed with the schema.
   defineWriteHandler({
     ...rsvpSubmitBase,
     handler: (event, ctx) => rsvpExecutor.create(event.payload, event.user, ctx.db),
-  }) as unknown as WriteHandlerDef,
+  }),
   {
     table: rsvpTable,
     limit: (caps) => caps.maxGuests,
@@ -56,7 +50,7 @@ export const rsvpSubmitHandler = defineWriteHandler({
     const found = await findEventById(ctx, event.payload.eventId);
     if (!found) return failNotFound("event", event.payload.eventId);
 
-    const result = await cappedInsert.handler(event, ctx);
+    const result = await cappedInsert.handler({ ...event, prepared: undefined }, ctx);
     if (result.isSuccess) await sendRsvpConfirmation(ctx, event.payload, found);
     return result;
   },
