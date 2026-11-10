@@ -24,6 +24,7 @@ import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { createTestUser, testTenantId } from "@cosmicdrift/kumiko-framework/seeding";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import Stripe from "stripe";
+import { z } from "zod";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
 import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
@@ -105,19 +106,24 @@ afterAll(async () => {
   checkoutFixtureApi.stop(true);
 });
 
+const createdEventEnvelopeSchema = z.object({ type: z.string() });
+const priceItemSchema = z.object({ price: z.object({ id: z.string() }) });
+const createdSubscriptionEventSchema = z.object({
+  data: z.object({
+    object: z.object({
+      id: z.string(),
+      metadata: z.object({ tenantId: z.string() }),
+      items: z.object({ data: z.tuple([priceItemSchema], priceItemSchema) }),
+    }),
+  }),
+});
+
 // A created webhook is only admitted for a checkout the server opened, so record it first.
 async function recordCheckoutForCreatedEvent(target: TestStack, payload: string): Promise<void> {
-  const event = JSON.parse(payload) as {
-    type: string;
-    data: {
-      object: {
-        id: string;
-        metadata: { tenantId: string };
-        items: { data: { price: { id: string } }[] };
-      };
-    };
-  };
-  if (event.type !== "customer.subscription.created") return;
+  const raw: unknown = JSON.parse(payload);
+  const envelope = createdEventEnvelopeSchema.parse(raw);
+  if (envelope.type !== "customer.subscription.created") return;
+  const event = createdSubscriptionEventSchema.parse(raw);
   const subscription = event.data.object;
   const tenantSysadmin = createTestUser({
     id: "checkout-ledger-sysadmin",
@@ -129,7 +135,7 @@ async function recordCheckoutForCreatedEvent(target: TestStack, payload: string)
     {
       providerName: STRIPE_PROVIDER_NAME,
       providerCheckoutId: checkoutIdFor(subscription.id),
-      priceId: subscription.items.data[0]?.price.id,
+      priceId: subscription.items.data[0].price.id,
       mode: "subscription",
     },
     tenantSysadmin,
