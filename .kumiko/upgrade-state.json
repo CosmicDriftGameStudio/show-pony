@@ -1,6 +1,6 @@
 {
-  "version": "0.415.0",
-  "appliedAt": "2026-11-06T14:51:59.13943Z",
+  "version": "0.418.0",
+  "appliedAt": "2026-11-10T10:19:45.424136Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -46,6 +46,11 @@
       "version": "0.414.0",
       "codemod": "scripts/codemod/lint-ignore-to-biome.ts",
       "title": "Single-file guards are replaced by the Biome preset biome-rules"
+    },
+    {
+      "version": "0.417.0",
+      "codemod": "scripts/codemod/scaffold-kms-mode.ts",
+      "title": "kumiko-upgrade migrates older scaffolds to Key Manager ciphertext keys"
     }
   ],
   "resolvedManual": [
@@ -2232,6 +2237,38 @@
       "resolution": "not-applicable",
       "reason": "Guard is green on 0.415.0, no suppressed security plugin finding.",
       "resolvedAt": "2026-11-06T15:01:25.841845Z"
+    },
+    {
+      "id": "0.417.0:494c3150",
+      "version": "0.417.0",
+      "title": "Subject check for the signature feature and a readable-file check on requests",
+      "resolution": "not-applicable",
+      "reason": "show-pony mounts no signature feature.",
+      "resolvedAt": "2026-11-10T10:21:04.42893Z"
+    },
+    {
+      "id": "0.417.0:33832fec",
+      "version": "0.417.0",
+      "title": "Board look for lists, forms, record pages and the shell",
+      "resolution": "not-applicable",
+      "reason": "No pager or list.sort.summary overrides, no toolbarSort need, no DOM tests on old list/drawer/header classes.",
+      "resolvedAt": "2026-11-10T10:21:04.510775Z"
+    },
+    {
+      "id": "0.417.0:c5495a2d",
+      "version": "0.417.0",
+      "title": "List cells stay blank when empty, truncate, and phone cards follow the board",
+      "resolution": "not-applicable",
+      "reason": "No tests expect em dash list cells, whitespace-normal cells or long relative texts.",
+      "resolvedAt": "2026-11-10T10:21:04.591175Z"
+    },
+    {
+      "id": "0.417.0:8c5324ff",
+      "version": "0.417.0",
+      "title": "submitWith actions never write without their form, relative \"just now\" is translated",
+      "resolution": "not-applicable",
+      "reason": "No submitWith actions and no formatRelativeTime justNow callers.",
+      "resolvedAt": "2026-11-10T10:21:04.682535Z"
     }
   ]
 }

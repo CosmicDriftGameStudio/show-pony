@@ -3,6 +3,30 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.418.0] - 2026-11-10
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.415.0 → 0.418.0
+
+### Breaking
+
+- 0.417.0 · Subject check for the signature feature and a readable-file check on requests
+- 0.417.0 · Board look for lists, forms, record pages and the shell
+- 0.417.0 · List cells stay blank when empty, truncate, and phone cards follow the board
+- 0.417.0 · submitWith actions never write without their form, relative "just now" is translated
+
+### Manual migrations
+
+- [not-applicable] 0.417.0:494c3150 · 0.417.0 · Subject check for the signature feature and a readable-file check on requests
+- [not-applicable] 0.417.0:33832fec · 0.417.0 · Board look for lists, forms, record pages and the shell
+- [not-applicable] 0.417.0:c5495a2d · 0.417.0 · List cells stay blank when empty, truncate, and phone cards follow the board
+- [not-applicable] 0.417.0:8c5324ff · 0.417.0 · submitWith actions never write without their form, relative "just now" is translated
+
+### Codemods applied
+
+- 0.417.0 · scripts/codemod/scaffold-kms-mode.ts · kumiko-upgrade migrates older scaffolds to Key Manager ciphertext keys
+
 ## [0.415.0] - 2026-11-06
 
 ### Changed
