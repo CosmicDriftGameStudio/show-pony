@@ -1,3 +1,22 @@
 {
-  "extends": ["@cosmicdrift/kumiko-framework/biome"]
+  "extends": ["@cosmicdrift/kumiko-framework/biome"],
+  "files": {
+    "includes": [
+      "src/**",
+      "bin/**",
+      "kumiko/**",
+      "e2e/**",
+      "scripts/**",
+      "videos/**",
+      "kumiko.config.ts",
+      "playwright.config.ts",
+      "playwright.videos.config.ts",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/dist-server",
+      "!kumiko/migrations",
+      "!test-results",
+      "!playwright-report"
+    ]
+  }
 }

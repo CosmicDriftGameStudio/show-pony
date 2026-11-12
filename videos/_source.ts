@@ -23,7 +23,8 @@ export function fileLines(
   }
   if (range.length < to - from + 1) throw new Error(`${path} has fewer than ${to} lines`);
   for (const line of typedLines) {
-    if (line < from || line > to) throw new Error(`${path}: typed line ${line} is outside ${from}-${to}`);
+    if (line < from || line > to)
+      throw new Error(`${path}: typed line ${line} is outside ${from}-${to}`);
   }
   return range.map((text, index) => (typedLines.includes(from + index) ? { typed: text } : text));
 }

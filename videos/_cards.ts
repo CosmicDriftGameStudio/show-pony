@@ -1,11 +1,21 @@
-// Colors and font mirror src/styles.css (dark theme) so the cards match the app.
+import { showPonyTheme } from "../src/theme";
+
+const { colors } = showPonyTheme;
+const BACKGROUND = colors.background.dark;
+const BACKGROUND_GLOW = colors["border-row"].dark;
+const ACCENT = colors.primary.dark;
+const TEXT = colors.foreground.dark;
+const TEXT_SECONDARY = colors["foreground-secondary"].dark;
+
+export const CARD_BACKGROUND_GRADIENT = `radial-gradient(ellipse at 50% 35%, ${BACKGROUND_GLOW} 0%, ${BACKGROUND} 70%)`;
+
 const CARD_CSS = `
   * { box-sizing: border-box; margin: 0; }
   body {
     width: 100vw; height: 100vh; overflow: hidden;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
-    background: radial-gradient(ellipse at 50% 35%, #2d1b4e 0%, #140a24 70%);
-    color: #f5f0ff;
+    background: ${CARD_BACKGROUND_GRADIENT};
+    color: ${TEXT};
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
   .rise { animation: rise 900ms ease-out both; }
@@ -13,10 +23,10 @@ const CARD_CSS = `
     from { opacity: 0; transform: translateY(28px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  h1 { font-size: 104px; font-weight: 700; letter-spacing: -0.02em; color: #a78bfa; }
-  .subtitle { font-size: 38px; color: #d8ccff; }
-  .line { font-size: 40px; color: #f5f0ff; }
-  .line.last { color: #a78bfa; font-weight: 600; }
+  h1 { font-size: 104px; font-weight: 700; letter-spacing: -0.02em; color: ${ACCENT}; }
+  .subtitle { font-size: 38px; color: ${TEXT_SECONDARY}; }
+  .line { font-size: 40px; color: ${TEXT}; }
+  .line.last { color: ${ACCENT}; font-weight: 600; }
 `;
 
 function card(body: string): string {

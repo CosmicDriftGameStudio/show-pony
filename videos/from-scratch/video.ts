@@ -4,24 +4,25 @@ import { renderWelcomeBanner } from "@cosmicdrift/kumiko-dev-server";
 import {
   defineVideo,
   type E2eSeededTenant,
-  type StagePreview,
-  type StagePreviewCard,
   editorStage,
   expect,
   mailCapture,
   type StageOutputLine,
+  type StagePreview,
+  type StagePreviewCard,
   type TerminalCommand,
   terminalStage,
   type VideoSceneContext,
   type VideoVoice,
 } from "@cosmicdrift/kumiko-testing/e2e";
+import { propertyOf } from "@cosmicdrift/kumiko-types/type-guards";
 import type { Locator, Page } from "@playwright/test";
 import { SQL } from "bun";
 import { z } from "zod";
 import { seedDemoHostTenant } from "../../e2e/seeds/demo-host";
 import { rsvpTable } from "../../src/features/show-pony/schema/rsvp";
 import { TIER_MAX_EVENTS, TIER_MAX_GUESTS } from "../../src/marketing/pricing";
-import { introCard, outroCard } from "../_cards";
+import { CARD_BACKGROUND_GRADIENT, introCard, outroCard } from "../_cards";
 import { fileLines } from "../_source";
 
 const VOICE: VideoVoice = {
@@ -126,7 +127,9 @@ function eventDateInThirtyDays(): string {
   return `${mm}/${dd}/${date.getFullYear()}`;
 }
 
-const idRowsSchema = z.object({ rows: z.array(z.object({ id: z.string(), name: z.string().optional() })) });
+const idRowsSchema = z.object({
+  rows: z.array(z.object({ id: z.string(), name: z.string().optional() })),
+});
 
 async function firstEventId(): Promise<string> {
   const { rows } = idRowsSchema.parse(await apis().host.queryOk(EVENT_LIST, {}));
@@ -292,7 +295,13 @@ async function snapshotWithout(
 }
 
 const THEME_FILE = "src/theme.ts";
-const THEMING_TOKENS = ["primary", "primary-foreground", "sidebar", "sidebar-primary", "background"];
+const THEMING_TOKENS = [
+  "primary",
+  "primary-foreground",
+  "sidebar",
+  "sidebar-primary",
+  "background",
+];
 
 // The renderer's own palette: dark lives in its @theme block, light after `:root:not(.dark)`.
 function rendererDefaultColor(css: string, token: string, mode: "light" | "dark"): string {
@@ -304,9 +313,14 @@ function rendererDefaultColor(css: string, token: string, mode: "light" | "dark"
 
 // Resets the typed theme tokens to the renderer defaults in both modes, so the "before" matches whichever mode is recorded.
 async function resetThemeTokensToRendererDefaults(page: Page): Promise<void> {
-  const css = readFileSync(import.meta.resolveSync("@cosmicdrift/kumiko-renderer/web/styles.css"), "utf8");
+  const css = readFileSync(
+    import.meta.resolveSync("@cosmicdrift/kumiko-renderer/web/styles.css"),
+    "utf8",
+  );
   const declarations = (mode: "light" | "dark") =>
-    THEMING_TOKENS.map((token) => `--color-${token}: ${rendererDefaultColor(css, token, mode)};`).join(" ");
+    THEMING_TOKENS.map(
+      (token) => `--color-${token}: ${rendererDefaultColor(css, token, mode)};`,
+    ).join(" ");
   await page.addStyleTag({
     content: `:root:not(.dark) { ${declarations("light")} } .dark { ${declarations("dark")} }`,
   });
@@ -316,7 +330,11 @@ async function resetThemeTokensToRendererDefaults(page: Page): Promise<void> {
 function themeTokenLineNumbers(): number[] {
   const lines = readFileSync(resolve(import.meta.dir, "../..", THEME_FILE), "utf8").split("\n");
   return THEMING_TOKENS.map((token) => {
-    const index = lines.findIndex((line) => line.trim().replace(/^"/, "").startsWith(`${token}"`) || line.trim().startsWith(`${token}:`));
+    const index = lines.findIndex(
+      (line) =>
+        line.trim().replace(/^"/, "").startsWith(`${token}"`) ||
+        line.trim().startsWith(`${token}:`),
+    );
     if (index < 0) throw new Error(`token ${token} not found in ${THEME_FILE}`);
     return index + 1;
   });
@@ -424,7 +442,7 @@ function mailCardHtml(mail: CapturedMail): string {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     * { box-sizing: border-box; margin: 0; }
     body { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(ellipse at 50% 35%, #2d1b4e 0%, #140a24 70%);
+      background: ${CARD_BACKGROUND_GRADIENT};
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
     .card { width: 960px; height: 700px; background: #fff; border-radius: 14px; overflow: hidden;
       display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
@@ -456,16 +474,26 @@ async function replyPastRateLimit(
 ): Promise<readonly { name: string; status: number }[]> {
   const { limit } = readRateLimit();
   if (RATE_LIMIT_GUESTS.length !== limit + 1) {
-    throw new Error(`rate-limit demo needs ${limit + 1} guest names, has ${RATE_LIMIT_GUESTS.length}`);
+    throw new Error(
+      `rate-limit demo needs ${limit + 1} guest names, has ${RATE_LIMIT_GUESTS.length}`,
+    );
   }
   const results: { name: string; status: number }[] = [];
   for (const name of RATE_LIMIT_GUESTS) {
-    results.push({ name, status: await submitAnonymousRsvp(ctx, eventId, name, RATE_LIMIT_DEMO_IP) });
+    results.push({
+      name,
+      status: await submitAnonymousRsvp(ctx, eventId, name, RATE_LIMIT_DEMO_IP),
+    });
   }
   const allowed = results.slice(0, limit);
   const rejected = results[limit];
-  if (!allowed.every((result) => result.status === HTTP_OK) || rejected?.status !== HTTP_TOO_MANY_REQUESTS) {
-    throw new Error(`rate-limit demo: unexpected statuses ${results.map((r) => r.status).join(",")}`);
+  if (
+    !allowed.every((result) => result.status === HTTP_OK) ||
+    rejected?.status !== HTTP_TOO_MANY_REQUESTS
+  ) {
+    throw new Error(
+      `rate-limit demo: unexpected statuses ${results.map((r) => r.status).join(",")}`,
+    );
   }
   return results;
 }
@@ -522,6 +550,13 @@ function psqlTable(columns: readonly string[], rows: readonly (readonly string[]
   ];
 }
 
+const UNDEFINED_TABLE_SQLSTATE = "42P01";
+
+// Bun's SQL error carries the SQLSTATE in `errno`; `code` is the generic ERR_POSTGRES_SERVER_ERROR.
+function isUndefinedTable(error: unknown): boolean {
+  return propertyOf(error, "errno") === UNDEFINED_TABLE_SQLSTATE;
+}
+
 // The recorded server runs on an ephemeral kumiko_test_* database next to the dev one, so look
 // for the database that holds the known RSVP and read the stored (encrypted) values from there.
 async function storedGuestRows(rsvpId: string): Promise<string[]> {
@@ -536,19 +571,24 @@ async function storedGuestRows(rsvpId: string): Promise<string[]> {
       databaseUrl.pathname = `/${datname}`;
       const database = new SQL(databaseUrl.toString());
       try {
-        const rows = z.array(storedGuestRowSchema).parse(
-          await database`select name, email from ${database(rsvpTable.tableName)} order by (id = ${rsvpId}) desc limit 3`,
-        );
         const holdsKnownGuest =
-          (await database`select 1 as found from ${database(rsvpTable.tableName)} where id = ${rsvpId}`).length > 0;
+          (
+            await database`select 1 as found from ${database(rsvpTable.tableName)} where id = ${rsvpId}`
+          ).length > 0;
         if (!holdsKnownGuest) continue;
+        const rows = z
+          .array(storedGuestRowSchema)
+          .parse(
+            await database`select name, email from ${database(rsvpTable.tableName)} order by (id = ${rsvpId}) desc limit 3`,
+          );
         return psqlTable(
           ["name", "email"],
           rows.map((row) => [truncateCell(row.name), truncateCell(row.email)]),
         );
-      } catch {
+      } catch (error) {
         // A leftover test database without the table is simply not the recorded one.
-        continue;
+        if (isUndefinedTable(error)) continue;
+        throw error;
       } finally {
         await database.close();
       }
@@ -717,7 +757,13 @@ export default defineVideo({
           firstLineNumber: 3,
           fontSizePx: 18,
           preview,
-          lines: fileLines(THEME_FILE, 3, 10, themeTokenLineNumbers(), "export const showPonyTheme"),
+          lines: fileLines(
+            THEME_FILE,
+            3,
+            10,
+            themeTokenLineNumbers(),
+            "export const showPonyTheme",
+          ),
         });
         await showStage(ctx, stage, ctx.speechMs);
       },
@@ -729,7 +775,9 @@ export default defineVideo({
         const preview = await appPreview(page, ctx, {
           url: guestUrl(ctx),
           addedByCode: (p) => [
-            p.locator("section").filter({ has: p.getByRole("heading", { name: "RSVP", exact: true }) }),
+            p
+              .locator("section")
+              .filter({ has: p.getByRole("heading", { name: "RSVP", exact: true }) }),
           ],
           highlights: (p) => [p.locator("form").first()],
           cards: [
@@ -774,6 +822,13 @@ export default defineVideo({
 
         await page.goto(guestUrl(ctx));
         await expect(inviteHeading).toBeVisible();
+        await expect
+          .poll(() =>
+            page
+              .locator("header.sp-hero-split img")
+              .evaluate((image: HTMLImageElement) => image.naturalWidth),
+          )
+          .toBeGreaterThan(0);
         await ctx.tools.focus(page.locator("header.sp-hero-split"));
         await ctx.tools.hold(1500);
       },
@@ -908,7 +963,9 @@ export default defineVideo({
           beforeImageUrl: storedPreview.imageUrl,
           // The renderer shows erased PII as a localized "Deleted", not the raw sentinel.
           highlights: (p) => [
-            p.getByRole("row").filter({ has: p.getByRole("cell", { name: "Deleted", exact: true }) }),
+            p
+              .getByRole("row")
+              .filter({ has: p.getByRole("cell", { name: "Deleted", exact: true }) }),
           ],
         });
         const forgetBody = {

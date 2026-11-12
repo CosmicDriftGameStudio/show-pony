@@ -29,9 +29,9 @@ import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
-import { heroAssetRoute } from "./prod-options";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { buildShowPonyExtraContext } from "./extra-context";
+import { heroAssetRoute } from "./prod-options";
 import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
 
 const BASE_DOMAIN = resolveBaseDomainFromEnv(process.env);
