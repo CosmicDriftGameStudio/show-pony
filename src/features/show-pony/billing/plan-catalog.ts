@@ -19,6 +19,7 @@ export const PAID_TIERS: readonly PaidTier[] = ["starter", "pro"];
 export const BILLING_PAGE_PATH = "/host/billing";
 
 export function eventsBenefit(count: number): BillingPlanBenefit {
+  if (count === 1) return { labelKey: "showpony:billing.benefit.event" };
   return Number.isFinite(count)
     ? { labelKey: "showpony:billing.benefit.events", params: { count } }
     : { labelKey: "showpony:billing.benefit.eventsUnlimited" };

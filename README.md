@@ -12,6 +12,7 @@ public page; the host watches the guest list fill up.
 ## Links
 
 - 📖 **Tutorial** — [docs.kumiko.rocks/en/show-pony](https://docs.kumiko.rocks/en/show-pony/) — the whole build, chapter by chapter, with the real source embedded.
+- 🎬 **Video**: [ShowPony from scratch](https://nbg1.your-objectstorage.com/kumiko-media/videos/show-pony-from-scratch/en.mp4) (4 min, English, [subtitles](https://nbg1.your-objectstorage.com/kumiko-media/videos/show-pony-from-scratch/en.vtt)), the same build from data model to plans.
 - 🚀 **Live demo** — [show-pony.kumiko.rocks](https://show-pony.kumiko.rocks) (read-only; login credentials on the sign-in screen)
 - 🧩 **Kumiko** — [kumiko.rocks](https://kumiko.rocks) · [docs](https://docs.kumiko.rocks)
 

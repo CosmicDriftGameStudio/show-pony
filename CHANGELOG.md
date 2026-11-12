@@ -3,6 +3,24 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.420.0] - 2026-11-12
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.418.0 → 0.420.0
+
+### Breaking
+
+- 0.419.0 · signature and imprint are no longer placeholders, company* names are reserved
+- 0.419.0 · Line grid, flush tables and the address window in PDF bodies
+- 0.419.0 · The template title is a rich-text field in front of the body
+
+### Manual migrations
+
+- [not-applicable] 0.419.0:c551491c · 0.419.0 · signature and imprint are no longer placeholders, company* names are reserved
+- [not-applicable] 0.419.0:2a948fdb · 0.419.0 · Line grid, flush tables and the address window in PDF bodies
+- [not-applicable] 0.419.0:8841a183 · 0.419.0 · The template title is a rich-text field in front of the body
+
 ## [0.418.0] - 2026-11-10
 
 ### Changed

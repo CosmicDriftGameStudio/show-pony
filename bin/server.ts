@@ -13,6 +13,7 @@
 //
 //   admin@show-pony.local / changeme  — host account on the demo tenant
 
+import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/config";
 import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
@@ -28,6 +29,7 @@ import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
+import { heroAssetRoute } from "./prod-options";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { buildShowPonyExtraContext } from "./extra-context";
 import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
@@ -37,6 +39,7 @@ const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
 const DEV_ORIGIN = `http://${BASE_DOMAIN}:${port}`;
 
 const configResolver = createConfigResolver();
+const emailTransport = createInMemoryTransport();
 
 await renderAllMarketingPages(DEV_ORIGIN);
 
@@ -66,7 +69,7 @@ if ("allowPlaintextPii" in kmsWiring) {
 await runDevApp({
   ...("kms" in kmsWiring ? { kms: kmsWiring.kms, blindIndexKey: kmsWiring.blindIndexKey } : {}),
   features: [
-    ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: DEV_ORIGIN }),
+    ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: DEV_ORIGIN, emailTransport }),
     // E2E screenshot runs stub Stripe out (no real Stripe network access) —
     // bin/main.ts never imports this stub, so prod always gets the real plugin.
     ...(isE2eSeedingEnabled()
@@ -140,9 +143,15 @@ await runDevApp({
   ],
   extraRoutes: [
     // show-pony gates writes on its own "Admin" role; SEEDABLE_ROLES only covers TenantAdmin/Member.
+    // DataProtectionOfficer is the only role allowed to run crypto-shredding forget-subject.
     ...(isE2eSeedingEnabled()
-      ? createE2eSeedRoutes({ extraRoles: ["Admin"], extraSeeders: e2eBillingExtraSeeders })
+      ? createE2eSeedRoutes({
+          extraRoles: ["Admin", "DataProtectionOfficer"],
+          extraSeeders: e2eBillingExtraSeeders,
+          mailOutbox: emailTransport,
+        })
       : []),
     ...(!isE2eSeedingEnabled() && hasConfiguredPrices ? [buildSubscriptionWebhookRoute()] : []),
+    heroAssetRoute,
   ],
 });

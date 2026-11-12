@@ -3,10 +3,12 @@
 // The tenant is resolved server-side from the subdomain (Host header), not
 // from the payload.
 
+import { propertyOf } from "@cosmicdrift/kumiko-types/type-guards";
 import {
   coerceInviteBranding,
   type InviteBranding,
 } from "../features/show-pony/invite-branding.shared";
+import { GUEST_LIMIT_REACHED } from "../features/show-pony/rsvp-errors.shared";
 
 export type PublicEvent = {
   readonly id: string;
@@ -57,7 +59,7 @@ export async function fetchInviteBranding(): Promise<InviteBranding> {
   }
 }
 
-export type SubmitResult = { ok: true } | { ok: false; reason: string };
+export type SubmitResult = { ok: true } | { ok: false; reason: string; guestListFull?: true };
 
 export async function submitRsvp(input: RsvpInput): Promise<SubmitResult> {
   const res = await fetch("/api/write", {
@@ -65,7 +67,12 @@ export async function submitRsvp(input: RsvpInput): Promise<SubmitResult> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ type: "showpony:write:rsvp:submit", payload: input }),
   });
-  if (!res.ok) return { ok: false, reason: `submit failed: ${res.status}` };
+  if (!res.ok) {
+    const errorBody: unknown = await res.json().catch(() => null);
+    const reason = propertyOf(propertyOf(propertyOf(errorBody, "error"), "details"), "reason");
+    if (reason === GUEST_LIMIT_REACHED) return { ok: false, reason, guestListFull: true };
+    return { ok: false, reason: `submit failed: ${res.status}` };
+  }
   const body = (await res.json()) as
     | { isSuccess: true }
     | { isSuccess: false; error: { code: string } };
