@@ -467,7 +467,7 @@ describe("billing-plans — free tier defaults", () => {
     );
     expect(result.currentTier.tier).toBe("free");
     expect(result.currentTier.benefits).toEqual([
-      { labelKey: "showpony:billing.benefit.events", params: { count: 1 } },
+      { labelKey: "showpony:billing.benefit.event" },
       { labelKey: "showpony:billing.benefit.guests", params: { count: 50 } },
     ]);
   });

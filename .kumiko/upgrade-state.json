@@ -1,6 +1,6 @@
 {
-  "version": "0.418.0",
-  "appliedAt": "2026-11-10T10:19:45.424136Z",
+  "version": "0.420.0",
+  "appliedAt": "2026-11-12T10:37:29.567422Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -2269,6 +2269,30 @@
       "resolution": "not-applicable",
       "reason": "No submitWith actions and no formatRelativeTime justNow callers.",
       "resolvedAt": "2026-11-10T10:21:04.682535Z"
+    },
+    {
+      "id": "0.419.0:c551491c",
+      "version": "0.419.0",
+      "title": "signature and imprint are no longer placeholders, company* names are reserved",
+      "resolution": "not-applicable",
+      "reason": "show-pony has no PDF templates or layouts and no notification variable named company*",
+      "resolvedAt": "2026-11-12T10:37:37.228708Z"
+    },
+    {
+      "id": "0.419.0:2a948fdb",
+      "version": "0.419.0",
+      "title": "Line grid, flush tables and the address window in PDF bodies",
+      "resolution": "not-applicable",
+      "reason": "show-pony renders no PDF templates",
+      "resolvedAt": "2026-11-12T10:37:37.36776Z"
+    },
+    {
+      "id": "0.419.0:8841a183",
+      "version": "0.419.0",
+      "title": "The template title is a rich-text field in front of the body",
+      "resolution": "not-applicable",
+      "reason": "no e2e spec targets the document designer editor",
+      "resolvedAt": "2026-11-12T10:37:37.497009Z"
     }
   ]
 }

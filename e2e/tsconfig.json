@@ -6,6 +6,7 @@
   "include": [
     "./",
     "../playwright.screenshots.config.ts",
-    "../playwright.config.ts"
+    "../playwright.config.ts",
+    "../playwright.videos.config.ts"
   ]
 }

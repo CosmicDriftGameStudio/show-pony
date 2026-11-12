@@ -1,0 +1,43 @@
+import { createThemePlugin, defineAppTheme } from "@cosmicdrift/kumiko-renderer/web/theme-plugin";
+
+export const showPonyTheme = defineAppTheme({
+  colors: {
+    primary: { light: "#7c3aed", dark: "#a78bfa" },
+    "primary-foreground": { light: "#ffffff", dark: "#140a24" },
+    ring: { light: "#8b5cf6", dark: "#8b5cf6" },
+    sidebar: { light: "#f3f0ff", dark: "#1a1030" },
+    "sidebar-primary": { light: "#7c3aed", dark: "#a78bfa" },
+    background: { light: "#f8f6ff", dark: "#140a24" },
+    foreground: { light: "#1e1033", dark: "#f5f0ff" },
+    card: { light: "#ffffff", dark: "#1f1235" },
+    "card-foreground": { light: "#1e1033", dark: "#f5f0ff" },
+    popover: { light: "#ffffff", dark: "#1f1235" },
+    "popover-foreground": { light: "#1e1033", dark: "#f5f0ff" },
+    border: { light: "#ddd6fe", dark: "#3d2a5c" },
+    input: { light: "#ddd6fe", dark: "#3d2a5c" },
+    muted: { light: "#f0edfa", dark: "#261740" },
+    "muted-foreground": { light: "#6b5b8a", dark: "#c4b5fd" },
+    secondary: { light: "#ede9fe", dark: "#261740" },
+    "secondary-foreground": { light: "#1e1033", dark: "#f5f0ff" },
+    accent: { light: "#ede9fe", dark: "#372460" },
+    "accent-foreground": { light: "#1e1033", dark: "#f5f0ff" },
+    destructive: { light: "#dc2626", dark: "#f87171" },
+    "destructive-foreground": { light: "#ffffff", dark: "#ffffff" },
+    "foreground-secondary": { light: "#4c3d6b", dark: "#d8ccff" },
+    "foreground-disabled": { light: "#9d8fbf", dark: "#7a6a9a" },
+    "border-strong": { light: "#c4b5fd", dark: "#5b4785" },
+    "border-row": { light: "#ede9fe", dark: "#2d1b4e" },
+    "status-neutral": { light: "#4c3d6b", dark: "#c4b5fd" },
+    "status-neutral-surface": { light: "#f0edfa", dark: "#261740" },
+    "sidebar-foreground": { light: "#4c3d6b", dark: "#e9e0ff" },
+    "sidebar-primary-foreground": { light: "#ffffff", dark: "#140a24" },
+    "sidebar-accent": { light: "#ede9fe", dark: "#2d1b4e" },
+    "sidebar-accent-foreground": { light: "#1e1033", dark: "#f5f0ff" },
+    "sidebar-border": { light: "#ddd6fe", dark: "#3d2a5c" },
+    "sidebar-ring": { light: "#8b5cf6", dark: "#8b5cf6" },
+    "sidebar-muted": { light: "#6b5b8a", dark: "#b5a6e0" },
+    "sidebar-input": { light: "#ffffff", dark: "#261740" },
+  },
+});
+
+export default createThemePlugin(showPonyTheme);

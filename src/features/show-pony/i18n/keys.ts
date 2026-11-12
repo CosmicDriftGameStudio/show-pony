@@ -143,6 +143,7 @@ export const showPonyTranslations = {
   "showpony:billing.tier.starter": { de: "Starter", en: "Starter" },
   "showpony:billing.tier.pro": { de: "Pro", en: "Pro" },
   "showpony:billing.tier.studio": { de: "Studio", en: "Studio" },
+  "showpony:billing.benefit.event": { de: "1 Event", en: "1 event" },
   "showpony:billing.benefit.events": { de: "{count} Events", en: "{count} events" },
   "showpony:billing.benefit.eventsUnlimited": {
     de: "Unbegrenzte Events",

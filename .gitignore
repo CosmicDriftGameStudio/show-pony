@@ -15,3 +15,6 @@ docs/loops/
 
 
 tsconfig.tsbuildinfo
+
+videos/*/out/
+videos/.cache/

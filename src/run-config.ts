@@ -10,6 +10,7 @@ import { createAuthFoundationFeature } from "@cosmicdrift/kumiko-bundled-feature
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
+  type EmailTransport,
 } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { createDeliveryFeature } from "@cosmicdrift/kumiko-bundled-features/delivery";
@@ -54,6 +55,8 @@ export type AppFeaturesRouting = {
   /** Absolute origin the billing-plans catalog redirects back to after
    *  checkout/portal — defaults to `https://${baseDomain}` when omitted. */
   readonly appBaseUrl?: string;
+  /** Defaults to a fresh in-memory transport; bin/server.ts passes its own to expose the outbox to e2e. */
+  readonly emailTransport?: EmailTransport;
 };
 
 /** $BASE_DOMAIN or show-pony.localhost — the one place that default lives. */
@@ -78,7 +81,7 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     // Guests are addressed by the email they typed, so no user lookup exists.
     // The in-memory transport keeps the demo behaviour: no RSVP mail leaves the process.
     createChannelEmailFeature({
-      transport: createInMemoryTransport(),
+      transport: routing.emailTransport ?? createInMemoryTransport(),
       resolveEmail: async () => null,
     }),
     createJobsFeature(),

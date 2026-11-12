@@ -10,7 +10,7 @@ type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "success"; name: string }
-  | { kind: "error"; reason: string };
+  | { kind: "error"; reason: string; guestListFull?: true };
 
 export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElement {
   const t = useTranslation();
@@ -37,7 +37,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
       plusN,
       ...(email.length > 0 ? { email } : {}),
     });
-    setState(result.ok ? { kind: "success", name } : { kind: "error", reason: result.reason });
+    setState(result.ok ? { kind: "success", name } : { kind: "error", ...result });
   }
 
   if (state.kind === "success") {
@@ -114,7 +114,9 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
         </Field>
         {state.kind === "error" && (
           <Banner variant="error">
-            {t("showpony:public.rsvp.error", { reason: state.reason })}
+            {state.guestListFull
+              ? t("showpony:errors.guestLimitReached")
+              : t("showpony:public.rsvp.error", { reason: state.reason })}
           </Banner>
         )}
         <Button type="submit" loading={state.kind === "submitting"} disabled={name.length === 0}>

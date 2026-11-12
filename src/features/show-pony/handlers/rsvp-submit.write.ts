@@ -3,6 +3,7 @@ import { failNotFound } from "@cosmicdrift/kumiko-framework/errors";
 import { z } from "zod";
 import { withStockCap } from "../cap-guard";
 import { sendRsvpConfirmation } from "../lib/rsvp-confirmation-mail";
+import { GUEST_LIMIT_REACHED } from "../rsvp-errors.shared";
 import { findEventById } from "../schema/event";
 import { RSVP_STATUSES, rsvpExecutor, rsvpTable } from "../schema/rsvp";
 
@@ -34,7 +35,7 @@ const cappedInsert = withStockCap(
   {
     table: rsvpTable,
     limit: (caps) => caps.maxGuests,
-    code: "guest_limit_reached",
+    code: GUEST_LIMIT_REACHED,
     i18nKey: "showpony:errors.guestLimitReached",
     field: "rsvp",
   },
