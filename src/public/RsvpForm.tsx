@@ -1,11 +1,17 @@
 // The RSVP form — the anonymous write from the public page. Name is required,
 // email optional. Inline success on submit, no redirect.
 
-import { usePrimitives, useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { useDispatcher, usePrimitives, useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { ModeSwitch } from "@cosmicdrift/kumiko-renderer/web";
 import { type ReactElement, useState } from "react";
-import type { RsvpRejectionMessageKey } from "../features/show-pony/rsvp-errors.shared";
-import { type RsvpStatus, submitRsvp } from "./api";
+import {
+  type RsvpRejectionMessageKey,
+  rsvpRejectionMessageKey,
+} from "../features/show-pony/rsvp-errors.shared";
+import type { RsvpStatus } from "../features/show-pony/schema/rsvp";
+
+// matches rsvpSubmitSchema note max(500)
+const RSVP_NOTE_MAX_LENGTH = 500;
 
 type FormState =
   | { kind: "idle" }
@@ -15,11 +21,13 @@ type FormState =
 
 export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElement {
   const t = useTranslation();
+  const dispatcher = useDispatcher();
   const { Banner, Button, Field, Form, Input } = usePrimitives();
   const [name, setName] = useState("");
   const [status, setStatus] = useState<RsvpStatus>("yes");
   const [plusN, setPlusN] = useState(0);
   const [email, setEmail] = useState("");
+  const [note, setNote] = useState("");
   const [state, setState] = useState<FormState>({ kind: "idle" });
 
   const statusLabels: Record<RsvpStatus, string> = {
@@ -31,14 +39,24 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
   async function onSubmit(): Promise<void> {
     if (name.length === 0) return;
     setState({ kind: "submitting" });
-    const result = await submitRsvp({
+    const result = await dispatcher.write("showpony:write:rsvp:submit", {
       eventId,
       name,
       status,
       plusN,
       ...(email.length > 0 ? { email } : {}),
+      ...(note.trim().length > 0 ? { note: note.trim() } : {}),
     });
-    setState(result.ok ? { kind: "success", name } : { kind: "error", ...result });
+    if (result.isSuccess) {
+      setState({ kind: "success", name });
+      return;
+    }
+    const messageKey = rsvpRejectionMessageKey(result.error.details?.["reason"]);
+    setState({
+      kind: "error",
+      reason: result.error.code,
+      ...(messageKey !== undefined && { messageKey }),
+    });
   }
 
   if (state.kind === "success") {
@@ -110,6 +128,18 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
             value={email}
             onChange={setEmail}
             placeholder={t("showpony:public.rsvp.email-placeholder")}
+            disabled={state.kind === "submitting"}
+          />
+        </Field>
+        <Field id="rsvp-note" label={t("showpony:public.rsvp.note")}>
+          <Input
+            kind="textarea"
+            id="rsvp-note"
+            name="rsvp-note"
+            rows={3}
+            value={note}
+            onChange={(v) => setNote(v.slice(0, RSVP_NOTE_MAX_LENGTH))}
+            placeholder={t("showpony:public.rsvp.note-placeholder")}
             disabled={state.kind === "submitting"}
           />
         </Field>

@@ -4,11 +4,11 @@ import { BillingPlanActions } from "@cosmicdrift/kumiko-bundled-features/billing
 import {
   eventsBenefit,
   guestsBenefit,
-  PAID_TIERS,
   showPonyBillingCatalog,
 } from "../features/show-pony/billing/plan-catalog";
 import { isUpgradeOffered } from "../features/show-pony/web/billing-upgrade-hint";
 import { isAtLimit } from "../features/show-pony/web/cap-counter";
+import { PAID_TIERS } from "../marketing/pricing";
 
 test("plans list is the paid tiers, in order", () => {
   expect(showPonyBillingCatalog.plans).toEqual(PAID_TIERS);

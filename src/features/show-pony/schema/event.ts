@@ -8,13 +8,11 @@ import {
   type HandlerContext,
 } from "@cosmicdrift/kumiko-framework/engine";
 
-// The event slug is unique per tenant (tenant-scoping is enough): the public
-// URL is <host>.show-pony.<domain>/e/<slug>, and the host comes from the
-// subdomain — so the slug only has to be collision-free within one tenant,
-// not globally.
+// The slug is unique per tenant (DB index), because the host comes from the subdomain.
 export const eventEntity = createEntity({
   description:
     "One event a tenant hosts: title, a slug that forms the public invite link within the tenant's subdomain, start time, optional location, description and guest limit. The host-authored fields are public invite-page copy, not personal data.",
+  indexes: [{ columns: ["tenantId", "slug"], unique: true }],
   fields: {
     title: createTextField({
       required: true,
@@ -25,6 +23,7 @@ export const eventEntity = createEntity({
     }),
     slug: createTextField({
       required: true,
+      maxLength: 120,
       personal: false,
       reason: "technical_reference",
     }),

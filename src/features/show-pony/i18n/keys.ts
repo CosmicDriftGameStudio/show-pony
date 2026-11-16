@@ -99,6 +99,14 @@ export const showPonyTranslations = {
     de: "E-Mail (optional, für die Bestätigung)",
     en: "Email (optional, for your confirmation)",
   },
+  "showpony:public.rsvp.note": {
+    de: "Nachricht an den Gastgeber (optional)",
+    en: "Note for the host (optional)",
+  },
+  "showpony:public.rsvp.note-placeholder": {
+    de: "z. B. vegetarisch, komme später",
+    en: "e.g. vegetarian, arriving late",
+  },
   "showpony:public.rsvp.status.yes": { de: "Ich komme", en: "I'm in" },
   "showpony:public.rsvp.status.maybe": { de: "Vielleicht", en: "Maybe" },
   "showpony:public.rsvp.status.no": { de: "Kann leider nicht", en: "Can't make it" },

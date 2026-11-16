@@ -12,18 +12,20 @@ type InviteHeroProps = {
 
 type CssVarStyle = Record<string, string>;
 
-function brandingThemeStyle(accent: string): CssVarStyle | undefined {
+export function accentCssVars(accent: string): CssVarStyle | undefined {
   if (!accent) return undefined;
   return { "--color-primary": accent, "--color-ring": accent };
 }
 
+const HEX3_PATTERN = /^#[0-9a-fA-F]{3}$/;
 const HEX6_PATTERN = /^#[0-9a-fA-F]{6}$/;
 const HEX8_PATTERN = /^#[0-9a-fA-F]{8}$/;
 
 // The alpha suffixes below assume a 6-digit hex. The config field allows
-// #rrggbbaa (8-digit, already has alpha), which would otherwise grow into
-// an invalid 10-digit color — strip any existing alpha channel first.
-function normalizedTint(accent: string): string {
+// #rgb (3-digit, expanded here) and #rrggbbaa (8-digit, already has alpha),
+// which would otherwise grow into an invalid color — strip any existing alpha first.
+export function normalizedTint(accent: string): string {
+  if (HEX3_PATTERN.test(accent)) return `#${[...accent.slice(1)].map((c) => c + c).join("")}`;
   if (HEX6_PATTERN.test(accent)) return accent;
   if (HEX8_PATTERN.test(accent)) return accent.slice(0, 7);
   return "#7c3aed";
@@ -148,11 +150,9 @@ function HeroImage({
 function ImmersiveHeroBackdrop({
   heroUrl,
   accent,
-  themeStyle,
 }: {
   heroUrl: string;
   accent: string;
-  themeStyle: CssVarStyle | undefined;
 }): ReactElement {
   if (heroUrl) {
     return (
@@ -163,21 +163,17 @@ function ImmersiveHeroBackdrop({
       </>
     );
   }
-  // biome-ignore lint/style/noInlineStyles: tenant accent fallback when no hero image
-  return <div className="absolute inset-0 bg-[var(--color-primary)]" style={themeStyle} />;
+  return <div className="absolute inset-0 bg-[var(--color-primary)]" />;
 }
 
 export function InviteHero(props: InviteHeroProps): ReactElement {
   const { branding } = props;
-  const themeStyle = brandingThemeStyle(branding.accentColor);
   const heroUrl = branding.heroImageUrl;
 
   if (branding.heroStyle === "split") {
     return (
       <header
         className="sp-hero-split border-b border-[var(--color-border)] text-[var(--color-foreground)]"
-        // biome-ignore lint/style/noInlineStyles: tenant accent color from branding config
-        style={themeStyle}
       >
         <div className="sp-hero-split-row">
           <div className="sp-hero-split-copy flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
@@ -198,21 +194,11 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   return (
     <header
       className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10 sm:py-14"
-      // biome-ignore lint/style/noInlineStyles: tenant accent color + hero overlay from branding config
-      style={themeStyle}
     >
-      <ImmersiveHeroBackdrop
-        heroUrl={heroUrl}
-        accent={branding.accentColor}
-        themeStyle={themeStyle}
-      />
+      <ImmersiveHeroBackdrop heroUrl={heroUrl} accent={branding.accentColor} />
       <div className="relative z-10 mx-auto flex min-h-[inherit] max-w-3xl flex-col justify-end pb-2">
         <HeroCopy {...props} metaVariant="hero" />
       </div>
     </header>
   );
-}
-
-export function inviteBrandingCssVars(branding: InviteBranding): CssVarStyle | undefined {
-  return brandingThemeStyle(branding.accentColor);
 }

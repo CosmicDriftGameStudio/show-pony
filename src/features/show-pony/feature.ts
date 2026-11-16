@@ -9,6 +9,7 @@ import {
 } from "@cosmicdrift/kumiko-framework/engine";
 import { eventBySlugQuery } from "./handlers/event-by-slug.query";
 import {
+  deleteEventRsvps,
   eventCreateHandler,
   eventDeleteHandler,
   eventDetailHandler,
@@ -53,6 +54,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.writeHandler(eventCreateHandler);
   r.writeHandler(eventUpdateHandler);
   r.writeHandler(eventDeleteHandler);
+  r.hook({ type: "preDelete", target: "event:delete", handler: deleteEventRsvps });
   r.queryHandler(eventListHandler);
   r.queryHandler(eventDetailHandler);
 

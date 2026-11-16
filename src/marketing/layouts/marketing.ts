@@ -7,7 +7,13 @@ import {
 import { LOGIN_PATH } from "../../auth-paths";
 import { LOGO_HERO, LOGO_ICON, LOGO_PONY } from "../../brand-mark";
 import { gridFeatures } from "../features-catalog";
-import { type ShowPonyTier, TIER_MAX_EVENTS, TIER_MAX_GUESTS, TIER_MONTHLY_EUR } from "../pricing";
+import {
+  SHOWPONY_TIERS,
+  type ShowPonyTier,
+  TIER_MAX_EVENTS,
+  TIER_MAX_GUESTS,
+  TIER_MONTHLY_EUR,
+} from "../pricing";
 import {
   apexFooter,
   apexHeader,
@@ -24,10 +30,6 @@ import {
 export type RenderMarketingLayoutOptions = {
   readonly canonicalUrl?: string;
 };
-
-type TierKey = ShowPonyTier;
-
-const TIER_KEYS: readonly TierKey[] = ["free", "starter", "pro", "studio"];
 
 const COPY: Record<
   Lang,
@@ -46,7 +48,7 @@ const COPY: Record<
       eventsSuffix: string;
       guestsSuffix: string;
     };
-    tiers: Record<TierKey, { name: string; tagline: string; cta: string }>;
+    tiers: Record<ShowPonyTier, { name: string; tagline: string; cta: string }>;
     trust: { heading: string; items: readonly { title: string; desc: string }[] };
     final: { heading: string; sub: string };
   }
@@ -172,7 +174,7 @@ function formatCap(n: number | null, unlimited: string, lang: Lang): string {
   return n.toLocaleString(lang === "de" ? "de-DE" : "en-GB");
 }
 
-function toApexTier(key: TierKey, lang: Lang): ApexPricingTier {
+function toApexTier(key: ShowPonyTier, lang: Lang): ApexPricingTier {
   const c = COPY[lang];
   const tier = c.tiers[key];
   const pricing = c.pricing;
@@ -247,7 +249,7 @@ export function renderMarketingLayout(lang: Lang, opts: RenderMarketingLayoutOpt
       eyebrow: c.pricing.eyebrow,
       heading: c.pricing.heading,
       sub: c.pricing.sub,
-      tiers: TIER_KEYS.map((key) => toApexTier(key, lang)),
+      tiers: SHOWPONY_TIERS.map((key) => toApexTier(key, lang)),
     },
     {
       kind: "info-grid",
@@ -304,7 +306,7 @@ export function renderPricingPage(lang: Lang, opts: RenderMarketingLayoutOptions
       eyebrow: c.pricing.eyebrow,
       heading: c.pricing.heading,
       sub: c.pricing.sub,
-      tiers: TIER_KEYS.map((key) => toApexTier(key, lang)),
+      tiers: SHOWPONY_TIERS.map((key) => toApexTier(key, lang)),
     },
     {
       kind: "final-cta",
