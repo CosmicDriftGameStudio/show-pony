@@ -33,4 +33,12 @@ describe("show-pony app-shell workspaces", () => {
     expect(systemCheckNavs).toHaveLength(1);
     expect(expectRoles(appShellFeature.navs["system-check"]?.access)).toEqual(access.systemAdmin);
   });
+
+  test("app-shell carries no system scope (it registers no handlers)", () => {
+    expect(appShellFeature.systemScope).toBe(false);
+    expect(
+      Object.keys(appShellFeature.writeHandlers).length +
+        Object.keys(appShellFeature.queryHandlers).length,
+    ).toBe(0);
+  });
 });

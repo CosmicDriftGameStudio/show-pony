@@ -19,20 +19,31 @@ import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-featur
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
+import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { countWhere, createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { createTestUser, testTenantId } from "@cosmicdrift/kumiko-framework/seeding";
+import { resolveBillingOption } from "@cosmicdrift/kumiko-server-runtime";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import Stripe from "stripe";
 import { z } from "zod";
+import { buildShowPonyBillingOption } from "../features/show-pony/billing/billing-option";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
-import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
-import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
+import { DEFAULT_TIER, SHOWPONY_TIER_MAP, type TierName } from "../features/show-pony/tier-map";
 import { resolveTier, tierAssignmentTable } from "../features/show-pony/tier-resolver";
 
 const TEST_SECRET = "whsec_test_showpony_billing";
 const TEST_API_KEY = "sk_test_showpony_billing";
-const PRICE_TO_TIER = { price_starter_sp: "starter", price_pro_sp: "pro" };
+const PRICE_TO_TIER: Readonly<Record<string, TierName>> = {
+  price_starter_sp: "starter",
+  price_pro_sp: "pro",
+};
+
+function prodWebhookRoute(): ExtraRouteDefinition {
+  const billing = buildShowPonyBillingOption(PRICE_TO_TIER);
+  if (!billing) throw new Error("test fixture: PRICE_TO_TIER must not be empty");
+  return resolveBillingOption(billing, {}).route;
+}
 
 const stripeForFixtures = new Stripe(TEST_API_KEY);
 
@@ -91,7 +102,7 @@ beforeAll(async () => {
   // buildServer's own SystemAdmin dispatcher (SignatureExtraRouteDeps), built
   // at request time; setupAppTestStack mounts extraRoutes the same way
   // runProdApp/runDevApp do.
-  stack = await setupAppTestStack(features, { extraRoutes: [buildSubscriptionWebhookRoute()] });
+  stack = await setupAppTestStack(features, { extraRoutes: [prodWebhookRoute()] });
   await unsafePushTables(stack.db, {
     config_values: configValuesTable,
     users: userTable,
@@ -267,9 +278,8 @@ describe("show-pony billing webhook → tier-sync", () => {
 });
 
 // =============================================================================
-// onSyncError: "fail-webhook" self-heal (show-pony's prod default, see
-// webhook-route.ts). The route's dispatcher is built by buildServer at
-// request time, so it cannot be mocked. A REAL, deterministic failure: a dedicated stack
+// onSyncError: "fail-webhook" self-heal (the billing boot option's
+// default). The route's dispatcher is built by buildServer at request time, so it cannot be mocked. A REAL, deterministic failure: a dedicated stack
 // mounts the webhook route with tier_assignments deliberately left out of
 // unsafePushTables, so the tier-sync step's own query/write throws a real
 // "relation does not exist" error. Pushing the table afterwards and
@@ -285,7 +295,7 @@ describe("tier-sync failure self-heals on Stripe retry", () => {
     // as an r.entity(), so the default auto-create would defeat this test's
     // premise (the table must be genuinely absent until the manual push below).
     selfHealStack = await setupAppTestStack(features, {
-      extraRoutes: [buildSubscriptionWebhookRoute()],
+      extraRoutes: [prodWebhookRoute()],
       registryTables: false,
     });
     await unsafePushTables(selfHealStack.db, {

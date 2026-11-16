@@ -1,5 +1,5 @@
-// bin/main.ts and bin/server.ts only mount createSubscriptionStripeFeature
-// when hasConfiguredPrices is true — no provider mounted at all here, same
+// bin/main.ts and bin/server.ts only pass the billing boot option
+// when a STRIPE_PRICE_* is set — no provider mounted at all here, same
 // as show-pony boots with no STRIPE_PRICE_* env set. billing-plans still
 // resolves `enabled: false` instead of throwing (findCatalogProvider
 // returns null, buildBillingPlans treats that like a disabled plugin), and

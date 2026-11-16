@@ -3,7 +3,11 @@ import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/confi
 import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import appConfig from "../kumiko.config";
-import { DEFAULT_TIER, priceToTierFromEnv, TIER_NAMES } from "../src/features/show-pony/tier-map";
+import {
+  buildShowPonyBillingOption,
+  SHOW_PONY_KMS_MODE,
+} from "../src/features/show-pony/billing/billing-option";
+import { priceToTierFromEnv } from "../src/features/show-pony/tier-map";
 import { createShowPonyHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
 import { env, isDryRun } from "./env";
@@ -20,7 +24,7 @@ import { resolveSearchAdapter } from "./search-wiring";
 // BASE_DOMAIN is required, so the placeholder only exists for the dry run's empty env.
 const BASE_DOMAIN = env.BASE_DOMAIN ?? "dry-run.invalid";
 const configResolver = createConfigResolver();
-const priceToTier = priceToTierFromEnv(env);
+const billing = buildShowPonyBillingOption(priceToTierFromEnv(env));
 
 // The dry run only prints the env inventory: no dist writes, no search wiring.
 if (!isDryRun) await renderAllMarketingPages(`https://${BASE_DOMAIN}`);
@@ -31,7 +35,7 @@ await runProdApp({
   features: allAppFeatures(appConfig),
   envSchema: showPonyEnvSchema,
   pulumiPrefix: "showPony",
-  kmsMode: { plaintextReason: "show-pony demo app, no subject-keys KMS provisioned" },
+  kmsMode: SHOW_PONY_KMS_MODE,
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   staticDir: "./dist",
   seedsDir: "./seeds",
@@ -50,12 +54,6 @@ await runProdApp({
   }),
   seeds: buildProdSeeds(searchWiring),
   demoMode: buildDemoModeOption(env, BASE_DOMAIN),
-  ...(Object.keys(priceToTier).length > 0 && {
-    billing: {
-      stripe: { priceToTier },
-      defaultTier: DEFAULT_TIER,
-      tierNames: TIER_NAMES,
-    },
-  }),
+  ...(billing && { billing }),
   extraRoutes: [heroAssetRoute],
 });

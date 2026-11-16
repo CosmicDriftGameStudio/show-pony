@@ -160,8 +160,16 @@ export const showPonyTranslations = {
     en: "Event limit reached — upgrade your plan.",
   },
   "showpony:errors.guestLimitReached": {
-    de: "Die Gästeliste ist voll.",
-    en: "The guest list is full.",
+    de: "Der Veranstalter hat sein Antwort-Kontingent ausgeschöpft.",
+    en: "The host has used up their reply quota.",
+  },
+  "showpony:errors.eventFull": {
+    de: "Die Gästeliste dieses Events ist voll.",
+    en: "This event's guest list is full.",
+  },
+  "showpony:errors.rsvpAlreadySubmitted": {
+    de: "Für diese E-Mail-Adresse liegt schon eine Antwort vor. Für Änderungen wende dich an den Gastgeber.",
+    en: "There is already a reply for this email address. Contact the host to change it.",
   },
   // Names the mail template in the document designer: the feature group and one entry per notification.
   "showpony:feature.label": { de: "Show Pony", en: "Show Pony" },

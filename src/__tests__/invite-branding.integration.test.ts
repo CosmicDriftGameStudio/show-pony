@@ -38,6 +38,7 @@ let acmeId: string;
 let demoHostname: string;
 let acmeHostname: string;
 let acmeAdmin: SessionUser;
+let acme: Awaited<ReturnType<typeof seedTenant>>;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
@@ -66,7 +67,7 @@ beforeAll(async () => {
   // Subdomain routing resolves the tenant via a real DB lookup by key
   // (tenant-routing.ts resolveSubdomainPageTenant) — needs persisted rows.
   const demo = await seedTenant(stack, { name: "Demo", persist: true });
-  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  acme = await seedTenant(stack, { name: "Acme", persist: true });
   demoId = demo.id;
   acmeId = acme.id;
   demoHostname = `${demo.key}.${BASE_DOMAIN}`;
@@ -147,6 +148,16 @@ describe("invite-branding query", () => {
     expect(acmeBody.data.accentColor).toBe("#0d9488");
     expect(acmeBody.data.heroStyle).toBe("split");
     expect(acmeBody.data.accentColor).not.toBe("#7c3aed");
+  });
+
+  test("a signed-in caller with a non-admin app role reads the branding", async () => {
+    const member = (await acme.addUser(["Member"])).session;
+    const branding = await stack.http.queryOk<{ heroStyle?: string }>(
+      "showpony:query:invite-branding",
+      {},
+      member,
+    );
+    expect(branding.heroStyle).toBeDefined();
   });
 
   test("invite-branding-settings screen is registered", () => {

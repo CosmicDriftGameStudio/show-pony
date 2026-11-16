@@ -2,6 +2,7 @@
 
 import {
   access,
+  defineEntityDeleteHandler,
   defineEntityDetailHandler,
   defineEntityListHandler,
   defineFeature,
@@ -28,11 +29,11 @@ import { registerShowPonyNav } from "./register/nav";
 import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
 
-// RSVP rows carry guest PII (name/email/note) — unlike event CRUD, this is
+// RSVP rows carry guest PII (name/email/note) — unlike event CRUD, reading and deleting are
 // restricted to the admin roles (TenantAdmin/Admin/SystemAdmin) rather than
 // openToAll: show-pony has no dedicated organizer role yet, and role checks
 // have no hierarchy, so every admin role is listed explicitly.
-const rsvpReadAccess = { access: { roles: access.admin } } as const;
+const rsvpAdminAccess = { access: { roles: access.admin } } as const;
 
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
@@ -63,16 +64,24 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
 
   r.queryHandler(
     defineEntityListHandler("rsvp", rsvpEntity, {
-      ...rsvpReadAccess,
+      ...rsvpAdminAccess,
       description:
         "Lists the tenant's guest replies with name, email, attendance status (yes, no or maybe) and number of additional guests; Admin only, because the rows carry guest personal data.",
     }),
   );
   r.queryHandler(
     defineEntityDetailHandler("rsvp", rsvpEntity, {
-      ...rsvpReadAccess,
+      ...rsvpAdminAccess,
       description:
         "Reads one guest reply by id with the guest's name, email, note, attendance status (yes, no or maybe) and number of additional guests; Admin only, because these fields are guest personal data.",
+    }),
+  );
+
+  r.writeHandler(
+    defineEntityDeleteHandler("rsvp", rsvpEntity, {
+      ...rsvpAdminAccess,
+      description:
+        "Deletes one guest reply of the tenant by id, for example spam or a duplicate; Admin only, because the row carries guest personal data.",
     }),
   );
 

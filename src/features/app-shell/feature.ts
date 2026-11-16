@@ -36,8 +36,6 @@ const PLATFORM_NAV_MEMBERS = [
 const HOST_WORKSPACE_ROLES = access.roles("TenantAdmin", "Admin");
 
 export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r) => {
-  r.systemScope();
-
   r.nav({
     id: "users",
     label: "app-shell:nav.users",

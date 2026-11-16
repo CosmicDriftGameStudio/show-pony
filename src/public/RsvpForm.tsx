@@ -4,13 +4,14 @@
 import { usePrimitives, useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { ModeSwitch } from "@cosmicdrift/kumiko-renderer/web";
 import { type ReactElement, useState } from "react";
+import type { RsvpRejectionMessageKey } from "../features/show-pony/rsvp-errors.shared";
 import { type RsvpStatus, submitRsvp } from "./api";
 
 type FormState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "success"; name: string }
-  | { kind: "error"; reason: string; guestListFull?: true };
+  | { kind: "error"; reason: string; messageKey?: RsvpRejectionMessageKey };
 
 export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElement {
   const t = useTranslation();
@@ -114,8 +115,8 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
         </Field>
         {state.kind === "error" && (
           <Banner variant="error">
-            {state.guestListFull
-              ? t("showpony:errors.guestLimitReached")
+            {state.messageKey
+              ? t(state.messageKey)
               : t("showpony:public.rsvp.error", { reason: state.reason })}
           </Banner>
         )}

@@ -8,7 +8,10 @@ import {
   coerceInviteBranding,
   type InviteBranding,
 } from "../features/show-pony/invite-branding.shared";
-import { GUEST_LIMIT_REACHED } from "../features/show-pony/rsvp-errors.shared";
+import {
+  type RsvpRejectionMessageKey,
+  rsvpRejectionMessageKey,
+} from "../features/show-pony/rsvp-errors.shared";
 
 export type PublicEvent = {
   readonly id: string;
@@ -59,7 +62,9 @@ export async function fetchInviteBranding(): Promise<InviteBranding> {
   }
 }
 
-export type SubmitResult = { ok: true } | { ok: false; reason: string; guestListFull?: true };
+export type SubmitResult =
+  | { ok: true }
+  | { ok: false; reason: string; messageKey?: RsvpRejectionMessageKey };
 
 export async function submitRsvp(input: RsvpInput): Promise<SubmitResult> {
   const res = await fetch("/api/write", {
@@ -70,7 +75,10 @@ export async function submitRsvp(input: RsvpInput): Promise<SubmitResult> {
   if (!res.ok) {
     const errorBody: unknown = await res.json().catch(() => null);
     const reason = propertyOf(propertyOf(propertyOf(errorBody, "error"), "details"), "reason");
-    if (reason === GUEST_LIMIT_REACHED) return { ok: false, reason, guestListFull: true };
+    const messageKey = rsvpRejectionMessageKey(reason);
+    if (messageKey) {
+      return { ok: false, reason: typeof reason === "string" ? reason : "rejected", messageKey };
+    }
     return { ok: false, reason: `submit failed: ${res.status}` };
   }
   const body = (await res.json()) as

@@ -128,13 +128,13 @@ async function seedEventWithGuests(
     },
     host,
   );
-  for (const name of guestNames) {
+  for (const [index, name] of guestNames.entries()) {
     const res = await stack.http.raw(
       "POST",
       "/api/write",
       {
         type: "showpony:write:rsvp:submit",
-        payload: { eventId: event.id, name, email: "guest@example.test", status: "yes" },
+        payload: { eventId: event.id, name, email: `guest-${index}@example.test`, status: "yes" },
       },
       { Host: hostname },
     );

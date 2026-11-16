@@ -44,7 +44,7 @@ export const eventTable = buildEntityTable("event", eventEntity);
 
 // Only the columns the callers read. fetchOne still runs SELECT * (kumiko's
 // query handlers don't strip output either), it just narrows what callers see.
-export type EventRow = { id: string; slug: string; title: string };
+export type EventRow = { id: string; slug: string; title: string; guestLimit: number | null };
 
 export function findEventById(ctx: HandlerContext, id: string): Promise<EventRow | undefined> {
   return ctx.db.fetchOne<EventRow>(eventTable, { id });

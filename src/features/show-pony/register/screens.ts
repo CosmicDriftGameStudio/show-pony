@@ -5,6 +5,7 @@ import type {
   EntityEditScreenDefinition,
   EntityListScreenDefinition,
 } from "@cosmicdrift/kumiko-framework/ui-types";
+import { BILLING_ROLES } from "../billing/plan-catalog";
 
 export const eventListScreen: EntityListScreenDefinition = {
   id: "event-list",
@@ -55,7 +56,7 @@ export const billingScreen: DashboardScreenDefinition = {
     billingPlansPanel(),
     { kind: "custom", id: "usage", component: { react: { __component: "ShowPonyUsagePanel" } } },
   ],
-  access: { roles: ["Admin"] },
+  access: { roles: BILLING_ROLES },
 };
 
 export function registerShowPonyScreens(r: FeatureRegistrar): void {

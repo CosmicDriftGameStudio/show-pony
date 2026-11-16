@@ -8,13 +8,16 @@ import {
   type BillingPlanCatalog,
   createBillingFoundationFeature,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
-import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
+import { access, type FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { capsForTier } from "../tier-map";
 import { resolveTier } from "../tier-resolver";
 
 export type PaidTier = "starter" | "pro";
 
 export const PAID_TIERS: readonly PaidTier[] = ["starter", "pro"];
+
+// Purchases stay with the app's own Admin role; TenantAdmin manages events but not the plan.
+export const BILLING_ROLES = access.roles("Admin");
 
 export const BILLING_PAGE_PATH = "/host/billing";
 
@@ -39,8 +42,8 @@ export const showPonyBillingCatalog: BillingPlanCatalog<PaidTier> = {
     return [eventsBenefit(caps.maxEvents), guestsBenefit(caps.maxGuests)];
   },
   resolveCurrentTier: (db) => resolveTier(db),
-  viewRoles: ["Admin"],
-  purchaseRoles: ["Admin"],
+  viewRoles: BILLING_ROLES,
+  purchaseRoles: BILLING_ROLES,
   successPath: BILLING_PAGE_PATH,
   cancelPath: BILLING_PAGE_PATH,
   returnPath: BILLING_PAGE_PATH,

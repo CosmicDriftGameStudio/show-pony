@@ -1,5 +1,6 @@
 import { defineQueryHandler } from "@cosmicdrift/kumiko-framework/engine";
 import { z } from "zod";
+import { BILLING_ROLES } from "../billing/plan-catalog";
 import { eventTable } from "../schema/event";
 import { rsvpTable } from "../schema/rsvp";
 import { resolveTierCaps } from "../tier-resolver";
@@ -21,7 +22,7 @@ function capLimit(value: number): number | null {
 export const usageQuery = defineQueryHandler({
   name: "usage",
   schema: z.object({}),
-  access: { roles: ["Admin"] },
+  access: { roles: BILLING_ROLES },
   description:
     "Counts the tenant's events and guest replies and returns them next to the event and guest limits of the current plan tier, where a null limit means unlimited; Admin only.",
   async handler(_event, ctx): Promise<UsageInfo> {

@@ -28,12 +28,14 @@ import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-featur
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
+import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
 import { defineFeature, type TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
+import { resolveBillingOption } from "@cosmicdrift/kumiko-server-runtime";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
+import { buildShowPonyBillingOption } from "../features/show-pony/billing/billing-option";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
-import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
 import { resolveTier, tierAssignmentTable } from "../features/show-pony/tier-resolver";
 
@@ -43,6 +45,11 @@ const PRICE_TO_TIER: Readonly<Record<string, "starter" | "pro">> = {
   price_starter_sp: "starter",
   price_pro_sp: "pro",
 };
+function prodWebhookRoute(): ExtraRouteDefinition {
+  const billing = buildShowPonyBillingOption(PRICE_TO_TIER);
+  if (!billing) throw new Error("test fixture: PRICE_TO_TIER must not be empty");
+  return resolveBillingOption(billing, {}).route;
+}
 const PRICE_UNIT_AMOUNTS: Readonly<Record<string, number>> = {
   price_starter_sp: 900,
   price_pro_sp: 2900,
@@ -121,7 +128,7 @@ beforeAll(async () => {
       createSecretsFeature(),
       mockStripeFeature,
     ],
-    { extraRoutes: [buildSubscriptionWebhookRoute()] },
+    { extraRoutes: [prodWebhookRoute()] },
   );
   await unsafePushTables(stack.db, {
     config_values: configValuesTable,
