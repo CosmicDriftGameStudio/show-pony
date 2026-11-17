@@ -18,6 +18,7 @@ import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/confi
 import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { createE2eSeedRoutes } from "@cosmicdrift/kumiko-dev-server/testing";
+import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import { isE2eSeedingEnabled } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import appConfig from "../kumiko.config";
 import {
@@ -33,7 +34,7 @@ import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { buildShowPonyExtraContext } from "./extra-context";
 import { buildDemoModeOption, heroAssetRoute } from "./prod-options";
-import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
+import { rebuildAllTenantSearchIndexes } from "./search-wiring";
 
 const BASE_DOMAIN = resolveBaseDomainFromEnv(process.env);
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
@@ -48,7 +49,7 @@ const billing = isE2eSeedingEnabled()
   ? undefined
   : buildShowPonyBillingOption(priceToTierFromEnv(process.env));
 
-const searchWiring = createMeilisearchWiring({
+const searchAdapter = createMeilisearchAdapter({
   url: process.env["MEILI_URL"] ?? "http://localhost:17700",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
   // The dev Meilisearch on 17700 is shared with other apps using the default
@@ -77,11 +78,7 @@ await runDevApp({
   hostDispatch: createShowPonyDevHostDispatch(BASE_DOMAIN),
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   watchDirs: ["./src", "./bin"],
-  extraContext: buildShowPonyExtraContext({
-    baseDomain: BASE_DOMAIN,
-    configResolver,
-    searchAdapter: searchWiring.adapter,
-  }),
+  extraContext: buildShowPonyExtraContext({ configResolver, searchAdapter }),
   auth: {
     admin: {
       email: "admin@show-pony.local",
@@ -110,7 +107,7 @@ await runDevApp({
       // stays wired, so search requests fail at runtime until Meilisearch is
       // reachable. Sweeps all tenants (not just DEMO/ACME).
       try {
-        await rebuildAllTenantSearchIndexes(stack.db, stack.registry, searchWiring);
+        await rebuildAllTenantSearchIndexes(stack.db, stack.registry, searchAdapter);
       } catch (err) {
         console.warn(`[search] search index rebuild failed: ${err}`);
       }

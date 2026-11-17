@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { SEED_PASSWORD_MIN_LENGTH, showPonyEnvSchema } from "../env-schema";
+import { SEED_PASSWORD_MIN_LENGTH, envSchema } from "../env-schema";
 import { buildDemoModeOption } from "../prod-options";
 
-const { shape } = showPonyEnvSchema.schema;
+const { shape } = envSchema.schema;
 
 describe("seed password length", () => {
   for (const key of ["DEMO_ADMIN_PASSWORD", "DEMO_SYSADMIN_PASSWORD"] as const) {

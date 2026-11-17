@@ -61,10 +61,10 @@ const showPonyAppEnv = z.object({
 
 /** Composed schema for `runProdApp({ envSchema })`, the boot validation and the
  *  KUMIKO_DRY_RUN_ENV inventory. */
-export const showPonyEnvSchema = composeEnvSchema({
+export const envSchema = composeEnvSchema({
   core: frameworkCoreEnvSchema,
   features: [...allAppFeatures(appConfig), createAuthEmailPasswordFeature()],
   extend: showPonyAppEnv,
 });
 
-export type ShowPonyEnv = z.infer<typeof showPonyEnvSchema.schema>;
+export type ShowPonyEnv = z.infer<typeof envSchema.schema>;

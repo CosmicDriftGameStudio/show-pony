@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
@@ -37,6 +38,7 @@ beforeAll(async () => {
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
@@ -120,7 +122,7 @@ describe("rebuildAllTenantSearchIndexes configure step (real DB)", () => {
   test("configures only enabled tenants with the searchable-field union, reports the tenant count", async () => {
     const { adapter, calls } = recordingAdapter();
 
-    const summary = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, { adapter });
+    const summary = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, adapter);
 
     const configuredIds = calls.map((c) => c.tenantId);
     expect(configuredIds).toContain(activeTenantId);

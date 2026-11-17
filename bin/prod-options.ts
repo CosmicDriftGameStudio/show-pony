@@ -3,12 +3,13 @@
 import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
 import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { createLogger } from "@cosmicdrift/kumiko-framework/logging";
+import type { SearchAdapter } from "@cosmicdrift/kumiko-framework/search";
 import type { ProdSeedFn, RunProdAppOptions } from "@cosmicdrift/kumiko-server-runtime";
 import { buildDemoNotice } from "../src/demo-mode-notice";
 import legalContent from "../src/generated/legal-content.json";
 import { isAssetName } from "./asset-name";
 import { ACME_TENANT, DEMO_TENANT, PLATFORM_TENANT } from "./demo-tenants";
-import { rebuildAllTenantSearchIndexes, type SearchWiring } from "./search-wiring";
+import { rebuildAllTenantSearchIndexes } from "./search-wiring";
 
 export function buildProdAuthOptions(args: {
   readonly baseDomain: string;
@@ -40,10 +41,10 @@ const log = createLogger({ level: "info" }).child({ component: "show-pony-search
 
 // Rebuilt on every boot: resetDbOnDeploy wipes the DB but not the Meilisearch volume, which
 // would keep documents of vanished rows/tenants. A failing rebuild must not crash-loop the pod.
-function searchIndexRebuildSeed(searchWiring: SearchWiring): ProdSeedFn {
+function searchIndexRebuildSeed(searchAdapter: SearchAdapter): ProdSeedFn {
   return async ({ db, registry }) => {
     try {
-      const summary = await rebuildAllTenantSearchIndexes(db, registry, searchWiring);
+      const summary = await rebuildAllTenantSearchIndexes(db, registry, searchAdapter);
       log.info("search index rebuilt", { ...summary });
     } catch (err) {
       log.warn("search index rebuild failed", { error: String(err) });
@@ -52,7 +53,7 @@ function searchIndexRebuildSeed(searchWiring: SearchWiring): ProdSeedFn {
 }
 
 export function buildProdSeeds(
-  searchWiring: SearchWiring,
+  searchAdapter: SearchAdapter,
 ): NonNullable<RunProdAppOptions["seeds"]> {
   return {
     sysadminFromEnv: {
@@ -64,7 +65,7 @@ export function buildProdSeeds(
         name: PLATFORM_TENANT.name,
       },
     },
-    run: [searchIndexRebuildSeed(searchWiring), legalContentSeed({ blocks: legalContent })],
+    run: [searchIndexRebuildSeed(searchAdapter), legalContentSeed({ blocks: legalContent })],
   };
 }
 
