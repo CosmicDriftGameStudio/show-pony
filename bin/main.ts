@@ -1,6 +1,7 @@
 // Production entry. Env contract and the full var list: bin/env-schema.ts.
 import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/config";
 import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
+import { resolveObservabilityWiring } from "@cosmicdrift/kumiko-framework/observability";
 import { runProdApp } from "@cosmicdrift/kumiko-server-runtime";
 import appConfig from "../kumiko.config";
 import {
@@ -35,6 +36,7 @@ await runProdApp({
   features: allAppFeatures(appConfig),
   envSchema: showPonyEnvSchema,
   pulumiPrefix: "showPony",
+  ...resolveObservabilityWiring(env.PROMETHEUS_METRICS_TOKEN),
   kmsMode: SHOW_PONY_KMS_MODE,
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   staticDir: "./dist",

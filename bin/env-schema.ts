@@ -10,6 +10,7 @@ import { stripeEnvSchema } from "@cosmicdrift/kumiko-bundled-features/subscripti
 import { frameworkCoreEnvSchema } from "@cosmicdrift/kumiko-dev-server";
 import { allAppFeatures } from "@cosmicdrift/kumiko-framework/config";
 import { composeEnvSchema } from "@cosmicdrift/kumiko-framework/env";
+import { prometheusMetricsEnvSchema } from "@cosmicdrift/kumiko-framework/observability";
 import { z } from "zod";
 import appConfig from "../kumiko.config";
 
@@ -27,6 +28,7 @@ const requiredSecret = (description: string) =>
 // block makes them optional) because the prod seeds log in with them.
 const showPonyAppEnv = z.object({
   ...buildInfoEnvSchema.shape,
+  ...prometheusMetricsEnvSchema.shape,
   ...demoAdminEnvSchema.shape,
   ...stripeEnvSchema({ prices: ["STARTER", "PRO"] }).shape,
   DEMO_ADMIN_PASSWORD: requiredSecret("Password of the seeded demo host (Admin)."),
