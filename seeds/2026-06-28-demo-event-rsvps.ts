@@ -23,9 +23,9 @@ import {
 
 const INVITE_HERO_IMAGE_URL = "showpony:config:invite-hero-image-url";
 const INVITE_HERO_STYLE = "showpony:config:invite-hero-style";
-const BRANDING_TITLE = "managed-pages:config:branding-title";
-const BRANDING_DESCRIPTION = "managed-pages:config:branding-description";
-const BRANDING_ACCENT_COLOR = "managed-pages:config:branding-accent-color";
+const BRANDING_TITLE = "branding:config:title";
+const BRANDING_DESCRIPTION = "branding:config:description";
+const BRANDING_ACCENT_COLOR = "branding:config:accent-color";
 
 function seedWarn(label: string, err: unknown): void {
   console.warn(`show-pony seed: ${label} skipped — ${err instanceof Error ? err.message : String(err)}`);

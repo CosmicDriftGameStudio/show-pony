@@ -2,7 +2,7 @@
 // clicks. Runs under the loops config (bun run e2e) — not the screenshots
 // suite, kept self-contained on purpose (see e2e/loops/env.ts's comment on
 // why loops stays decoupled from e2e/screenshots).
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { type E2eSeededTenant, expect, test } from "@cosmicdrift/kumiko-testing/e2e";
 import type { Page } from "@playwright/test";
 import { INVITE_BRANDING_QN } from "../src/features/show-pony/invite-branding.shared";

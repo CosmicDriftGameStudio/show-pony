@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { EditorLine } from "@cosmicdrift/kumiko-testing/e2e";
+import type { EditorLine } from "@cosmicdrift/kumiko-testing/video";
 
 const REPO_ROOT = resolve(import.meta.dir, "..");
 

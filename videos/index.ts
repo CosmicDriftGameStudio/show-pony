@@ -1,4 +1,4 @@
-import type { VideoDefinition } from "@cosmicdrift/kumiko-testing/e2e";
+import type { VideoDefinition } from "@cosmicdrift/kumiko-testing/video";
 import fromScratch from "./from-scratch/video";
 
 export const VIDEOS = {

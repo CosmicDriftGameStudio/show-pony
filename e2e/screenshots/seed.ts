@@ -3,7 +3,7 @@
 // matching e2e/loops' seed pattern — no shared login/seed state between
 // scenarios. e2e/verify-invite-stack.spec.ts seeds independently on purpose
 // (see its own header comment) rather than importing from here.
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/branding";
 import type { E2eSeededTenant } from "@cosmicdrift/kumiko-testing/e2e";
 import { INVITE_BRANDING_QN } from "../../src/features/show-pony/invite-branding.shared";
 import { publicOrigin } from "./constants";
