@@ -6,6 +6,7 @@
 // with it, it's a claim about behaviour.
 
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
@@ -92,6 +93,7 @@ beforeAll(async () => {
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       createCryptoShreddingFeature(),
       ...deliveryFeatures(createInMemoryTransport()),

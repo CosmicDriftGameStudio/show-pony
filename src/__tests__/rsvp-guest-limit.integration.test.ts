@@ -2,6 +2,7 @@
 // Every test seeds its own tenant: the free tier allows one event per tenant.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
@@ -29,7 +30,13 @@ const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => 
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
-    [createConfigFeature(), managedPages, ...deliveryFeatures(emailTransport), showPonyFeature],
+    [
+      createConfigFeature(),
+      createBrandingFeature(),
+      managedPages,
+      ...deliveryFeatures(emailTransport),
+      showPonyFeature,
+    ],
     {
       trustedProxyHops: 1,
       extraContext: (deps) => ({

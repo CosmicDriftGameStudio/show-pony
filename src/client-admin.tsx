@@ -9,6 +9,7 @@ import {
   emailPasswordClient,
 } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
 import { billingFoundationClient } from "@cosmicdrift/kumiko-bundled-features/billing-foundation/web";
+import { brandingClient } from "@cosmicdrift/kumiko-bundled-features/branding/web";
 import { capOverviewClient } from "@cosmicdrift/kumiko-bundled-features/cap-overview/web";
 import { configClient } from "@cosmicdrift/kumiko-bundled-features/config/web";
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
@@ -69,6 +70,7 @@ createKumikoApp({
     auditClient(),
     jobsClient(),
     managedPagesClient(),
+    brandingClient(),
     documentDesignerClient({ appLocales: ["en", "de"] }),
     showPonyClient,
   ],

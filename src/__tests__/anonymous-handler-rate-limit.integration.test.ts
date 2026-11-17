@@ -4,6 +4,7 @@
 // invite-branding bucket and a second IP's event:by-slug bucket stay open.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   createConfigAccessorFactory,
@@ -45,6 +46,7 @@ beforeAll(async () => {
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { type AccessRule, access, createRegistry } from "@cosmicdrift/kumiko-framework/engine";
 import { appShellFeature } from "../features/app-shell/feature";
-import { showPonyFeature } from "../features/show-pony/feature";
+import { buildAppFeatures } from "../run-config";
 
 function expectRoles(rule: AccessRule | undefined): readonly string[] {
   expect(rule).toBeDefined();
@@ -19,19 +19,16 @@ describe("show-pony app-shell workspaces", () => {
     expect(expectRoles(platform?.access)).toEqual(access.systemAdmin);
   });
 
-  test("system check: SystemAdmin in the platform, no entry in the host workspace", () => {
-    const registry = createRegistry([appShellFeature]);
-    const hostNav = registry.getWorkspace("app-shell:workspace:host")?.nav ?? [];
-    const platformNav = registry.getWorkspace("app-shell:workspace:platform")?.nav ?? [];
-    const systemCheckNavs = [
-      ...Object.values(appShellFeature.navs),
-      ...Object.values(showPonyFeature.navs),
-    ].filter((nav) => nav.screen === "readiness:screen:system-check");
+  test("system check and users are collected into the platform workspace, never the host", () => {
+    const registry = createRegistry(buildAppFeatures({ baseDomain: "show-pony.test" }));
+    const hostNav = registry.getWorkspaceNavs("app-shell:workspace:host");
+    const platformNav = registry.getWorkspaceNavs("app-shell:workspace:platform");
 
-    expect(platformNav).toContain("app-shell:nav:system-check");
+    expect(platformNav).toContain("readiness:nav:system-check");
+    expect(platformNav).toContain("admin-shell:nav:users");
     expect(hostNav.filter((qn) => qn.endsWith(":nav:system-check"))).toEqual([]);
-    expect(systemCheckNavs).toHaveLength(1);
-    expect(expectRoles(appShellFeature.navs["system-check"]?.access)).toEqual(access.systemAdmin);
+    expect(hostNav).toContain("audit:nav:audit-log");
+    expect(Object.keys(appShellFeature.navs)).toEqual([]);
   });
 
   test("app-shell carries no system scope (it registers no handlers)", () => {

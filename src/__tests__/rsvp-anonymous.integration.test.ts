@@ -8,6 +8,7 @@
 // header are both covered, not just the framework pipeline.
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
@@ -67,6 +68,7 @@ beforeAll(async () => {
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...composeRendererStack(),
       createDeliveryFeature(),
@@ -256,7 +258,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     // Proves the apex branch of the host-routing resolver (show-pony sets no
     // apexAnonymousTenantId): the apex resolver returns null — no anonymous tenant
     // exists at apex, legal/marketing pages are static and branding reads
-    // go through the separate resolveSubdomainPageTenant pipeline. With
+    // go through managed-pages' host resolution. With
     // resolverTrust: "authoritative" a resolver returning null never falls
     // back to a client-supplied X-Tenant, so this 400s as tenant_required,
     // same as the header-less case below.
