@@ -9,7 +9,9 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
+import { createDeliveryTestContext } from "@cosmicdrift/kumiko-bundled-features/delivery";
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { seedNotificationTemplates } from "@cosmicdrift/kumiko-bundled-features/template-resolver/seeding";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
@@ -30,9 +32,10 @@ beforeAll(async () => {
     [createConfigFeature(), managedPages, ...deliveryFeatures(emailTransport), showPonyFeature],
     {
       trustedProxyHops: 1,
-      extraContext: ({ registry }) => ({
+      extraContext: (deps) => ({
+        ...createDeliveryTestContext(deps),
         configResolver,
-        configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+        configAccessorFactory: createConfigAccessorFactory(deps.registry, configResolver),
       }),
     },
   );
@@ -40,6 +43,8 @@ beforeAll(async () => {
     tier_assignments: tierAssignmentTable,
     config_values: configValuesTable,
   });
+  // setupAppTestStack runs no boot seeds; the confirmation mail renders from the seeded system template.
+  await seedNotificationTemplates(stack.db, stack.registry);
 });
 
 afterAll(async () => stack?.cleanup());
@@ -106,7 +111,9 @@ describe("rsvp:submit guest limit and duplicates", () => {
 
   test("no and maybe replies neither use nor get blocked by the guest limit", async () => {
     const { host, eventId } = await seedHostWithEvent("Limit Non Yes", 1);
-    expect((await submit(host, { eventId, name: "A", status: "yes" }, "10.0.1.1")).status).toBe(200);
+    expect((await submit(host, { eventId, name: "A", status: "yes" }, "10.0.1.1")).status).toBe(
+      200,
+    );
     expect((await submit(host, { eventId, name: "B", status: "no" }, "10.0.1.2")).status).toBe(200);
     expect(
       (await submit(host, { eventId, name: "C", status: "maybe", plusN: 2 }, "10.0.1.3")).status,
@@ -119,7 +126,11 @@ describe("rsvp:submit guest limit and duplicates", () => {
   test("an event without a guest limit accepts replies up to the plan quota", async () => {
     const { host, eventId } = await seedHostWithEvent("No Limit");
     for (let i = 0; i < 3; i++) {
-      const res = await submit(host, { eventId, name: `G${i}`, status: "yes", plusN: 5 }, `10.0.2.${i}`);
+      const res = await submit(
+        host,
+        { eventId, name: `G${i}`, status: "yes", plusN: 5 },
+        `10.0.2.${i}`,
+      );
       expect(res.status).toBe(200);
     }
   });
@@ -152,10 +163,31 @@ describe("rsvp:submit guest limit and duplicates", () => {
     expect((await listRsvps(host)).rows).toHaveLength(1);
   });
 
+  test("the same email in different letter case counts as a duplicate", async () => {
+    const { host, eventId } = await seedHostWithEvent("Duplicate Email Case", 10);
+    const first = await submit(
+      host,
+      { eventId, name: "Case", status: "yes", email: "Case@Example.test" },
+      "10.0.4.3",
+    );
+    expect(first.status).toBe(200);
+    const second = await submit(
+      host,
+      { eventId, name: "Case", status: "no", email: "case@example.test" },
+      "10.0.4.4",
+    );
+    expect(second.status).toBe(422);
+    expect(await rejectionReason(second)).toBe("rsvp_already_submitted");
+  });
+
   test("replies without an email are never treated as duplicates", async () => {
     const { host, eventId } = await seedHostWithEvent("No Email", 10);
-    expect((await submit(host, { eventId, name: "A", status: "yes" }, "10.0.5.1")).status).toBe(200);
-    expect((await submit(host, { eventId, name: "B", status: "yes" }, "10.0.5.2")).status).toBe(200);
+    expect((await submit(host, { eventId, name: "A", status: "yes" }, "10.0.5.1")).status).toBe(
+      200,
+    );
+    expect((await submit(host, { eventId, name: "B", status: "yes" }, "10.0.5.2")).status).toBe(
+      200,
+    );
   });
 
   test("the plan quota keeps its own reason", async () => {

@@ -1,4 +1,8 @@
-import { access, defineWriteHandler, type HandlerContext } from "@cosmicdrift/kumiko-framework/engine";
+import {
+  access,
+  defineWriteHandler,
+  type HandlerContext,
+} from "@cosmicdrift/kumiko-framework/engine";
 import {
   failNotFound,
   UnprocessableError,
@@ -17,7 +21,8 @@ const RSVP_EVENT_LOCK_NAMESPACE = 0x72737670;
 export const rsvpSubmitSchema = z.object({
   eventId: z.uuid(),
   name: z.string().min(1).max(120),
-  email: z.email().optional(),
+  // Lowercased so the duplicate check and the stored address agree on one spelling.
+  email: z.email().toLowerCase().optional(),
   status: z.enum(RSVP_STATUSES),
   plusN: z.number().int().min(0).max(20).default(0),
   note: z.string().max(500).optional(),
