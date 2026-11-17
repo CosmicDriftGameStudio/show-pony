@@ -8,27 +8,26 @@
 // coverage anywhere.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
+import {
+  CapOverviewQueries,
+  type CapUsageWithMeta,
+} from "@cosmicdrift/kumiko-bundled-features/cap-overview";
 import {
   configValuesTable,
   createConfigAccessorFactory,
-  createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
-import { showPonyFeature } from "../features/show-pony/feature";
+import { ShowPonyCapIds } from "../features/show-pony/cap-specs";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { TIER_MAX_GUESTS } from "../marketing/pricing";
-import { deliveryFeatures } from "./delivery-stack";
+import { buildAppFeatures, resolveBaseDomainFromEnv } from "../run-config";
 
 let stack: TestStack;
 
 const configResolver = createConfigResolver();
-
-const managedPages = createManagedPagesFeature({ resolveApexTenant: async () => null });
 
 let host: SessionUser;
 let guestCapHost: SessionUser;
@@ -36,12 +35,7 @@ let concurrentCapHost: SessionUser;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
-    [
-      createConfigFeature(),
-      managedPages,
-      ...deliveryFeatures(createInMemoryTransport()),
-      showPonyFeature,
-    ],
+    buildAppFeatures({ baseDomain: resolveBaseDomainFromEnv(process.env) }),
     {
       // Mirrors prod (one ingress hop) so each guest below gets its own
       // rsvp:submit ip+handler bucket via X-Forwarded-For.
@@ -65,6 +59,15 @@ beforeAll(async () => {
 });
 
 afterAll(async () => stack?.cleanup());
+
+async function capUsed(user: SessionUser, capId: string): Promise<CapUsageWithMeta | undefined> {
+  const { rows } = await stack.http.queryOk<{ rows: readonly CapUsageWithMeta[] }>(
+    CapOverviewQueries.capsUsage,
+    {},
+    user,
+  );
+  return rows.find((row) => row.id === capId);
+}
 
 async function fillGuestCap(
   host: SessionUser,
@@ -93,12 +96,11 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     );
     expect(first.id).toBeTruthy();
 
-    const usage = await stack.http.queryOk<{
-      events: { used: number; limit: number | null };
-      guests: { used: number; limit: number | null };
-    }>("showpony:query:usage", {}, host);
-    expect(usage.events.used).toBe(1);
-    expect(usage.guests.used).toBe(0);
+    const events = await capUsed(host, ShowPonyCapIds.events);
+    expect(events?.used).toBe(1);
+    expect(events?.limit).toBe(1);
+    const guests = await capUsed(host, ShowPonyCapIds.guests);
+    expect(guests?.used).toBe(0);
 
     const err = await stack.http.writeErr(
       "showpony:write:event:create",
@@ -209,11 +211,7 @@ describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
     expect(statuses.filter((status) => status === 200)).toHaveLength(freeSlots);
     expect(statuses.filter((status) => status === 422)).toHaveLength(racers - freeSlots);
 
-    const usage = await stack.http.queryOk<{ guests: { used: number } }>(
-      "showpony:query:usage",
-      {},
-      concurrentCapHost,
-    );
-    expect(usage.guests.used).toBe(maxGuests);
+    const guests = await capUsed(concurrentCapHost, ShowPonyCapIds.guests);
+    expect(guests?.used).toBe(maxGuests);
   });
 });

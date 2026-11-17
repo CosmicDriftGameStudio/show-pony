@@ -138,14 +138,8 @@ export const showPonyTranslations = {
   "showpony:demo.public.host-link": { de: "Host-Login", en: "Host login" },
   "showpony:demo.public.tutorial-link": { de: "Tutorial", en: "Tutorial" },
 
-  "showpony:caps.usageTitle": { de: "Verbrauch", en: "Usage" },
   "showpony:caps.events": { de: "Events", en: "Events" },
   "showpony:caps.guests": { de: "RSVPs", en: "RSVPs" },
-  "showpony:caps.unlimited": { de: "(unbegrenzt)", en: "(unlimited)" },
-  "showpony:caps.upgradeHint": {
-    de: "Limit erreicht, wähle oben einen größeren Tarif.",
-    en: "Limit reached, pick a larger plan above.",
-  },
 
   "showpony:billing.tier.free": { de: "Free", en: "Free" },
   "showpony:billing.tier.starter": { de: "Starter", en: "Starter" },

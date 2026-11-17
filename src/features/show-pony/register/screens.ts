@@ -1,4 +1,5 @@
 import { billingPlansPanel } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { CAP_CARDS_PANEL_COMPONENT } from "@cosmicdrift/kumiko-bundled-features/cap-overview";
 import { access, type FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 import type {
   DashboardScreenDefinition,
@@ -54,7 +55,7 @@ export const billingScreen: DashboardScreenDefinition = {
   type: "dashboard",
   panels: [
     billingPlansPanel(),
-    { kind: "custom", id: "usage", component: { react: { __component: "ShowPonyUsagePanel" } } },
+    { kind: "custom", id: "usage", component: { react: { __component: CAP_CARDS_PANEL_COMPONENT } } },
   ],
   access: { roles: BILLING_ROLES },
 };

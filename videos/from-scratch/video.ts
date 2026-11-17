@@ -995,7 +995,7 @@ export default defineVideo({
       do: async (page, ctx) => {
         const preview = await appPreview(page, ctx, {
           url: `${APEX_URL}/host/billing`,
-          highlights: (p) => [p.getByTestId("showpony-usage-panel")],
+          highlights: (p) => [p.getByTestId("cap-cards-panel")],
           cards: [
             {
               title: "Limits without extra code",

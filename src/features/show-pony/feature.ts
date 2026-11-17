@@ -18,7 +18,6 @@ import {
 } from "./handlers/event-handlers";
 import { inviteBrandingQuery } from "./handlers/invite-branding.query";
 import { rsvpSubmitHandler } from "./handlers/rsvp-submit.write";
-import { usageQuery } from "./handlers/usage.query";
 import { showPonyTranslations } from "./i18n";
 import { INVITE_BRANDING_KEYS } from "./invite-branding";
 import {
@@ -86,8 +85,6 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
         "Deletes one guest reply of the tenant by id, for example spam or a duplicate; Admin only, because the row carries guest personal data.",
     }),
   );
-
-  r.queryHandler(usageQuery);
 
   registerShowPonyScreens(r);
   registerShowPonyNav(r);

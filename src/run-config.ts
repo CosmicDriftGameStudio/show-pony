@@ -7,6 +7,7 @@
 
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuthFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
+import { createCapOverviewFeature } from "@cosmicdrift/kumiko-bundled-features/cap-overview";
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
@@ -37,9 +38,10 @@ import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
 import { createShowPonyBillingFoundationFeature } from "./features/show-pony/billing/plan-catalog";
+import { SHOWPONY_CAP_SPECS } from "./features/show-pony/cap-specs";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { TENANT_EDITABLE_TEMPLATES } from "./features/show-pony/tenant-editable-templates";
-import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
+import { DEFAULT_TIER, SHOWPONY_TIER_MAP, TIER_NAMES } from "./features/show-pony/tier-map";
 import { showPonyLegalLayout } from "./marketing/layouts/legal";
 import { resolveSubdomainPageTenant, showPonyHostRoutingOptions } from "./tenant-routing";
 
@@ -89,6 +91,7 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createComplianceProfilesFeature(),
     createTenantLifecycleFeature(),
     createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
+    createCapOverviewFeature({ caps: SHOWPONY_CAP_SPECS, tiers: TIER_NAMES }),
     createSecretsFeature(),
     createMetricsFeature({ metrics: DEFAULT_METRICS }),
     createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),
