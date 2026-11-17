@@ -55,7 +55,11 @@ export const billingScreen: DashboardScreenDefinition = {
   type: "dashboard",
   panels: [
     billingPlansPanel(),
-    { kind: "custom", id: "usage", component: { react: { __component: CAP_CARDS_PANEL_COMPONENT } } },
+    {
+      kind: "custom",
+      id: "usage",
+      component: { react: { __component: CAP_CARDS_PANEL_COMPONENT } },
+    },
   ],
   access: { roles: BILLING_ROLES },
 };

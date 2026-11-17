@@ -7,7 +7,9 @@ describe("rsvpRejectionMessageKey", () => {
     expect(rsvpRejectionMessageKey("rsvp_already_submitted")).toBe(
       "showpony:errors.rsvpAlreadySubmitted",
     );
-    expect(rsvpRejectionMessageKey("guest_limit_reached")).toBe("showpony:errors.guestLimitReached");
+    expect(rsvpRejectionMessageKey("guest_limit_reached")).toBe(
+      "showpony:errors.guestLimitReached",
+    );
   });
 
   test("returns undefined for unknown reasons and non-strings", () => {

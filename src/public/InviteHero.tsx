@@ -172,9 +172,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
 
   if (branding.heroStyle === "split") {
     return (
-      <header
-        className="sp-hero-split border-b border-[var(--color-border)] text-[var(--color-foreground)]"
-      >
+      <header className="sp-hero-split border-b border-[var(--color-border)] text-[var(--color-foreground)]">
         <div className="sp-hero-split-row">
           <div className="sp-hero-split-copy flex flex-col justify-center px-6 py-10 sm:px-10 lg:px-12 lg:py-14">
             <HeroCopy {...props} metaVariant="card" />
@@ -192,9 +190,7 @@ export function InviteHero(props: InviteHeroProps): ReactElement {
   }
 
   return (
-    <header
-      className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10 sm:py-14"
-    >
+    <header className="sp-hero-immersive relative isolate z-0 overflow-hidden px-6 py-12 text-[var(--color-primary-foreground)] sm:px-10 sm:py-14">
       <ImmersiveHeroBackdrop heroUrl={heroUrl} accent={branding.accentColor} />
       <div className="relative z-10 mx-auto flex min-h-[inherit] max-w-3xl flex-col justify-end pb-2">
         <HeroCopy {...props} metaVariant="hero" />

@@ -1,5 +1,9 @@
 import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import { access, type ConfigAccessor, defineQueryHandler } from "@cosmicdrift/kumiko-framework/engine";
+import {
+  access,
+  type ConfigAccessor,
+  defineQueryHandler,
+} from "@cosmicdrift/kumiko-framework/engine";
 import { z } from "zod";
 import { INVITE_BRANDING_QN, type InviteBranding, parseHeroStyle } from "../invite-branding.shared";
 

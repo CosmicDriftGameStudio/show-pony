@@ -58,7 +58,7 @@ const searchWiring = createMeilisearchWiring({
 
 await runDevApp({
   kmsMode: SHOW_PONY_KMS_MODE,
-  demoMode: buildDemoModeOption(process.env, BASE_DOMAIN),
+  demoMode: buildDemoModeOption({ DEMO_READ_ONLY: process.env["DEMO_READ_ONLY"] }, BASE_DOMAIN),
   ...(billing && { billing }),
   features: [
     ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: DEV_ORIGIN, emailTransport }),

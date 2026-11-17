@@ -162,7 +162,8 @@ describe("rsvp:delete — admin-only cleanup", () => {
 
     await stack.http.writeOk("showpony:write:rsvp:delete", { id }, admin);
     const detailRes = await stack.http.query("showpony:query:rsvp:detail", { id }, admin);
-    expect(detailRes.status).toBe(404);
+    expect(detailRes.status).toBe(200);
+    expect(propertyOf(await detailRes.json(), "data")).toBeNull();
 
     const resubmitRes = await submitReply(email);
     expect(resubmitRes.status).toBe(200);
