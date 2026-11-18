@@ -221,7 +221,7 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
       // Free tier's 1-event cap: the single seeded event fills it.
       await expect(page.getByTestId("cap-card")).toHaveCount(2);
-      await expect(page.getByTestId("showpony-upgrade-hint")).toBeVisible();
+      await expect(page.getByText("Limit erreicht, wähle oben einen größeren Tarif.")).toBeVisible();
     },
   },
   {
@@ -265,7 +265,7 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel-disabled")).toBeVisible();
       await expect(page.getByTestId("cap-card")).toHaveCount(2);
-      await expect(page.getByTestId("showpony-upgrade-hint")).toHaveCount(0);
+      await expect(page.getByText("Limit erreicht, wähle oben einen größeren Tarif.")).toHaveCount(0);
     },
   },
 ];
