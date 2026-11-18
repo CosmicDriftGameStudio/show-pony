@@ -96,8 +96,8 @@ export const showPonyTranslations = {
   "showpony:public.rsvp.name-placeholder": { de: "Dein Name", en: "Your name" },
   "showpony:public.rsvp.email": { de: "E-Mail (optional)", en: "Email (optional)" },
   "showpony:public.rsvp.email-placeholder": {
-    de: "E-Mail (optional, für die Bestätigung)",
-    en: "Email (optional, for your confirmation)",
+    de: "Für deine Bestätigung",
+    en: "For your confirmation",
   },
   "showpony:public.rsvp.note": {
     de: "Nachricht an den Gastgeber (optional)",

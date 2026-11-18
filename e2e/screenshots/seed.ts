@@ -75,10 +75,21 @@ const ROOFTOP_GUESTS: ReadonlyArray<{
   readonly name: string;
   readonly status: RsvpStatus;
   readonly plusN: number;
+  readonly note?: string;
 }> = [
-  { name: "Ava Chen", status: "yes", plusN: 2 },
+  {
+    name: "Ava Chen",
+    status: "yes",
+    plusN: 2,
+    note: "Bringing two colleagues from the design team.",
+  },
   { name: "Marcus Bell", status: "yes", plusN: 0 },
-  { name: "Priya Raman", status: "maybe", plusN: 1 },
+  {
+    name: "Priya Raman",
+    status: "maybe",
+    plusN: 1,
+    note: "Might be late, my flight lands at 7 pm.",
+  },
   { name: "Diego Santos", status: "no", plusN: 0 },
 ];
 

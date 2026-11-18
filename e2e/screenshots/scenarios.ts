@@ -192,6 +192,7 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "public-rsvp-draft",
     description: "Public RSVP — guest name typed, status selected, ready to send",
+    fullPage: true,
     flow: async (page, fixtures) => {
       const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
@@ -201,6 +202,9 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
       const yesButton = page.getByRole("button", { name: /I'm in|Ich komme/ });
       await yesButton.click();
       await expect(yesButton).toHaveAttribute("aria-pressed", "true");
+      await page
+        .getByRole("textbox", { name: /Note for the host|Nachricht an den Gastgeber/ })
+        .fill("Vegetarian, arriving around 10 pm.");
     },
   },
 ];
