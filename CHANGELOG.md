@@ -20,12 +20,12 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Manual migrations
 
-- [open] 0.424.0:695f52e8 · 0.424.0 · authorizeSubject receives the subject scope context instead of the full handler context
-- [open] 0.424.0:23df73b3 · 0.424.0 · system placeholder labels moved to the template-resolver namespace
-- [open] 0.423.0:f355af8d · 0.423.0 · The TenantOwner role option is removed from the member roles form
-- [open] 0.423.0:853c7d4f · 0.423.0 · TenantOwner no longer closes the account
-- [open] 0.423.0:7bcb1ea2 · 0.423.0 · TenantOwner is no longer a keep-account role
-- [open] 0.423.0:461f4e38 · 0.423.0 · ROLES.TenantOwner is removed
+- [not-applicable] 0.424.0:695f52e8 · 0.424.0 · authorizeSubject receives the subject scope context instead of the full handler context
+- [not-applicable] 0.424.0:23df73b3 · 0.424.0 · system placeholder labels moved to the template-resolver namespace
+- [not-applicable] 0.423.0:f355af8d · 0.423.0 · The TenantOwner role option is removed from the member roles form
+- [not-applicable] 0.423.0:853c7d4f · 0.423.0 · TenantOwner no longer closes the account
+- [not-applicable] 0.423.0:7bcb1ea2 · 0.423.0 · TenantOwner is no longer a keep-account role
+- [not-applicable] 0.423.0:461f4e38 · 0.423.0 · ROLES.TenantOwner is removed
 
 ## [0.420.0] - 2026-11-12
 

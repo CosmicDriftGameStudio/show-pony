@@ -53,38 +53,6 @@
       "title": "kumiko-upgrade migrates older scaffolds to Key Manager ciphertext keys"
     }
   ],
-  "pendingManual": [
-    {
-      "id": "0.424.0:695f52e8",
-      "version": "0.424.0",
-      "title": "authorizeSubject receives the subject scope context instead of the full handler context"
-    },
-    {
-      "id": "0.424.0:23df73b3",
-      "version": "0.424.0",
-      "title": "system placeholder labels moved to the template-resolver namespace"
-    },
-    {
-      "id": "0.423.0:f355af8d",
-      "version": "0.423.0",
-      "title": "The TenantOwner role option is removed from the member roles form"
-    },
-    {
-      "id": "0.423.0:853c7d4f",
-      "version": "0.423.0",
-      "title": "TenantOwner no longer closes the account"
-    },
-    {
-      "id": "0.423.0:7bcb1ea2",
-      "version": "0.423.0",
-      "title": "TenantOwner is no longer a keep-account role"
-    },
-    {
-      "id": "0.423.0:461f4e38",
-      "version": "0.423.0",
-      "title": "ROLES.TenantOwner is removed"
-    }
-  ],
   "resolvedManual": [
     {
       "id": "0.346.0:693f3da9",
@@ -2325,6 +2293,54 @@
       "resolution": "not-applicable",
       "reason": "no e2e spec targets the document designer editor",
       "resolvedAt": "2026-11-12T10:37:37.497009Z"
+    },
+    {
+      "id": "0.424.0:695f52e8",
+      "version": "0.424.0",
+      "title": "authorizeSubject receives the subject scope context instead of the full handler context",
+      "resolution": "not-applicable",
+      "reason": "App never references authorizeSubject (git grep over src, bin, kumiko: 0 hits)",
+      "resolvedAt": "2026-11-18T04:18:01.091863Z"
+    },
+    {
+      "id": "0.424.0:23df73b3",
+      "version": "0.424.0",
+      "title": "system placeholder labels moved to the template-resolver namespace",
+      "resolution": "not-applicable",
+      "reason": "App never references documentDesigner.placeholder (git grep over src, bin, kumiko: 0 hits)",
+      "resolvedAt": "2026-11-18T04:18:01.197567Z"
+    },
+    {
+      "id": "0.423.0:f355af8d",
+      "version": "0.423.0",
+      "title": "The TenantOwner role option is removed from the member roles form",
+      "resolution": "not-applicable",
+      "reason": "App never references TenantOwner (git grep over src, bin, kumiko: 0 hits)",
+      "resolvedAt": "2026-11-18T04:18:01.303385Z"
+    },
+    {
+      "id": "0.423.0:853c7d4f",
+      "version": "0.423.0",
+      "title": "TenantOwner no longer closes the account",
+      "resolution": "not-applicable",
+      "reason": "App never references TenantOwner (git grep over src, bin, kumiko: 0 hits)",
+      "resolvedAt": "2026-11-18T04:18:01.403796Z"
+    },
+    {
+      "id": "0.423.0:7bcb1ea2",
+      "version": "0.423.0",
+      "title": "TenantOwner is no longer a keep-account role",
+      "resolution": "not-applicable",
+      "reason": "App never references TenantOwner (git grep over src, bin, kumiko: 0 hits)",
+      "resolvedAt": "2026-11-18T04:18:01.501163Z"
+    },
+    {
+      "id": "0.423.0:461f4e38",
+      "version": "0.423.0",
+      "title": "ROLES.TenantOwner is removed",
+      "resolution": "not-applicable",
+      "reason": "App never references TenantOwner (git grep over src, bin, kumiko: 0 hits)",
+      "resolvedAt": "2026-11-18T04:18:01.597392Z"
     }
   ]
 }
