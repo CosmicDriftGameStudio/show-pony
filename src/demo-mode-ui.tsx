@@ -1,9 +1,9 @@
 // Shared demo-mode UI (admin bundle).
 
-import { useLocale, useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { type ReactElement, useEffect, useState } from "react";
-import { fetchDemoMode } from "./demo-mode-client";
-import { type DemoModePayload, findDemoLinkHref, TUTORIAL_LINK_LABEL } from "./demo-mode-notice";
+import { useLocale, usePrimitives, useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { useDemoMode } from "@cosmicdrift/kumiko-renderer/web";
+import type { ReactElement } from "react";
+import { findDemoLinkHref, TUTORIAL_LINK_LABEL } from "./demo-mode-notice";
 
 function localeLabel(entry: Readonly<Record<string, string>>, locale: string): string {
   return (locale.startsWith("de") ? entry["de"] : entry["en"]) ?? "";
@@ -12,11 +12,7 @@ function localeLabel(entry: Readonly<Record<string, string>>, locale: string): s
 export function DemoLoginHint(): ReactElement | null {
   const t = useTranslation();
   const locale = useLocale().locale();
-  const [demo, setDemo] = useState<DemoModePayload | null>(null);
-
-  useEffect(() => {
-    void fetchDemoMode().then(setDemo);
-  }, []);
+  const demo = useDemoMode();
 
   if (!demo?.readOnly || demo.notice.accounts.length === 0) return null;
 
@@ -48,11 +44,8 @@ export function DemoLoginHint(): ReactElement | null {
 
 export function DemoReadOnlyBanner(): ReactElement | null {
   const t = useTranslation();
-  const [demo, setDemo] = useState<DemoModePayload | null>(null);
-
-  useEffect(() => {
-    void fetchDemoMode().then(setDemo);
-  }, []);
+  const { Link } = usePrimitives();
+  const demo = useDemoMode();
 
   if (!demo?.readOnly) return null;
   const tutorialUrl = findDemoLinkHref(demo, TUTORIAL_LINK_LABEL);
@@ -64,9 +57,9 @@ export function DemoReadOnlyBanner(): ReactElement | null {
     >
       {t("showpony:demo.banner")}{" "}
       {tutorialUrl !== undefined && (
-        <a href={tutorialUrl} className="font-medium underline underline-offset-2">
+        <Link href={tutorialUrl} className="font-medium text-inherit underline underline-offset-2">
           {t("showpony:demo.banner.link")}
-        </a>
+        </Link>
       )}
     </div>
   );

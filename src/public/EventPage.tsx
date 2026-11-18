@@ -3,9 +3,8 @@
 // Anonymous — no login, no account.
 
 import { useLocale, useQuery, useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { type ReactElement, useEffect, useState } from "react";
-import { fetchDemoMode } from "../demo-mode-client";
-import type { DemoModePayload } from "../demo-mode-notice";
+import { useDemoMode } from "@cosmicdrift/kumiko-renderer/web";
+import { type ReactElement, useEffect } from "react";
 import {
   coerceInviteBranding,
   INVITE_BRANDING_QUERY_QN,
@@ -27,12 +26,7 @@ export function EventPage(): ReactElement {
   const slug = slugFromPath();
   const eventQuery = useQuery<PublicEvent | null>("showpony:query:event:by-slug", { slug });
   const brandingQuery = useQuery<unknown>(INVITE_BRANDING_QUERY_QN, {});
-  const [demo, setDemo] = useState<DemoModePayload | null>(null);
-
-  // biome-ignore lint/plugin: /demo-mode is a boot route, not a handler; useQuery cannot serve it
-  useEffect(() => {
-    void fetchDemoMode().then(setDemo);
-  }, []);
+  const demo = useDemoMode();
 
   const branding = coerceInviteBranding(brandingQuery.data);
   const splitPage = eventQuery.data !== null && branding.heroStyle === "split";

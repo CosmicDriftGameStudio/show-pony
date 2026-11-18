@@ -1,11 +1,7 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
+import type { DemoModePayload } from "@cosmicdrift/kumiko-types/demo-mode-types";
 import type { ReactElement } from "react";
-import {
-  type DemoModePayload,
-  findDemoLinkHref,
-  HOST_LOGIN_LINK_LABEL,
-  TUTORIAL_LINK_LABEL,
-} from "../demo-mode-notice";
+import { findDemoLinkHref, HOST_LOGIN_LINK_LABEL, TUTORIAL_LINK_LABEL } from "../demo-mode-notice";
 
 export function DemoPublicNotice({
   demo,
