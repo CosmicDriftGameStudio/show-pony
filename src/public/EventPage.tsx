@@ -2,7 +2,7 @@
 // (<key>.show-pony.<domain>/e/<slug>) and shows it plus the RSVP form.
 // Anonymous — no login, no account.
 
-import { useLocale, useQuery, useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { useLocale, usePrimitives, useQuery, useTranslation } from "@cosmicdrift/kumiko-renderer";
 import { useDemoMode } from "@cosmicdrift/kumiko-renderer/web";
 import { type ReactElement, useEffect } from "react";
 import {
@@ -27,6 +27,7 @@ export function EventPage(): ReactElement {
   const eventQuery = useQuery<PublicEvent | null>("showpony:query:event:by-slug", { slug });
   const brandingQuery = useQuery<unknown>(INVITE_BRANDING_QUERY_QN, {});
   const demo = useDemoMode();
+  const { Link } = usePrimitives();
 
   const branding = coerceInviteBranding(brandingQuery.data);
   const splitPage = eventQuery.data !== null && branding.heroStyle === "split";
@@ -98,13 +99,13 @@ export function EventPage(): ReactElement {
                 {event.description}
               </p>
             ) : null}
-            <a
+            <Link
               href={icsHref(event)}
               download={`${event.slug}.ics`}
-              className={`${event.description ? "mt-5 " : ""}inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline`}
+              className={`${event.description ? "mt-5 " : ""}inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] underline-offset-auto hover:underline`}
             >
               {t("showpony:public.event.add-to-calendar")}
-            </a>
+            </Link>
           </section>
 
           <section className="sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
