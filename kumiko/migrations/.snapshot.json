@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-11-05T09:06:21.491Z",
+  "generatedAt": "2026-11-18T00:38:17.948Z",
   "tables": [
     {
       "tableName": "read_config_values",
@@ -78,7 +78,8 @@
         }
       ],
       "source": "managed",
-      "systemRowsReadable": true
+      "systemRowsReadable": true,
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_events",
@@ -159,9 +160,18 @@
           "columns": [
             "tenant_id"
           ]
+        },
+        {
+          "name": "read_events_tenant_id_slug_unique",
+          "columns": [
+            "tenant_id",
+            "slug"
+          ],
+          "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_notification_address_opt_outs",
@@ -233,7 +243,8 @@
           "unique": true
         }
       ],
-      "source": "unmanaged"
+      "source": "unmanaged",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_notification_preferences",
@@ -311,7 +322,8 @@
           "unique": true
         }
       ],
-      "source": "unmanaged"
+      "source": "unmanaged",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_pages",
@@ -416,7 +428,8 @@
         }
       ],
       "source": "managed",
-      "systemRowsReadable": true
+      "systemRowsReadable": true,
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_payments",
@@ -609,7 +622,8 @@
           "whereSql": "status IN ('pending', 'running')"
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_rsvps",
@@ -655,7 +669,7 @@
         },
         {
           "name": "event_id",
-          "pgType": "text",
+          "pgType": "uuid",
           "notNull": true
         },
         {
@@ -703,6 +717,12 @@
           ]
         },
         {
+          "name": "read_rsvps_event_id_idx",
+          "columns": [
+            "event_id"
+          ]
+        },
+        {
           "name": "read_rsvps_name_bidx_idx",
           "columns": [
             "name_bidx"
@@ -713,6 +733,13 @@
           "columns": [
             "email_bidx"
           ]
+        },
+        {
+          "name": "read_rsvps_tenant_id_event_id_idx",
+          "columns": [
+            "tenant_id",
+            "event_id"
+          ]
         }
       ],
       "source": "managed",
@@ -720,7 +747,8 @@
         "name",
         "email",
         "note"
-      ]
+      ],
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_subscriptions",
@@ -952,7 +980,8 @@
         }
       ],
       "source": "managed",
-      "systemRowsReadable": true
+      "systemRowsReadable": true,
+      "entityEventVersion": 2
     },
     {
       "tableName": "read_tenant_compliance_profiles",
@@ -1022,7 +1051,8 @@
           "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_tenant_invitations",
@@ -1155,7 +1185,8 @@
       "piiSubjectFields": [
         "email",
         "invitedBy"
-      ]
+      ],
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_tenant_memberships",
@@ -1226,7 +1257,8 @@
           "unique": true
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_tenant_secrets",
@@ -1308,7 +1340,8 @@
           "unique": true
         }
       ],
-      "source": "unmanaged"
+      "source": "unmanaged",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_tenants",
@@ -1419,7 +1452,8 @@
       "piiSubjectFields": [
         "name"
       ],
-      "tenancy": "global"
+      "tenancy": "global",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_tier_assignments",
@@ -1482,7 +1516,8 @@
           ]
         }
       ],
-      "source": "managed"
+      "source": "managed",
+      "entityEventVersion": 1
     },
     {
       "tableName": "read_users",
@@ -1652,7 +1687,73 @@
         "email",
         "displayName"
       ],
-      "tenancy": "global"
+      "tenancy": "global",
+      "entityEventVersion": 1
+    },
+    {
+      "tableName": "store_access_log",
+      "columns": [
+        {
+          "name": "id",
+          "pgType": "uuid",
+          "notNull": true,
+          "primaryKey": true
+        },
+        {
+          "name": "tenant_id",
+          "pgType": "uuid",
+          "notNull": true
+        },
+        {
+          "name": "occurred_at",
+          "pgType": "timestamptz",
+          "notNull": true
+        },
+        {
+          "name": "actor_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "subject_type",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "subject_id",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "action",
+          "pgType": "text",
+          "notNull": true
+        },
+        {
+          "name": "details",
+          "pgType": "jsonb",
+          "notNull": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "store_access_log_tenant_id_subject_type_subject_id_occurred_at_idx",
+          "columns": [
+            "tenant_id",
+            "subject_type",
+            "subject_id",
+            "occurred_at"
+          ]
+        },
+        {
+          "name": "store_access_log_tenant_id_occurred_at_idx",
+          "columns": [
+            "tenant_id",
+            "occurred_at"
+          ]
+        }
+      ],
+      "source": "unmanaged"
     },
     {
       "tableName": "store_delivery_attempts",
@@ -1769,7 +1870,14 @@
           "notNull": true
         }
       ],
-      "indexes": [],
+      "indexes": [
+        {
+          "name": "store_job_run_logs_run_id_idx",
+          "columns": [
+            "run_id"
+          ]
+        }
+      ],
       "source": "unmanaged"
     },
     {
@@ -1877,6 +1985,13 @@
           "name": "store_job_runs_started_at_idx",
           "columns": [
             "started_at"
+          ]
+        },
+        {
+          "name": "store_job_runs_job_name_bull_job_id_idx",
+          "columns": [
+            "job_name",
+            "bull_job_id"
           ]
         }
       ],
@@ -2132,6 +2247,12 @@
             "tenant_id",
             "last_seen_at"
           ]
+        },
+        {
+          "name": "store_user_sessions_user_id_idx",
+          "columns": [
+            "user_id"
+          ]
         }
       ],
       "source": "unmanaged",
@@ -2356,6 +2477,18 @@
       ]
     },
     "read_users": {
+      "policies": [
+        {
+          "name": "kumiko_tenant_isolation",
+          "command": "ALL",
+          "kind": "PERMISSIVE",
+          "rolesSql": "PUBLIC",
+          "using": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'",
+          "withCheck": "\"tenant_id\" = NULLIF(current_setting('kumiko.tenant_id', true), '')::uuid OR current_setting('kumiko.scope', true) = 'system'"
+        }
+      ]
+    },
+    "store_access_log": {
       "policies": [
         {
           "name": "kumiko_tenant_isolation",

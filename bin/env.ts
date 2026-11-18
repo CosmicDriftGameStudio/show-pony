@@ -3,7 +3,7 @@
 
 import { parseEnv, parseEnvDryRun } from "@cosmicdrift/kumiko-framework/env";
 import { isDryRunEnvActive } from "@cosmicdrift/kumiko-framework/env/dry-run";
-import { type ShowPonyEnv, envSchema } from "./env-schema";
+import { envSchema, type ShowPonyEnv } from "./env-schema";
 
 export const isDryRun = isDryRunEnvActive(process.env);
 

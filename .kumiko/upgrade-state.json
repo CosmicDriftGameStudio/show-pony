@@ -1,6 +1,6 @@
 {
-  "version": "0.420.0",
-  "appliedAt": "2026-11-12T10:37:29.567422Z",
+  "version": "0.424.1",
+  "appliedAt": "2026-11-18T00:36:15.930442Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -51,6 +51,38 @@
       "version": "0.417.0",
       "codemod": "scripts/codemod/scaffold-kms-mode.ts",
       "title": "kumiko-upgrade migrates older scaffolds to Key Manager ciphertext keys"
+    }
+  ],
+  "pendingManual": [
+    {
+      "id": "0.424.0:695f52e8",
+      "version": "0.424.0",
+      "title": "authorizeSubject receives the subject scope context instead of the full handler context"
+    },
+    {
+      "id": "0.424.0:23df73b3",
+      "version": "0.424.0",
+      "title": "system placeholder labels moved to the template-resolver namespace"
+    },
+    {
+      "id": "0.423.0:f355af8d",
+      "version": "0.423.0",
+      "title": "The TenantOwner role option is removed from the member roles form"
+    },
+    {
+      "id": "0.423.0:853c7d4f",
+      "version": "0.423.0",
+      "title": "TenantOwner no longer closes the account"
+    },
+    {
+      "id": "0.423.0:7bcb1ea2",
+      "version": "0.423.0",
+      "title": "TenantOwner is no longer a keep-account role"
+    },
+    {
+      "id": "0.423.0:461f4e38",
+      "version": "0.423.0",
+      "title": "ROLES.TenantOwner is removed"
     }
   ],
   "resolvedManual": [

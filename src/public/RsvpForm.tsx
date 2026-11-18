@@ -30,11 +30,11 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
   const [note, setNote] = useState("");
   const [state, setState] = useState<FormState>({ kind: "idle" });
 
-  const statusLabels: Record<RsvpStatus, string> = {
-    yes: t("showpony:public.rsvp.status.yes"),
-    maybe: t("showpony:public.rsvp.status.maybe"),
-    no: t("showpony:public.rsvp.status.no"),
-  };
+  const statusOptions: readonly { readonly value: RsvpStatus; readonly label: string }[] = [
+    { value: "yes", label: t("showpony:public.rsvp.status.yes") },
+    { value: "maybe", label: t("showpony:public.rsvp.status.maybe") },
+    { value: "no", label: t("showpony:public.rsvp.status.no") },
+  ];
 
   async function onSubmit(): Promise<void> {
     if (name.length === 0) return;
@@ -102,14 +102,7 @@ export function RsvpForm({ eventId }: { readonly eventId: string }): ReactElemen
             disabled={state.kind === "submitting"}
           />
         </Field>
-        <ModeSwitch
-          value={status}
-          onChange={setStatus}
-          options={(Object.keys(statusLabels) as RsvpStatus[]).map((s) => ({
-            value: s,
-            label: statusLabels[s],
-          }))}
-        />
+        <ModeSwitch value={status} onChange={setStatus} options={statusOptions} />
         <Field id="rsvp-plus-n" label={t("showpony:public.rsvp.plus-guests")}>
           <Input
             kind="number"

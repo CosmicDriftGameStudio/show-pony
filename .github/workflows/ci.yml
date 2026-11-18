@@ -1,14 +1,8 @@
 # kumiko-managed
-# kumiko-managed: local public repo, cannot call the private infra reusable workflows
-# CI for show-pony.
-#
-# show-pony is a PUBLIC repo, so it can't call the private cosmicdriftgamestudio/
-# infra reusable workflows (GitHub blocks public→private reusable calls) and
-# must not use the self-hosted cdgs-runner. So this workflow is self-contained
-# and runs entirely on GitHub-hosted runners.
-#
-# It builds and pushes the image only. Prod rollout is manual: `cdgs release`
-# in the infra repo dispatches infra public-app-rollout (app + git_sha).
+# CI for show-pony: a public repo cannot call the private reusable workflows in
+# cosmicdriftgamestudio/infra, so every job here is self-contained on GitHub-hosted
+# runners. The rollout is manual: see release.yml. Jobs only this app needs: name
+# them `app-<name>` in this file (they survive `kumiko sync-managed`).
 
 name: CI
 
@@ -26,46 +20,6 @@ env:
   HUSKY: "0"
 
 jobs:
-  # Scans the commits introduced by the PR (or the last commit on main) for
-  # committed secrets. gitleaks-action needs a paid licence for organisations,
-  # so the CLI is installed from a pinned release asset and verified by SHA256.
-  secrets-scan:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    env:
-      GITLEAKS_VERSION: "8.30.1"
-      # Source: gitleaks_8.30.1_checksums.txt attached to the v8.30.1 release.
-      GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # Full history so the merge-base with the PR target is reachable.
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Install gitleaks
-        run: |
-          asset="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          curl -sSfL -o "$RUNNER_TEMP/$asset" \
-            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${asset}"
-          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$asset" | sha256sum --check --strict
-          tar -xzf "$RUNNER_TEMP/$asset" -C "$RUNNER_TEMP" gitleaks
-      - name: Scan for secrets
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          if [ "$EVENT_NAME" = "pull_request" ]; then
-            range="$(git merge-base "origin/${BASE_REF}" HEAD)..HEAD"
-          else
-            range="HEAD~1..HEAD"
-          fi
-          # --redact keeps matched secrets out of the public job log.
-          "$RUNNER_TEMP/gitleaks" git --config .gitleaks.toml --redact --no-banner \
-            --log-opts="$range" .
-
-  # lint + typecheck + schema/boot validate + unit tests. PR-only gate.
   test:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -74,6 +28,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.4.4"
@@ -85,79 +41,51 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
       - run: bun run lint
-      # Static gate derived from kumiko.json: schema drift, validateBoot over the
-      # composed features, public AST guards and repo checks.
       - run: bun kumiko check
       - name: Schema + boot validate
+        env:
+          FILE_STORAGE_PROVIDER: "inmemory"
         run: bun kumiko-schema validate
-      - name: Boot dry-run with empty env
-        run: env -i PATH="$PATH" HOME="$HOME" KUMIKO_DRY_RUN_ENV=boot bun bin/main.ts
-      - name: Comment-Language guard
-        # Baseline regression guard: fails only on NEW German comments; existing
-        # ones are frozen in .kumiko-comment-lang-baseline.json.
-        run: bun kumiko-guards comment-lang
       - name: UI guards
         run: bun kumiko-guards ui
+      - name: Comment-language guard
+        run: bun kumiko-guards comment-lang
       - name: Agent manifest lint
         run: bun kumiko agent lint
-      - run: |
-          ulimit -n 65536 || true
-          bun run test
+      - run: bun run test
 
-  # Integration tests against real Postgres + Redis. PR-only, non-blocking gate.
   integration:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: read
+    services:
+      postgres:
+        image: postgres:18.4-alpine
+        env:
+          POSTGRES_USER: kumiko
+          POSTGRES_PASSWORD: kumiko
+          POSTGRES_DB: kumiko_dev
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd "pg_isready -U kumiko -d kumiko_dev"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 16379:6379
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.4.4"
-      - uses: actions/cache@v6
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
       - run: bun install --frozen-lockfile
-      - name: Start services
-        run: |
-          docker rm -f sp-ci-pg sp-ci-redis sp-ci-meili 2>/dev/null || true
-          # Docker Hub pulls from GitHub-hosted runners time out intermittently —
-          # pull with retries before running, so a transient hiccup doesn't fail CI.
-          for img in postgres:18.4-alpine redis:8-alpine getmeili/meilisearch:v1.12; do
-            for attempt in 1 2 3 4 5; do
-              docker pull "$img" && break || { echo "pull $img failed (attempt $attempt), retrying"; sleep 10; }
-            done
-          done
-          docker run -d --name sp-ci-pg -p 15432:5432 \
-            -e POSTGRES_USER=kumiko -e POSTGRES_PASSWORD=kumiko -e POSTGRES_DB=kumiko_dev \
-            --health-cmd="pg_isready -U kumiko -d kumiko_dev" \
-            --health-interval=2s --health-timeout=3s --health-retries=30 \
-            postgres:18.4-alpine
-          docker run -d --name sp-ci-redis -p 16379:6379 redis:8-alpine
-          docker run -d --name sp-ci-meili -p 17700:7700 \
-            -e MEILI_MASTER_KEY=kumiko-dev-key -e MEILI_ENV=development \
-            getmeili/meilisearch:v1.12
-          for i in $(seq 1 60); do
-            [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg 2>/dev/null)" = healthy ] && break
-            sleep 2
-          done
-          if [ "$(docker inspect -f '{{.State.Health.Status}}' sp-ci-pg)" != healthy ]; then
-            docker logs sp-ci-pg
-            exit 1
-          fi
-          for i in $(seq 1 30); do
-            curl -sf http://localhost:17700/health >/dev/null && break
-            sleep 2
-          done
-          if ! curl -sf http://localhost:17700/health >/dev/null; then
-            docker logs sp-ci-meili
-            exit 1
-          fi
-          docker exec sp-ci-pg psql -U kumiko -d kumiko_dev -c "CREATE DATABASE kumiko_test;" || true
+      - name: Create test database
+        env:
+          PGPASSWORD: kumiko
+        run: psql -h localhost -p 15432 -U kumiko -d kumiko_dev -c "CREATE DATABASE kumiko_test;"
       - name: Run integration tests
         env:
           NODE_ENV: test
@@ -165,15 +93,10 @@ jobs:
           DATABASE_URL: postgresql://kumiko:kumiko@localhost:15432/kumiko_dev
           TEST_DATABASE_URL: postgresql://kumiko:kumiko@localhost:15432/kumiko_test
           REDIS_URL: redis://localhost:16379
-          JWT_SECRET: test-jwt-secret-at-least-32-characters-long
+          JWT_SECRET: testtesttesttesttesttesttesttest
         run: bun run test:integration
-      - name: Stop services
-        if: always()
-        run: docker rm -f sp-ci-pg sp-ci-redis sp-ci-meili || true
 
-  # Build + push the arm64 and amd64 image to GHCR on merge to main. arm64 builds natively on a
-  # GitHub-hosted runner, amd64 under QEMU; bun itself runs only on the build platform (deploy/Dockerfile).
-  # GITHUB_TOKEN is enough: the package's origin is this repo.
+  # Build on main only; the rollout runs through the manual release workflow.
   build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-26.04-arm
@@ -197,7 +120,7 @@ jobs:
         with:
           images: ghcr.io/cosmicdriftgamestudio/show-pony
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
             type=sha,prefix=sha-,format=short
       - uses: docker/build-push-action@v7
         with:

@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { type AccessRule, access, createRegistry } from "@cosmicdrift/kumiko-framework/engine";
+import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import { appShellFeature } from "../features/app-shell/feature";
-import { buildAppFeatures } from "../run-config";
+import { buildAppFeatures, HAS_AUTH } from "../run-config";
 
 function expectRoles(rule: AccessRule | undefined): readonly string[] {
   expect(rule).toBeDefined();
@@ -20,7 +21,11 @@ describe("show-pony app-shell workspaces", () => {
   });
 
   test("system check and users are collected into the platform workspace, never the host", () => {
-    const registry = createRegistry(buildAppFeatures({ baseDomain: "show-pony.test" }));
+    const registry = createRegistry(
+      composeFeatures(buildAppFeatures({ baseDomain: "show-pony.test" }), {
+        includeBundled: HAS_AUTH,
+      }),
+    );
     const hostNav = registry.getWorkspaceNavs("app-shell:workspace:host");
     const platformNav = registry.getWorkspaceNavs("app-shell:workspace:platform");
 

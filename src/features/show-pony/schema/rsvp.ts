@@ -16,6 +16,7 @@ export type RsvpStatus = (typeof RSVP_STATUSES)[number];
 // coming / not coming / maybe. eventId references the event within the same
 // tenant.
 export const rsvpEntity = createEntity({
+  name: "rsvp",
   description:
     "One guest reply to an event of the same tenant: the event's id, the guest's name, optional email and note, attendance status (yes, no or maybe) and the number of additional guests. Name, email and note are guest personal data.",
   indexes: [{ columns: ["tenantId", "eventId"] }],
@@ -60,7 +61,7 @@ export const rsvpEntity = createEntity({
   },
 });
 
-export const rsvpTable = buildEntityTable("rsvp", rsvpEntity);
+export const rsvpTable = buildEntityTable(rsvpEntity);
 
 export const rsvpExecutor = createEventStoreExecutor(rsvpTable, rsvpEntity, {
   entityName: "rsvp",

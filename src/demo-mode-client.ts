@@ -15,7 +15,7 @@ export async function fetchDemoMode(): Promise<DemoModePayload> {
   if (cached) return cached;
   if (inflight !== null) return inflight;
   inflight = fetch("/demo-mode")
-    .then((res) => (res.ok ? (res.json() as Promise<DemoModePayload>) : FALLBACK))
+    .then(async (res): Promise<DemoModePayload> => (res.ok ? await res.json() : FALLBACK))
     .then((payload) => {
       cached = payload;
       return payload;

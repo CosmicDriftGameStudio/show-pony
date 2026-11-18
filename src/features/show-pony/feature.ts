@@ -44,12 +44,13 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
 
   r.translations({ keys: showPonyTranslations });
 
-  r.notification(RSVP_CONFIRMATION_NOTIFICATION, {
+  r.notification({
+    name: RSVP_CONFIRMATION_NOTIFICATION,
     variables: RSVP_CONFIRMATION_VARIABLES,
     localizedTemplate: rsvpConfirmationTemplate,
   });
 
-  r.entity({ name: "event", ...eventEntity });
+  r.entity(eventEntity);
   r.writeHandler(eventCreateHandler);
   r.writeHandler(eventUpdateHandler);
   r.writeHandler(eventDeleteHandler);
@@ -60,7 +61,7 @@ export const showPonyFeature = defineFeature("showpony", (r) => {
   r.queryHandler(eventBySlugQuery);
   r.queryHandler(inviteBrandingQuery);
 
-  r.entity({ name: "rsvp", ...rsvpEntity });
+  r.entity(rsvpEntity);
   r.writeHandler(rsvpSubmitHandler);
 
   r.queryHandler(

@@ -18,6 +18,7 @@ import {
   ACME_TENANT_ID,
   DEMO_TENANT_ID,
   findEventBySlug,
+  idOf,
   toRawSqlRunner,
 } from "./_demo-event-db";
 
@@ -126,10 +127,7 @@ export default {
         // event:create is Admin-only — see the update-branch comment above.
         ["Admin"],
       );
-      const createdId =
-        created.isSuccess && typeof (created.data as { id?: unknown })?.id === "string"
-          ? ((created.data as { id: string }).id as string)
-          : undefined;
+      const createdId = created.isSuccess ? idOf(created.data) : undefined;
       if (!createdId) {
         throw new Error("show-pony seed: rooftop event:create returned no id");
       }

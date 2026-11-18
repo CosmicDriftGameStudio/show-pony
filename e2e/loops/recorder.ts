@@ -32,7 +32,7 @@ async function captureFrame(
   identities: readonly PresentIdentity[],
 ): Promise<void> {
   await withPresentedIdentities(page, identities, async () => {
-    // @template-drift-exception: #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
+    // kumiko-lint-ignore test-template-drift #224 captureScreenshot only writes one named PNG under SCREENSHOT_DIR, not an indexed frame sequence outside a screenshot run
     await page.screenshot({ path, animations: "disabled" });
   });
 }
@@ -49,7 +49,7 @@ async function holdFrames(
     const path = resolve(frameDir, `frame-${String(idx).padStart(4, "0")}.png`);
     await captureFrame(page, path, identities);
     idx++;
-    // @timeout-exception: #224 GIF frame pacing (deliberate capture interval, not a flakiness wait)
+    // kumiko-lint-ignore test-timeouts #224 GIF frame pacing (deliberate capture interval, not a flakiness wait)
     if (i < count - 1) await page.waitForTimeout(FRAME_MS);
   }
   return idx;

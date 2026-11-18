@@ -35,7 +35,11 @@ import {
   resetBlindIndexKeyForTests,
   resetPiiSubjectKmsForTests,
 } from "@cosmicdrift/kumiko-testing/helpers";
-import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
+import {
+  drainEventConsumers,
+  type TestStack,
+  unsafePushTables,
+} from "@cosmicdrift/kumiko-testing/stack";
 import { rsvpTable, showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { deliveryFeatures } from "./delivery-stack";
@@ -46,6 +50,8 @@ const BASE_DOMAIN = "show-pony.test";
 // Empty until beforeAll seeds a real event — leftover UUID silently passes z.uuid() (show-pony#134/2).
 let eventId = "";
 const FORGET = "crypto-shredding:write:forget-subject";
+// The key is erased by this consumer once the forget transaction commits.
+const SUBJECT_KEY_ERASER = "crypto-shredding:projection:subject-key-eraser";
 
 const configResolver = createConfigResolver();
 
@@ -165,6 +171,7 @@ describe("crypto-shredding:forget-subject — operator erasure for RSVP guests",
       },
       dpo,
     );
+    await drainEventConsumers(stack, [SUBJECT_KEY_ERASER]);
 
     const after = await listRows();
     expect(after.find((r) => r.id === targetId)?.name).toBe(PII_ERASED_SENTINEL);
@@ -253,9 +260,9 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
       metadata: { userId: "system" },
     });
 
-    const rsvpProjections = (
-      await listProjectionsWithState(stack.db, stack.registry, { includeImplicit: true })
-    ).filter((p) => p.sources.includes("rsvp"));
+    const rsvpProjections = (await listProjectionsWithState(stack.db, stack.registry)).filter((p) =>
+      p.sources.includes("rsvp"),
+    );
 
     // Materialize the pre-fix state first: plaintext event -> plaintext row.
     // This is what makes the test discriminate the real bug (forget-subject
@@ -294,6 +301,7 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
       },
       dpo,
     );
+    await drainEventConsumers(stack, [SUBJECT_KEY_ERASER]);
 
     const erased = await listRows();
     expect(erased.find((r) => r.id === legacyId)?.name).toBe(PII_ERASED_SENTINEL);

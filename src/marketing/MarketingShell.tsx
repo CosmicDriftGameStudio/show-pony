@@ -1,7 +1,9 @@
 // @runtime client
+
+import { isOneOf } from "@cosmicdrift/kumiko-types/type-guards";
 import type { ReactNode } from "react";
 import { LOGO_PONY } from "../brand-mark";
-import { type Lang, renderFooter, renderHeader, SHARED_CSS } from "./layouts/shared";
+import { LANGS, type Lang, renderFooter, renderHeader, SHARED_CSS } from "./layouts/shared";
 import { localeRouter } from "./locale-routes";
 
 function currentPathname(): string {
@@ -10,7 +12,8 @@ function currentPathname(): string {
 
 function currentLang(): Lang {
   if (typeof window === "undefined") return "en";
-  return localeRouter.detectLang(currentPathname()) as Lang;
+  const detected = localeRouter.detectLang(currentPathname());
+  return isOneOf(LANGS, detected) ? detected : "en";
 }
 
 const ASIDE_COPY: Readonly<

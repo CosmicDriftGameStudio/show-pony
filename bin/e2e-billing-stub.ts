@@ -70,7 +70,7 @@ const e2eBillingStubPlugin: SubscriptionProviderPlugin = {
 export function createE2eBillingStubFeature(): FeatureDefinition {
   return defineFeature("e2e-billing-stub", (r) => {
     r.requires({ features: ["billing-foundation"] });
-    r.useExtension("subscriptionProvider", "stripe", e2eBillingStubPlugin);
+    r.applyExtension({ name: "subscriptionProvider", entity: "stripe", ...e2eBillingStubPlugin });
   });
 }
 

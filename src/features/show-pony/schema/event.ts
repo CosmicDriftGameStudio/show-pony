@@ -10,6 +10,7 @@ import {
 
 // The slug is unique per tenant (DB index), because the host comes from the subdomain.
 export const eventEntity = createEntity({
+  name: "event",
   description:
     "One event a tenant hosts: title, a slug that forms the public invite link within the tenant's subdomain, start time, optional location, description and guest limit. The host-authored fields are public invite-page copy, not personal data.",
   indexes: [{ columns: ["tenantId", "slug"], unique: true }],
@@ -39,7 +40,7 @@ export const eventEntity = createEntity({
   },
 });
 
-export const eventTable = buildEntityTable("event", eventEntity);
+export const eventTable = buildEntityTable(eventEntity);
 
 // Only the columns the callers read. fetchOne still runs SELECT * (kumiko's
 // query handlers don't strip output either), it just narrows what callers see.

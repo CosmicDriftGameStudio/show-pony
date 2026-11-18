@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { SEED_PASSWORD_MIN_LENGTH, envSchema } from "../env-schema";
+import { envSchema, SEED_PASSWORD_MIN_LENGTH } from "../env-schema";
 import { buildDemoModeOption } from "../prod-options";
 
 const { shape } = envSchema.schema;
