@@ -4,8 +4,8 @@
 // systemWriteAs THROWS on a failed write — mocks must throw to match prod.
 
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import seed from "../../seeds/2026-06-28-demo-event-rsvps";
 
 type SeedCtx = Parameters<typeof seed.run>[0];
@@ -18,7 +18,44 @@ function emptyDb(): SeedCtx["db"] {
   } as unknown as SeedCtx["db"];
 }
 
+// Guard scope: the runtime constraint (seeds/ ships without src/ and without
+// @cosmicdrift/* in node_modules) applies transitively — a banned import
+// hiding in a local sibling (e.g. ./_demo-event-db) would boot-crash exactly
+// like one in the seed file itself, so the source scan follows local
+// relative imports, not just the entry file.
+function collectSeedSourceTransitively(entryPath: string, seen: Set<string> = new Set()): string {
+  if (seen.has(entryPath)) return "";
+  seen.add(entryPath);
+  const source = readFileSync(entryPath, "utf8");
+  const dir = dirname(entryPath);
+  const localSpecifiers = [...source.matchAll(/from\s+["'](\.\.?\/[^"']+)["']/g)].map((m) => m[1]);
+  let combined = source;
+  for (const specifier of localSpecifiers) {
+    for (const candidate of [`${specifier}.ts`, `${specifier}.tsx`, `${specifier}/index.ts`]) {
+      const resolved = join(dir, candidate);
+      if (existsSync(resolved)) {
+        combined += `\n${collectSeedSourceTransitively(resolved, seen)}`;
+        break;
+      }
+    }
+  }
+  return combined;
+}
+
 describe("demo seed boot-safety", () => {
+  test("seed file never imports ../src, incl. transitively via local siblings (Docker runtime has no src/)", () => {
+    const source = collectSeedSourceTransitively(SEED_PATH);
+    expect(source).not.toMatch(/(?:from\s+|import\(\s*|require\(\s*)["']\.\.\/src(?:\/|["'])/);
+  });
+
+  test("seed file has no runtime @cosmicdrift imports, incl. transitively (dist-server omits npm deps)", () => {
+    const source = collectSeedSourceTransitively(SEED_PATH);
+    const runtimeImports = source.match(
+      /(?:^import\s+(?!type\b)[^;]+from\s+["']@cosmicdrift\/|import\(\s*["']@cosmicdrift\/|require\(\s*["']@cosmicdrift\/)/gm,
+    );
+    expect(runtimeImports).toBeNull();
+  });
+
   test("_demo-event-db.ts's hardcoded table literal matches the real event table (drift pin)", async () => {
     const { eventTable } = await import("../features/show-pony/schema/event");
     const source = readFileSync(join(import.meta.dirname, "../../seeds/_demo-event-db.ts"), "utf8");

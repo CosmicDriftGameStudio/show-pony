@@ -60,6 +60,11 @@ export const billingScreen: DashboardScreenDefinition = {
       id: "usage",
       component: { react: { __component: CAP_CARDS_PANEL_COMPONENT } },
     },
+    {
+      kind: "custom",
+      id: "upgrade-hint",
+      component: { react: { __component: "ShowPonyUpgradeHint" } },
+    },
   ],
   access: { roles: BILLING_ROLES },
 };

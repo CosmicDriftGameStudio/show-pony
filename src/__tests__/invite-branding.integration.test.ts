@@ -134,6 +134,29 @@ describe("invite-branding query", () => {
     expect(branding.heroStyle).toBeDefined();
   });
 
+  test("an unknown subdomain and the apex host resolve no tenant, so no branding is served", async () => {
+    const tenantBranding = await stack.http.raw(
+      "POST",
+      "/api/query",
+      { type: "showpony:query:invite-branding", payload: {} },
+      { Host: demoHostname },
+    );
+    expect(tenantBranding.status).toBe(200);
+
+    for (const host of [`no-such-tenant.${BASE_DOMAIN}`, BASE_DOMAIN]) {
+      const res = await stack.http.raw(
+        "POST",
+        "/api/query",
+        { type: "showpony:query:invite-branding", payload: {} },
+        { Host: host },
+      );
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error?: { code?: string }; data?: unknown };
+      expect(body.error?.code).toBe("tenant_required");
+      expect(body.data).toBeUndefined();
+    }
+  });
+
   test("invite-branding-settings screen is registered", () => {
     expect(Object.keys(showPonyFeature.screens)).toContain("invite-branding-settings");
   });

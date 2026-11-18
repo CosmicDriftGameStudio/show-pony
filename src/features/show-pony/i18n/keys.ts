@@ -140,6 +140,10 @@ export const showPonyTranslations = {
 
   "showpony:caps.events": { de: "Events", en: "Events" },
   "showpony:caps.guests": { de: "RSVPs", en: "RSVPs" },
+  "showpony:caps.upgradeHint": {
+    de: "Limit erreicht, wähle oben einen größeren Tarif.",
+    en: "Limit reached, pick a larger plan above.",
+  },
 
   "showpony:billing.tier.free": { de: "Free", en: "Free" },
   "showpony:billing.tier.starter": { de: "Starter", en: "Starter" },
