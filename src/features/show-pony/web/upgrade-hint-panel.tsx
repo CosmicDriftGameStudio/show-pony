@@ -21,9 +21,5 @@ export function ShowPonyUpgradeHint(_props: ExtensionSectionProps): ReactNode {
   const rows = usageQuery.data?.rows ?? [];
   if (!rows.some(isAtLimit) || !isUpgradeOffered(billingPlansQuery.data ?? null)) return null;
 
-  return (
-    <div className="text-sm text-muted-foreground">
-      {t("showpony:caps.upgradeHint")}
-    </div>
-  );
+  return <div className="text-sm text-muted-foreground">{t("showpony:caps.upgradeHint")}</div>;
 }
