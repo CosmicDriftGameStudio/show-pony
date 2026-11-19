@@ -1,4 +1,5 @@
 # kumiko-managed
+# kumiko-managed: local the integration job needs a Meilisearch service, the public template has none
 # CI for show-pony: a public repo cannot call the private reusable workflows in
 # cosmicdriftgamestudio/infra, so every job here is self-contained on GitHub-hosted
 # runners. The rollout is manual: see release.yml. Jobs only this app needs: name
@@ -76,6 +77,13 @@ jobs:
         image: redis:8-alpine
         ports:
           - 16379:6379
+      meilisearch:
+        image: getmeili/meilisearch:v1.12
+        env:
+          MEILI_MASTER_KEY: kumiko-dev-key
+          MEILI_ENV: development
+        ports:
+          - 17700:7700
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -86,6 +94,8 @@ jobs:
         env:
           PGPASSWORD: kumiko
         run: psql -h localhost -p 15432 -U kumiko -d kumiko_dev -c "CREATE DATABASE kumiko_test;"
+      - name: Wait for Meilisearch
+        run: curl -sf --retry 30 --retry-delay 1 --retry-connrefused http://localhost:17700/health
       - name: Run integration tests
         env:
           NODE_ENV: test
