@@ -91,6 +91,21 @@ describe("demo seed boot-safety", () => {
     expect(source).toContain(`BRANDING_ACCENT_COLOR = "${BRANDING_QN.accentColor}"`);
   });
 
+  test("ctx.db as the callable runner the prod boot passes (postgres.js transaction) is accepted", async () => {
+    const calls: string[] = [];
+    const ctx = {
+      // The es-ops runner hands over its transaction handle: a tagged-template function carrying .unsafe.
+      db: Object.assign(async () => [], { unsafe: async () => [] }),
+      systemWriteAs: async (handler: string) => {
+        calls.push(handler);
+        return { isSuccess: true as const, data: { id: "evt" } };
+      },
+    } as unknown as SeedCtx;
+
+    await expect(seed.run(ctx)).resolves.toBeUndefined();
+    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(3);
+  });
+
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
     const calls: string[] = [];
     const ctx = {

@@ -12,7 +12,7 @@ import {
 import { priceToTierFromEnv } from "../src/features/show-pony/tier-map";
 import { createShowPonyHostDispatch } from "../src/host-dispatch";
 import { renderAllMarketingPages } from "../src/marketing/render-landing";
-import { env, isDryRun } from "./env";
+import { env, isDryRun, productionKms } from "./env";
 import { envSchema } from "./env-schema";
 import { buildShowPonyExtraContext } from "./extra-context";
 import {
@@ -40,7 +40,8 @@ await runProdApp({
   envSchema,
   pulumiPrefix: "showPony",
   ...resolveObservabilityWiring(env.PROMETHEUS_METRICS_TOKEN),
-  kmsMode: SHOW_PONY_KMS_MODE,
+  // runProdApp's PII gate aborts without a KMS outside production too, so a local `bun start` keeps the plaintext mode.
+  kmsMode: productionKms ?? SHOW_PONY_KMS_MODE,
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   seedsDir: "./seeds",
   extraContext: buildShowPonyExtraContext({ configResolver, searchAdapter }),

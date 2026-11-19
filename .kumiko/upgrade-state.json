@@ -1,6 +1,6 @@
 {
-  "version": "0.425.0-next-20261119100036-007d227",
-  "appliedAt": "2026-11-19T10:23:52.396898Z",
+  "version": "0.425.0-next-20261119155716-cdbf386",
+  "appliedAt": "2026-11-19T16:24:40.134905Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -86,13 +86,6 @@
       "version": "0.425.0",
       "codemod": "scripts/codemod/define-handler.ts",
       "title": "Handlers are defined with defineWriteHandler/defineQueryHandler"
-    }
-  ],
-  "pendingManual": [
-    {
-      "id": "0.425.0:72dcd03d",
-      "version": "0.425.0",
-      "title": "Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only"
     }
   ],
   "resolvedManual": [
@@ -3559,6 +3552,22 @@
       "resolution": "migrated",
       "reason": "kumiko-guards guards (30/30), checks (guard-raw-sql, guard-integration-mocks, Runtime-Isolation) and ui green on 0.425; no ratchet findings and no under-baseline violations, so no baseline file to write",
       "resolvedAt": "2026-11-19T10:35:25.061206Z"
+    },
+    {
+      "id": "0.425.0:72dcd03d",
+      "version": "0.425.0",
+      "title": "Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only",
+      "resolution": "migrated",
+      "reason": "ci.yml is fully managed without a local line and has no e2e job, no MinIO or Meilisearch in CI; public app: comment-lang 0 German comments, agent lint no gaps",
+      "resolvedAt": "2026-11-19T16:17:37.778935Z"
+    },
+    {
+      "id": "0.425.0:d1f0b7f7",
+      "version": "0.425.0",
+      "title": "Test-ES-Row-Writes guard checks app and library tests",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"kumiko-guards guards\", \"Test-ES-Row-Writes Guard\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T16:24:40.094991Z"
     }
   ]
 }

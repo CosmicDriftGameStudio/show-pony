@@ -3,6 +3,20 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.425.0-next-20261119155716-cdbf386] - 2026-11-19
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.425.0-next-20261119100036-007d227 → 0.425.0-next-20261119155716-cdbf386
+
+### Breaking
+
+- 0.425.0 · Test-ES-Row-Writes guard checks app and library tests
+
+### Manual migrations
+
+- [not-applicable] 0.425.0:d1f0b7f7 · 0.425.0 · Test-ES-Row-Writes guard checks app and library tests
+
 ## [0.425.0-next-20261119100036-007d227] - 2026-11-19
 
 ### Changed
@@ -301,7 +315,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - [not-applicable] 0.425.0:e854bf43 · 0.425.0 · securityBaselineFeatures preset removed
 - [migrated] 0.425.0:aa0d7c4f · 0.425.0 · kumiko check verifies test script timeouts
 - [migrated] 0.425.0:c69f8008 · 0.425.0 · Overrides of Kumiko packages fail the managed-files check
-- [open] 0.425.0:72dcd03d · 0.425.0 · Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only
+- [migrated] 0.425.0:72dcd03d · 0.425.0 · Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only
 - [not-applicable] 0.425.0:f19d3188 · 0.425.0 · setupAppTestStack is the one app test entry
 - [not-applicable] 0.425.0:828d8d9e · 0.425.0 · Managed kumiko/schema.ts and kumiko check read listDefaults
 - [migrated] 0.425.0:d5192c48 · 0.425.0 · App test stacks gate tiers like runDevApp

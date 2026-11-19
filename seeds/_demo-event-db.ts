@@ -18,18 +18,18 @@ type RawSqlRunner = {
   readonly unsafe: (sql: string, params?: readonly unknown[]) => Promise<unknown>;
 };
 
+// postgres.js connections and transactions are callable tagged-template functions, not plain objects.
+function isObjectOrFunction(value: unknown): value is object {
+  return (typeof value === "object" && value !== null) || typeof value === "function";
+}
+
 function hasUnsafe(value: unknown): value is RawSqlRunner {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "unsafe" in value &&
-    typeof value.unsafe === "function"
-  );
+  return isObjectOrFunction(value) && "unsafe" in value && typeof value.unsafe === "function";
 }
 
 export function toRawSqlRunner(db: unknown): RawSqlRunner {
   if (hasUnsafe(db)) return db;
-  const raw = typeof db === "object" && db !== null && "raw" in db ? db.raw : undefined;
+  const raw = isObjectOrFunction(db) && "raw" in db ? db.raw : undefined;
   if (hasUnsafe(raw)) return raw;
   throw new Error("demo-event-db: ctx.db exposes no raw .unsafe runner");
 }
