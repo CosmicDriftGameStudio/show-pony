@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createRegistry } from "@cosmicdrift/kumiko-framework/engine";
-import { appShellTranslationsByLocale } from "../features/app-shell/client";
 import { appShellFeature } from "../features/app-shell/feature";
+import { appShellTranslationsByLocale } from "../features/app-shell/web";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { showPonyTranslations } from "../features/show-pony/i18n";
 

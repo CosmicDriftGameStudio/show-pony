@@ -3,6 +3,327 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.425.0-next-20261119100036-007d227] - 2026-11-19
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.424.1 → 0.425.0-next-20261119100036-007d227
+
+### Breaking
+
+- 0.425.0 · Mail and PDF renderers live in bundled-features, document-draft and signature print without injected functions
+- 0.425.0 · Tenant admins act only on users within their own reach
+- 0.425.0 · The anonymous deletion verify mail comes from user-data-rights
+- 0.425.0 · GDPR default mails need an app name and follow the request language
+- 0.425.0 · User-data adapter features merged into their owner features
+- 0.425.0 · Deletion grace period is the maximum over the user's tenants with a 7-day floor
+- 0.425.0 · Custom managed-pages layouts get escaped parts only
+- 0.425.0 · Published page list always reads the caller's tenant
+- 0.425.0 · Branding exports removed from managed-pages
+- 0.425.0 · Branding is its own feature
+- 0.425.0 · Ledger reports filter the period in SQL and require ISO dates
+- 0.425.0 · Ledger reversal and schedule links moved out of reference
+- 0.425.0 · Agent write tools keep optimistic locking
+- 0.425.0 · Doc-only translations for kumiko api-docs
+- 0.425.0 · Agent lint fails on missing handler translations
+- 0.425.0 · API docs generator on its own subpath
+- 0.425.0 · Public pages send default-src 'none' and form-action 'none'
+- 0.425.0 · Signature requests are visible through their host row
+- 0.425.0 · forget-signer checks the host record
+- 0.425.0 · WhatsApp test double moved to channel-whatsapp/testing
+- 0.425.0 · WhatsApp PII under per-stream record keys, opt-in retention
+- 0.425.0 · S3 endpoint and forcePathStyle are SystemAdmin-writable only
+- 0.425.0 · Stricter field-approval rules
+- 0.425.0 · Storage provider selection is SystemAdmin-only
+- 0.425.0 · credentialRevoker extension point replaces the session mass-revoke callbacks
+- 0.425.0 · User email lookups and writes are case-insensitive
+- 0.425.0 · Row-bound grants verify the signature before the row lookup
+- 0.425.0 · late-bound slot helper removed
+- 0.425.0 · Prebuilt addNoteHandler constant removed
+- 0.425.0 · admin-shell workspaces collect navs; includeDocumentDesigner removed
+- 0.425.0 · Ingest progress is a direct store write on the TenantDb
+- 0.425.0 · Prebuilt tag and note handler constants removed
+- 0.425.0 · Legacy tag catalog handlers removed
+- 0.425.0 · caps:usage hands cap callbacks a tenant-scoped db without unsafeRaw
+- 0.425.0 · Tenant caps list sorts by key and searches through the search index
+- 0.425.0 · autoRevokeOnPasswordChange option and late binding removed
+- 0.425.0 · Session check rejects removed members and no longer falls back to JWT roles on errors
+- 0.425.0 · Audit payloads follow the entity read rules; payload can be null
+- 0.425.0 · Tenant row version follows the destruction stage events
+- 0.425.0 · r.httpRoute gets deps.hostTenantId(); managed-pages and seo default to it; createHostTenantIdResolver is removed
+- 0.425.0 · Mail-thread rollup and read_mail_threads removed
+- 0.425.0 · message:list pages with a cursor
+- 0.425.0 · OAuth connect state is bound to the starting browser
+- 0.425.0 · Idempotent send from a mailbox
+- 0.425.0 · Send idempotency keys bound to caller and mailbox
+- 0.425.0 · Renderer plugins are picked by kind with selectRendererPlugin
+- 0.425.0 · One request core for the static login and the token flows
+- 0.425.0 · Default auth pages cover every auth path and take a shell
+- 0.425.0 · Token request handlers no longer return the token
+- 0.425.0 · Resource upload always links into a template
+- 0.425.0 · Template reads follow tenantEditable roles
+- 0.425.0 · Read override on text blocks narrows to SYSTEM only
+- 0.425.0 · User-owned entry titles and folders are personal data
+- 0.425.0 · Text-block writes reject external images and embeds
+- 0.425.0 · Delivery log no longer accepts old cursors
+- 0.425.0 · Queued delivery renders inside the send job and seals the message content
+- 0.425.0 · No plaintext addresses in delivery jobs
+- 0.425.0 · files feature only under @cosmicdrift/kumiko-framework/files
+- 0.425.0 · Prebuilt folder handler constants removed
+- 0.425.0 · Folder assignments enforce ownership.write
+- 0.425.0 · MFA revoke bindings removed; regenerate-recovery also revokes access tokens
+- 0.425.0 · Tier sync follows the subscription events; drift sync runs daily
+- 0.425.0 · Custom fields enforce read roles and the searchable flag
+- 0.425.0 · Per-field custom-field retention removed
+- 0.425.0 · Custom fields only on wired host entities
+- 0.425.0 · One custom-fields value projection for all wired host entities
+- 0.425.0 · Job triggers on events only
+- 0.425.0 · forget-subject erases the key after commit and forgets forgetWithSubject rows
+- 0.425.0 · Document drafts are visible through their subject row
+- 0.425.0 · SMTP requires STARTTLS unless the host is loopback or allowlisted
+- 0.425.0 · PAT auto-revoke option and late binding removed
+- 0.425.0 · PATs of principals without a user row are rejected
+- 0.425.0 · Field read rules the framework cannot enforce fail at boot
+- 0.425.0 · Production boot requires real login and MFA rate limiters
+- 0.425.0 · JWT verify pins HS256 and requires a kid in keyring mode
+- 0.425.0 · /version drops the node field
+- 0.425.0 · Deprecated money, PII, schema and webhook aliases removed
+- 0.425.0 · Join rows respect the host's query roles
+- 0.425.0 · Rebuild guards the single-table contract
+- 0.425.0 · Entity cache removed
+- 0.425.0 · Entity handlers with the verb in the name string are internal
+- 0.425.0 · Event pruning removes whole streams only
+- 0.425.0 · Write-handler job triggers carry the written row id
+- 0.425.0 · Lean update, delete and forget events and executor createMany/updateMany
+- 0.425.0 · Named entity verbs, executor history and listAsOf
+- 0.425.0 · Anonymous writes under the system tenant need tenantlessAnonymous
+- 0.425.0 · Money amounts are integers in minor units everywhere
+- 0.425.0 · Projection list shows implicit entity projections
+- 0.425.0 · Entity rows follow their stream version; list and detail drop the per-row event-store lookup
+- 0.425.0 · SessionMassRevoker type removed
+- 0.425.0 · AuthSessionStatus gains not_a_member
+- 0.425.0 · Boot rule transfer/multi-stream-projection
+- 0.425.0 · Boot rule transfer/custom-projection
+- 0.425.0 · Workflow engine, workflow-runner and step-dispatcher removed
+- 0.425.0 · step-dispatcher feature removed
+- 0.425.0 · workflow-runner feature removed
+- 0.425.0 · App connections carry their projection registry
+- 0.425.0 · ctx.db rows are typed from the entity table
+- 0.425.0 · ctx.db.unsafeRaw() stays in the caller's tenant
+- 0.425.0 · createTenantDb on the db subpath is tenant-only
+- 0.425.0 · Every event append states its concurrency expectation
+- 0.425.0 · Free query helpers are typed
+- 0.425.0 · Query handlers declare their result entity
+- 0.425.0 · Breaking changesets declare affects
+- 0.425.0 · listDefaults replaces bundledLists, adoptsBundledLists removed
+- 0.425.0 · Entities carry their name
+- 0.425.0 · escapeHatch names its grants
+- 0.425.0 · Registrar verbs take one options object; r.useExtension becomes r.applyExtension
+- 0.425.0 · parentRef and the join features name their hosts
+- 0.425.0 · Returned query failures are thrown
+- 0.425.0 · Unmapped colon queries need resultEntity
+- 0.425.0 · onDelete cascades run automatically in the delete lifecycle
+- 0.425.0 · A record key that an owner forget erases holds only that owner's data
+- 0.425.0 · Fuzzy-searchable longText fields cannot restrict access.read
+- 0.425.0 · systemScope handlers get ctx.systemDb typed as present
+- 0.425.0 · A missing migrations directory fails the prod boot
+- 0.425.0 · updateRows and deleteRows refuse event-sourced entity tables without a reason
+- 0.425.0 · Scaffolded Playwright config uses ports.e2e
+- 0.425.0 · Video tooling on its own subpath
+- 0.425.0 · runProdApp defaults to Secure session cookies
+- 0.425.0 · Production boot defaults for kmsMode and staticDir
+- 0.425.0 · composeFeatures listDefaults applies to all features
+- 0.425.0 · Unused entity, handler payload and handler result type maps removed
+- 0.425.0 · Step definitions drop the unused failure strategy
+- 0.425.0 · Ratchet guards fail without a baseline file
+- 0.425.0 · lib-test-coverage ignore tags cite an existing test file
+- 0.425.0 · Handler layout and feature import cycles are guarded
+- 0.425.0 · seed-runtime-imports guard
+- 0.425.0 · test-env-writes ratchet and suite env helpers
+- 0.425.0 · File Size guard limits test files to 1500 lines
+- 0.425.0 · test-timeouts flags literal Playwright timeouts and extended test objects
+- 0.425.0 · Test guard opt-outs move to kumiko-lint-ignore
+- 0.425.0 · Ratchet baselines with headroom fail
+- 0.425.0 · Unused kumiko-lint-ignore markers fail the guard run
+- 0.425.0 · Payload casts in handlers count as suspect casts
+- 0.425.0 · Existence-only checks on queries fail, existence-only tests are ratcheted
+- 0.425.0 · securityBaselineFeatures preset removed
+- 0.425.0 · kumiko check verifies test script timeouts
+- 0.425.0 · Overrides of Kumiko packages fail the managed-files check
+- 0.425.0 · Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only
+- 0.425.0 · setupAppTestStack is the one app test entry
+- 0.425.0 · Managed kumiko/schema.ts and kumiko check read listDefaults
+- 0.425.0 · App test stacks gate tiers like runDevApp
+- 0.425.0 · Handlers are defined with defineWriteHandler/defineQueryHandler
+- 0.425.0 · adoptsBundledLists pattern removed
+- 0.425.0 · Upgrade codemods up to 0.420.0 removed
+- 0.425.0 · Currency cells format with Intl and an ISO currency code
+- 0.425.0 · Unused web exports removed
+- 0.425.0 · Drawer widget props type is DrawerPanelProps
+- 0.425.0 · formatMoney takes an options object
+- 0.425.0 · Every CorePrimitive is required, createStubPrimitives replaces partial test stubs
+
+### Manual migrations
+
+- [not-applicable] 0.425.0:85fe49d3 · 0.425.0 · Mail and PDF renderers live in bundled-features, document-draft and signature print without injected functions
+- [not-applicable] 0.425.0:bb0d0f09 · 0.425.0 · Tenant admins act only on users within their own reach
+- [not-applicable] 0.425.0:ef03b7ed · 0.425.0 · The anonymous deletion verify mail comes from user-data-rights
+- [not-applicable] 0.425.0:26e73d2b · 0.425.0 · GDPR default mails need an app name and follow the request language
+- [not-applicable] 0.425.0:b320ee9c · 0.425.0 · User-data adapter features merged into their owner features
+- [not-applicable] 0.425.0:a7eb9241 · 0.425.0 · Deletion grace period is the maximum over the user's tenants with a 7-day floor
+- [not-applicable] 0.425.0:14486a57 · 0.425.0 · Custom managed-pages layouts get escaped parts only
+- [not-applicable] 0.425.0:d30fb9d9 · 0.425.0 · Published page list always reads the caller's tenant
+- [migrated] 0.425.0:0fbf8862 · 0.425.0 · Branding exports removed from managed-pages
+- [migrated] 0.425.0:101e26aa · 0.425.0 · Branding is its own feature
+- [not-applicable] 0.425.0:4334f46e · 0.425.0 · Ledger reports filter the period in SQL and require ISO dates
+- [not-applicable] 0.425.0:955b780c · 0.425.0 · Ledger reversal and schedule links moved out of reference
+- [not-applicable] 0.425.0:ad472bdf · 0.425.0 · Agent write tools keep optimistic locking
+- [not-applicable] 0.425.0:d13dba3d · 0.425.0 · Doc-only translations for kumiko api-docs
+- [migrated] 0.425.0:97845ccc · 0.425.0 · Agent lint fails on missing handler translations
+- [not-applicable] 0.425.0:3974b59c · 0.425.0 · API docs generator on its own subpath
+- [migrated] 0.425.0:b1730a4c · 0.425.0 · Public pages send default-src 'none' and form-action 'none'
+- [not-applicable] 0.425.0:1121f886 · 0.425.0 · Signature requests are visible through their host row
+- [not-applicable] 0.425.0:25979949 · 0.425.0 · forget-signer checks the host record
+- [not-applicable] 0.425.0:e3487cf6 · 0.425.0 · WhatsApp test double moved to channel-whatsapp/testing
+- [not-applicable] 0.425.0:ea8cc854 · 0.425.0 · WhatsApp PII under per-stream record keys, opt-in retention
+- [not-applicable] 0.425.0:0ddd6f52 · 0.425.0 · S3 endpoint and forcePathStyle are SystemAdmin-writable only
+- [not-applicable] 0.425.0:4721f527 · 0.425.0 · Stricter field-approval rules
+- [not-applicable] 0.425.0:7061e469 · 0.425.0 · Storage provider selection is SystemAdmin-only
+- [not-applicable] 0.425.0:20e04b90 · 0.425.0 · credentialRevoker extension point replaces the session mass-revoke callbacks
+- [migrated] 0.425.0:e7f738c0 · 0.425.0 · User email lookups and writes are case-insensitive
+- [not-applicable] 0.425.0:b35cea07 · 0.425.0 · Row-bound grants verify the signature before the row lookup
+- [not-applicable] 0.425.0:0896171d · 0.425.0 · late-bound slot helper removed
+- [not-applicable] 0.425.0:8db069b9 · 0.425.0 · Prebuilt addNoteHandler constant removed
+- [migrated] 0.425.0:17a8aa7c · 0.425.0 · admin-shell workspaces collect navs; includeDocumentDesigner removed
+- [not-applicable] 0.425.0:0a43d3c4 · 0.425.0 · Ingest progress is a direct store write on the TenantDb
+- [not-applicable] 0.425.0:33cdcb27 · 0.425.0 · Prebuilt tag and note handler constants removed
+- [not-applicable] 0.425.0:32d58b6b · 0.425.0 · Legacy tag catalog handlers removed
+- [not-applicable] 0.425.0:1913a2a5 · 0.425.0 · caps:usage hands cap callbacks a tenant-scoped db without unsafeRaw
+- [not-applicable] 0.425.0:813a54a9 · 0.425.0 · Tenant caps list sorts by key and searches through the search index
+- [not-applicable] 0.425.0:0090f5ee · 0.425.0 · autoRevokeOnPasswordChange option and late binding removed
+- [not-applicable] 0.425.0:77a5e0ee · 0.425.0 · Session check rejects removed members and no longer falls back to JWT roles on errors
+- [not-applicable] 0.425.0:c9f9040c · 0.425.0 · Audit payloads follow the entity read rules; payload can be null
+- [not-applicable] 0.425.0:0290688c · 0.425.0 · Tenant row version follows the destruction stage events
+- [migrated] 0.425.0:dc107c19 · 0.425.0 · r.httpRoute gets deps.hostTenantId(); managed-pages and seo default to it; createHostTenantIdResolver is removed
+- [not-applicable] 0.425.0:dba54b91 · 0.425.0 · Mail-thread rollup and read_mail_threads removed
+- [not-applicable] 0.425.0:6221b4d6 · 0.425.0 · message:list pages with a cursor
+- [not-applicable] 0.425.0:2e90bdc7 · 0.425.0 · OAuth connect state is bound to the starting browser
+- [not-applicable] 0.425.0:37aaa852 · 0.425.0 · Idempotent send from a mailbox
+- [not-applicable] 0.425.0:de6198ab · 0.425.0 · Send idempotency keys bound to caller and mailbox
+- [not-applicable] 0.425.0:151b21b6 · 0.425.0 · Renderer plugins are picked by kind with selectRendererPlugin
+- [not-applicable] 0.425.0:8bd2f9e0 · 0.425.0 · One request core for the static login and the token flows
+- [migrated] 0.425.0:3277b9bb · 0.425.0 · Default auth pages cover every auth path and take a shell
+- [not-applicable] 0.425.0:4d291a5e · 0.425.0 · Token request handlers no longer return the token
+- [not-applicable] 0.425.0:ba0c9bd5 · 0.425.0 · Resource upload always links into a template
+- [migrated] 0.425.0:d6954465 · 0.425.0 · Template reads follow tenantEditable roles
+- [not-applicable] 0.425.0:0cac8de7 · 0.425.0 · Read override on text blocks narrows to SYSTEM only
+- [not-applicable] 0.425.0:7eecc279 · 0.425.0 · User-owned entry titles and folders are personal data
+- [not-applicable] 0.425.0:6620f48a · 0.425.0 · Text-block writes reject external images and embeds
+- [not-applicable] 0.425.0:0bce371b · 0.425.0 · Delivery log no longer accepts old cursors
+- [not-applicable] 0.425.0:50277e5a · 0.425.0 · Queued delivery renders inside the send job and seals the message content
+- [not-applicable] 0.425.0:6142aed2 · 0.425.0 · No plaintext addresses in delivery jobs
+- [not-applicable] 0.425.0:7ed1eaa8 · 0.425.0 · files feature only under @cosmicdrift/kumiko-framework/files
+- [not-applicable] 0.425.0:798983b4 · 0.425.0 · Prebuilt folder handler constants removed
+- [not-applicable] 0.425.0:6ddcaa55 · 0.425.0 · Folder assignments enforce ownership.write
+- [not-applicable] 0.425.0:bbb92e75 · 0.425.0 · MFA revoke bindings removed; regenerate-recovery also revokes access tokens
+- [not-applicable] 0.425.0:501cf6b5 · 0.425.0 · Tier sync follows the subscription events; drift sync runs daily
+- [not-applicable] 0.425.0:c02c9826 · 0.425.0 · Custom fields enforce read roles and the searchable flag
+- [not-applicable] 0.425.0:35188e93 · 0.425.0 · Per-field custom-field retention removed
+- [not-applicable] 0.425.0:a2c93afe · 0.425.0 · Custom fields only on wired host entities
+- [not-applicable] 0.425.0:64e04921 · 0.425.0 · One custom-fields value projection for all wired host entities
+- [not-applicable] 0.425.0:cd3cd3dd · 0.425.0 · Job triggers on events only
+- [migrated] 0.425.0:9e6a9104 · 0.425.0 · forget-subject erases the key after commit and forgets forgetWithSubject rows
+- [not-applicable] 0.425.0:17a59ac4 · 0.425.0 · Document drafts are visible through their subject row
+- [not-applicable] 0.425.0:df70baee · 0.425.0 · SMTP requires STARTTLS unless the host is loopback or allowlisted
+- [not-applicable] 0.425.0:bb081f05 · 0.425.0 · PAT auto-revoke option and late binding removed
+- [not-applicable] 0.425.0:2797a1c5 · 0.425.0 · PATs of principals without a user row are rejected
+- [not-applicable] 0.425.0:54788635 · 0.425.0 · Field read rules the framework cannot enforce fail at boot
+- [not-applicable] 0.425.0:cb523e95 · 0.425.0 · Production boot requires real login and MFA rate limiters
+- [not-applicable] 0.425.0:7ef3346a · 0.425.0 · JWT verify pins HS256 and requires a kid in keyring mode
+- [not-applicable] 0.425.0:669224f4 · 0.425.0 · /version drops the node field
+- [not-applicable] 0.425.0:50032abd · 0.425.0 · Deprecated money, PII, schema and webhook aliases removed
+- [not-applicable] 0.425.0:2ea14de9 · 0.425.0 · Join rows respect the host's query roles
+- [not-applicable] 0.425.0:6c3947a7 · 0.425.0 · Rebuild guards the single-table contract
+- [not-applicable] 0.425.0:fd613564 · 0.425.0 · Entity cache removed
+- [not-applicable] 0.425.0:6f59ac65 · 0.425.0 · Entity handlers with the verb in the name string are internal
+- [not-applicable] 0.425.0:570f9a89 · 0.425.0 · Event pruning removes whole streams only
+- [not-applicable] 0.425.0:b52b31a3 · 0.425.0 · Write-handler job triggers carry the written row id
+- [not-applicable] 0.425.0:5ab1a1c6 · 0.425.0 · Lean update, delete and forget events and executor createMany/updateMany
+- [not-applicable] 0.425.0:61efe832 · 0.425.0 · Named entity verbs, executor history and listAsOf
+- [not-applicable] 0.425.0:3d0e4827 · 0.425.0 · Anonymous writes under the system tenant need tenantlessAnonymous
+- [not-applicable] 0.425.0:054de6a4 · 0.425.0 · Money amounts are integers in minor units everywhere
+- [migrated] 0.425.0:9eacb56d · 0.425.0 · Projection list shows implicit entity projections
+- [not-applicable] 0.425.0:37b1813d · 0.425.0 · Entity rows follow their stream version; list and detail drop the per-row event-store lookup
+- [not-applicable] 0.425.0:8648a3e8 · 0.425.0 · SessionMassRevoker type removed
+- [not-applicable] 0.425.0:a3162bed · 0.425.0 · AuthSessionStatus gains not_a_member
+- [not-applicable] 0.425.0:2ed5488c · 0.425.0 · Boot rule transfer/multi-stream-projection
+- [not-applicable] 0.425.0:3db4dc39 · 0.425.0 · Boot rule transfer/custom-projection
+- [not-applicable] 0.425.0:3946fec9 · 0.425.0 · Workflow engine, workflow-runner and step-dispatcher removed
+- [not-applicable] 0.425.0:af1e83db · 0.425.0 · step-dispatcher feature removed
+- [not-applicable] 0.425.0:54564cba · 0.425.0 · workflow-runner feature removed
+- [not-applicable] 0.425.0:fd97033d · 0.425.0 · App connections carry their projection registry
+- [migrated] 0.425.0:1948e377 · 0.425.0 · ctx.db rows are typed from the entity table
+- [migrated] 0.425.0:2c545371 · 0.425.0 · createTenantDb on the db subpath is tenant-only
+- [not-applicable] 0.425.0:6b32da9b · 0.425.0 · Every event append states its concurrency expectation
+- [migrated] 0.425.0:b6264480 · 0.425.0 · Free query helpers are typed
+- [not-applicable] 0.425.0:ddacdc93 · 0.425.0 · Query handlers declare their result entity
+- [not-applicable] 0.425.0:cc159684 · 0.425.0 · Breaking changesets declare affects
+- [not-applicable] 0.425.0:162790d6 · 0.425.0 · listDefaults replaces bundledLists, adoptsBundledLists removed
+- [migrated] 0.425.0:cb60c009 · 0.425.0 · Entities carry their name
+- [not-applicable] 0.425.0:a17ab194 · 0.425.0 · escapeHatch names its grants
+- [migrated] 0.425.0:ac9ea3d0 · 0.425.0 · Registrar verbs take one options object; r.useExtension becomes r.applyExtension
+- [not-applicable] 0.425.0:66ed85d1 · 0.425.0 · parentRef and the join features name their hosts
+- [not-applicable] 0.425.0:27180505 · 0.425.0 · Returned query failures are thrown
+- [not-applicable] 0.425.0:2cff7e4b · 0.425.0 · Unmapped colon queries need resultEntity
+- [not-applicable] 0.425.0:f21d4093 · 0.425.0 · onDelete cascades run automatically in the delete lifecycle
+- [not-applicable] 0.425.0:9532cd54 · 0.425.0 · A record key that an owner forget erases holds only that owner's data
+- [not-applicable] 0.425.0:8c0c7423 · 0.425.0 · Fuzzy-searchable longText fields cannot restrict access.read
+- [not-applicable] 0.425.0:6d20e09d · 0.425.0 · systemScope handlers get ctx.systemDb typed as present
+- [migrated] 0.425.0:46d955f2 · 0.425.0 · A missing migrations directory fails the prod boot
+- [not-applicable] 0.425.0:31f10339 · 0.425.0 · updateRows and deleteRows refuse event-sourced entity tables without a reason
+- [migrated] 0.425.0:5c988484 · 0.425.0 · Scaffolded Playwright config uses ports.e2e
+- [migrated] 0.425.0:89e2bb29 · 0.425.0 · Video tooling on its own subpath
+- [not-applicable] 0.425.0:2105a8dd · 0.425.0 · runProdApp defaults to Secure session cookies
+- [migrated] 0.425.0:a7a2470e · 0.425.0 · Production boot defaults for kmsMode and staticDir
+- [not-applicable] 0.425.0:1cca721b · 0.425.0 · composeFeatures listDefaults applies to all features
+- [not-applicable] 0.425.0:c89f8caf · 0.425.0 · Unused entity, handler payload and handler result type maps removed
+- [not-applicable] 0.425.0:36899ecc · 0.425.0 · Step definitions drop the unused failure strategy
+- [migrated] 0.425.0:d3d0a6cd · 0.425.0 · Ratchet guards fail without a baseline file
+- [migrated] 0.425.0:27e0504b · 0.425.0 · lib-test-coverage ignore tags cite an existing test file
+- [migrated] 0.425.0:1a86f459 · 0.425.0 · seed-runtime-imports guard
+- [migrated] 0.425.0:a2e80913 · 0.425.0 · test-env-writes ratchet and suite env helpers
+- [migrated] 0.425.0:7520e85f · 0.425.0 · File Size guard limits test files to 1500 lines
+- [migrated] 0.425.0:02947005 · 0.425.0 · test-timeouts flags literal Playwright timeouts and extended test objects
+- [migrated] 0.425.0:c7e17371 · 0.425.0 · Ratchet baselines with headroom fail
+- [migrated] 0.425.0:70f34594 · 0.425.0 · Unused kumiko-lint-ignore markers fail the guard run
+- [not-applicable] 0.425.0:366c28c4 · 0.425.0 · Payload casts in handlers count as suspect casts
+- [migrated] 0.425.0:fd9d5589 · 0.425.0 · Existence-only checks on queries fail, existence-only tests are ratcheted
+- [not-applicable] 0.425.0:e854bf43 · 0.425.0 · securityBaselineFeatures preset removed
+- [migrated] 0.425.0:aa0d7c4f · 0.425.0 · kumiko check verifies test script timeouts
+- [migrated] 0.425.0:c69f8008 · 0.425.0 · Overrides of Kumiko packages fail the managed-files check
+- [open] 0.425.0:72dcd03d · 0.425.0 · Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only
+- [not-applicable] 0.425.0:f19d3188 · 0.425.0 · setupAppTestStack is the one app test entry
+- [not-applicable] 0.425.0:828d8d9e · 0.425.0 · Managed kumiko/schema.ts and kumiko check read listDefaults
+- [migrated] 0.425.0:d5192c48 · 0.425.0 · App test stacks gate tiers like runDevApp
+- [not-applicable] 0.425.0:4e7f2425 · 0.425.0 · Handlers are defined with defineWriteHandler/defineQueryHandler
+- [not-applicable] 0.425.0:4863e30b · 0.425.0 · adoptsBundledLists pattern removed
+- [not-applicable] 0.425.0:e2cf135f · 0.425.0 · Upgrade codemods up to 0.420.0 removed
+- [not-applicable] 0.425.0:a93e463a · 0.425.0 · Currency cells format with Intl and an ISO currency code
+- [not-applicable] 0.425.0:78d9206e · 0.425.0 · Unused web exports removed
+- [not-applicable] 0.425.0:bd0f8e73 · 0.425.0 · Drawer widget props type is DrawerPanelProps
+- [not-applicable] 0.425.0:69aaa841 · 0.425.0 · formatMoney takes an options object
+- [not-applicable] 0.425.0:c7e18fd1 · 0.425.0 · Every CorePrimitive is required, createStubPrimitives replaces partial test stubs
+
+### Codemods applied
+
+- 0.425.0 · scripts/codemod/unsafe-raw-all-tenants.ts · ctx.db.unsafeRaw() stays in the caller's tenant
+- 0.425.0 · scripts/codemod/entity-name.ts · Entities carry their name
+- 0.425.0 · scripts/codemod/escape-hatch-grants.ts · escapeHatch names its grants
+- 0.425.0 · scripts/codemod/registrar-single-form.ts · Registrar verbs take one options object; r.useExtension becomes r.applyExtension
+- 0.425.0 · scripts/codemod/feature-layout.ts · Handler layout and feature import cycles are guarded
+- 0.425.0 · scripts/codemod/guard-markers-to-lint-ignore.ts · Test guard opt-outs move to kumiko-lint-ignore
+- 0.425.0 · scripts/codemod/define-handler.ts · Handlers are defined with defineWriteHandler/defineQueryHandler
+
 ## [0.424.1] - 2026-11-18
 
 ### Changed

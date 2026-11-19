@@ -1,6 +1,6 @@
 {
-  "version": "0.424.1",
-  "appliedAt": "2026-11-18T00:36:15.930442Z",
+  "version": "0.425.0-next-20261119100036-007d227",
+  "appliedAt": "2026-11-19T10:23:52.396898Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -51,6 +51,48 @@
       "version": "0.417.0",
       "codemod": "scripts/codemod/scaffold-kms-mode.ts",
       "title": "kumiko-upgrade migrates older scaffolds to Key Manager ciphertext keys"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/unsafe-raw-all-tenants.ts",
+      "title": "ctx.db.unsafeRaw() stays in the caller's tenant"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/entity-name.ts",
+      "title": "Entities carry their name"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/escape-hatch-grants.ts",
+      "title": "escapeHatch names its grants"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/registrar-single-form.ts",
+      "title": "Registrar verbs take one options object; r.useExtension becomes r.applyExtension"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/feature-layout.ts",
+      "title": "Handler layout and feature import cycles are guarded"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/guard-markers-to-lint-ignore.ts",
+      "title": "Test guard opt-outs move to kumiko-lint-ignore"
+    },
+    {
+      "version": "0.425.0",
+      "codemod": "scripts/codemod/define-handler.ts",
+      "title": "Handlers are defined with defineWriteHandler/defineQueryHandler"
+    }
+  ],
+  "pendingManual": [
+    {
+      "id": "0.425.0:72dcd03d",
+      "version": "0.425.0",
+      "title": "Managed ci.yml covers e2e shards and full Chromium, checks run on pull requests only"
     }
   ],
   "resolvedManual": [
@@ -2341,6 +2383,1182 @@
       "resolution": "not-applicable",
       "reason": "App never references TenantOwner (git grep over src, bin, kumiko: 0 hits)",
       "resolvedAt": "2026-11-18T04:18:01.597392Z"
+    },
+    {
+      "id": "0.425.0:85fe49d3",
+      "version": "0.425.0",
+      "title": "Mail and PDF renderers live in bundled-features, document-draft and signature print without injected functions",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"kumiko-renderer-mail-html\", \"kumiko-renderer-puppeteer-client\", \"createDocumentDraftFeature\", \"createSignatureFeature\", \"DocumentDraftPdf\", \"RenderSignatureHtmlToPdf\", \"renderHtmlToPdf\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:ef03b7ed",
+      "version": "0.425.0",
+      "title": "The anonymous deletion verify mail comes from user-data-rights",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"sendDeletionVerificationEmail\", \"SendDeletionVerificationEmailFn\", \"deletionTokenSecret\", \"deletionVerifyUrl\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:b320ee9c",
+      "version": "0.425.0",
+      "title": "User-data adapter features merged into their owner features",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"folders-user-data\", \"form-draft-user-data\", \"notes-history-user-data\", \"template-resolver-user-data\", \"auth-mfa-user-data\", \"UserDataFeature\", \"registerUserDataHooks\", \"eraseNoteBodiesReachingSubject\", \"EXT_USER_DATA\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:4334f46e",
+      "version": "0.425.0",
+      "title": "Ledger reports filter the period in SQL and require ISO dates",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"reportBalances\", \"reportIncomeStatement\", \"reportBalanceSheet\", \"report:balances\", \"report:income-statement\", \"report:balance-sheet\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:ad472bdf",
+      "version": "0.425.0",
+      "title": "Agent write tools keep optimistic locking",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"injectsVersion\", \"agent-tools\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:d13dba3d",
+      "version": "0.425.0",
+      "title": "Doc-only translations for kumiko api-docs",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"resolveApiDocsConfig\", \"apiDocs\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:3974b59c",
+      "version": "0.425.0",
+      "title": "API docs generator on its own subpath",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"kumiko-bundled-features/agent-tools\", \"generateApiDocs\", \"resolveApiDocsConfig\", \"diffApiDocsOutput\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:1121f886",
+      "version": "0.425.0",
+      "title": "Signature requests are visible through their host row",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createSignatureFeature\", \"signature:write:request\", \"authorizeSubject\", \"unscopedRoles\", \"AuthorizeSignatureSubject\", \"SignatureSubject\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:25979949",
+      "version": "0.425.0",
+      "title": "forget-signer checks the host record",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createForgetSignerHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:e3487cf6",
+      "version": "0.425.0",
+      "title": "WhatsApp test double moved to channel-whatsapp/testing",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createInMemoryMeta\", \"InMemoryMeta\", \"deliverMetaWebhook\", \"requestMetaVerification\", \"metaTextMessage\", \"metaButtonReplyMessage\", \"metaMediaMessage\", \"metaStatus\", \"metaWebhookPayload\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:ea8cc854",
+      "version": "0.425.0",
+      "title": "WhatsApp PII under per-stream record keys, opt-in retention",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"channel-whatsapp\", \"ChannelWhatsapp\", \"eventRetentionDays\", \"readWhatsappMessagePii\", \"readWhatsappStatusPii\", \"readWhatsappThrottledPii\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:0ddd6f52",
+      "version": "0.425.0",
+      "title": "S3 endpoint and forcePathStyle are SystemAdmin-writable only",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"file-provider-s3\", \"FileProviderS3\", \"composeFileStack\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:4721f527",
+      "version": "0.425.0",
+      "title": "Stricter field-approval rules",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"access.approve\", \"createFieldApprovalFeature\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:7061e469",
+      "version": "0.425.0",
+      "title": "Storage provider selection is SystemAdmin-only",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"file-foundation\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:20e04b90",
+      "version": "0.425.0",
+      "title": "credentialRevoker extension point replaces the session mass-revoke callbacks",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"massRevoker\", \"revokeAllOthers\", \"SessionMassRevoker\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:0896171d",
+      "version": "0.425.0",
+      "title": "late-bound slot helper removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createLateBoundSlot\", \"LateBoundSlot\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:8db069b9",
+      "version": "0.425.0",
+      "title": "Prebuilt addNoteHandler constant removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"addNoteHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:0a43d3c4",
+      "version": "0.425.0",
+      "title": "Ingest progress is a direct store write on the TenantDb",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"document-ingest-foundation\", \"reportIngestProgress\", \"ReportIngestProgressDeps\", \"DOCUMENT_INGEST_PROGRESS_EVENT\", \"documentIngest.progress\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:33cdcb27",
+      "version": "0.425.0",
+      "title": "Prebuilt tag and note handler constants removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createTagHandler\", \"assignTagHandler\", \"deleteTagHandler\", \"removeTagHandler\", \"addNoteHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:32d58b6b",
+      "version": "0.425.0",
+      "title": "Legacy tag catalog handlers removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"tags:write:create-tag\", \"tags:write:update-tag\", \"tags:write:delete-tag\", \"TagsHandlers\", \"tag:update\", \"createUpdateTagHandler\", \"updateTagHandler\", \"updateTagPayloadSchema\", \"UpdateTagPayload\", \"createCreateTagHandler\", \"createDeleteTagHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:1913a2a5",
+      "version": "0.425.0",
+      "title": "caps:usage hands cap callbacks a tenant-scoped db without unsafeRaw",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"unsafeRaw\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:0090f5ee",
+      "version": "0.425.0",
+      "title": "autoRevokeOnPasswordChange option and late binding removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"autoRevokeOnPasswordChange\", \"bindAutoRevokeFromFeature\", \"BindAutoRevokeOnPasswordChange\", \"SessionMassRevoker\", \"sessionMassRevoker\", \"sessionRevokeAllOthers\", \"asMassRevoker\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:c9f9040c",
+      "version": "0.425.0",
+      "title": "Audit payloads follow the entity read rules; payload can be null",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"audit:query\", \"AuditQueries\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:0290688c",
+      "version": "0.425.0",
+      "title": "Tenant row version follows the destruction stage events",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"seedDestroyingTenant\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:dba54b91",
+      "version": "0.425.0",
+      "title": "Mail-thread rollup and read_mail_threads removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"inbound-mail-foundation\", \"mailThreadAggregateId\", \"mailThreadEntity\", \"mailThreadsProjectionTable\", \"MAIL_THREAD_PII_FIELDS\", \"MAIL_THREAD_AGGREGATE_TYPE\", \"MAIL_THREAD_UPDATED_EVENT_QN\", \"MAIL_THREAD_UPDATED_EVENT_SHORT\", \"MailThreadEventPayload\", \"mailThreadEventPayloadSchema\", \"mail-thread-updated\", \"threadAggregateId\", \"read_mail_threads\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:6221b4d6",
+      "version": "0.425.0",
+      "title": "message:list pages with a cursor",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"inbound-mail-foundation\", \"InboundMailFoundation\", \"message:list\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:2e90bdc7",
+      "version": "0.425.0",
+      "title": "OAuth connect state is bound to the starting browser",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"inbound-mail-foundation\", \"signOAuthState\", \"OAuthStatePayload\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:37aaa852",
+      "version": "0.425.0",
+      "title": "Idempotent send from a mailbox",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"inbound-mail-foundation\", \"sendMailFromAccount\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:de6198ab",
+      "version": "0.425.0",
+      "title": "Send idempotency keys bound to caller and mailbox",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"sendMailFromAccount\", \"outboundMailSendEntity\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:151b21b6",
+      "version": "0.425.0",
+      "title": "Renderer plugins are picked by kind with selectRendererPlugin",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createRendererFoundationApi\", \"createRendererForTenant\", \"RendererFoundationApi\", \"requireRendererFoundation\", \"rendererFoundation\", \"rendererPluginByKind\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:8bd2f9e0",
+      "version": "0.425.0",
+      "title": "One request core for the static login and the token flows",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"static-login\", \"STATIC_NETWORK_FAILURE_REASON\", \"STATIC_RATE_LIMITED_REASON\", \"requestPasswordReset\", \"resetPassword\", \"requestEmailVerification\", \"verifyEmail\", \"requestAccountUnlock\", \"confirmAccountUnlock\", \"requestSignup\", \"confirmSignup\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:4d291a5e",
+      "version": "0.425.0",
+      "title": "Token request handlers no longer return the token",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"request-password-reset\", \"request-email-verification\", \"request-account-unlock\", \"signup-request\", \"requestPasswordReset\", \"requestEmailVerification\", \"requestAccountUnlock\", \"TokenRequestSuccess\", \"TokenRequestNoOp\", \"TokenRequestData\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:ba0c9bd5",
+      "version": "0.425.0",
+      "title": "Resource upload always links into a template",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"resource-upload\", \"resourceUpload\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:7eecc279",
+      "version": "0.425.0",
+      "title": "User-owned entry titles and folders are personal data",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"ownership: \"user\"\", \"user-content-entry\", \"read_user_content_entries\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:6142aed2",
+      "version": "0.425.0",
+      "title": "No plaintext addresses in delivery jobs",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"sealJobContent\", \"createDeliveryService\", \"addressCipher\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:7ed1eaa8",
+      "version": "0.425.0",
+      "title": "files feature only under @cosmicdrift/kumiko-framework/files",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"kumiko-bundled-features/files\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:798983b4",
+      "version": "0.425.0",
+      "title": "Prebuilt folder handler constants removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"setFolderHandler\", \"clearFolderHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:6ddcaa55",
+      "version": "0.425.0",
+      "title": "Folder assignments enforce ownership.write",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createFolderAssignmentExecutor\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:bbb92e75",
+      "version": "0.425.0",
+      "title": "MFA revoke bindings removed; regenerate-recovery also revokes access tokens",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"bindMfaRevokeAllOtherSessionsFromFeature\", \"bindRevokeAllPatTokensFromFeature\", \"BindMfaRevokeAllOtherSessions\", \"BindRevokeAllPatTokens\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:c02c9826",
+      "version": "0.425.0",
+      "title": "Custom fields enforce read roles and the searchable flag",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"custom-fields\", \"createCustomFieldsFeature\", \"customFields\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:35188e93",
+      "version": "0.425.0",
+      "title": "Per-field custom-field retention removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"custom-fields\", \"serializedField\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:a2c93afe",
+      "version": "0.425.0",
+      "title": "Custom fields only on wired host entities",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"custom-fields\", \"createCustomFieldsFeature\", \"wireCustomFieldsFor\", \"define-tenant-field\", \"define-system-field\", \"set-custom-field\", \"clear-custom-field\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:64e04921",
+      "version": "0.425.0",
+      "title": "One custom-fields value projection for all wired host entities",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"wireCustomFieldsFor\", \"custom-fields\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:17a59ac4",
+      "version": "0.425.0",
+      "title": "Document drafts are visible through their subject row",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"document-draft\", \"createDocumentDraftFeature\", \"authorizeSubject\", \"unscopedRoles\", \"AuthorizeDocumentDraftSubject\", \"DocumentDraftSubject\", \"subjectTypes\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:bb081f05",
+      "version": "0.425.0",
+      "title": "PAT auto-revoke option and late binding removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"autoRevokeOnPasswordChange\", \"bindPatAutoRevokeOnPasswordChangeFromFeature\", \"BindPatAutoRevokeOnPasswordChange\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:2797a1c5",
+      "version": "0.425.0",
+      "title": "PATs of principals without a user row are rejected",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"personal-access-tokens\", \"createPersonalAccessTokensFeature\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:54788635",
+      "version": "0.425.0",
+      "title": "Field read rules the framework cannot enforce fail at boot",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"r.projection\", \"crossTenantFileRead\", \"extendSchema\", \"resultEntity\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:7ef3346a",
+      "version": "0.425.0",
+      "title": "JWT verify pins HS256 and requires a kid in keyring mode",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"JWT_SECRET_V\", \"JWT_SECRET_CURRENT_VERSION\", \"loadJwtSecretOrKeyring\", \"createJwtHelper\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:50032abd",
+      "version": "0.425.0",
+      "title": "Deprecated money, PII, schema and webhook aliases removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"amountMinor\", \"subjectField\", \"injectSchema\", \"webhookPath\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:fd613564",
+      "version": "0.425.0",
+      "title": "Entity cache removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"entityCache\", \"EntityCache\", \"kumiko-types/entity-cache\", \"kumiko:cache:\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:6f59ac65",
+      "version": "0.425.0",
+      "title": "Entity handlers with the verb in the name string are internal",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"defineEntityWriteHandler\", \"defineEntityQueryHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:b52b31a3",
+      "version": "0.425.0",
+      "title": "Write-handler job triggers carry the written row id",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"JobTriggerEvent\", \"handleCatchUpEvent\", \"triggerEvent\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:8648a3e8",
+      "version": "0.425.0",
+      "title": "SessionMassRevoker type removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"SessionMassRevoker\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:a3162bed",
+      "version": "0.425.0",
+      "title": "AuthSessionStatus gains not_a_member",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"AuthSessionStatus\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:3db4dc39",
+      "version": "0.425.0",
+      "title": "Boot rule transfer/custom-projection",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"transferable\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:3946fec9",
+      "version": "0.425.0",
+      "title": "Workflow engine, workflow-runner and step-dispatcher removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"defineWorkflow\", \"workflow-runner\", \"step-dispatcher\", \"createWorkflowRunnerFeature\", \"createStepDispatcherFeature\", \"step.wait\", \"step.retry\", \"step.webhook\", \"step.mail\", \"WorkflowDefinition\", \"WorkflowStepError\", \"evaluateEventMatch\", \"computeDefinitionFingerprint\", \"WORKFLOW_\", \"STEP_DISPATCH_\", \"AwaitedEventType\", \"PipelineDef\", \"ctx.workflow\", \"resumeFrom\", \"per-dispatch-record-key\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:af1e83db",
+      "version": "0.425.0",
+      "title": "step-dispatcher feature removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"step-dispatcher\", \"createStepDispatcherFeature\", \"performMailDispatch\", \"performWebhookDispatch\", \"setMailRunner\", \"setWebhookFetch\", \"setWebhookHostLookup\", \"stepDispatcherEnvSchema\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:54564cba",
+      "version": "0.425.0",
+      "title": "workflow-runner feature removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"workflow-runner\", \"createWorkflowRunnerFeature\", \"startAndRunWorkflow\", \"registerEventTrigger\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:fd97033d",
+      "version": "0.425.0",
+      "title": "App connections carry their projection registry",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"runProjectionsForEvent\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:6b32da9b",
+      "version": "0.425.0",
+      "title": "Every event append states its concurrency expectation",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"events.append\", \"unsafeAppend\", \"tryAppend\", \"emitEvent\", \"appendEvent\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:cc159684",
+      "version": "0.425.0",
+      "title": "Breaking changesets declare affects",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"kumiko-changes\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:162790d6",
+      "version": "0.425.0",
+      "title": "listDefaults replaces bundledLists, adoptsBundledLists removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"bundledLists\", \"BundledListsOptions\", \"adoptsBundledLists\", \"bundled-lists/\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:a17ab194",
+      "version": "0.425.0",
+      "title": "escapeHatch names its grants",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"escapeHatch\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:66ed85d1",
+      "version": "0.425.0",
+      "title": "parentRef and the join features name their hosts",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"createTagsFeature\", \"createFoldersFeature\", \"createNotesHistoryFeature\", \"parentRef\", \"setFolderHandler\", \"clearFolderHandler\", \"createDeleteTagHandler\", \"folderAssignmentEntity\", \"tagAssignmentEntity\", \"noteEntryEntity\", \"createSignatureRequestEntity\", \"createDocumentDraftEntity\", \"requestExecutor\", \"documentDraftExecutor\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:f21d4093",
+      "version": "0.425.0",
+      "title": "onDelete cascades run automatically in the delete lifecycle",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"onDelete\", \"createCascadeDeleteHook\", \"SystemHookNames\", \"SystemHookPriorities\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:9532cd54",
+      "version": "0.425.0",
+      "title": "A record key that an owner forget erases holds only that owner's data",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"whenAbsent\", \"recordOwned\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:31f10339",
+      "version": "0.425.0",
+      "title": "updateRows and deleteRows refuse event-sourced entity tables without a reason",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"updateRows\", \"deleteRows\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:1cca721b",
+      "version": "0.425.0",
+      "title": "composeFeatures listDefaults applies to all features",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"bundledLists\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:c89f8caf",
+      "version": "0.425.0",
+      "title": "Unused entity, handler payload and handler result type maps removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"KumikoEntityTypeMap\", \"KumikoHandlerPayloadMap\", \"KumikoHandlerResultMap\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:36899ecc",
+      "version": "0.425.0",
+      "title": "Step definitions drop the unused failure strategy",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"StepFailureStrategy\", \"defaultFailureStrategy\", \"onFailure\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:e854bf43",
+      "version": "0.425.0",
+      "title": "securityBaselineFeatures preset removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"securityBaselineFeatures\", \"SecurityBaselineOptions\", \"kumiko-bundled-features/presets\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:f19d3188",
+      "version": "0.425.0",
+      "title": "setupAppTestStack is the one app test entry",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"setupTestStackFromFeatures\", \"setup-test-stack-from-features\", \"SetupTestStackFromFeaturesOptions\", \"TestStackPreset\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:828d8d9e",
+      "version": "0.425.0",
+      "title": "Managed kumiko/schema.ts and kumiko check read listDefaults",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"bundledLists\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:4e7f2425",
+      "version": "0.425.0",
+      "title": "Handlers are defined with defineWriteHandler/defineQueryHandler",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"WriteHandlerDef\", \"QueryHandlerDef\", \"withCapEnforcement\", \"createEnsureAccountsHandler\", \"createSubjectTotalsHandler\", \"createScheduleActualsHandler\", \"createBalancesReportHandler\", \"createIncomeStatementHandler\", \"createBalanceSheetHandler\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:4863e30b",
+      "version": "0.425.0",
+      "title": "adoptsBundledLists pattern removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"adoptsBundledLists\", \"AdoptsBundledListsPattern\", \"adoptsBundledListsSchema\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:a93e463a",
+      "version": "0.425.0",
+      "title": "Currency cells format with Intl and an ISO currency code",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"\"currency\"\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:78d9206e",
+      "version": "0.425.0",
+      "title": "Unused web exports removed",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"SenderFrame\", \"SenderSheet\", \"DrawnFilter\", \"DrawnPanel\", \"DrawnWand\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:bd0f8e73",
+      "version": "0.425.0",
+      "title": "Drawer widget props type is DrawerPanelProps",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"DrawerProps\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:69aaa841",
+      "version": "0.425.0",
+      "title": "formatMoney takes an options object",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"formatMoney\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:c7e18fd1",
+      "version": "0.425.0",
+      "title": "Every CorePrimitive is required, createStubPrimitives replaces partial test stubs",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"CorePrimitives\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-19T10:23:49.06571Z"
+    },
+    {
+      "id": "0.425.0:3277b9bb",
+      "version": "0.425.0",
+      "title": "Default auth pages cover every auth path and take a shell",
+      "resolution": "migrated",
+      "reason": "client-admin.tsx: the own marketing-auth-shell gate around AuthShellProvider is replaced by emailPasswordClient({ authShell }); no defaultAuthPages option was set",
+      "resolvedAt": "2026-11-19T10:31:29.49051Z"
+    },
+    {
+      "id": "0.425.0:5c988484",
+      "version": "0.425.0",
+      "title": "Scaffolded Playwright config uses ports.e2e",
+      "resolution": "migrated",
+      "reason": "playwright.config.ts and e2e/loops/env.ts take the port from kumiko.config ports.e2e (4181); the SHOWPONY_LOOPS_PORT override is gone",
+      "resolvedAt": "2026-11-19T10:31:51.922155Z"
+    },
+    {
+      "id": "0.425.0:0fbf8862",
+      "version": "0.425.0",
+      "title": "Branding exports removed from managed-pages",
+      "resolution": "migrated",
+      "reason": "run-config mounts createBrandingFeature(); BRANDING_QN is imported from bundled-features/branding (invite-branding.query.ts, invite-branding-screen.ts); client-admin mounts brandingClient(); no custom CSS",
+      "resolvedAt": "2026-11-19T10:31:52.025979Z"
+    },
+    {
+      "id": "0.425.0:101e26aa",
+      "version": "0.425.0",
+      "title": "Branding is its own feature",
+      "resolution": "migrated",
+      "reason": "run-config mounts createBrandingFeature(); BRANDING_QN is imported from bundled-features/branding (invite-branding.query.ts, invite-branding-screen.ts); client-admin mounts brandingClient(); no custom CSS",
+      "resolvedAt": "2026-11-19T10:31:52.025979Z"
+    },
+    {
+      "id": "0.425.0:97845ccc",
+      "version": "0.425.0",
+      "title": "Agent lint fails on missing handler translations",
+      "resolution": "migrated",
+      "reason": "bun kumiko agent lint on 0.425: No AI-agent doc gaps found",
+      "resolvedAt": "2026-11-19T10:31:52.147645Z"
+    },
+    {
+      "id": "0.425.0:e7f738c0",
+      "version": "0.425.0",
+      "title": "User email lookups and writes are case-insensitive",
+      "resolution": "migrated",
+      "reason": "all seeded user emails in bin/server.ts, e2e seeds and tests are lowercase; the prod admin goes through the admin boot seed that repairs casing",
+      "resolvedAt": "2026-11-19T10:31:52.261501Z"
+    },
+    {
+      "id": "0.425.0:17a8aa7c",
+      "version": "0.425.0",
+      "title": "admin-shell workspaces collect navs; includeDocumentDesigner removed",
+      "resolution": "migrated",
+      "reason": "app-shell/feature.ts sets collectAdminArea tenant/platform; no includeDocumentDesigner, no own users or system-check navs; the explicit overview QNs only pin their position first",
+      "resolvedAt": "2026-11-19T10:31:52.427661Z"
+    },
+    {
+      "id": "0.425.0:dc107c19",
+      "version": "0.425.0",
+      "title": "r.httpRoute gets deps.hostTenantId(); managed-pages and seo default to it; createHostTenantIdResolver is removed",
+      "resolution": "migrated",
+      "reason": "run-config uses createManagedPagesFeature({}) without resolveApexTenant; no createHostTenantIdResolver; test stacks keep a fixed null resolver",
+      "resolvedAt": "2026-11-19T10:31:52.518612Z"
+    },
+    {
+      "id": "0.425.0:b1730a4c",
+      "version": "0.425.0",
+      "title": "Public pages send default-src 'none' and form-action 'none'",
+      "resolution": "migrated",
+      "reason": "legal-pages layout (src/marketing/layouts/legal.ts, shared.ts) uses inline CSS only, no scripts, forms, external stylesheets or fonts",
+      "resolvedAt": "2026-11-19T10:31:52.601427Z"
+    },
+    {
+      "id": "0.425.0:d6954465",
+      "version": "0.425.0",
+      "title": "Template reads follow tenantEditable roles",
+      "resolution": "migrated",
+      "reason": "TENANT_EDITABLE_TEMPLATES grants access.admin, which covers the host roles that read templates; plain members need no template reads",
+      "resolvedAt": "2026-11-19T10:31:52.689529Z"
+    },
+    {
+      "id": "0.425.0:9e6a9104",
+      "version": "0.425.0",
+      "title": "forget-subject erases the key after commit and forgets forgetWithSubject rows",
+      "resolution": "migrated",
+      "reason": "rsvp-crypto-shredding.integration.test.ts drains crypto-shredding:projection:subject-key-eraser after forget-subject; no subject-forgotten consumers in the app",
+      "resolvedAt": "2026-11-19T10:31:52.774182Z"
+    },
+    {
+      "id": "0.425.0:9eacb56d",
+      "version": "0.425.0",
+      "title": "Projection list shows implicit entity projections",
+      "resolution": "migrated",
+      "reason": "rsvp-crypto-shredding.integration.test.ts calls listProjectionsWithState(db, registry) without a third argument",
+      "resolvedAt": "2026-11-19T10:31:52.858746Z"
+    },
+    {
+      "id": "0.425.0:1948e377",
+      "version": "0.425.0",
+      "title": "ctx.db rows are typed from the entity table",
+      "resolution": "migrated",
+      "reason": "bun run typecheck green on 0.425 (176 + 110 files); ctx.db and selectMany calls pass explicit row types",
+      "resolvedAt": "2026-11-19T10:31:52.953454Z"
+    },
+    {
+      "id": "0.425.0:b6264480",
+      "version": "0.425.0",
+      "title": "Free query helpers are typed",
+      "resolution": "migrated",
+      "reason": "bun run typecheck green on 0.425 (176 + 110 files); ctx.db and selectMany calls pass explicit row types",
+      "resolvedAt": "2026-11-19T10:31:52.953454Z"
+    },
+    {
+      "id": "0.425.0:2c545371",
+      "version": "0.425.0",
+      "title": "createTenantDb on the db subpath is tenant-only",
+      "resolution": "migrated",
+      "reason": "createTenantDb from the db subpath is only called as { db, tenantId } in tests; no mode system or grants",
+      "resolvedAt": "2026-11-19T10:31:53.035138Z"
+    },
+    {
+      "id": "0.425.0:cb60c009",
+      "version": "0.425.0",
+      "title": "Entities carry their name",
+      "resolution": "migrated",
+      "reason": "createEntity carries name in schema/event.ts and schema/rsvp.ts",
+      "resolvedAt": "2026-11-19T10:31:53.117571Z"
+    },
+    {
+      "id": "0.425.0:ac9ea3d0",
+      "version": "0.425.0",
+      "title": "Registrar verbs take one options object; r.useExtension becomes r.applyExtension",
+      "resolution": "migrated",
+      "reason": "bin/e2e-billing-stub.ts uses r.applyExtension; feature.ts uses object forms for r.config and r.notification",
+      "resolvedAt": "2026-11-19T10:31:53.204028Z"
+    },
+    {
+      "id": "0.425.0:46d955f2",
+      "version": "0.425.0",
+      "title": "A missing migrations directory fails the prod boot",
+      "resolution": "migrated",
+      "reason": "deploy/Dockerfile copies kumiko/migrations into the runtime image",
+      "resolvedAt": "2026-11-19T10:31:53.288413Z"
+    },
+    {
+      "id": "0.425.0:89e2bb29",
+      "version": "0.425.0",
+      "title": "Video tooling on its own subpath",
+      "resolution": "migrated",
+      "reason": "e2e/videos/videos.spec.ts imports runVideos from @cosmicdrift/kumiko-testing/video",
+      "resolvedAt": "2026-11-19T10:31:53.376515Z"
+    },
+    {
+      "id": "0.425.0:a7a2470e",
+      "version": "0.425.0",
+      "title": "Production boot defaults for kmsMode and staticDir",
+      "resolution": "migrated",
+      "reason": "bin/main.ts passes kmsMode explicitly and no staticDir; FILE_STORAGE_PROVIDER=inmemory only in CI test jobs, not in the prod env",
+      "resolvedAt": "2026-11-19T10:31:53.512148Z"
+    },
+    {
+      "id": "0.425.0:27e0504b",
+      "version": "0.425.0",
+      "title": "lib-test-coverage ignore tags cite an existing test file",
+      "resolution": "migrated",
+      "reason": "the only lib-test-coverage tag (rsvp-confirmation-mail.ts) cites rsvp-anonymous.integration.test.ts, which exists; guard green",
+      "resolvedAt": "2026-11-19T10:31:53.620959Z"
+    },
+    {
+      "id": "0.425.0:1a86f459",
+      "version": "0.425.0",
+      "title": "seed-runtime-imports guard",
+      "resolution": "migrated",
+      "reason": "seeds/ import @cosmicdrift only as import type and stay inside seeds/; seed-runtime-imports guard green",
+      "resolvedAt": "2026-11-19T10:31:53.827026Z"
+    },
+    {
+      "id": "0.425.0:a2e80913",
+      "version": "0.425.0",
+      "title": "test-env-writes ratchet and suite env helpers",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards on 0.425 green: test-env-writes, File Size, test-timeouts, unused-ignore-tags, Fake-Test and weak-assertions report no findings",
+      "resolvedAt": "2026-11-19T10:31:53.928478Z"
+    },
+    {
+      "id": "0.425.0:7520e85f",
+      "version": "0.425.0",
+      "title": "File Size guard limits test files to 1500 lines",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards on 0.425 green: test-env-writes, File Size, test-timeouts, unused-ignore-tags, Fake-Test and weak-assertions report no findings",
+      "resolvedAt": "2026-11-19T10:31:53.928478Z"
+    },
+    {
+      "id": "0.425.0:02947005",
+      "version": "0.425.0",
+      "title": "test-timeouts flags literal Playwright timeouts and extended test objects",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards on 0.425 green: test-env-writes, File Size, test-timeouts, unused-ignore-tags, Fake-Test and weak-assertions report no findings",
+      "resolvedAt": "2026-11-19T10:31:53.928478Z"
+    },
+    {
+      "id": "0.425.0:70f34594",
+      "version": "0.425.0",
+      "title": "Unused kumiko-lint-ignore markers fail the guard run",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards on 0.425 green: test-env-writes, File Size, test-timeouts, unused-ignore-tags, Fake-Test and weak-assertions report no findings",
+      "resolvedAt": "2026-11-19T10:31:53.928478Z"
+    },
+    {
+      "id": "0.425.0:fd9d5589",
+      "version": "0.425.0",
+      "title": "Existence-only checks on queries fail, existence-only tests are ratcheted",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards on 0.425 green: test-env-writes, File Size, test-timeouts, unused-ignore-tags, Fake-Test and weak-assertions report no findings",
+      "resolvedAt": "2026-11-19T10:31:53.928478Z"
+    },
+    {
+      "id": "0.425.0:aa0d7c4f",
+      "version": "0.425.0",
+      "title": "kumiko check verifies test script timeouts",
+      "resolution": "migrated",
+      "reason": "package.json test scripts use --timeout=5000 (unit), the dom default 5000, 240000 (real); test:integration runs bun kumiko-testing integration",
+      "resolvedAt": "2026-11-19T10:31:54.042297Z"
+    },
+    {
+      "id": "0.425.0:c69f8008",
+      "version": "0.425.0",
+      "title": "Overrides of Kumiko packages fail the managed-files check",
+      "resolution": "migrated",
+      "reason": "overrides hold no @cosmicdrift kumiko packages and no html-to-text, nodemailer, sharp or happy-dom",
+      "resolvedAt": "2026-11-19T10:31:54.13156Z"
+    },
+    {
+      "id": "0.425.0:d5192c48",
+      "version": "0.425.0",
+      "title": "App test stacks gate tiers like runDevApp",
+      "resolution": "migrated",
+      "reason": "every tier in SHOWPONY_TIER_MAP declares features: []; cap-enforcement.integration.test.ts on the full app composition passes on 0.425",
+      "resolvedAt": "2026-11-19T10:31:54.229082Z"
+    },
+    {
+      "id": "0.425.0:bb0d0f09",
+      "version": "0.425.0",
+      "title": "Tenant admins act only on users within their own reach",
+      "resolution": "not-applicable",
+      "reason": "no denyIfTargetOutsideAdminTenant in src/bin; the app never calls restrict-account, lift-restriction or forget-subject for users",
+      "resolvedAt": "2026-11-19T10:32:16.958661Z"
+    },
+    {
+      "id": "0.425.0:26e73d2b",
+      "version": "0.425.0",
+      "title": "GDPR default mails need an app name and follow the request language",
+      "resolution": "not-applicable",
+      "reason": "user-data-rights is not mounted: composeFeatures(buildAppFeatures) lists no user-data-rights feature",
+      "resolvedAt": "2026-11-19T10:32:17.120551Z"
+    },
+    {
+      "id": "0.425.0:a7eb9241",
+      "version": "0.425.0",
+      "title": "Deletion grace period is the maximum over the user's tenants with a 7-day floor",
+      "resolution": "not-applicable",
+      "reason": "user-data-rights is not mounted: composeFeatures(buildAppFeatures) lists no user-data-rights feature",
+      "resolvedAt": "2026-11-19T10:32:17.120551Z"
+    },
+    {
+      "id": "0.425.0:14486a57",
+      "version": "0.425.0",
+      "title": "Custom managed-pages layouts get escaped parts only",
+      "resolution": "not-applicable",
+      "reason": "managed-pages is mounted as createManagedPagesFeature({}) without wrapLayout; no tenantIdOverride or by-tenant-published call in src/bin/seeds",
+      "resolvedAt": "2026-11-19T10:32:17.414388Z"
+    },
+    {
+      "id": "0.425.0:d30fb9d9",
+      "version": "0.425.0",
+      "title": "Published page list always reads the caller's tenant",
+      "resolution": "not-applicable",
+      "reason": "managed-pages is mounted as createManagedPagesFeature({}) without wrapLayout; no tenantIdOverride or by-tenant-published call in src/bin/seeds",
+      "resolvedAt": "2026-11-19T10:32:17.414388Z"
+    },
+    {
+      "id": "0.425.0:955b780c",
+      "version": "0.425.0",
+      "title": "Ledger reversal and schedule links moved out of reference",
+      "resolution": "not-applicable",
+      "reason": "ledger is not mounted; no scheduleReference or findReversedIds in src/bin",
+      "resolvedAt": "2026-11-19T10:32:17.617169Z"
+    },
+    {
+      "id": "0.425.0:b35cea07",
+      "version": "0.425.0",
+      "title": "Row-bound grants verify the signature before the row lookup",
+      "resolution": "not-applicable",
+      "reason": "no signRowBoundGrant, peekTokenSubject or peekTenantScopedSubject in src/bin; signature and user-data-rights not mounted",
+      "resolvedAt": "2026-11-19T10:32:17.788772Z"
+    },
+    {
+      "id": "0.425.0:813a54a9",
+      "version": "0.425.0",
+      "title": "Tenant caps list sorts by key and searches through the search index",
+      "resolution": "not-applicable",
+      "reason": "no caller of cap-overview:query:tenant-caps:list in src/bin/e2e",
+      "resolvedAt": "2026-11-19T10:32:17.919377Z"
+    },
+    {
+      "id": "0.425.0:0cac8de7",
+      "version": "0.425.0",
+      "title": "Read override on text blocks narrows to SYSTEM only",
+      "resolution": "not-applicable",
+      "reason": "no text-block reads with tenantIdOverride and no html text-block writes; legal content seeds markdown (src/generated/legal-content.json)",
+      "resolvedAt": "2026-11-19T10:32:18.029214Z"
+    },
+    {
+      "id": "0.425.0:6620f48a",
+      "version": "0.425.0",
+      "title": "Text-block writes reject external images and embeds",
+      "resolution": "not-applicable",
+      "reason": "no text-block reads with tenantIdOverride and no html text-block writes; legal content seeds markdown (src/generated/legal-content.json)",
+      "resolvedAt": "2026-11-19T10:32:18.029214Z"
+    },
+    {
+      "id": "0.425.0:0bce371b",
+      "version": "0.425.0",
+      "title": "Delivery log no longer accepts old cursors",
+      "resolution": "not-applicable",
+      "reason": "no DeliveryJobs, delivery:job or delivery:query:log reference in src/bin/e2e; channel-email uses the in-memory transport",
+      "resolvedAt": "2026-11-19T10:32:18.147296Z"
+    },
+    {
+      "id": "0.425.0:50277e5a",
+      "version": "0.425.0",
+      "title": "Queued delivery renders inside the send job and seals the message content",
+      "resolution": "not-applicable",
+      "reason": "no DeliveryJobs, delivery:job or delivery:query:log reference in src/bin/e2e; channel-email uses the in-memory transport",
+      "resolvedAt": "2026-11-19T10:32:18.147296Z"
+    },
+    {
+      "id": "0.425.0:501cf6b5",
+      "version": "0.425.0",
+      "title": "Tier sync follows the subscription events; drift sync runs daily",
+      "resolution": "not-applicable",
+      "reason": "tier sync comes from the runProdApp billing boot option; no createSubscriptionTierSync call in src/bin",
+      "resolvedAt": "2026-11-19T10:32:18.402141Z"
+    },
+    {
+      "id": "0.425.0:cd3cd3dd",
+      "version": "0.425.0",
+      "title": "Job triggers on events only",
+      "resolution": "not-applicable",
+      "reason": "no r.job in src/bin; the app registers no jobs",
+      "resolvedAt": "2026-11-19T10:32:18.565259Z"
+    },
+    {
+      "id": "0.425.0:df70baee",
+      "version": "0.425.0",
+      "title": "SMTP requires STARTTLS unless the host is loopback or allowlisted",
+      "resolution": "not-applicable",
+      "reason": "no SMTP transport; channel-email runs createInMemoryTransport (run-config.ts)",
+      "resolvedAt": "2026-11-19T10:32:18.754194Z"
+    },
+    {
+      "id": "0.425.0:cb523e95",
+      "version": "0.425.0",
+      "title": "Production boot requires real login and MFA rate limiters",
+      "resolution": "not-applicable",
+      "reason": "prod boots through runProdApp; no custom buildServer or createAuthRoutes",
+      "resolvedAt": "2026-11-19T10:32:18.862584Z"
+    },
+    {
+      "id": "0.425.0:669224f4",
+      "version": "0.425.0",
+      "title": "/version drops the node field",
+      "resolution": "not-applicable",
+      "reason": "no client or monitor reads the node field of /version in the repo",
+      "resolvedAt": "2026-11-19T10:32:18.992504Z"
+    },
+    {
+      "id": "0.425.0:2ea14de9",
+      "version": "0.425.0",
+      "title": "Join rows respect the host's query roles",
+      "resolution": "not-applicable",
+      "reason": "no notes, tags or documents join features mounted; no parentRef or ParentVisibilityOption in src",
+      "resolvedAt": "2026-11-19T10:32:19.093757Z"
+    },
+    {
+      "id": "0.425.0:6c3947a7",
+      "version": "0.425.0",
+      "title": "Rebuild guards the single-table contract",
+      "resolution": "not-applicable",
+      "reason": "no r.projection, multi-stream projection, pruneEvents or transferable entity in src/bin",
+      "resolvedAt": "2026-11-19T10:32:19.18996Z"
+    },
+    {
+      "id": "0.425.0:570f9a89",
+      "version": "0.425.0",
+      "title": "Event pruning removes whole streams only",
+      "resolution": "not-applicable",
+      "reason": "no r.projection, multi-stream projection, pruneEvents or transferable entity in src/bin",
+      "resolvedAt": "2026-11-19T10:32:19.18996Z"
+    },
+    {
+      "id": "0.425.0:2ed5488c",
+      "version": "0.425.0",
+      "title": "Boot rule transfer/multi-stream-projection",
+      "resolution": "not-applicable",
+      "reason": "no r.projection, multi-stream projection, pruneEvents or transferable entity in src/bin",
+      "resolvedAt": "2026-11-19T10:32:19.18996Z"
+    },
+    {
+      "id": "0.425.0:5ab1a1c6",
+      "version": "0.425.0",
+      "title": "Lean update, delete and forget events and executor createMany/updateMany",
+      "resolution": "not-applicable",
+      "reason": "no payload.previous reads, no hand-built EventStoreExecutor, no kumiko_events reads for entity history in src/bin",
+      "resolvedAt": "2026-11-19T10:32:19.295985Z"
+    },
+    {
+      "id": "0.425.0:61efe832",
+      "version": "0.425.0",
+      "title": "Named entity verbs, executor history and listAsOf",
+      "resolution": "not-applicable",
+      "reason": "no payload.previous reads, no hand-built EventStoreExecutor, no kumiko_events reads for entity history in src/bin",
+      "resolvedAt": "2026-11-19T10:32:19.295985Z"
+    },
+    {
+      "id": "0.425.0:3d0e4827",
+      "version": "0.425.0",
+      "title": "Anonymous writes under the system tenant need tenantlessAnonymous",
+      "resolution": "not-applicable",
+      "reason": "rsvp:submit is only reachable on tenant subdomains through host-routing (AGENTS.md rule); an anonymous write under SYSTEM_TENANT_ID is meant to fail",
+      "resolvedAt": "2026-11-19T10:32:19.394537Z"
+    },
+    {
+      "id": "0.425.0:054de6a4",
+      "version": "0.425.0",
+      "title": "Money amounts are integers in minor units everywhere",
+      "resolution": "not-applicable",
+      "reason": "no money fields and no amountScaled, amountMinor or moneyAmountToMinor in src/bin/seeds",
+      "resolvedAt": "2026-11-19T10:32:19.475167Z"
+    },
+    {
+      "id": "0.425.0:37b1813d",
+      "version": "0.425.0",
+      "title": "Entity rows follow their stream version; list and detail drop the per-row event-store lookup",
+      "resolution": "not-applicable",
+      "reason": "no ctx.events.append or appendOne in src/bin/seeds; entity rows only change through executor writes",
+      "resolvedAt": "2026-11-19T10:32:19.565878Z"
+    },
+    {
+      "id": "0.425.0:ddacdc93",
+      "version": "0.425.0",
+      "title": "Query handlers declare their result entity",
+      "resolution": "not-applicable",
+      "reason": "no access.read or writeOnly fields on event or rsvp; app composition boots in cap-enforcement.integration.test.ts",
+      "resolvedAt": "2026-11-19T10:32:19.649967Z"
+    },
+    {
+      "id": "0.425.0:2cff7e4b",
+      "version": "0.425.0",
+      "title": "Unmapped colon queries need resultEntity",
+      "resolution": "not-applicable",
+      "reason": "no access.read or writeOnly fields on event or rsvp; app composition boots in cap-enforcement.integration.test.ts",
+      "resolvedAt": "2026-11-19T10:32:19.649967Z"
+    },
+    {
+      "id": "0.425.0:8c0c7423",
+      "version": "0.425.0",
+      "title": "Fuzzy-searchable longText fields cannot restrict access.read",
+      "resolution": "not-applicable",
+      "reason": "no access.read or writeOnly fields on event or rsvp; app composition boots in cap-enforcement.integration.test.ts",
+      "resolvedAt": "2026-11-19T10:32:19.649967Z"
+    },
+    {
+      "id": "0.425.0:6d20e09d",
+      "version": "0.425.0",
+      "title": "systemScope handlers get ctx.systemDb typed as present",
+      "resolution": "not-applicable",
+      "reason": "no requireSystemDb or ctx.systemDb checks in src/bin; nothing to change",
+      "resolvedAt": "2026-11-19T10:32:19.735272Z"
+    },
+    {
+      "id": "0.425.0:2105a8dd",
+      "version": "0.425.0",
+      "title": "runProdApp defaults to Secure session cookies",
+      "resolution": "not-applicable",
+      "reason": "prod is served over https; no secureCookies override in bin",
+      "resolvedAt": "2026-11-19T10:32:19.825564Z"
+    },
+    {
+      "id": "0.425.0:366c28c4",
+      "version": "0.425.0",
+      "title": "Payload casts in handlers count as suspect casts",
+      "resolution": "not-applicable",
+      "reason": "no @cast-boundary markers in src/bin; As-Casts Audit 0 suspect",
+      "resolvedAt": "2026-11-19T10:32:19.915604Z"
+    },
+    {
+      "id": "0.425.0:e2cf135f",
+      "version": "0.425.0",
+      "title": "Upgrade codemods up to 0.420.0 removed",
+      "resolution": "not-applicable",
+      "reason": "upgrade state was 0.424.1, past 0.420.0",
+      "resolvedAt": "2026-11-19T10:32:20.001151Z"
+    },
+    {
+      "id": "0.425.0:77a5e0ee",
+      "version": "0.425.0",
+      "title": "Session check rejects removed members and no longer falls back to JWT roles on errors",
+      "resolution": "not-applicable",
+      "reason": "test actors come from createTestUser without a user row or from seedTenant with membership; no hand-built actor with a user row but no membership",
+      "resolvedAt": "2026-11-19T10:32:20.086632Z"
+    },
+    {
+      "id": "0.425.0:27180505",
+      "version": "0.425.0",
+      "title": "Returned query failures are thrown",
+      "resolution": "not-applicable",
+      "reason": "isSuccess reads in src/seeds are on write results only (executor, systemWriteAs, rsvp form write); no query result unwrap",
+      "resolvedAt": "2026-11-19T10:32:20.179673Z"
+    },
+    {
+      "id": "0.425.0:d3d0a6cd",
+      "version": "0.425.0",
+      "title": "Ratchet guards fail without a baseline file",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards (30/30), checks (guard-raw-sql, guard-integration-mocks, Runtime-Isolation) and ui green on 0.425; no ratchet findings and no under-baseline violations, so no baseline file to write",
+      "resolvedAt": "2026-11-19T10:35:25.061206Z"
+    },
+    {
+      "id": "0.425.0:c7e17371",
+      "version": "0.425.0",
+      "title": "Ratchet baselines with headroom fail",
+      "resolution": "migrated",
+      "reason": "kumiko-guards guards (30/30), checks (guard-raw-sql, guard-integration-mocks, Runtime-Isolation) and ui green on 0.425; no ratchet findings and no under-baseline violations, so no baseline file to write",
+      "resolvedAt": "2026-11-19T10:35:25.061206Z"
     }
   ]
 }

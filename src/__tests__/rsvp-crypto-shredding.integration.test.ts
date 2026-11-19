@@ -5,7 +5,7 @@
 // as subject. Without this test, "Art. 17 ok" is a claim about annotations;
 // with it, it's a claim about behaviour.
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
@@ -94,7 +94,7 @@ async function submitGuest(name: string, email: string, note: string): Promise<s
   return row!.id;
 }
 
-beforeAll(async () => {
+async function setupRsvpStack(): Promise<void> {
   stack = await setupAppTestStack(
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
@@ -136,21 +136,20 @@ beforeAll(async () => {
     host,
   );
   eventId = created.id;
-});
+}
 
-afterAll(async () => {
-  await stack?.cleanup();
-});
-
+// A fresh stack per test: the KMS below is per test, so RSVP rows and events of an earlier
+// test would carry subject keys no adapter knows and break the list query and the rebuild.
 beforeEach(async () => {
+  await setupRsvpStack();
   configurePiiSubjectKms(new InMemoryKmsAdapter());
   configureBlindIndexKey(BIDX_KEY);
-  await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
 });
 
-afterEach(() => {
+afterEach(async () => {
   resetPiiSubjectKmsForTests();
   resetBlindIndexKeyForTests();
+  await stack?.cleanup();
 });
 
 describe("crypto-shredding:forget-subject — operator erasure for RSVP guests", () => {
@@ -223,7 +222,7 @@ describe("crypto-shredding:forget-subject — operator erasure for RSVP guests",
   });
 });
 
-describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => {
+describe("PII backfill for pre-encryption RSVP events", () => {
   // The personal:false -> "self" switch on rsvp.name/email/note (show-pony#130)
   // only encrypts NEW writes. Simulates an RSVP submitted before that switch:
   // its rsvp.created event carries plaintext name/email/note directly in
@@ -232,11 +231,7 @@ describe("PII backfill for pre-encryption RSVP events (show-pony#130/1)", () => 
   // there is no key to erase. `kumiko ops backfill-pii` runs
   // backfillEventPiiEncryption to re-encrypt such events after the fact.
   test("forget-subject erases a legacy plaintext RSVP after the PII backfill runs", async () => {
-    // A full projection rebuild below replays every rsvp.created event since
-    // genesis (encrypted under a KMS instance beforeEach already rotated away),
-    // so earlier tests' rsvp events must go. Other aggregates (user:create from
-    // beforeAll) stay; the backfill is bounded to events after the legacy append.
-    await asRawClient(stack.db).unsafe(`DELETE FROM "kumiko_events" WHERE aggregate_type = 'rsvp'`);
+    // The backfill is bounded to events after the legacy append; the seed events of beforeAll stay.
     const maxIdRows = await asRawClient(stack.db).unsafe<{ maxId: string | null }>(
       `SELECT max("id")::text AS "maxId" FROM "kumiko_events"`,
     );
