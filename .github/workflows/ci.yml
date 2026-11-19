@@ -146,7 +146,8 @@ jobs:
             BUILD_VERSION=${{ github.sha }}
 
   # gitleaks-action needs a paid licence for organisations, so the CLI comes from a pinned release asset verified by SHA256.
-  app-secrets-scan:
+  # Job id stays secrets-scan: the branch protection of main requires a check with that name.
+  secrets-scan:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
