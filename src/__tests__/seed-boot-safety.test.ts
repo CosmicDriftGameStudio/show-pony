@@ -109,7 +109,7 @@ describe("demo seed boot-safety", () => {
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 
-  test("patches rooftop description when slug already exists (idempotent retry)", async () => {
+  test("patches rooftop description and submits no RSVPs when slug already exists (idempotent retry)", async () => {
     const calls: string[] = [];
     const ctx = {
       db: {
@@ -137,7 +137,7 @@ describe("demo seed boot-safety", () => {
     await expect(seed.run(ctx)).resolves.toBeUndefined();
     expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(0);
     expect(calls.filter((c) => c === "showpony:write:event:update")).toHaveLength(2);
-    expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
+    expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(0);
   });
 
   test("event:update and branding failures do NOT crash — best-effort patch", async () => {

@@ -87,6 +87,24 @@ async function fillGuestCap(
   }
 }
 
+describe("caps:usage access", () => {
+  test("Admin reads the usage, a TenantAdmin-only member is rejected", async () => {
+    const tenant = await seedTenant(stack, { name: "Cap Usage Access" });
+    const admin = (await tenant.addUser(["Admin"])).session;
+    const tenantAdmin = (await tenant.addUser(["TenantAdmin"])).session;
+
+    const { rows } = await stack.http.queryOk<{ rows: readonly CapUsageWithMeta[] }>(
+      CapOverviewQueries.capsUsage,
+      {},
+      admin,
+    );
+    expect(rows.map((row) => row.id)).toContain(ShowPonyCapIds.events);
+
+    const error = await stack.http.queryErr(CapOverviewQueries.capsUsage, {}, tenantAdmin);
+    expect(error.httpStatus).toBe(403);
+  });
+});
+
 describe("free-tier hard caps → 422 over HTTP (no tier grant)", () => {
   test("event:create over maxEvents (free=1) → 422 upgrade_required", async () => {
     const first = await stack.http.writeOk<{ id: string }>(

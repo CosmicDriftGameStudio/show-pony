@@ -38,7 +38,10 @@ import { createDocumentDesignerFeature } from "@cosmicdrift/kumiko-document-desi
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
-import { createShowPonyBillingFoundationFeature } from "./features/show-pony/billing/plan-catalog";
+import {
+  BILLING_ROLES,
+  createShowPonyBillingFoundationFeature,
+} from "./features/show-pony/billing/plan-catalog";
 import { SHOWPONY_CAP_SPECS } from "./features/show-pony/cap-specs";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { TENANT_EDITABLE_TEMPLATES } from "./features/show-pony/tenant-editable-templates";
@@ -90,7 +93,12 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createComplianceProfilesFeature(),
     createTenantLifecycleFeature(),
     createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
-    createCapOverviewFeature({ caps: SHOWPONY_CAP_SPECS, tiers: TIER_NAMES }),
+    // Usage sits on the Admin-only billing screen; TenantAdmin manages events, not the plan.
+    createCapOverviewFeature({
+      caps: SHOWPONY_CAP_SPECS,
+      tiers: TIER_NAMES,
+      usageVisibleTo: BILLING_ROLES,
+    }),
     createSecretsFeature(),
     createMetricsFeature({ metrics: DEFAULT_METRICS }),
     createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),
