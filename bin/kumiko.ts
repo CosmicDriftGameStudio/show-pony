@@ -1,28 +1,24 @@
 #!/usr/bin/env bun
+// kumiko-managed
 
-// Standalone kumiko schema CLI for the production bundle. The deploy migrate
-// step runs `bun /app/kumiko.js schema apply`; kumiko-build discovers this
-// file and bundles it to dist-server/kumiko.js.
-//
-// All schema-apply logic — migrations, idempotent greenfield infra tables, and
-// projection rebuild after a schema change — lives in the framework's
-// runSchemaCli. The feature set (for the rebuild's registry) is the same one
-// the schema tooling uses, so we only delegate.
+// Standalone kumiko CLI, bundled by kumiko-build to dist-server/kumiko.js. The deploy
+// migrate-step runs `schema apply`; ops runs `consumer status|restart <name>` and
+// `events prune --aggregate-type <type> [--apply]`.
 
-import { runSchemaCli } from "@cosmicdrift/kumiko-framework/schema-cli";
+import { runStandaloneCli } from "@cosmicdrift/kumiko-server-runtime/standalone-cli";
 import { FEATURES } from "../kumiko/schema";
-
-const [, , cmd, ...rest] = Bun.argv;
-if (cmd !== "schema") {
-  console.error(`Unknown command: ${cmd ?? "(none)"} — only "schema" is supported.`);
-  process.exit(1);
-}
+import appConfig from "../kumiko.config";
+import { envSchema } from "./env-schema";
 
 const out = { log: (l: string) => console.log(l), err: (l: string) => console.error(l) };
-process.exit(
-  await runSchemaCli(rest, process.env["INIT_CWD"] ?? process.cwd(), out, {
-    features: FEATURES,
-    // show-pony provisions no Key Manager ciphertexts.
-    kmsSlots: [],
-  }),
-);
+
+const cwd = process.env["INIT_CWD"] ?? process.cwd();
+
+// exitCode, not exit(): in an initContainer stderr is a pipe and exit() drops unflushed lines.
+process.exitCode = await runStandaloneCli(Bun.argv.slice(2), cwd, out, {
+  features: FEATURES,
+  envSchema,
+  ...(appConfig.rowLevelSecurity && { rowLevelSecurity: appConfig.rowLevelSecurity }),
+  // The KMS decision bin/main.ts boots with: in production "required" unless kumiko.config.ts sets kmsMode.
+  ...(appConfig.kmsMode && { kmsMode: appConfig.kmsMode }),
+});

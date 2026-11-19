@@ -1,10 +1,12 @@
 import { billingPlansPanel } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { CAP_CARDS_PANEL_COMPONENT } from "@cosmicdrift/kumiko-bundled-features/cap-overview";
 import { access, type FeatureRegistrar } from "@cosmicdrift/kumiko-framework/engine";
 import type {
   DashboardScreenDefinition,
   EntityEditScreenDefinition,
   EntityListScreenDefinition,
 } from "@cosmicdrift/kumiko-framework/ui-types";
+import { BILLING_ROLES } from "../billing/plan-catalog";
 
 export const eventListScreen: EntityListScreenDefinition = {
   id: "event-list",
@@ -40,7 +42,7 @@ export const rsvpListScreen: EntityListScreenDefinition = {
   id: "rsvp-list",
   type: "entityList",
   entity: "rsvp",
-  columns: ["name", "status", "plusN", "email"],
+  columns: ["eventId", "name", "status", "plusN", "email", { field: "note", hideOnNarrow: true }],
   pageSize: 50,
   defaultSort: { field: "status", dir: "asc" },
   access: { roles: access.admin },
@@ -53,9 +55,18 @@ export const billingScreen: DashboardScreenDefinition = {
   type: "dashboard",
   panels: [
     billingPlansPanel(),
-    { kind: "custom", id: "usage", component: { react: { __component: "ShowPonyUsagePanel" } } },
+    {
+      kind: "custom",
+      id: "usage",
+      component: { react: { __component: CAP_CARDS_PANEL_COMPONENT } },
+    },
+    {
+      kind: "custom",
+      id: "upgrade-hint",
+      component: { react: { __component: "ShowPonyUpgradeHint" } },
+    },
   ],
-  access: { roles: ["Admin"] },
+  access: { roles: BILLING_ROLES },
 };
 
 export function registerShowPonyScreens(r: FeatureRegistrar): void {

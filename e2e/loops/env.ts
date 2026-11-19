@@ -1,7 +1,8 @@
-// Single source of truth for the loops config + spec's port/host — kept
-// separate from e2e/screenshots/constants.ts so loops stays fully
-// decoupled from that suite (separate migration).
-export const PORT = Number(process.env["SHOWPONY_LOOPS_PORT"] ?? 4181);
+// Loops spec host/port helpers — kept separate from e2e/screenshots/constants.ts so
+// loops stays fully decoupled from that suite. The port is the one playwright.config.ts boots.
+import appConfig from "../../kumiko.config";
+
+export const PORT = appConfig.ports.e2e;
 export const APEX_URL = `http://localhost:${PORT}`;
 
 export const publicOrigin = (tenantKey: string): string => `http://${tenantKey}.localhost:${PORT}`;

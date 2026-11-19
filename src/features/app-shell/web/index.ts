@@ -2,7 +2,7 @@
 
 import { translationsByLocaleFromKeys } from "@cosmicdrift/kumiko-renderer";
 import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer/web";
-import { APP_SHELL_TRANSLATION_KEYS } from "./i18n";
+import { APP_SHELL_TRANSLATION_KEYS } from "../i18n";
 
 export const appShellTranslationsByLocale = translationsByLocaleFromKeys(
   APP_SHELL_TRANSLATION_KEYS,

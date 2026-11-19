@@ -4,11 +4,10 @@ import { BillingPlanActions } from "@cosmicdrift/kumiko-bundled-features/billing
 import {
   eventsBenefit,
   guestsBenefit,
-  PAID_TIERS,
   showPonyBillingCatalog,
 } from "../features/show-pony/billing/plan-catalog";
-import { isUpgradeOffered } from "../features/show-pony/web/billing-upgrade-hint";
-import { isAtLimit } from "../features/show-pony/web/cap-counter";
+import { isAtLimit, isUpgradeOffered } from "../features/show-pony/web/billing-upgrade-hint";
+import { PAID_TIERS } from "../marketing/pricing";
 
 test("plans list is the paid tiers, in order", () => {
   expect(showPonyBillingCatalog.plans).toEqual(PAID_TIERS);
@@ -40,16 +39,17 @@ test("eventsBenefit/guestsBenefit fall back to the unlimited variant for an infi
   });
 });
 
-test("isAtLimit is true only once used reaches a finite limit", () => {
-  expect(isAtLimit({ used: 3, limit: 10 })).toBe(false);
-  expect(isAtLimit({ used: 10, limit: 10 })).toBe(true);
-  expect(isAtLimit({ used: 999, limit: null })).toBe(false);
-});
-
 test("successPath/cancelPath/returnPath all point at the host billing screen", () => {
   expect(showPonyBillingCatalog.successPath).toBe("/host/billing");
   expect(showPonyBillingCatalog.cancelPath).toBe("/host/billing");
   expect(showPonyBillingCatalog.returnPath).toBe("/host/billing");
+});
+
+test("isAtLimit is true only once used reaches a finite limit", () => {
+  expect(isAtLimit({ used: 3, limit: 10 })).toBe(false);
+  expect(isAtLimit({ used: 10, limit: 10 })).toBe(true);
+  expect(isAtLimit({ used: 999, limit: null })).toBe(false);
+  expect(isAtLimit({ used: null, limit: 10 })).toBe(false);
 });
 
 function billingPlansResult(overrides: Partial<BillingPlansResult> = {}): BillingPlansResult {

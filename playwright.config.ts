@@ -2,10 +2,10 @@
 // own tenant (kumiko-testing seedTenant) and records its own GIF — no shared
 // login/seed state with the screenshot runner. Local: `bun run loops`.
 import { defineAppE2eConfig } from "@cosmicdrift/kumiko-testing/e2e";
-import { PORT } from "./e2e/loops/env";
+import appConfig from "./kumiko.config";
 
 export default defineAppE2eConfig({
-  port: PORT,
+  port: appConfig.ports.e2e,
   serverEntry: "bin/server.ts",
   locale: "en",
   // Explicit allowlist: with SCREENSHOT_DIR exported the screenshot-spec ignore is lifted,

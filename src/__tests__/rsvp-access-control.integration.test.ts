@@ -1,9 +1,10 @@
 // rsvp:list/rsvp:detail carry guest PII (name/email/note) — they are
-// Admin-only reads, not openToAll (kumiko-framework#2854 checklist item C
+// Admin-only reads (and only admins delete), not openToAll (kumiko-framework#2854 checklist item C
 // follow-up). Proves the boundary with real HTTP calls: a plain "User"
 // member of the tenant is denied, Admin can read.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
@@ -16,6 +17,7 @@ import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/te
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { TestUsers } from "@cosmicdrift/kumiko-framework/seeding";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
+import { propertyOf } from "@cosmicdrift/kumiko-types/type-guards";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { deliveryFeatures } from "./delivery-stack";
@@ -38,6 +40,7 @@ beforeAll(async () => {
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
@@ -125,5 +128,46 @@ describe("rsvp:list / rsvp:detail — admin-role reads", () => {
     };
     expect(detailBody.data.name).toBe("Guest One");
     expect(detailBody.data.email).toBe("guest-one@acme.test");
+  });
+});
+
+describe("rsvp:delete — admin-only cleanup", () => {
+  async function submitReply(email: string): Promise<Response> {
+    return stack.http.raw(
+      "POST",
+      "/api/write",
+      {
+        type: "showpony:write:rsvp:submit",
+        payload: { eventId, name: "Spam Bot", email, status: "yes" },
+      },
+      { Host: acmeHostname },
+    );
+  }
+
+  test("members and anonymous callers are refused, an Admin deletes and frees the email", async () => {
+    const email = "spam@acme.test";
+    const submitRes = await submitReply(email);
+    expect(submitRes.status).toBe(200);
+    const id = propertyOf(propertyOf(await submitRes.json(), "data"), "id");
+    if (typeof id !== "string") throw new Error("rsvp:submit returned no id");
+
+    const memberErr = await stack.http.writeErr("showpony:write:rsvp:delete", { id }, member);
+    expect(memberErr.httpStatus).toBe(403);
+
+    const anonymousRes = await stack.http.raw(
+      "POST",
+      "/api/write",
+      { type: "showpony:write:rsvp:delete", payload: { id } },
+      { Host: acmeHostname },
+    );
+    expect(anonymousRes.status).toBe(401);
+
+    await stack.http.writeOk("showpony:write:rsvp:delete", { id }, admin);
+    const detailRes = await stack.http.query("showpony:query:rsvp:detail", { id }, admin);
+    expect(detailRes.status).toBe(200);
+    expect(propertyOf(await detailRes.json(), "data")).toBeNull();
+
+    const resubmitRes = await submitReply(email);
+    expect(resubmitRes.status).toBe(200);
   });
 });

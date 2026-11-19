@@ -18,14 +18,15 @@ import {
   ACME_TENANT_ID,
   DEMO_TENANT_ID,
   findEventBySlug,
+  idOf,
   toRawSqlRunner,
 } from "./_demo-event-db";
 
 const INVITE_HERO_IMAGE_URL = "showpony:config:invite-hero-image-url";
 const INVITE_HERO_STYLE = "showpony:config:invite-hero-style";
-const BRANDING_TITLE = "managed-pages:config:branding-title";
-const BRANDING_DESCRIPTION = "managed-pages:config:branding-description";
-const BRANDING_ACCENT_COLOR = "managed-pages:config:branding-accent-color";
+const BRANDING_TITLE = "branding:config:title";
+const BRANDING_DESCRIPTION = "branding:config:description";
+const BRANDING_ACCENT_COLOR = "branding:config:accent-color";
 
 function seedWarn(label: string, err: unknown): void {
   console.warn(`show-pony seed: ${label} skipped — ${err instanceof Error ? err.message : String(err)}`);
@@ -89,14 +90,15 @@ export default {
       seedWarn("demo tenant tier grant", err);
     }
 
-    let rooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
-    if (rooftop) {
+    const existingRooftop = await findEventBySlug(raw, DEMO_TENANT_ID, "rooftop-launch");
+    let freshRooftopId: string | undefined;
+    if (existingRooftop) {
       try {
         await ctx.systemWriteAs(
           "showpony:write:event:update",
           {
-            id: rooftop.id,
-            version: rooftop.version,
+            id: existingRooftop.id,
+            version: existingRooftop.version,
             changes: { description: ROOFTOP_DESC },
           },
           DEMO_TENANT_ID,
@@ -126,14 +128,11 @@ export default {
         // event:create is Admin-only — see the update-branch comment above.
         ["Admin"],
       );
-      const createdId =
-        created.isSuccess && typeof (created.data as { id?: unknown })?.id === "string"
-          ? ((created.data as { id: string }).id as string)
-          : undefined;
+      const createdId = created.isSuccess ? idOf(created.data) : undefined;
       if (!createdId) {
         throw new Error("show-pony seed: rooftop event:create returned no id");
       }
-      rooftop = { id: createdId, version: 1 };
+      freshRooftopId = createdId;
     }
 
     const warmup = await findEventBySlug(raw, DEMO_TENANT_ID, "warmup-drinks");
@@ -158,20 +157,22 @@ export default {
       }
     }
 
-    const eventId = rooftop.id;
-
-    for (const guest of GUESTS) {
-      try {
-        await ctx.systemWriteAs(
-          "showpony:write:rsvp:submit",
-          { eventId, ...guest },
-          DEMO_TENANT_ID,
-          // rsvp:submit is gated on access.anonymous (public RSVP flow) — the
-          // bare system actor has neither anonymous nor an explicit role.
-          ["anonymous"],
-        );
-      } catch (err) {
-        seedWarn(`rsvp:submit for ${guest.name}`, err);
+    // Demo guests carry no email, so rsvp:submit cannot dedupe them: re-submitting
+    // on every pod start would stack duplicates on an existing event.
+    if (freshRooftopId) {
+      for (const guest of GUESTS) {
+        try {
+          await ctx.systemWriteAs(
+            "showpony:write:rsvp:submit",
+            { eventId: freshRooftopId, ...guest },
+            DEMO_TENANT_ID,
+            // rsvp:submit is gated on access.anonymous (public RSVP flow) — the
+            // bare system actor has neither anonymous nor an explicit role.
+            ["anonymous"],
+          );
+        } catch (err) {
+          seedWarn(`rsvp:submit for ${guest.name}`, err);
+        }
       }
     }
 

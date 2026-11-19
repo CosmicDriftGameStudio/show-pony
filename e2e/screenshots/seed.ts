@@ -3,7 +3,7 @@
 // matching e2e/loops' seed pattern — no shared login/seed state between
 // scenarios. e2e/verify-invite-stack.spec.ts seeds independently on purpose
 // (see its own header comment) rather than importing from here.
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/branding";
 import type { E2eSeededTenant } from "@cosmicdrift/kumiko-testing/e2e";
 import { INVITE_BRANDING_QN } from "../../src/features/show-pony/invite-branding.shared";
 import { publicOrigin } from "./constants";
@@ -75,10 +75,21 @@ const ROOFTOP_GUESTS: ReadonlyArray<{
   readonly name: string;
   readonly status: RsvpStatus;
   readonly plusN: number;
+  readonly note?: string;
 }> = [
-  { name: "Ava Chen", status: "yes", plusN: 2 },
+  {
+    name: "Ava Chen",
+    status: "yes",
+    plusN: 2,
+    note: "Bringing two colleagues from the design team.",
+  },
   { name: "Marcus Bell", status: "yes", plusN: 0 },
-  { name: "Priya Raman", status: "maybe", plusN: 1 },
+  {
+    name: "Priya Raman",
+    status: "maybe",
+    plusN: 1,
+    note: "Might be late, my flight lands at 7 pm.",
+  },
   { name: "Diego Santos", status: "no", plusN: 0 },
 ];
 

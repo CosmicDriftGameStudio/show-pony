@@ -14,47 +14,19 @@ const HOST_NAV_MEMBERS = [
   "showpony:nav:guests",
   "showpony:nav:appearance",
   "showpony:nav:invite-branding",
-  "document-designer:nav:templates",
   "showpony:nav:account",
   "showpony:nav:billing",
-  "tenant:nav:members",
 ] as const;
 
 const PLATFORM_NAV_MEMBERS = [
   "admin-shell:nav:platform-overview",
-  "admin-shell:nav:tenants",
-  "admin-shell:nav:tier-admin",
   "config:nav:audience-system",
-  "document-designer:nav:platform-templates",
-  "app-shell:nav:users",
-  "audit:nav:audit-log",
-  "jobs:nav:job-runs",
-  "app-shell:nav:system-check",
 ] as const;
 
 /** Tenant-scoped host tools — excludes global SystemAdmin (platform workspace). */
 const HOST_WORKSPACE_ROLES = access.roles("TenantAdmin", "Admin");
 
 export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r) => {
-  r.systemScope();
-
-  r.nav({
-    id: "users",
-    label: "app-shell:nav.users",
-    screen: "user:screen:user-list",
-    order: 20,
-    icon: "users",
-    access: { roles: access.systemAdmin },
-  });
-  r.nav({
-    id: "system-check",
-    label: "readiness:nav.systemCheck",
-    screen: "readiness:screen:system-check",
-    order: 60,
-    icon: "shield-check",
-    access: { roles: access.systemAdmin },
-  });
-
   r.translations({
     keys: APP_SHELL_TRANSLATION_KEYS,
   });
@@ -66,6 +38,7 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     order: 1,
     access: { roles: HOST_WORKSPACE_ROLES },
     nav: [...HOST_NAV_MEMBERS],
+    collectAdminArea: "tenant",
     default: true,
   });
 
@@ -76,5 +49,6 @@ export const appShellFeature: FeatureDefinition = defineFeature("app-shell", (r)
     order: 2,
     access: { roles: access.systemAdmin },
     nav: [...PLATFORM_NAV_MEMBERS],
+    collectAdminArea: "platform",
   });
 });

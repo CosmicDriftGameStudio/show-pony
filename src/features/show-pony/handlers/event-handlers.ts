@@ -1,13 +1,17 @@
 import {
   access,
+  type DeleteContext,
   defineEntityCreateHandler,
   defineEntityDeleteHandler,
   defineEntityDetailHandler,
   defineEntityListHandler,
   defineEntityUpdateHandler,
+  type HandlerContext,
 } from "@cosmicdrift/kumiko-framework/engine";
+import { reraiseAsKumikoError } from "@cosmicdrift/kumiko-framework/errors";
 import { withStockCap } from "../cap-guard";
 import { eventEntity, eventTable } from "../schema/event";
+import { rsvpExecutor, rsvpTable } from "../schema/rsvp";
 
 // Events carry no guest PII (description is explicitly personal: false), so
 // the risk here is destruction, not confidentiality — any tenant member
@@ -60,3 +64,12 @@ export const eventDetailHandler = defineEntityDetailHandler("event", eventEntity
   description:
     "Reads one event of the tenant by id with title, slug, start time, location, description and guest limit; open to every signed-in member of the tenant.",
 });
+
+// RSVPs have no meaning without their event; deleting them in the event's delete transaction leaves no orphaned guests.
+export async function deleteEventRsvps(payload: DeleteContext, ctx: HandlerContext): Promise<void> {
+  const rsvps = await ctx.db.selectMany<{ id: string }>(rsvpTable, { eventId: payload.id });
+  for (const rsvp of rsvps) {
+    const result = await rsvpExecutor.delete({ id: rsvp.id }, ctx.user, ctx.db);
+    if (!result.isSuccess) throw reraiseAsKumikoError(result.error);
+  }
+}

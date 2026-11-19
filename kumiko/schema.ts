@@ -1,5 +1,4 @@
 // kumiko-managed
-// kumiko-managed: local auth-mode app: schema and boot validation need the bundled auth features composeFeatures adds
 // Input of the schema tooling (kumiko-schema generate|apply|validate and the
 // boot step of kumiko check), derived from kumiko.config.ts. Edit the feature
 // lists there.
@@ -9,15 +8,28 @@ import { collectTableMetas, type EntityTableMeta } from "@cosmicdrift/kumiko-fra
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { composeFeatures } from "@cosmicdrift/kumiko-server-runtime/compose-features";
 import appConfig from "../kumiko.config";
-import { HAS_AUTH } from "../src/run-config";
 
-export const FEATURES: readonly FeatureDefinition[] = composeFeatures(allAppFeatures(appConfig), {
+const CONFIGURED_FEATURES = allAppFeatures(appConfig);
+
+// Auth apps mount config/user/tenant/auth-email-password through composeFeatures at boot;
+// without them here the generated schema would miss their tables. Composing an already
+// composed list is a no-op (app-side duplicates of bundled names are dropped).
+// kumiko.config.ts `includeBundled` wins; otherwise an auth-foundation or sessions feature marks an auth app.
+const HAS_AUTH =
+  appConfig.includeBundled ??
+  CONFIGURED_FEATURES.some(
+    (feature) => feature.name === "auth-foundation" || feature.name === "sessions",
+  );
+
+export const FEATURES: readonly FeatureDefinition[] = composeFeatures([...CONFIGURED_FEATURES], {
   includeBundled: HAS_AUTH,
+  ...(appConfig.listDefaults && { listDefaults: appConfig.listDefaults }),
 });
 
-export const ENTITY_METAS: readonly EntityTableMeta[] = collectTableMetas(FEATURES);
-
+// `kumiko check` validates the boot with the options kumiko.config.ts declares.
 export const VALIDATE_BOOT_OPTIONS = appConfig.validateBootOptions;
 
 // Decides whether `generate` emits row-level-security policies and `apply` runs as a policy-enforced connection.
 export const ROW_LEVEL_SECURITY = appConfig.rowLevelSecurity;
+
+export const ENTITY_METAS: readonly EntityTableMeta[] = collectTableMetas(FEATURES);

@@ -7,7 +7,8 @@
 // subdomain→key lookup AND the tenantExists guard against a forged X-Tenant
 // header are both covered, not just the framework pipeline.
 
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
@@ -62,11 +63,14 @@ function submit(
   );
 }
 
-beforeAll(async () => {
+// A fresh stack per test: several tests assert a guest list or the whole RSVP table is exactly
+// their own rows (e.g. Globex empty after the first test seated Bob there).
+beforeEach(async () => {
   stack = await setupAppTestStack(
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...composeRendererStack(),
       createDeliveryFeature(),
@@ -127,11 +131,9 @@ beforeAll(async () => {
   globexEventId = globexEvent.id;
 });
 
-afterAll(async () => stack?.cleanup());
-
-beforeEach(async () => {
-  await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
+afterEach(async () => {
   emailTransport.sent.length = 0;
+  await stack?.cleanup();
 });
 
 describe("anonymous multi-tenant RSVP write (real resolver)", () => {
@@ -218,7 +220,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     expect(body.error.code).toBe("tenant_mismatch");
   });
 
-  test("forged X-Tenant = Globex's REAL tenant id on acme's subdomain → 400 tenant_mismatch, RSVP does NOT land in Globex (#51)", async () => {
+  test("forged X-Tenant = Globex's REAL tenant id on acme's subdomain → 400 tenant_mismatch, RSVP does NOT land in Globex", async () => {
     // A guest on
     // acme.show-pony.test claims a real, active, OTHER tenant's id via the
     // header — not a garbage id tenantExists would catch anyway. Before
@@ -256,7 +258,7 @@ describe("anonymous multi-tenant RSVP write (real resolver)", () => {
     // Proves the apex branch of the host-routing resolver (show-pony sets no
     // apexAnonymousTenantId): the apex resolver returns null — no anonymous tenant
     // exists at apex, legal/marketing pages are static and branding reads
-    // go through the separate resolveSubdomainPageTenant pipeline. With
+    // go through managed-pages' host resolution. With
     // resolverTrust: "authoritative" a resolver returning null never falls
     // back to a client-supplied X-Tenant, so this 400s as tenant_required,
     // same as the header-less case below.

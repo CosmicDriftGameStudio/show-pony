@@ -1,16 +1,11 @@
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
-import type { ConfigAccessor } from "@cosmicdrift/kumiko-framework/engine";
-import { defineQueryHandler } from "@cosmicdrift/kumiko-framework/engine";
+import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/branding";
+import {
+  access,
+  type ConfigAccessor,
+  defineQueryHandler,
+} from "@cosmicdrift/kumiko-framework/engine";
 import { z } from "zod";
 import { INVITE_BRANDING_QN, type InviteBranding, parseHeroStyle } from "../invite-branding.shared";
-
-const INVITE_BRANDING_READ_ROLES = [
-  "anonymous",
-  "User",
-  "TenantAdmin",
-  "Admin",
-  "SystemAdmin",
-] as const;
 
 async function readText(config: ConfigAccessor | undefined, key: string): Promise<string> {
   if (!config) return "";
@@ -31,10 +26,10 @@ async function readManagedBranding(config: ConfigAccessor | undefined) {
 export const inviteBrandingQuery = defineQueryHandler({
   name: "invite-branding",
   schema: z.object({}),
-  access: { roles: INVITE_BRANDING_READ_ROLES },
+  access: { roles: access.anonymous, anySignedIn: true },
   rateLimit: { per: "ip+handler", limit: 60, windowSeconds: 60 },
   description:
-    "Returns the tenant's invite-page branding (title, description, accent color, logo URL, hero image URL and hero style); readable anonymously because the public invite page renders it.",
+    "Returns the tenant's invite-page branding (title, description, accent color, logo URL, hero image URL and hero style); readable anonymously and by every signed-in caller because the public invite page renders it.",
   handler: async (_query, ctx): Promise<InviteBranding> => {
     const base = await readManagedBranding(ctx.config);
     const [heroImageUrl, heroStyleRaw] = await Promise.all([

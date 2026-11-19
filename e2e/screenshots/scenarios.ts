@@ -192,6 +192,7 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
   {
     name: "public-rsvp-draft",
     description: "Public RSVP — guest name typed, status selected, ready to send",
+    fullPage: true,
     flow: async (page, fixtures) => {
       const { tenant, host } = await loginDemoHost(page, fixtures);
       const event = await seedRooftopEvent(tenant.apiAs(host));
@@ -201,6 +202,9 @@ export const THEMEABLE_SCENARIOS: readonly Scenario[] = [
       const yesButton = page.getByRole("button", { name: /I'm in|Ich komme/ });
       await yesButton.click();
       await expect(yesButton).toHaveAttribute("aria-pressed", "true");
+      await page
+        .getByRole("textbox", { name: /Note for the host|Nachricht an den Gastgeber/ })
+        .fill("Vegetarian, arriving around 10 pm.");
     },
   },
 ];
@@ -219,9 +223,11 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await seedRooftopGuests(tenant.key, event.id);
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel")).toBeVisible();
-      // Free tier's 1-event cap — the single seeded event already sits at
-      // the limit, so the upgrade hint is visible below the usage counter.
-      await expect(page.getByTestId("cap-counter-events-upgrade")).toBeVisible();
+      // Free tier's 1-event cap: the single seeded event fills it.
+      await expect(page.getByTestId("cap-card")).toHaveCount(2);
+      await expect(
+        page.getByText("Limit erreicht, wähle oben einen größeren Tarif."),
+      ).toBeVisible();
     },
   },
   {
@@ -264,8 +270,10 @@ export const BILLING_SCENARIOS: readonly Scenario[] = [
       await tenant.seed("billing-disabled");
       await page.goto(`${APEX_URL}/host/billing`);
       await expect(page.getByTestId("billing-plans-panel-disabled")).toBeVisible();
-      await expect(page.getByTestId("cap-counter-events")).toBeVisible();
-      await expect(page.getByTestId("cap-counter-events-upgrade")).toHaveCount(0);
+      await expect(page.getByTestId("cap-card")).toHaveCount(2);
+      await expect(page.getByText("Limit erreicht, wähle oben einen größeren Tarif.")).toHaveCount(
+        0,
+      );
     },
   },
 ];

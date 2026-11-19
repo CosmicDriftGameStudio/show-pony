@@ -1,23 +1,16 @@
 import { useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { type ReactElement, useEffect, useState } from "react";
-import { fetchDemoMode } from "../demo-mode-client";
-import {
-  type DemoModePayload,
-  findDemoLinkHref,
-  HOST_LOGIN_LINK_LABEL,
-  TUTORIAL_LINK_LABEL,
-} from "../demo-mode-notice";
+import type { DemoModePayload } from "@cosmicdrift/kumiko-types/demo-mode-types";
+import type { ReactElement } from "react";
+import { findDemoLinkHref, HOST_LOGIN_LINK_LABEL, TUTORIAL_LINK_LABEL } from "../demo-mode-notice";
 
-export function DemoPublicNotice(): ReactElement | null {
+export function DemoPublicNotice({
+  demo,
+}: {
+  readonly demo: DemoModePayload;
+}): ReactElement | null {
   const t = useTranslation();
-  const [demo, setDemo] = useState<DemoModePayload | null>(null);
 
-  // biome-ignore lint/plugin: public demo notice — one-shot /api/demo-mode
-  useEffect(() => {
-    void fetchDemoMode().then(setDemo);
-  }, []);
-
-  if (!demo?.readOnly) return null;
+  if (!demo.readOnly) return null;
   const hostLoginUrl = findDemoLinkHref(demo, HOST_LOGIN_LINK_LABEL);
   const tutorialUrl = findDemoLinkHref(demo, TUTORIAL_LINK_LABEL);
 

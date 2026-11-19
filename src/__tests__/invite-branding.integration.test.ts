@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { BRANDING_QN, createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
@@ -6,17 +7,13 @@ import {
   createConfigFeature,
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
-import {
-  BRANDING_QN,
-  createManagedPagesFeature,
-} from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import { createSystemUser, type SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { INVITE_BRANDING_QN } from "../features/show-pony/invite-branding";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
-import { bindSubdomainPageResolver, resolveSubdomainPageTenant } from "../tenant-routing";
 import { deliveryFeatures } from "./delivery-stack";
 import { hostRoutingAnonymousAccess, hostRoutingFeatures } from "./host-routing-stack";
 
@@ -24,13 +21,7 @@ const BASE_DOMAIN = "show-pony.test";
 
 const configResolver = createConfigResolver();
 
-// Real production wiring (run-config.ts): resolveApexTenant IS
-// resolveSubdomainPageTenant, the actual Host→tenant parsing (apex/www
-// exclusion + `.baseDomain` suffix lookup), not a hand-rolled stub — proves
-// the prod path itself, not just the framework pipeline around it.
-const managedPages = createManagedPagesFeature({
-  resolveApexTenant: resolveSubdomainPageTenant,
-});
+const managedPages = createManagedPagesFeature({});
 
 let stack: TestStack;
 let demoId: string;
@@ -38,35 +29,33 @@ let acmeId: string;
 let demoHostname: string;
 let acmeHostname: string;
 let acmeAdmin: SessionUser;
+let acme: Awaited<ReturnType<typeof seedTenant>>;
 
 beforeAll(async () => {
   stack = await setupAppTestStack(
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       managedPages,
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
     ],
     {
       ...hostRoutingAnonymousAccess,
-      extraContext: ({ db, registry }) => {
-        bindSubdomainPageResolver({ db, baseDomain: BASE_DOMAIN });
-        return {
-          configResolver,
-          configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
-        };
-      },
+      extraContext: ({ registry }) => ({
+        configResolver,
+        configAccessorFactory: createConfigAccessorFactory(registry, configResolver),
+      }),
     },
   );
   await unsafePushTables(stack.db, {
     configValuesTable,
     tier_assignments: tierAssignmentTable,
   });
-  // Subdomain routing resolves the tenant via a real DB lookup by key
-  // (tenant-routing.ts resolveSubdomainPageTenant) — needs persisted rows.
+  // Subdomain routing resolves the tenant via a DB lookup by key, so the tenants need persisted rows.
   const demo = await seedTenant(stack, { name: "Demo", persist: true });
-  const acme = await seedTenant(stack, { name: "Acme", persist: true });
+  acme = await seedTenant(stack, { name: "Acme", persist: true });
   demoId = demo.id;
   acmeId = acme.id;
   demoHostname = `${demo.key}.${BASE_DOMAIN}`;
@@ -75,20 +64,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => stack?.cleanup());
-
-describe("subdomain page tenant resolution", () => {
-  // managed-pages calls the resolver from its anonymous page route before any tenant is
-  // established; a direct call has no ambient scope either.
-  test("resolves a tenant subdomain to its tenant without a request scope", async () => {
-    expect(await resolveSubdomainPageTenant(demoHostname)).toBe(demoId);
-    expect(await resolveSubdomainPageTenant(acmeHostname)).toBe(acmeId);
-  });
-
-  test("an unknown key and the apex resolve to no tenant", async () => {
-    expect(await resolveSubdomainPageTenant(`no-such-tenant.${BASE_DOMAIN}`)).toBeNull();
-    expect(await resolveSubdomainPageTenant(BASE_DOMAIN)).toBeNull();
-  });
-});
 
 describe("invite-branding query", () => {
   test("returns tenant-scoped branding + hero fields for anonymous subdomain callers", async () => {
@@ -147,6 +122,39 @@ describe("invite-branding query", () => {
     expect(acmeBody.data.accentColor).toBe("#0d9488");
     expect(acmeBody.data.heroStyle).toBe("split");
     expect(acmeBody.data.accentColor).not.toBe("#7c3aed");
+  });
+
+  test("a signed-in caller with a non-admin app role reads the branding", async () => {
+    const member = (await acme.addUser(["Member"])).session;
+    const branding = await stack.http.queryOk<{ heroStyle?: string }>(
+      "showpony:query:invite-branding",
+      {},
+      member,
+    );
+    expect(branding.heroStyle).toBeDefined();
+  });
+
+  test("an unknown subdomain and the apex host resolve no tenant, so no branding is served", async () => {
+    const tenantBranding = await stack.http.raw(
+      "POST",
+      "/api/query",
+      { type: "showpony:query:invite-branding", payload: {} },
+      { Host: demoHostname },
+    );
+    expect(tenantBranding.status).toBe(200);
+
+    for (const host of [`no-such-tenant.${BASE_DOMAIN}`, BASE_DOMAIN]) {
+      const res = await stack.http.raw(
+        "POST",
+        "/api/query",
+        { type: "showpony:query:invite-branding", payload: {} },
+        { Host: host },
+      );
+      expect(res.status).toBe(400);
+      const body = (await res.json()) as { error?: { code?: string }; data?: unknown };
+      expect(body.error?.code).toBe("tenant_required");
+      expect(body.data).toBeUndefined();
+    }
   });
 
   test("invite-branding-settings screen is registered", () => {

@@ -18,20 +18,40 @@ type RawSqlRunner = {
   readonly unsafe: (sql: string, params?: readonly unknown[]) => Promise<unknown>;
 };
 
+// postgres.js connections and transactions are callable tagged-template functions, not plain objects.
+function isObjectOrFunction(value: unknown): value is object {
+  return (typeof value === "object" && value !== null) || typeof value === "function";
+}
+
+function hasUnsafe(value: unknown): value is RawSqlRunner {
+  return isObjectOrFunction(value) && "unsafe" in value && typeof value.unsafe === "function";
+}
+
 export function toRawSqlRunner(db: unknown): RawSqlRunner {
-  const candidate = db as Record<string, unknown>;
-  if (typeof candidate["unsafe"] === "function") return db as RawSqlRunner;
-  const raw = candidate["raw"] as Record<string, unknown> | undefined;
-  if (raw && typeof raw["unsafe"] === "function") return raw as RawSqlRunner;
+  if (hasUnsafe(db)) return db;
+  const raw = isObjectOrFunction(db) && "raw" in db ? db.raw : undefined;
+  if (hasUnsafe(raw)) return raw;
   throw new Error("demo-event-db: ctx.db exposes no raw .unsafe runner");
 }
 
-function asEventRows(result: unknown): EventRow[] {
-  if (Array.isArray(result)) return result as EventRow[];
-  if (result && typeof result === "object" && Array.isArray((result as { rows?: unknown }).rows)) {
-    return (result as { rows: EventRow[] }).rows;
+// Seeds ship without @cosmicdrift/* at runtime, so the shared type guards can't be imported here.
+export function idOf(data: unknown): string | undefined {
+  if (typeof data !== "object" || data === null || !("id" in data)) return undefined;
+  return typeof data.id === "string" ? data.id : undefined;
+}
+
+function firstRowOf(result: unknown): unknown {
+  if (Array.isArray(result)) return result[0];
+  if (typeof result === "object" && result !== null && "rows" in result) {
+    return Array.isArray(result.rows) ? result.rows[0] : undefined;
   }
-  return [];
+  return undefined;
+}
+
+function toEventRow(row: unknown): EventRow | null {
+  if (typeof row !== "object" || row === null || !("id" in row) || !("version" in row)) return null;
+  if (typeof row.id !== "string") return null;
+  return { id: row.id, version: Number(row.version) };
 }
 
 // UUID-shaped values only (TenantId literals + hardcoded slugs from this
@@ -57,6 +77,5 @@ export async function findEventBySlug(
      WHERE tenant_id = '${tenantId}' AND slug = '${slug}'
      ORDER BY id LIMIT 1`,
   );
-  const rows = asEventRows(result);
-  return rows[0] ?? null;
+  return toEventRow(firstRowOf(result));
 }

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { findVideoTextGaps } from "@cosmicdrift/kumiko-testing/e2e";
+import { findVideoTextGaps } from "@cosmicdrift/kumiko-testing/video";
 import { VIDEO_LOCALES, VIDEOS } from "./index";
 
 describe("video texts", () => {

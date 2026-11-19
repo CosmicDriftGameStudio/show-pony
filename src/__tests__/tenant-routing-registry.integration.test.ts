@@ -6,7 +6,7 @@
 // the same feature on a reduced stack (host-routing-stack.ts). It proves the merged registry providers deliver a working
 // tenantResolver at request time and a DB-backed EXT_TENANT_EXISTENCE check.
 
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { resolveTenantExistence } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
 import {
   configValuesTable,
@@ -14,11 +14,9 @@ import {
   createConfigResolver,
 } from "@cosmicdrift/kumiko-bundled-features/config";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
-import { asRawClient } from "@cosmicdrift/kumiko-framework/db";
 import type { SessionUser } from "@cosmicdrift/kumiko-framework/engine";
 import { testTenantId } from "@cosmicdrift/kumiko-framework/seeding";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
-import { rsvpTable } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { buildAppFeatures } from "../run-config";
 import { hostRoutingAnonymousAccess } from "./host-routing-stack";
@@ -85,11 +83,8 @@ beforeAll(async () => {
   seededEventId = created.id;
 });
 
+// One shared stack: only the first test lands an RSVP (on Acme), so no test sees another's rows.
 afterAll(async () => stack?.cleanup());
-
-beforeEach(async () => {
-  await asRawClient(stack.db).unsafe(`DELETE FROM "${rsvpTable.tableName}"`);
-});
 
 describe("registry-merged tenant routing (FW host-routing)", () => {
   test("subdomain resolves via the registry-merged resolver, not a bypassed no-op", async () => {

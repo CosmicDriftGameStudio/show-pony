@@ -9,10 +9,11 @@ import {
   type TemplateVariables,
   templateVariable,
 } from "@cosmicdrift/kumiko-framework/engine";
+import { isOneOf } from "@cosmicdrift/kumiko-types/type-guards";
 import type { z } from "zod";
-import type { rsvpSubmitSchema } from "../handlers/rsvp-submit.write";
 import type { EventRow } from "../schema/event";
 import type { RsvpStatus } from "../schema/rsvp";
+import type { rsvpSubmitSchema } from "../schema/rsvp-submit";
 
 export const RSVP_CONFIRMATION_NOTIFICATION = "rsvp-confirmation";
 export const RSVP_CONFIRMATION_TYPE = "showpony:notify:rsvp-confirmation";
@@ -42,7 +43,7 @@ const MAIL_LOCALES = ["en", "de"] as const;
 export type MailLocale = (typeof MAIL_LOCALES)[number];
 
 function isMailLocale(language: string): language is MailLocale {
-  return (MAIL_LOCALES as readonly string[]).includes(language);
+  return isOneOf(MAIL_LOCALES, language);
 }
 
 function resolveMailLocale(locale: string | undefined): MailLocale {

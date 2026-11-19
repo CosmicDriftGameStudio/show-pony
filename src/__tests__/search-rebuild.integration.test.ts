@@ -4,6 +4,7 @@
 // and needs it — no skip when it is missing.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   configValuesTable,
@@ -14,15 +15,14 @@ import {
 import { createManagedPagesFeature } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
 import { seedTenant, setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
 import type { EntityId, SessionUser, TenantId } from "@cosmicdrift/kumiko-framework/engine";
-import { listIndexUids } from "@cosmicdrift/kumiko-framework/search/meilisearch";
+import type { SearchAdapter } from "@cosmicdrift/kumiko-framework/search";
+import {
+  createMeilisearchAdapter,
+  listIndexUids,
+} from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
 import { Meilisearch } from "meilisearch";
-import {
-  createMeilisearchWiring,
-  type MeilisearchConnection,
-  rebuildAllTenantSearchIndexes,
-  type SearchWiring,
-} from "../../bin/search-wiring";
+import { rebuildAllTenantSearchIndexes } from "../../bin/search-wiring";
 import { showPonyFeature } from "../features/show-pony/feature";
 import { tierAssignmentTable } from "../features/show-pony/tier-resolver";
 import { deliveryFeatures } from "./delivery-stack";
@@ -37,12 +37,12 @@ const OTHER_TENANT_GUEST = "Cornelius Fandango";
 const configResolver = createConfigResolver();
 
 // Unique prefix: parallel runs and other apps share the same Meilisearch.
-const connection: MeilisearchConnection = {
+const connection = {
   url: process.env["MEILI_URL"] ?? "http://localhost:17700",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
   indexPrefix: `sp_rebuild_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}_`,
 };
-const wiring = createMeilisearchWiring(connection);
+const adapter = createMeilisearchAdapter(connection);
 const meili = new Meilisearch({ host: connection.url, apiKey: connection.apiKey });
 
 let stack: TestStack;
@@ -59,15 +59,15 @@ async function indexUidsWithPrefix(): Promise<string[]> {
 async function seedStaleDocuments(): Promise<void> {
   const fields = ["name", "email"];
   const config = { searchableFields: fields, rankingFields: fields };
-  await wiring.adapter.configure(tenantId, config);
-  await wiring.adapter.index(tenantId, {
+  await adapter.configure(tenantId, config);
+  await adapter.index(tenantId, {
     entityType: "rsvp",
     entityId: staleRsvpId,
     weight: 1,
     fields: { name: STALE_GUEST },
   });
-  await wiring.adapter.configure(foreignTenantId, config);
-  await wiring.adapter.index(foreignTenantId, {
+  await adapter.configure(foreignTenantId, config);
+  await adapter.index(foreignTenantId, {
     entityType: "rsvp",
     entityId: crypto.randomUUID() as EntityId,
     weight: 1,
@@ -76,7 +76,7 @@ async function seedStaleDocuments(): Promise<void> {
 }
 
 async function findIds(query: string, forTenant: TenantId = tenantId): Promise<string[]> {
-  const hits = await wiring.adapter.search(forTenant, query);
+  const hits = await adapter.search(forTenant, query);
   return hits.map((h) => String(h.entityId));
 }
 
@@ -85,6 +85,7 @@ beforeAll(async () => {
     [
       ...hostRoutingFeatures(BASE_DOMAIN),
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,
@@ -128,13 +129,13 @@ async function seedEventWithGuests(
     },
     host,
   );
-  for (const name of guestNames) {
+  for (const [index, name] of guestNames.entries()) {
     const res = await stack.http.raw(
       "POST",
       "/api/write",
       {
         type: "showpony:write:rsvp:submit",
-        payload: { eventId: event.id, name, email: "guest@example.test", status: "yes" },
+        payload: { eventId: event.id, name, email: `guest-${index}@example.test`, status: "yes" },
       },
       { Host: hostname },
     );
@@ -143,7 +144,7 @@ async function seedEventWithGuests(
 }
 
 afterAll(async () => {
-  await wiring.adapter.dropAllIndexes?.();
+  await adapter.dropAllIndexes?.();
   await stack?.cleanup();
 });
 
@@ -153,7 +154,7 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
     expect(await findIds(STALE_GUEST)).toContain(String(staleRsvpId));
     expect(await indexUidsWithPrefix()).toHaveLength(2);
 
-    const first = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, wiring);
+    const first = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, adapter);
 
     expect(first.droppedIndexes).toBe(2);
     expect(first.tenants).toBeGreaterThanOrEqual(1);
@@ -163,7 +164,7 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
     const uidsAfterFirst = await indexUidsWithPrefix();
     expect(uidsAfterFirst.some((uid) => uid.endsWith(foreignTenantId))).toBe(false);
 
-    const second = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, wiring);
+    const second = await rebuildAllTenantSearchIndexes(stack.db, stack.registry, adapter);
 
     expect(second.indexedRows).toBe(first.indexedRows);
     expect(second.tenants).toBe(first.tenants);
@@ -174,31 +175,24 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
   });
 
   test("a stalled reindex for one tenant is counted and does not stop the other tenants", async () => {
-    const stallingWiring: SearchWiring = {
-      ...wiring,
-      adapter: {
-        configure: (id, config) => wiring.adapter.configure(id, config),
-        dropAllIndexes: () => wiring.adapter.dropAllIndexes?.() ?? Promise.resolve(0),
-        index: (id, doc) =>
-          id === tenantId ? new Promise(() => {}) : wiring.adapter.index(id, doc),
-        indexBatch: wiring.adapter.indexBatch
-          ? (id, docs) =>
-              id === tenantId
-                ? new Promise(() => {})
-                : (wiring.adapter.indexBatch as NonNullable<typeof wiring.adapter.indexBatch>)(
-                    id,
-                    docs,
-                  )
-          : undefined,
-        search: (id, query, options) => wiring.adapter.search(id, query, options),
-        remove: (id, entityType, entityId) => wiring.adapter.remove(id, entityType, entityId),
-      },
+    const stallingAdapter: SearchAdapter = {
+      configure: (id, config) => adapter.configure(id, config),
+      dropAllIndexes: () => adapter.dropAllIndexes?.() ?? Promise.resolve(0),
+      index: (id, doc) => (id === tenantId ? new Promise(() => {}) : adapter.index(id, doc)),
+      indexBatch: adapter.indexBatch
+        ? (id, docs) =>
+            id === tenantId
+              ? new Promise(() => {})
+              : (adapter.indexBatch as NonNullable<typeof adapter.indexBatch>)(id, docs)
+        : undefined,
+      search: (id, query, options) => adapter.search(id, query, options),
+      remove: (id, entityType, entityId) => adapter.remove(id, entityType, entityId),
     };
 
     const summary = await rebuildAllTenantSearchIndexes(
       stack.db,
       stack.registry,
-      stallingWiring,
+      stallingAdapter,
       // Each stalled entity waits the full reindex timeout in turn. It must stay well above a healthy
       // real-Meilisearch reindex, which took over 1 s on a loaded host and was then counted as stalled.
       3_000,
@@ -212,21 +206,18 @@ describe("rebuildAllTenantSearchIndexes (real Meilisearch)", () => {
   });
 
   test("a failing configure for one tenant is counted, skips its reindex and does not stop the other tenants", async () => {
-    const failingConfigureWiring: SearchWiring = {
-      ...wiring,
-      adapter: {
-        ...wiring.adapter,
-        configure: (id, config) =>
-          id === tenantId
-            ? Promise.reject(new Error("meilisearch settings task failed"))
-            : wiring.adapter.configure(id, config),
-      },
+    const failingConfigureAdapter: SearchAdapter = {
+      ...adapter,
+      configure: (id, config) =>
+        id === tenantId
+          ? Promise.reject(new Error("meilisearch settings task failed"))
+          : adapter.configure(id, config),
     };
 
     const summary = await rebuildAllTenantSearchIndexes(
       stack.db,
       stack.registry,
-      failingConfigureWiring,
+      failingConfigureAdapter,
     );
 
     expect(summary.failedConfigures).toBe(1);

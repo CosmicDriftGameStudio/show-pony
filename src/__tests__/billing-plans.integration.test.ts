@@ -1,21 +1,18 @@
 // Integration test for show-pony's billing-plans catalog wiring — the
-// catalog-derived query/checkout/switch/portal flow against a mock "stripe"
-// provider (no real Stripe network calls), plus the raw platform-level
-// create-checkout-session hardening (redirect-origin + unknown-price) that
-// show-pony itself never calls directly (its own Admin-role users go
-// through start-plan-checkout/switch-plan instead).
+// catalog-derived query/checkout/switch/portal flow against a FW stub "stripe"
+// provider (no real Stripe network calls).
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import type {
   BillingPlansResult,
   SubscriptionEvent,
-  SubscriptionProviderPlugin,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
 import {
   BillingPlanActions,
   SubscriptionFoundationHandlers,
   SubscriptionFoundationQueries,
 } from "@cosmicdrift/kumiko-bundled-features/billing-foundation";
+import { createStubSubscriptionProvider } from "@cosmicdrift/kumiko-bundled-features/billing-foundation/testing";
 import { createComplianceProfilesFeature } from "@cosmicdrift/kumiko-bundled-features/compliance-profiles";
 import { configValuesTable } from "@cosmicdrift/kumiko-bundled-features/config";
 import { createSecretsFeature } from "@cosmicdrift/kumiko-bundled-features/secrets";
@@ -28,12 +25,14 @@ import { createTenantLifecycleFeature } from "@cosmicdrift/kumiko-bundled-featur
 import { createTierEngineFeature } from "@cosmicdrift/kumiko-bundled-features/tier-engine";
 import { userTable } from "@cosmicdrift/kumiko-bundled-features/user";
 import { setupAppTestStack } from "@cosmicdrift/kumiko-dev-server/testing";
+import type { ExtraRouteDefinition } from "@cosmicdrift/kumiko-framework/api";
 import { createTenantDb } from "@cosmicdrift/kumiko-framework/db";
-import { defineFeature, type TenantId } from "@cosmicdrift/kumiko-framework/engine";
+import type { TenantId } from "@cosmicdrift/kumiko-framework/engine";
 import { createTestUser } from "@cosmicdrift/kumiko-framework/seeding";
+import { resolveBillingOption } from "@cosmicdrift/kumiko-server-runtime";
 import { type TestStack, unsafePushTables } from "@cosmicdrift/kumiko-testing/stack";
+import { buildShowPonyBillingOption } from "../features/show-pony/billing/billing-option";
 import { createShowPonyBillingFoundationFeature } from "../features/show-pony/billing/plan-catalog";
-import { buildSubscriptionWebhookRoute } from "../features/show-pony/billing/webhook-route";
 import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "../features/show-pony/tier-map";
 import { resolveTier, tierAssignmentTable } from "../features/show-pony/tier-resolver";
 
@@ -43,63 +42,21 @@ const PRICE_TO_TIER: Readonly<Record<string, "starter" | "pro">> = {
   price_starter_sp: "starter",
   price_pro_sp: "pro",
 };
-const PRICE_UNIT_AMOUNTS: Readonly<Record<string, number>> = {
-  price_starter_sp: 900,
-  price_pro_sp: 2900,
-};
-
-const checkoutCalls: Array<{ priceId: string; successUrl: string; cancelUrl: string }> = [];
-const switchCalls: Array<{
-  providerSubscriptionId: string;
-  targetPriceId: string;
-  allowedPriceIds: readonly string[];
-  returnUrl: string;
-}> = [];
-const portalCalls: Array<{ returnUrl: string }> = [];
-
-const mockStripePlugin: SubscriptionProviderPlugin = {
-  verifyAndParseWebhook: async (rawBody) => JSON.parse(rawBody) as SubscriptionEvent,
-  priceToTier: PRICE_TO_TIER,
-  retrievePrices: async (_ctx, priceIds) =>
-    priceIds.flatMap((priceId) => {
-      const unitAmount = PRICE_UNIT_AMOUNTS[priceId];
-      if (unitAmount === undefined) return [];
-      return [
-        {
-          priceId,
-          unitAmount,
-          currency: "eur",
-          interval: "month" as const,
-          intervalCount: 1,
-          active: true,
-          metadata: {},
-        },
-      ];
-    }),
-  createCheckoutSession: async (_ctx, options) => {
-    checkoutCalls.push({
-      priceId: options.priceId,
-      successUrl: options.successUrl,
-      cancelUrl: options.cancelUrl,
-    });
-    return {
-      url: `https://mock.stripe.test/checkout/${options.priceId}`,
-      providerCheckoutId: `cs_mock_${options.priceId}`,
-    };
+function prodWebhookRoute(): ExtraRouteDefinition {
+  const billing = buildShowPonyBillingOption(PRICE_TO_TIER);
+  if (!billing) throw new Error("test fixture: PRICE_TO_TIER must not be empty");
+  return resolveBillingOption(billing, {}).route;
+}
+const stripeStub = createStubSubscriptionProvider({
+  providerName: "stripe",
+  featureName: "test-mock-stripe",
+  plans: [
+    { tier: "starter", priceId: "price_starter_sp", unitAmount: 900 },
+    { tier: "pro", priceId: "price_pro_sp", unitAmount: 2900 },
+  ],
+  overrides: {
+    verifyAndParseWebhook: async (rawBody) => JSON.parse(rawBody) as SubscriptionEvent,
   },
-  createPlanSwitchSession: async (_ctx, options) => {
-    switchCalls.push(options);
-    return { url: `https://mock.stripe.test/switch/${options.targetPriceId}` };
-  },
-  createPortalSession: async (_ctx, options) => {
-    portalCalls.push({ returnUrl: options.returnUrl });
-    return { url: "https://mock.stripe.test/portal" };
-  },
-};
-
-const mockStripeFeature = defineFeature("test-mock-stripe", (r) => {
-  r.requires({ features: ["billing-foundation"] });
-  r.useExtension("subscriptionProvider", "stripe", mockStripePlugin);
 });
 
 let stack: TestStack;
@@ -119,9 +76,9 @@ beforeAll(async () => {
       createTenantLifecycleFeature(),
       createShowPonyBillingFoundationFeature(BASE_URL),
       createSecretsFeature(),
-      mockStripeFeature,
+      stripeStub.feature,
     ],
-    { extraRoutes: [buildSubscriptionWebhookRoute()] },
+    { extraRoutes: [prodWebhookRoute()] },
   );
   await unsafePushTables(stack.db, {
     config_values: configValuesTable,
@@ -135,9 +92,7 @@ beforeAll(async () => {
 afterAll(async () => stack?.cleanup());
 
 beforeEach(() => {
-  checkoutCalls.length = 0;
-  switchCalls.length = 0;
-  portalCalls.length = 0;
+  stripeStub.resetCalls();
 });
 
 async function createTenant(key: string): Promise<TenantId> {
@@ -258,9 +213,9 @@ describe("start-plan-checkout", () => {
       adminUser(tenantId),
     );
 
-    expect(result.url).toBe("https://mock.stripe.test/checkout/price_starter_sp");
-    expect(checkoutCalls).toHaveLength(1);
-    expect(checkoutCalls[0]).toEqual({
+    expect(result.url).toBe(BILLING_PAGE_URL);
+    expect(stripeStub.calls.checkout).toHaveLength(1);
+    expect(stripeStub.calls.checkout[0]).toMatchObject({
       priceId: "price_starter_sp",
       successUrl: BILLING_PAGE_URL,
       cancelUrl: BILLING_PAGE_URL,
@@ -295,75 +250,14 @@ describe("switch-plan", () => {
       adminUser(tenantId),
     );
 
-    expect(result.url).toBe("https://mock.stripe.test/switch/price_pro_sp");
-    expect(switchCalls).toHaveLength(1);
-    expect(switchCalls[0]).toEqual({
+    expect(result.url).toBe(BILLING_PAGE_URL);
+    expect(stripeStub.calls.planSwitch).toHaveLength(1);
+    expect(stripeStub.calls.planSwitch[0]).toMatchObject({
       providerSubscriptionId: `sub_${tenantId}`,
       targetPriceId: "price_pro_sp",
       allowedPriceIds: expect.arrayContaining(["price_starter_sp", "price_pro_sp"]),
       returnUrl: BILLING_PAGE_URL,
     });
-  });
-});
-
-// =============================================================================
-// d/e. security hardening on the raw platform create-checkout-session
-// handler — show-pony's own Admin users never call this directly (they go
-// through start-plan-checkout/switch-plan), but the platform-level guard
-// still applies once a caller has the handler's own required role.
-// =============================================================================
-
-describe("create-checkout-session — hardening (not show-pony's own call path)", () => {
-  test("d. a foreign redirect origin is rejected even for a known priceId", async () => {
-    const tenantId = await createTenant("sp-bp-d1");
-    const error = await stack.http.writeErr(
-      SubscriptionFoundationHandlers.createCheckoutSession,
-      {
-        providerName: "stripe",
-        priceId: "price_starter_sp",
-        successUrl: "https://evil.example/success",
-        cancelUrl: "https://evil.example/cancel",
-      },
-      adminUser(tenantId),
-    );
-    expect(error.httpStatus).toBe(422);
-    expect(error.i18nKey).toBe("billing-foundation.errors.redirectOriginNotAllowed");
-    expect(error.details).toMatchObject({ reason: "redirect_origin_not_allowed" });
-  });
-
-  test("e. an unknown priceId is rejected on an allowed origin", async () => {
-    const tenantId = await createTenant("sp-bp-e1");
-    const error = await stack.http.writeErr(
-      SubscriptionFoundationHandlers.createCheckoutSession,
-      {
-        providerName: "stripe",
-        priceId: "price_unknown_xyz",
-        successUrl: BILLING_PAGE_URL,
-        cancelUrl: BILLING_PAGE_URL,
-      },
-      adminUser(tenantId),
-    );
-    expect(error.httpStatus).toBe(422);
-    expect(error.i18nKey).toBe("billing-foundation.errors.unknownPrice");
-    expect(error.details).toMatchObject({ reason: "unknown_price" });
-  });
-
-  test('d2. mode:"payment" with a real subscription priceId is rejected as unknown_price (no oneOffPriceIds configured)', async () => {
-    const tenantId = await createTenant("sp-bp-d2");
-    const error = await stack.http.writeErr(
-      SubscriptionFoundationHandlers.createCheckoutSession,
-      {
-        providerName: "stripe",
-        priceId: "price_starter_sp",
-        successUrl: BILLING_PAGE_URL,
-        cancelUrl: BILLING_PAGE_URL,
-        mode: "payment",
-      },
-      adminUser(tenantId),
-    );
-    expect(error.httpStatus).toBe(422);
-    expect(error.i18nKey).toBe("billing-foundation.errors.unknownPrice");
-    expect(error.details).toMatchObject({ reason: "unknown_price" });
   });
 });
 
@@ -498,9 +392,9 @@ describe("create-portal-session", () => {
       {},
       adminOnlyUser(tenantId),
     );
-    expect(result.url).toBe("https://mock.stripe.test/portal");
-    expect(portalCalls).toHaveLength(1);
-    expect(portalCalls[0]).toEqual({ returnUrl: BILLING_PAGE_URL });
+    expect(result.url).toBe(BILLING_PAGE_URL);
+    expect(stripeStub.calls.portal).toHaveLength(1);
+    expect(stripeStub.calls.portal[0]).toMatchObject({ returnUrl: BILLING_PAGE_URL });
   });
 
   test("an extra field is rejected by the strict {} schema", async () => {

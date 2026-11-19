@@ -1,24 +1,8 @@
 // Demo-mode notice shared by bin/main.ts (builds it) and the client bundles (read it back).
-// Mirrors the FW `GET /demo-mode` payload; kept local because the client bundles must not
-// depend on the server runtime package.
 
-export type DemoAccountRole = "admin" | "sysadmin";
+import type { DemoAccountRole, DemoModePayload } from "@cosmicdrift/kumiko-types/demo-mode-types";
 
 type LocalizedText = Readonly<Record<string, string>>;
-
-export type DemoModePayload = {
-  readonly readOnly: boolean;
-  readonly notice: {
-    readonly text?: LocalizedText;
-    readonly links?: readonly { readonly label: LocalizedText; readonly href: string }[];
-    readonly accounts: readonly {
-      readonly role: DemoAccountRole;
-      readonly label?: LocalizedText;
-      readonly email: string;
-      readonly password: string;
-    }[];
-  };
-};
 
 export const DEMO_ACCOUNT_LABELS: Record<DemoAccountRole, { de: string; en: string }> = {
   admin: { de: "Host (Events-Workspace)", en: "Host (Events workspace)" },

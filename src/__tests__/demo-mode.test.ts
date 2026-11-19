@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import type { DemoModePayload } from "@cosmicdrift/kumiko-types/demo-mode-types";
 import {
   buildDemoNotice,
   DEMO_ACCOUNT_LABELS,
-  type DemoModePayload,
   findDemoLinkHref,
   HOST_LOGIN_LINK_LABEL,
   TUTORIAL_LINK_LABEL,

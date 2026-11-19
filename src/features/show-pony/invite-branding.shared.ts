@@ -1,3 +1,4 @@
+import { isOneOf, isPlainObject } from "@cosmicdrift/kumiko-types/type-guards";
 export const HERO_STYLES = ["immersive", "split"] as const;
 export type HeroStyle = (typeof HERO_STYLES)[number];
 
@@ -27,13 +28,15 @@ export const EMPTY_INVITE_BRANDING: InviteBranding = {
 };
 
 export function parseHeroStyle(raw: string): HeroStyle {
-  return (HERO_STYLES as readonly string[]).includes(raw) ? (raw as HeroStyle) : "immersive";
+  return isOneOf(HERO_STYLES, raw) ? raw : "immersive";
 }
 
 export function coerceInviteBranding(value: unknown): InviteBranding {
-  if (typeof value !== "object" || value === null) return EMPTY_INVITE_BRANDING;
-  const source = value as Record<string, unknown>;
-  const str = (key: string) => (typeof source[key] === "string" ? (source[key] as string) : "");
+  if (!isPlainObject(value)) return EMPTY_INVITE_BRANDING;
+  const str = (key: string): string => {
+    const field = value[key];
+    return typeof field === "string" ? field : "";
+  };
   return {
     title: str("title"),
     description: str("description"),

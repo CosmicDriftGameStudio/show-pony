@@ -6,6 +6,7 @@
 // can still read, Admin can do both.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   createConfigAccessorFactory,
@@ -33,6 +34,7 @@ beforeAll(async () => {
   stack = await setupAppTestStack(
     [
       createConfigFeature(),
+      createBrandingFeature(),
       createManagedPagesFeature({ resolveApexTenant: async () => null }),
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,

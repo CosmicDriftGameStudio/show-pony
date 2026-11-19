@@ -2,14 +2,17 @@
 // (<key>.show-pony.<domain>/e/<slug>) and shows it plus the RSVP form.
 // Anonymous — no login, no account.
 
-import { useLocale, useTranslation } from "@cosmicdrift/kumiko-renderer";
-import { type ReactElement, useEffect, useState } from "react";
-import { fetchDemoMode } from "../demo-mode-client";
-import type { InviteBranding } from "../features/show-pony/invite-branding.shared";
-import { fetchEventBySlug, fetchInviteBranding, type PublicEvent } from "./api";
+import { useLocale, usePrimitives, useQuery, useTranslation } from "@cosmicdrift/kumiko-renderer";
+import { useDemoMode } from "@cosmicdrift/kumiko-renderer/web";
+import { type ReactElement, useEffect } from "react";
+import {
+  coerceInviteBranding,
+  INVITE_BRANDING_QUERY_QN,
+} from "../features/show-pony/invite-branding.shared";
 import { DemoPublicNotice } from "./DemoPublicNotice";
-import { InviteHero, inviteBrandingCssVars } from "./InviteHero";
+import { accentCssVars, InviteHero } from "./InviteHero";
 import { icsHref } from "./ics";
+import type { PublicEvent } from "./public-event";
 import { RsvpForm } from "./RsvpForm";
 
 function slugFromPath(): string {
@@ -17,41 +20,18 @@ function slugFromPath(): string {
   return segments[segments.length - 1] ?? "";
 }
 
-type Load =
-  | { kind: "loading" }
-  | { kind: "missing" }
-  | { kind: "ready"; event: PublicEvent; branding: InviteBranding };
-
-// The gradient itself lives once, in styles.css's `.sp-invite-split-page`
-// fallback rule — it reads var(--color-primary)/var(--color-ring), so
-// setting just these two custom properties is enough for the CSS rule to
-// paint the same gradient with the tenant's accent, no JS-side duplicate.
-function splitInviteCanvasStyle(accent: string): Record<string, string> {
-  return {
-    "--color-primary": accent,
-    "--color-ring": accent,
-  };
-}
-
 export function EventPage(): ReactElement {
   const t = useTranslation();
   const appLocale = useLocale().locale();
-  const [load, setLoad] = useState<Load>({ kind: "loading" });
-  const [readOnly, setReadOnly] = useState(false);
+  const slug = slugFromPath();
+  const eventQuery = useQuery<PublicEvent | null>("showpony:query:event:by-slug", { slug });
+  const brandingQuery = useQuery<unknown>(INVITE_BRANDING_QUERY_QN, {});
+  const demo = useDemoMode();
+  const { Link } = usePrimitives();
 
-  // biome-ignore lint/plugin: anonymous public bundle — one-shot fetch by slug, no dispatcher
-  useEffect(() => {
-    void fetchDemoMode().then((demo) => setReadOnly(demo.readOnly));
-    const slug = slugFromPath();
-    void Promise.all([fetchEventBySlug(slug), fetchInviteBranding()])
-      .then(([event, branding]) =>
-        setLoad(event ? { kind: "ready", event, branding } : { kind: "missing" }),
-      )
-      .catch(() => setLoad({ kind: "missing" }));
-  }, []);
-
-  const splitPage = load.kind === "ready" && load.branding.heroStyle === "split";
-  const splitAccent = load.kind === "ready" ? load.branding.accentColor : "";
+  const branding = coerceInviteBranding(brandingQuery.data);
+  const splitPage = eventQuery.data !== null && branding.heroStyle === "split";
+  const splitAccent = eventQuery.data !== null ? branding.accentColor : "";
 
   // Syncs split-page body classes + tenant accent CSS vars; the gradient
   // itself comes from the CSS fallback rule (styles.css) keyed off these
@@ -60,23 +40,23 @@ export function EventPage(): ReactElement {
   useEffect(() => {
     if (!splitPage || !splitAccent) return;
     document.body.classList.add("show-pony-public", "sp-invite-split-page");
-    document.body.style.setProperty("--color-primary", splitAccent);
-    document.body.style.setProperty("--color-ring", splitAccent);
+    const vars = Object.entries(accentCssVars(splitAccent) ?? {});
+    for (const [name, value] of vars) document.body.style.setProperty(name, value);
     return () => {
       document.body.classList.remove("show-pony-public", "sp-invite-split-page");
-      document.body.style.removeProperty("--color-primary");
-      document.body.style.removeProperty("--color-ring");
+      for (const [name] of vars) document.body.style.removeProperty(name);
     };
   }, [splitPage, splitAccent]);
 
-  if (load.kind === "loading") {
+  if (eventQuery.loading || brandingQuery.loading) {
     return (
       <main className="mx-auto max-w-2xl p-8 text-[var(--color-muted-foreground)] show-pony-public">
         …
       </main>
     );
   }
-  if (load.kind === "missing") {
+  const event = eventQuery.data;
+  if (eventQuery.error !== null || event === null) {
     return (
       <main className="mx-auto max-w-2xl p-8 show-pony-public">
         {t("showpony:public.event.missing")}
@@ -84,16 +64,12 @@ export function EventPage(): ReactElement {
     );
   }
 
-  const { event, branding } = load;
   const when = new Date(event.startsAt).toLocaleString(appLocale, {
     dateStyle: "long",
     timeStyle: "short",
   });
   const guestLimit = event.guestLimit !== null && event.guestLimit > 0 ? event.guestLimit : null;
-  const canvasStyle =
-    splitPage && splitAccent
-      ? splitInviteCanvasStyle(splitAccent)
-      : inviteBrandingCssVars(branding);
+  const canvasStyle = accentCssVars(branding.accentColor);
 
   return (
     <div
@@ -123,13 +99,13 @@ export function EventPage(): ReactElement {
                 {event.description}
               </p>
             ) : null}
-            <a
+            <Link
               href={icsHref(event)}
               download={`${event.slug}.ics`}
-              className={`${event.description ? "mt-5 " : ""}inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] hover:underline`}
+              className={`${event.description ? "mt-5 " : ""}inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] underline-offset-auto hover:underline`}
             >
               {t("showpony:public.event.add-to-calendar")}
-            </a>
+            </Link>
           </section>
 
           <section className="sp-invite-card rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] p-6">
@@ -139,7 +115,7 @@ export function EventPage(): ReactElement {
             <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
               {t("showpony:public.rsvp.subheading")}
             </p>
-            {readOnly ? <DemoPublicNotice /> : <RsvpForm eventId={event.id} />}
+            {demo?.readOnly ? <DemoPublicNotice demo={demo} /> : <RsvpForm eventId={event.id} />}
           </section>
         </div>
       </main>

@@ -46,8 +46,8 @@ describe("mail variable translations", () => {
   test("every variable has a de and en label", () => {
     for (const [name] of entries) {
       const entry = translationOf(mailVariableLabel(name));
-      expect(entry?.de, name).toBeTruthy();
-      expect(entry?.en, name).toBeTruthy();
+      expect(entry?.de, name).toMatch(/\S/);
+      expect(entry?.en, name).toMatch(/\S/);
     }
   });
 
@@ -56,8 +56,8 @@ describe("mail variable translations", () => {
       if (variable.type !== "text" && variable.type !== "richText") continue;
       expect(variable.example, name).toBe(mailVariableExample(name));
       const entry = translationOf(mailVariableExample(name));
-      expect(entry?.de, name).toBeTruthy();
-      expect(entry?.en, name).toBeTruthy();
+      expect(entry?.de, name).toMatch(/\S/);
+      expect(entry?.en, name).toMatch(/\S/);
     }
   });
 

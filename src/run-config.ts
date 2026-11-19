@@ -7,6 +7,8 @@
 
 import { createAdminShellFeature } from "@cosmicdrift/kumiko-bundled-features/admin-shell";
 import { createAuthFoundationFeature } from "@cosmicdrift/kumiko-bundled-features/auth-foundation";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
+import { createCapOverviewFeature } from "@cosmicdrift/kumiko-bundled-features/cap-overview";
 import {
   createChannelEmailFeature,
   createInMemoryTransport,
@@ -36,12 +38,16 @@ import { createDocumentDesignerFeature } from "@cosmicdrift/kumiko-document-desi
 import type { FeatureDefinition } from "@cosmicdrift/kumiko-framework/engine";
 import { localeDe } from "@cosmicdrift/kumiko-locale-de";
 import { appShellFeature } from "./features/app-shell/feature";
-import { createShowPonyBillingFoundationFeature } from "./features/show-pony/billing/plan-catalog";
+import {
+  BILLING_ROLES,
+  createShowPonyBillingFoundationFeature,
+} from "./features/show-pony/billing/plan-catalog";
+import { SHOWPONY_CAP_SPECS } from "./features/show-pony/cap-specs";
 import { showPonyFeature } from "./features/show-pony/feature";
 import { TENANT_EDITABLE_TEMPLATES } from "./features/show-pony/tenant-editable-templates";
-import { DEFAULT_TIER, SHOWPONY_TIER_MAP } from "./features/show-pony/tier-map";
+import { DEFAULT_TIER, SHOWPONY_TIER_MAP, TIER_NAMES } from "./features/show-pony/tier-map";
 import { showPonyLegalLayout } from "./marketing/layouts/legal";
-import { resolveSubdomainPageTenant, showPonyHostRoutingOptions } from "./tenant-routing";
+import { showPonyHostRoutingOptions } from "./tenant-routing";
 
 /** Overview screens + nav only — app-shell owns workspaces host/platform. */
 const adminShellFeature = createAdminShellFeature({
@@ -73,10 +79,8 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     ...composeRendererStack({ templateResolver: { tenantEditable: TENANT_EDITABLE_TEMPLATES } }),
     createDocumentDesignerFeature({ access: templateEditAccess(TENANT_EDITABLE_TEMPLATES) }),
     createLegalPagesFeature({ wrapLayout: showPonyLegalLayout, terms: true }),
-    createManagedPagesFeature({
-      resolveApexTenant: resolveSubdomainPageTenant,
-      allowCustomCss: false,
-    }),
+    createBrandingFeature(),
+    createManagedPagesFeature({}),
     createDeliveryFeature(),
     // Guests are addressed by the email they typed, so no user lookup exists.
     // The in-memory transport keeps the demo behaviour: no RSVP mail leaves the process.
@@ -89,11 +93,17 @@ export function buildAppFeatures(routing: AppFeaturesRouting): FeatureDefinition
     createComplianceProfilesFeature(),
     createTenantLifecycleFeature(),
     createShowPonyBillingFoundationFeature(routing.appBaseUrl ?? `https://${routing.baseDomain}`),
+    // Usage sits on the Admin-only billing screen; TenantAdmin manages events, not the plan.
+    createCapOverviewFeature({
+      caps: SHOWPONY_CAP_SPECS,
+      tiers: TIER_NAMES,
+      usageVisibleTo: BILLING_ROLES,
+    }),
     createSecretsFeature(),
     createMetricsFeature({ metrics: DEFAULT_METRICS }),
     createSystemMetricsFeature({ metrics: DEFAULT_METRICS }),
-    // No nav option: app-shell files the platform entry for SystemAdmin. No host entry, show-pony has no tenant probes.
-    createReadinessFeature(),
+    // System check nav is collected into the platform workspace; show-pony has no tenant probes.
+    createReadinessFeature({ nav: { adminArea: "platform" } }),
     adminShellFeature,
     appShellFeature,
     showPonyFeature,

@@ -16,13 +16,15 @@
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import { createConfigResolver } from "@cosmicdrift/kumiko-bundled-features/config";
 import { legalContentSeed } from "@cosmicdrift/kumiko-bundled-features/legal-pages";
-import { createSubscriptionStripeFeature } from "@cosmicdrift/kumiko-bundled-features/subscription-stripe";
 import { runDevApp } from "@cosmicdrift/kumiko-dev-server";
 import { createE2eSeedRoutes } from "@cosmicdrift/kumiko-dev-server/testing";
-import { resolveKmsWiring } from "@cosmicdrift/kumiko-framework/crypto";
+import { createMeilisearchAdapter } from "@cosmicdrift/kumiko-framework/search/meilisearch";
 import { isE2eSeedingEnabled } from "@cosmicdrift/kumiko-testing/e2e/seed-route";
 import appConfig from "../kumiko.config";
-import { buildSubscriptionWebhookRoute } from "../src/features/show-pony/billing/webhook-route";
+import {
+  buildShowPonyBillingOption,
+  SHOW_PONY_KMS_MODE,
+} from "../src/features/show-pony/billing/billing-option";
 import { priceToTierFromEnv } from "../src/features/show-pony/tier-map";
 import legalContent from "../src/generated/legal-content.json";
 import { createShowPonyDevHostDispatch } from "../src/host-dispatch";
@@ -31,8 +33,8 @@ import { buildAppFeatures, resolveBaseDomainFromEnv } from "../src/run-config";
 import { ACME_TENANT, DEMO_TENANT, seedSysadmin } from "./demo-tenants";
 import { createE2eBillingStubFeature, e2eBillingExtraSeeders } from "./e2e-billing-stub";
 import { buildShowPonyExtraContext } from "./extra-context";
-import { heroAssetRoute } from "./prod-options";
-import { createMeilisearchWiring, rebuildAllTenantSearchIndexes } from "./search-wiring";
+import { buildDemoModeOption, heroAssetRoute } from "./prod-options";
+import { rebuildAllTenantSearchIndexes } from "./search-wiring";
 
 const BASE_DOMAIN = resolveBaseDomainFromEnv(process.env);
 const port = Number.parseInt(process.env["PORT"] ?? "4180", 10);
@@ -43,14 +45,11 @@ const emailTransport = createInMemoryTransport();
 
 await renderAllMarketingPages(DEV_ORIGIN);
 
-const priceToTier = priceToTierFromEnv(process.env);
-const stripeApiKey = process.env["STRIPE_API_KEY"];
-const stripeWebhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
-// Without any configured price billing-plans resolves enabled:false and checkout rejects with
-// feature_disabled; the webhook route would drop every event anyway.
-const hasConfiguredPrices = Object.keys(priceToTier).length > 0;
+const billing = isE2eSeedingEnabled()
+  ? undefined
+  : buildShowPonyBillingOption(priceToTierFromEnv(process.env));
 
-const searchWiring = createMeilisearchWiring({
+const searchAdapter = createMeilisearchAdapter({
   url: process.env["MEILI_URL"] ?? "http://localhost:17700",
   apiKey: process.env["MEILI_MASTER_KEY"] ?? "kumiko-dev-key",
   // The dev Meilisearch on 17700 is shared with other apps using the default
@@ -58,31 +57,15 @@ const searchWiring = createMeilisearchWiring({
   indexPrefix: "showpony_dev_",
 });
 
-const kmsWiring = resolveKmsWiring(process.env, {
-  logPrefix: "[show-pony]",
-  plaintextReason: "local dev without subject-keys KMS",
-});
-if ("allowPlaintextPii" in kmsWiring) {
-  console.warn(`[show-pony] PII IS STORED IN PLAINTEXT — ${kmsWiring.allowPlaintextPii}`);
-}
-
 await runDevApp({
-  ...("kms" in kmsWiring ? { kms: kmsWiring.kms, blindIndexKey: kmsWiring.blindIndexKey } : {}),
+  kmsMode: SHOW_PONY_KMS_MODE,
+  demoMode: buildDemoModeOption({ DEMO_READ_ONLY: process.env["DEMO_READ_ONLY"] }, BASE_DOMAIN),
+  ...(billing && { billing }),
   features: [
     ...buildAppFeatures({ baseDomain: BASE_DOMAIN, appBaseUrl: DEV_ORIGIN, emailTransport }),
     // E2E screenshot runs stub Stripe out (no real Stripe network access) —
     // bin/main.ts never imports this stub, so prod always gets the real plugin.
-    ...(isE2eSeedingEnabled()
-      ? [createE2eBillingStubFeature()]
-      : hasConfiguredPrices
-        ? [
-            createSubscriptionStripeFeature({
-              ...(stripeWebhookSecret && { webhookSecret: stripeWebhookSecret }),
-              ...(stripeApiKey && { apiKey: stripeApiKey }),
-              priceToTier,
-            }),
-          ]
-        : []),
+    ...(isE2eSeedingEnabled() ? [createE2eBillingStubFeature()] : []),
   ],
   port,
   clientEntries: [
@@ -95,11 +78,7 @@ await runDevApp({
   hostDispatch: createShowPonyDevHostDispatch(BASE_DOMAIN),
   ...(appConfig.validateBootOptions && { validateBootOptions: appConfig.validateBootOptions }),
   watchDirs: ["./src", "./bin"],
-  extraContext: buildShowPonyExtraContext({
-    baseDomain: BASE_DOMAIN,
-    configResolver,
-    searchAdapter: searchWiring.adapter,
-  }),
+  extraContext: buildShowPonyExtraContext({ configResolver, searchAdapter }),
   auth: {
     admin: {
       email: "admin@show-pony.local",
@@ -128,7 +107,7 @@ await runDevApp({
       // stays wired, so search requests fail at runtime until Meilisearch is
       // reachable. Sweeps all tenants (not just DEMO/ACME).
       try {
-        await rebuildAllTenantSearchIndexes(stack.db, stack.registry, searchWiring);
+        await rebuildAllTenantSearchIndexes(stack.db, stack.registry, searchAdapter);
       } catch (err) {
         console.warn(`[search] search index rebuild failed: ${err}`);
       }
@@ -151,7 +130,6 @@ await runDevApp({
           mailOutbox: emailTransport,
         })
       : []),
-    ...(!isE2eSeedingEnabled() && hasConfiguredPrices ? [buildSubscriptionWebhookRoute()] : []),
     heroAssetRoute,
   ],
 });

@@ -9,7 +9,8 @@ import {
 import { LOGO_ICON } from "../../brand-mark";
 import { localeRouter } from "../locale-routes";
 
-export type Lang = "de" | "en";
+export const LANGS = ["de", "en"] as const;
+export type Lang = (typeof LANGS)[number];
 
 export const SITE_NAME = "Show Pony";
 export const TWITTER_SITE = "@kumiko_rocks";

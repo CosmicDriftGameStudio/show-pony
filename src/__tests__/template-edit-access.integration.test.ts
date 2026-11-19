@@ -21,6 +21,7 @@ import { hostRoutingAnonymousAccess } from "./host-routing-stack";
 const configResolver = createConfigResolver();
 
 const tenantAdmin = createTestUser({ id: 71, roles: ["TenantAdmin"], tenantId: testTenantId(71) });
+const adminOnly = createTestUser({ id: 73, roles: ["Admin"], tenantId: testTenantId(73) });
 const plainUser = createTestUser({ id: 72, roles: ["User"], tenantId: testTenantId(72) });
 const NOT_EDITABLE_SLUG = "showpony:notify:other-mail";
 const OWN_BODY = "<p>Eigen</p>";
@@ -75,6 +76,22 @@ describe("template edit access", () => {
     expect(stored.content).toBe(OWN_BODY);
   });
 
+  test("an Admin-only host edits the RSVP confirmation mail", async () => {
+    const written = await stack.http.writeOk<{ id: string }>(
+      TemplateResolverHandlers.upsertTenant,
+      mailPayload(RSVP_CONFIRMATION_TYPE),
+      adminOnly,
+    );
+    const stored = await stack.http.queryOk<TemplateRow>(
+      TemplateResolverQueries.findById,
+      { id: written.id },
+      adminOnly,
+    );
+    expect(stored.slug).toBe(RSVP_CONFIRMATION_TYPE);
+    expect(stored.scope).toBe("tenant");
+    expect(stored.tenantId).toBe(adminOnly.tenantId);
+  });
+
   test("a TenantAdmin is refused on any other template", async () => {
     const error = await stack.http.writeErr(
       TemplateResolverHandlers.upsertTenant,
@@ -84,7 +101,7 @@ describe("template edit access", () => {
     expect(error.i18nKey).toBe("templateResolver.errors.templateNotTenantEditable");
   });
 
-  test("a user without the TenantAdmin role cannot edit the RSVP confirmation mail", async () => {
+  test("a user without a host admin role cannot edit the RSVP confirmation mail", async () => {
     const error = await stack.http.writeErr(
       TemplateResolverHandlers.upsertTenant,
       mailPayload(RSVP_CONFIRMATION_TYPE),

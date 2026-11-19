@@ -2,12 +2,14 @@
 
 import {
   access,
+  defineEntityDeleteHandler,
   defineEntityDetailHandler,
   defineEntityListHandler,
   defineFeature,
 } from "@cosmicdrift/kumiko-framework/engine";
 import { eventBySlugQuery } from "./handlers/event-by-slug.query";
 import {
+  deleteEventRsvps,
   eventCreateHandler,
   eventDeleteHandler,
   eventDetailHandler,
@@ -16,7 +18,6 @@ import {
 } from "./handlers/event-handlers";
 import { inviteBrandingQuery } from "./handlers/invite-branding.query";
 import { rsvpSubmitHandler } from "./handlers/rsvp-submit.write";
-import { usageQuery } from "./handlers/usage.query";
 import { showPonyTranslations } from "./i18n";
 import { INVITE_BRANDING_KEYS } from "./invite-branding";
 import {
@@ -28,55 +29,63 @@ import { registerShowPonyNav } from "./register/nav";
 import { registerShowPonyScreens } from "./register/screens";
 import { eventEntity, rsvpEntity } from "./schema";
 
-// RSVP rows carry guest PII (name/email/note) — unlike event CRUD, this is
+// RSVP rows carry guest PII (name/email/note) — unlike event CRUD, reading and deleting are
 // restricted to the admin roles (TenantAdmin/Admin/SystemAdmin) rather than
 // openToAll: show-pony has no dedicated organizer role yet, and role checks
 // have no hierarchy, so every admin role is listed explicitly.
-const rsvpReadAccess = { access: { roles: access.admin } } as const;
+const rsvpAdminAccess = { access: { roles: access.admin } } as const;
 
 export { eventEntity, rsvpEntity, rsvpTable } from "./schema";
 
 export const showPonyFeature = defineFeature("showpony", (r) => {
-  r.requires({ features: ["config", "managed-pages", "delivery", "channel-email"] });
+  r.requires({ features: ["config", "branding", "managed-pages", "delivery", "channel-email"] });
 
   r.config({ keys: INVITE_BRANDING_KEYS });
 
   r.translations({ keys: showPonyTranslations });
 
-  r.notification(RSVP_CONFIRMATION_NOTIFICATION, {
+  r.notification({
+    name: RSVP_CONFIRMATION_NOTIFICATION,
     variables: RSVP_CONFIRMATION_VARIABLES,
     localizedTemplate: rsvpConfirmationTemplate,
   });
 
-  r.entity({ name: "event", ...eventEntity });
+  r.entity(eventEntity);
   r.writeHandler(eventCreateHandler);
   r.writeHandler(eventUpdateHandler);
   r.writeHandler(eventDeleteHandler);
+  r.hook({ type: "preDelete", target: "event:delete", handler: deleteEventRsvps });
   r.queryHandler(eventListHandler);
   r.queryHandler(eventDetailHandler);
 
   r.queryHandler(eventBySlugQuery);
   r.queryHandler(inviteBrandingQuery);
 
-  r.entity({ name: "rsvp", ...rsvpEntity });
+  r.entity(rsvpEntity);
   r.writeHandler(rsvpSubmitHandler);
 
   r.queryHandler(
     defineEntityListHandler("rsvp", rsvpEntity, {
-      ...rsvpReadAccess,
+      ...rsvpAdminAccess,
       description:
         "Lists the tenant's guest replies with name, email, attendance status (yes, no or maybe) and number of additional guests; Admin only, because the rows carry guest personal data.",
     }),
   );
   r.queryHandler(
     defineEntityDetailHandler("rsvp", rsvpEntity, {
-      ...rsvpReadAccess,
+      ...rsvpAdminAccess,
       description:
         "Reads one guest reply by id with the guest's name, email, note, attendance status (yes, no or maybe) and number of additional guests; Admin only, because these fields are guest personal data.",
     }),
   );
 
-  r.queryHandler(usageQuery);
+  r.writeHandler(
+    defineEntityDeleteHandler("rsvp", rsvpEntity, {
+      ...rsvpAdminAccess,
+      description:
+        "Deletes one guest reply of the tenant by id, for example spam or a duplicate; Admin only, because the row carries guest personal data.",
+    }),
+  );
 
   registerShowPonyScreens(r);
   registerShowPonyNav(r);

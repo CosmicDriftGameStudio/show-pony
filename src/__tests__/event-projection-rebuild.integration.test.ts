@@ -9,6 +9,7 @@
 // caught the bug 0002 fixed before it needed a migration at all.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { createBrandingFeature } from "@cosmicdrift/kumiko-bundled-features/branding";
 import { createInMemoryTransport } from "@cosmicdrift/kumiko-bundled-features/channel-email";
 import {
   createConfigAccessorFactory,
@@ -34,6 +35,7 @@ beforeAll(async () => {
   stack = await setupAppTestStack(
     [
       createConfigFeature(),
+      createBrandingFeature(),
       managedPages,
       ...deliveryFeatures(createInMemoryTransport()),
       showPonyFeature,

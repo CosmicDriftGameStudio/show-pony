@@ -96,8 +96,16 @@ export const showPonyTranslations = {
   "showpony:public.rsvp.name-placeholder": { de: "Dein Name", en: "Your name" },
   "showpony:public.rsvp.email": { de: "E-Mail (optional)", en: "Email (optional)" },
   "showpony:public.rsvp.email-placeholder": {
-    de: "E-Mail (optional, für die Bestätigung)",
-    en: "Email (optional, for your confirmation)",
+    de: "Für deine Bestätigung",
+    en: "For your confirmation",
+  },
+  "showpony:public.rsvp.note": {
+    de: "Nachricht an den Gastgeber (optional)",
+    en: "Note for the host (optional)",
+  },
+  "showpony:public.rsvp.note-placeholder": {
+    de: "z. B. vegetarisch, komme später",
+    en: "e.g. vegetarian, arriving late",
   },
   "showpony:public.rsvp.status.yes": { de: "Ich komme", en: "I'm in" },
   "showpony:public.rsvp.status.maybe": { de: "Vielleicht", en: "Maybe" },
@@ -130,10 +138,8 @@ export const showPonyTranslations = {
   "showpony:demo.public.host-link": { de: "Host-Login", en: "Host login" },
   "showpony:demo.public.tutorial-link": { de: "Tutorial", en: "Tutorial" },
 
-  "showpony:caps.usageTitle": { de: "Verbrauch", en: "Usage" },
   "showpony:caps.events": { de: "Events", en: "Events" },
   "showpony:caps.guests": { de: "RSVPs", en: "RSVPs" },
-  "showpony:caps.unlimited": { de: "(unbegrenzt)", en: "(unlimited)" },
   "showpony:caps.upgradeHint": {
     de: "Limit erreicht, wähle oben einen größeren Tarif.",
     en: "Limit reached, pick a larger plan above.",
@@ -160,8 +166,16 @@ export const showPonyTranslations = {
     en: "Event limit reached — upgrade your plan.",
   },
   "showpony:errors.guestLimitReached": {
-    de: "Die Gästeliste ist voll.",
-    en: "The guest list is full.",
+    de: "Der Veranstalter hat sein Antwort-Kontingent ausgeschöpft.",
+    en: "The host has used up their reply quota.",
+  },
+  "showpony:errors.eventFull": {
+    de: "Die Gästeliste dieses Events ist voll.",
+    en: "This event's guest list is full.",
+  },
+  "showpony:errors.rsvpAlreadySubmitted": {
+    de: "Für diese E-Mail-Adresse liegt schon eine Antwort vor. Für Änderungen wende dich an den Gastgeber.",
+    en: "There is already a reply for this email address. Contact the host to change it.",
   },
   // Names the mail template in the document designer: the feature group and one entry per notification.
   "showpony:feature.label": { de: "Show Pony", en: "Show Pony" },

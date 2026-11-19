@@ -1,4 +1,4 @@
-import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/managed-pages";
+import { BRANDING_QN } from "@cosmicdrift/kumiko-bundled-features/branding";
 import {
   access,
   type ConfigEditScreenDefinition,

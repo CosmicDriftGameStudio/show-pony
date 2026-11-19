@@ -4,7 +4,7 @@
 
 import { Temporal } from "@cosmicdrift/kumiko-types/temporal";
 
-import type { PublicEvent } from "./api";
+import type { PublicEvent } from "./public-event";
 
 // ISO → ICS timestamp: 2026-07-18T18:00:00.000Z → 20260718T180000Z
 function icsDate(iso: string): string {

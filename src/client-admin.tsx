@@ -4,11 +4,10 @@
 
 import { adminShellClient } from "@cosmicdrift/kumiko-bundled-features/admin-shell/web";
 import { auditClient } from "@cosmicdrift/kumiko-bundled-features/audit/web";
-import {
-  AuthShellProvider,
-  emailPasswordClient,
-} from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
+import { emailPasswordClient } from "@cosmicdrift/kumiko-bundled-features/auth-email-password/web";
 import { billingFoundationClient } from "@cosmicdrift/kumiko-bundled-features/billing-foundation/web";
+import { brandingClient } from "@cosmicdrift/kumiko-bundled-features/branding/web";
+import { capOverviewClient } from "@cosmicdrift/kumiko-bundled-features/cap-overview/web";
 import { configClient } from "@cosmicdrift/kumiko-bundled-features/config/web";
 import { jobsClient } from "@cosmicdrift/kumiko-bundled-features/jobs/web";
 import { managedPagesClient } from "@cosmicdrift/kumiko-bundled-features/managed-pages/web";
@@ -16,31 +15,19 @@ import { tenantClient } from "@cosmicdrift/kumiko-bundled-features/tenant/web";
 import { tierEngineClient } from "@cosmicdrift/kumiko-bundled-features/tier-engine/web";
 import { documentDesignerClient } from "@cosmicdrift/kumiko-document-designer/web";
 import { localeDeClient } from "@cosmicdrift/kumiko-locale-de/web";
-import type { ClientFeatureDefinition } from "@cosmicdrift/kumiko-renderer/web";
 import { createKumikoApp } from "@cosmicdrift/kumiko-renderer/web";
 import { AppShell } from "./app/shell";
 import { DemoLoginHint } from "./demo-mode-ui";
-import { appShellClient } from "./features/app-shell/client";
+import { appShellClient } from "./features/app-shell/web";
 import { showPonyClient } from "./features/show-pony/web";
 import { MarketingShell } from "./marketing/MarketingShell";
-
-const marketingAuthShell: ClientFeatureDefinition = {
-  name: "marketing-auth-shell",
-  gates: [
-    ({ children }) => (
-      <AuthShellProvider shell={(card) => <MarketingShell>{card}</MarketingShell>}>
-        {children}
-      </AuthShellProvider>
-    ),
-  ],
-};
 
 createKumikoApp({
   shell: AppShell,
   clientFeatures: [
     localeDeClient(),
-    marketingAuthShell,
     emailPasswordClient({
+      authShell: (card) => <MarketingShell>{card}</MarketingShell>,
       loginScreenProps: { subtitle: <DemoLoginHint /> },
     }),
     configClient({
@@ -62,11 +49,13 @@ createKumikoApp({
     adminShellClient(),
     appShellClient,
     billingFoundationClient(),
+    capOverviewClient(),
     tenantClient(),
     tierEngineClient(),
     auditClient(),
     jobsClient(),
     managedPagesClient(),
+    brandingClient(),
     documentDesignerClient({ appLocales: ["en", "de"] }),
     showPonyClient,
   ],

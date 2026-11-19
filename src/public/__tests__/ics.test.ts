@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import type { PublicEvent } from "../api";
 import { buildIcs } from "../ics";
+import type { PublicEvent } from "../public-event";
 
 const EVENT: PublicEvent = {
   id: "e1",

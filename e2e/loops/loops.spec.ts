@@ -5,12 +5,11 @@
 
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { expect, test } from "@cosmicdrift/kumiko-testing/e2e";
+import { expect, test, waitForWrite } from "@cosmicdrift/kumiko-testing/e2e";
 import { DEMO_HOST_PRESENTED_EMAIL, seedDemoHostTenant } from "../seeds/demo-host";
 import { seedLoopEvent, seedLoopGuest } from "../seeds/loops";
 import { APEX_URL, publicEventUrl, publicOrigin } from "./env";
 import { HOST_VIEWPORT, PUBLIC_VIEWPORT, recordGif, recordMultiPartGif } from "./recorder";
-import { waitForWrite } from "./wait-for-write";
 
 const LOOP_DIR =
   process.env["LOOP_DIR"] ?? resolve(import.meta.dirname, "../../docs/loops/show-pony");

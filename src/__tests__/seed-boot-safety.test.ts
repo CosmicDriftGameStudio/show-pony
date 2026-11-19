@@ -82,16 +82,28 @@ describe("demo seed boot-safety", () => {
 
   test("inline QN literals for invite/branding config match the real constants (drift pin)", async () => {
     const { INVITE_BRANDING_QN } = await import("../features/show-pony/invite-branding.shared");
-    const { BRANDING_QN } = await import("@cosmicdrift/kumiko-bundled-features/managed-pages");
-    const source = readFileSync(
-      join(import.meta.dirname, "../../seeds/2026-06-28-demo-event-rsvps.ts"),
-      "utf8",
-    );
+    const { BRANDING_QN } = await import("@cosmicdrift/kumiko-bundled-features/branding");
+    const source = readFileSync(SEED_PATH, "utf8");
     expect(source).toContain(`INVITE_HERO_IMAGE_URL = "${INVITE_BRANDING_QN.heroImageUrl}"`);
     expect(source).toContain(`INVITE_HERO_STYLE = "${INVITE_BRANDING_QN.heroStyle}"`);
     expect(source).toContain(`BRANDING_TITLE = "${BRANDING_QN.title}"`);
     expect(source).toContain(`BRANDING_DESCRIPTION = "${BRANDING_QN.description}"`);
     expect(source).toContain(`BRANDING_ACCENT_COLOR = "${BRANDING_QN.accentColor}"`);
+  });
+
+  test("ctx.db as the callable runner the prod boot passes (postgres.js transaction) is accepted", async () => {
+    const calls: string[] = [];
+    const ctx = {
+      // The es-ops runner hands over its transaction handle: a tagged-template function carrying .unsafe.
+      db: Object.assign(async () => [], { unsafe: async () => [] }),
+      systemWriteAs: async (handler: string) => {
+        calls.push(handler);
+        return { isSuccess: true as const, data: { id: "evt" } };
+      },
+    } as unknown as SeedCtx;
+
+    await expect(seed.run(ctx)).resolves.toBeUndefined();
+    expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(3);
   });
 
   test("rsvp:submit failures do NOT crash the seed — best-effort guests", async () => {
@@ -112,7 +124,7 @@ describe("demo seed boot-safety", () => {
     expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
   });
 
-  test("patches rooftop description when slug already exists (idempotent retry)", async () => {
+  test("patches rooftop description and submits no RSVPs when slug already exists (idempotent retry)", async () => {
     const calls: string[] = [];
     const ctx = {
       db: {
@@ -140,7 +152,7 @@ describe("demo seed boot-safety", () => {
     await expect(seed.run(ctx)).resolves.toBeUndefined();
     expect(calls.filter((c) => c === "showpony:write:event:create")).toHaveLength(0);
     expect(calls.filter((c) => c === "showpony:write:event:update")).toHaveLength(2);
-    expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(4);
+    expect(calls.filter((c) => c === "showpony:write:rsvp:submit")).toHaveLength(0);
   });
 
   test("event:update and branding failures do NOT crash — best-effort patch", async () => {

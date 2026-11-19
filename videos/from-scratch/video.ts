@@ -1,12 +1,10 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { renderWelcomeBanner } from "@cosmicdrift/kumiko-dev-server";
+import { type E2eSeededTenant, expect, mailCapture } from "@cosmicdrift/kumiko-testing/e2e";
 import {
   defineVideo,
-  type E2eSeededTenant,
   editorStage,
-  expect,
-  mailCapture,
   type StageOutputLine,
   type StagePreview,
   type StagePreviewCard,
@@ -14,7 +12,7 @@ import {
   terminalStage,
   type VideoSceneContext,
   type VideoVoice,
-} from "@cosmicdrift/kumiko-testing/e2e";
+} from "@cosmicdrift/kumiko-testing/video";
 import { propertyOf } from "@cosmicdrift/kumiko-types/type-guards";
 import type { Locator, Page } from "@playwright/test";
 import { SQL } from "bun";
@@ -995,7 +993,7 @@ export default defineVideo({
       do: async (page, ctx) => {
         const preview = await appPreview(page, ctx, {
           url: `${APEX_URL}/host/billing`,
-          highlights: (p) => [p.getByTestId("showpony-usage-panel")],
+          highlights: (p) => [p.getByTestId("cap-cards-panel")],
           cards: [
             {
               title: "Limits without extra code",
