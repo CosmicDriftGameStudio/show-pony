@@ -3,6 +3,12 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.425.1] - 2026-11-20
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.425.0-next-20261120062848-a44b984 → 0.425.1
+
 ## [0.425.0-next-20261120062848-a44b984] - 2026-11-20
 
 ### Changed
