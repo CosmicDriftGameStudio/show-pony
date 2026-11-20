@@ -1,6 +1,6 @@
 {
-  "version": "0.425.0-next-20261119155716-cdbf386",
-  "appliedAt": "2026-11-19T16:24:40.134905Z",
+  "version": "0.425.1",
+  "appliedAt": "2026-11-20T09:59:59.979266Z",
   "codemods": [
     {
       "version": "0.372.0",
@@ -3568,6 +3568,14 @@
       "resolution": "not-applicable",
       "reason": "no file in the app mentions \"kumiko-guards guards\", \"Test-ES-Row-Writes Guard\" (kumiko-upgrade affects scan)",
       "resolvedAt": "2026-11-19T16:24:40.094991Z"
+    },
+    {
+      "id": "0.425.0:24d4699a",
+      "version": "0.425.0",
+      "title": "_refs carry money and located timestamps in the detail shape",
+      "resolution": "not-applicable",
+      "reason": "no file in the app mentions \"_refs\", \"enrichWithReferences\", \"enrichRowWithReferences\", \"EagerloadedRow\" (kumiko-upgrade affects scan)",
+      "resolvedAt": "2026-11-20T06:43:38.990931Z"
     }
   ]
 }

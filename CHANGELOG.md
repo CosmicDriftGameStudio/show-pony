@@ -3,6 +3,26 @@
 Kumiko upgrades of this app, written by `kumiko-upgrade --apply`. Newest first.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.425.1] - 2026-11-20
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.425.0-next-20261120062848-a44b984 → 0.425.1
+
+## [0.425.0-next-20261120062848-a44b984] - 2026-11-20
+
+### Changed
+
+- @cosmicdrift/kumiko-*: 0.425.0-next-20261119155716-cdbf386 → 0.425.0-next-20261120062848-a44b984
+
+### Breaking
+
+- 0.425.0 · _refs carry money and located timestamps in the detail shape
+
+### Manual migrations
+
+- [not-applicable] 0.425.0:24d4699a · 0.425.0 · _refs carry money and located timestamps in the detail shape
+
 ## [0.425.0-next-20261119155716-cdbf386] - 2026-11-19
 
 ### Changed
